@@ -1,0 +1,100 @@
+---
+/**
+ * ThemeToggle Component - WenderMedia Astro Components
+ *
+ * Dark/Light mode toggle with localStorage persistence
+ * Features: system preference detection, accessible labels
+ */
+
+export interface Props {
+  class?: string;
+}
+
+const { class: className = '' } = Astro.props;
+---
+
+<button
+  type="button"
+  class:list={[
+    "theme-toggle p-2 rounded-md text-gray-500 hover:text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors",
+    className
+  ]}
+  aria-label="Toggle theme"
+  title="Toggle theme"
+  data-theme-toggle
+>
+  <svg class="w-5 h-5 theme-icon-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+  </svg>
+  <svg class="w-5 h-5 theme-icon-dark hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+  </svg>
+</button>
+
+<script>
+  function initThemeToggle() {
+    const toggles = document.querySelectorAll('[data-theme-toggle]');
+
+    function getTheme(): string {
+      if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
+        return localStorage.getItem('theme') as string;
+      }
+      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        return 'dark';
+      }
+      return 'light';
+    }
+
+    function setTheme(theme: string): void {
+      toggles.forEach(toggle => {
+        const lightIcon = toggle.querySelector('.theme-icon-light');
+        const darkIcon = toggle.querySelector('.theme-icon-dark');
+
+        if (theme === 'light') {
+          document.documentElement.classList.remove('dark');
+          lightIcon?.classList.remove('hidden');
+          darkIcon?.classList.add('hidden');
+          toggle.setAttribute('aria-label', 'Switch to dark theme');
+        } else {
+          document.documentElement.classList.add('dark');
+          lightIcon?.classList.add('hidden');
+          darkIcon?.classList.remove('hidden');
+          toggle.setAttribute('aria-label', 'Switch to light theme');
+        }
+      });
+
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('theme', theme);
+      }
+    }
+
+    // Initialize theme
+    setTheme(getTheme());
+
+    // Add click handlers
+    toggles.forEach(toggle => {
+      toggle.addEventListener('click', () => {
+        const currentTheme = getTheme();
+        const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+        setTheme(newTheme);
+      });
+    });
+
+    // Listen for system theme changes
+    if (window.matchMedia) {
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+        if (!localStorage.getItem('theme')) {
+          setTheme(e.matches ? 'dark' : 'light');
+        }
+      });
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initThemeToggle);
+  } else {
+    initThemeToggle();
+  }
+
+  document.addEventListener('astro:page-load', initThemeToggle);
+</script>

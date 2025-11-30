@@ -1,0 +1,277 @@
+---
+/**
+ * Hero Component - WenderMedia Astro Components
+ *
+ * Full-screen hero with optional GSAP animations, parallax, and CTA
+ * Features: scroll indicator, overlay, responsive text sizing
+ */
+
+export interface CTA {
+  label: string;
+  href: string;
+}
+
+export interface Props {
+  title: string;
+  subtitle?: string;
+  description?: string;
+  image: string;
+  imageAlt: string;
+  ctaPrimary?: CTA;
+  ctaSecondary?: CTA;
+  overlay?: boolean;
+  parallax?: boolean;
+  scrollIndicator?: boolean;
+  scrollLabel?: string;
+  minHeight?: string;
+  class?: string;
+}
+
+const {
+  title,
+  subtitle,
+  description,
+  image,
+  imageAlt,
+  ctaPrimary,
+  ctaSecondary,
+  overlay = true,
+  parallax = true,
+  scrollIndicator = true,
+  scrollLabel = 'Scroll',
+  minHeight = '100vh',
+  class: className = '',
+} = Astro.props;
+---
+
+<section
+  class:list={["hero relative flex items-center justify-center overflow-hidden", className]}
+  style={`min-height: ${minHeight};`}
+  data-hero
+  data-parallax={parallax}
+>
+  <!-- Background Image -->
+  <div class="absolute inset-0 z-0" data-hero-bg>
+    <img
+      src={image}
+      alt={imageAlt}
+      class="hero-image w-full h-full object-cover"
+      data-hero-image
+      loading="eager"
+      fetchpriority="high"
+    />
+
+    <!-- Overlay -->
+    {overlay && (
+      <div class="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80" />
+    )}
+  </div>
+
+  <!-- Content -->
+  <div class="relative z-10 container mx-auto px-4 text-center">
+    <div class="max-w-5xl mx-auto space-y-8">
+      <!-- Subtitle -->
+      {subtitle && (
+        <div data-hero-subtitle class="opacity-0">
+          <p class="text-sm md:text-base uppercase tracking-widest font-medium opacity-70">
+            {subtitle}
+          </p>
+        </div>
+      )}
+
+      <!-- Main Title -->
+      <h1
+        data-hero-title
+        class="text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-bold leading-none tracking-tight opacity-0"
+      >
+        {title}
+      </h1>
+
+      <!-- Description -->
+      {description && (
+        <div data-hero-description class="opacity-0">
+          <p class="text-lg md:text-xl lg:text-2xl max-w-3xl mx-auto leading-relaxed opacity-80">
+            {description}
+          </p>
+        </div>
+      )}
+
+      <!-- CTA Buttons -->
+      {(ctaPrimary || ctaSecondary) && (
+        <div
+          data-hero-cta
+          class="flex flex-col sm:flex-row items-center justify-center gap-4 md:gap-6 mt-12 opacity-0"
+        >
+          {ctaPrimary && (
+            <a
+              href={ctaPrimary.href}
+              class="inline-flex items-center gap-2 px-8 py-4 bg-white text-black font-semibold rounded-lg hover:bg-opacity-90 transition-all transform hover:scale-105"
+            >
+              {ctaPrimary.label}
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </a>
+          )}
+
+          {ctaSecondary && (
+            <a
+              href={ctaSecondary.href}
+              class="inline-flex items-center gap-2 px-8 py-4 border-2 border-white text-white font-semibold rounded-lg hover:bg-white hover:text-black transition-all"
+            >
+              {ctaSecondary.label}
+            </a>
+          )}
+        </div>
+      )}
+    </div>
+
+    <!-- Scroll Indicator -->
+    {scrollIndicator && (
+      <div
+        data-hero-scroll
+        class="absolute bottom-12 left-1/2 -translate-x-1/2 opacity-0"
+      >
+        <button
+          class="flex flex-col items-center gap-2 opacity-70 hover:opacity-100 transition-colors animate-bounce"
+          aria-label="Scroll to see more"
+          data-scroll-to-content
+        >
+          <span class="text-xs uppercase tracking-wider">{scrollLabel}</span>
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          </svg>
+        </button>
+      </div>
+    )}
+  </div>
+</section>
+
+<script>
+  async function initHero() {
+    const hero = document.querySelector('[data-hero]');
+    if (!hero) return;
+
+    const useParallax = hero.hasAttribute('data-parallax');
+    const heroImage = hero.querySelector('[data-hero-image]');
+    const heroSubtitle = hero.querySelector('[data-hero-subtitle]');
+    const heroTitle = hero.querySelector('[data-hero-title]');
+    const heroDescription = hero.querySelector('[data-hero-description]');
+    const heroCta = hero.querySelector('[data-hero-cta]');
+    const heroScroll = hero.querySelector('[data-hero-scroll]');
+    const scrollButton = hero.querySelector('[data-scroll-to-content]');
+
+    // Try to use GSAP if available
+    try {
+      const gsapModule = await import('gsap');
+      const gsap = gsapModule.default || gsapModule;
+      const { ScrollTrigger } = await import('gsap/ScrollTrigger');
+
+      gsap.registerPlugin(ScrollTrigger);
+
+      const tl = gsap.timeline({
+        defaults: { ease: 'power3.out' },
+      });
+
+      tl.fromTo(
+        heroImage,
+        { scale: 1.2, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 1.5, ease: 'power2.out' }
+      );
+
+      if (heroSubtitle) {
+        tl.fromTo(heroSubtitle, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8 }, '-=1');
+      }
+
+      if (heroTitle) {
+        tl.fromTo(heroTitle, { y: 50, opacity: 0 }, { y: 0, opacity: 1, duration: 1 }, '-=0.6');
+      }
+
+      if (heroDescription) {
+        tl.fromTo(heroDescription, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8 }, '-=0.5');
+      }
+
+      if (heroCta) {
+        tl.fromTo(heroCta, { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8 }, '-=0.4');
+      }
+
+      if (heroScroll) {
+        tl.fromTo(heroScroll, { y: 20, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8 }, '-=0.4');
+      }
+
+      if (useParallax && heroImage) {
+        gsap.to(heroImage, {
+          y: () => window.innerHeight * 0.5,
+          ease: 'none',
+          scrollTrigger: {
+            trigger: hero,
+            start: 'top top',
+            end: 'bottom top',
+            scrub: true,
+          },
+        });
+      }
+
+      gsap.to([heroTitle, heroDescription, heroCta, heroScroll], {
+        opacity: 0,
+        y: -50,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: hero,
+          start: 'top top',
+          end: '50% top',
+          scrub: true,
+        },
+      });
+    } catch {
+      // Fallback: show elements without GSAP
+      [heroSubtitle, heroTitle, heroDescription, heroCta, heroScroll].forEach(el => {
+        if (el) el.classList.remove('opacity-0');
+      });
+    }
+
+    // Scroll button functionality
+    if (scrollButton) {
+      scrollButton.addEventListener('click', () => {
+        const heroHeight = hero.getBoundingClientRect().height;
+        window.scrollTo({
+          top: heroHeight,
+          behavior: 'smooth',
+        });
+      });
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initHero);
+  } else {
+    initHero();
+  }
+
+  document.addEventListener('astro:page-load', initHero);
+</script>
+
+<style>
+  .hero-image {
+    will-change: transform;
+  }
+
+  @keyframes bounce {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  .animate-bounce {
+    animation: bounce 2s ease-in-out infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-bounce {
+      animation: none;
+    }
+  }
+</style>

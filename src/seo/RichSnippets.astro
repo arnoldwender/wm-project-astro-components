@@ -1,0 +1,281 @@
+---
+/**
+ * RichSnippets Component - WenderMedia Astro Components
+ *
+ * Schema.org structured data generator for various content types
+ * Supports: Service, Product, Article, FAQ, Review, Organization, LocalBusiness
+ */
+
+export interface ServiceData {
+  name: string;
+  description: string;
+  serviceType?: string;
+  provider?: string;
+  areaServed?: string;
+  price?: string;
+  priceCurrency?: string;
+  rating?: { value: number; count: number };
+}
+
+export interface ProductData {
+  name: string;
+  description: string;
+  image?: string;
+  brand?: string;
+  price: number;
+  priceCurrency?: string;
+  availability?: 'InStock' | 'OutOfStock' | 'PreOrder';
+  rating?: { value: number; count: number };
+}
+
+export interface ArticleData {
+  headline: string;
+  description: string;
+  image?: string;
+  author: string;
+  publisher?: string;
+  publisherLogo?: string;
+  datePublished: string;
+  dateModified?: string;
+  url: string;
+}
+
+export interface FAQData {
+  questions: Array<{ question: string; answer: string }>;
+}
+
+export interface ReviewData {
+  itemType?: string;
+  itemName: string;
+  rating: number;
+  author: string;
+  body: string;
+  datePublished: string;
+}
+
+export interface OrganizationData {
+  name: string;
+  url: string;
+  logo?: string;
+  description?: string;
+  email?: string;
+  phone?: string;
+  address?: {
+    street?: string;
+    city?: string;
+    postalCode?: string;
+    country?: string;
+  };
+  sameAs?: string[];
+}
+
+export interface LocalBusinessData extends OrganizationData {
+  type?: string;
+  openingHours?: string[];
+  priceRange?: string;
+  geo?: { latitude: number; longitude: number };
+}
+
+export interface Props {
+  type: 'service' | 'product' | 'article' | 'faq' | 'review' | 'organization' | 'localBusiness';
+  data: ServiceData | ProductData | ArticleData | FAQData | ReviewData | OrganizationData | LocalBusinessData;
+}
+
+const { type, data } = Astro.props;
+
+function generateSchema() {
+  switch (type) {
+    case 'service':
+      const serviceData = data as ServiceData;
+      return {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "name": serviceData.name,
+        "description": serviceData.description,
+        "provider": serviceData.provider ? {
+          "@type": "Organization",
+          "name": serviceData.provider
+        } : undefined,
+        "areaServed": serviceData.areaServed,
+        "serviceType": serviceData.serviceType,
+        "offers": {
+          "@type": "Offer",
+          "availability": "https://schema.org/InStock",
+          "price": serviceData.price || "Contact for pricing",
+          "priceCurrency": serviceData.priceCurrency || "EUR"
+        },
+        "aggregateRating": serviceData.rating ? {
+          "@type": "AggregateRating",
+          "ratingValue": serviceData.rating.value,
+          "reviewCount": serviceData.rating.count,
+          "bestRating": "5",
+          "worstRating": "1"
+        } : undefined
+      };
+
+    case 'product':
+      const productData = data as ProductData;
+      return {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        "name": productData.name,
+        "description": productData.description,
+        "image": productData.image,
+        "brand": productData.brand ? {
+          "@type": "Brand",
+          "name": productData.brand
+        } : undefined,
+        "offers": {
+          "@type": "Offer",
+          "price": productData.price,
+          "priceCurrency": productData.priceCurrency || "EUR",
+          "availability": `https://schema.org/${productData.availability || 'InStock'}`
+        },
+        "aggregateRating": productData.rating ? {
+          "@type": "AggregateRating",
+          "ratingValue": productData.rating.value,
+          "reviewCount": productData.rating.count
+        } : undefined
+      };
+
+    case 'article':
+      const articleData = data as ArticleData;
+      return {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": articleData.headline,
+        "description": articleData.description,
+        "image": articleData.image,
+        "author": {
+          "@type": "Person",
+          "name": articleData.author
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": articleData.publisher || articleData.author,
+          "logo": articleData.publisherLogo ? {
+            "@type": "ImageObject",
+            "url": articleData.publisherLogo
+          } : undefined
+        },
+        "datePublished": articleData.datePublished,
+        "dateModified": articleData.dateModified || articleData.datePublished,
+        "mainEntityOfPage": {
+          "@type": "WebPage",
+          "@id": articleData.url
+        }
+      };
+
+    case 'faq':
+      const faqData = data as FAQData;
+      return {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": faqData.questions.map(q => ({
+          "@type": "Question",
+          "name": q.question,
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": q.answer
+          }
+        }))
+      };
+
+    case 'review':
+      const reviewData = data as ReviewData;
+      return {
+        "@context": "https://schema.org",
+        "@type": "Review",
+        "itemReviewed": {
+          "@type": reviewData.itemType || "Service",
+          "name": reviewData.itemName
+        },
+        "reviewRating": {
+          "@type": "Rating",
+          "ratingValue": reviewData.rating,
+          "bestRating": "5"
+        },
+        "author": {
+          "@type": "Person",
+          "name": reviewData.author
+        },
+        "reviewBody": reviewData.body,
+        "datePublished": reviewData.datePublished
+      };
+
+    case 'organization':
+      const orgData = data as OrganizationData;
+      return {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": orgData.name,
+        "url": orgData.url,
+        "logo": orgData.logo,
+        "description": orgData.description,
+        "email": orgData.email,
+        "telephone": orgData.phone,
+        "address": orgData.address ? {
+          "@type": "PostalAddress",
+          "streetAddress": orgData.address.street,
+          "addressLocality": orgData.address.city,
+          "postalCode": orgData.address.postalCode,
+          "addressCountry": orgData.address.country
+        } : undefined,
+        "sameAs": orgData.sameAs
+      };
+
+    case 'localBusiness':
+      const bizData = data as LocalBusinessData;
+      return {
+        "@context": "https://schema.org",
+        "@type": bizData.type || "LocalBusiness",
+        "name": bizData.name,
+        "url": bizData.url,
+        "logo": bizData.logo,
+        "description": bizData.description,
+        "email": bizData.email,
+        "telephone": bizData.phone,
+        "priceRange": bizData.priceRange,
+        "openingHours": bizData.openingHours,
+        "address": bizData.address ? {
+          "@type": "PostalAddress",
+          "streetAddress": bizData.address.street,
+          "addressLocality": bizData.address.city,
+          "postalCode": bizData.address.postalCode,
+          "addressCountry": bizData.address.country
+        } : undefined,
+        "geo": bizData.geo ? {
+          "@type": "GeoCoordinates",
+          "latitude": bizData.geo.latitude,
+          "longitude": bizData.geo.longitude
+        } : undefined,
+        "sameAs": bizData.sameAs
+      };
+
+    default:
+      return null;
+  }
+}
+
+const schema = generateSchema();
+
+// Remove undefined properties
+function cleanSchema(obj: any): any {
+  if (Array.isArray(obj)) {
+    return obj.map(cleanSchema);
+  } else if (obj && typeof obj === 'object') {
+    return Object.fromEntries(
+      Object.entries(obj)
+        .filter(([_, v]) => v !== undefined)
+        .map(([k, v]) => [k, cleanSchema(v)])
+    );
+  }
+  return obj;
+}
+
+const cleanedSchema = schema ? cleanSchema(schema) : null;
+---
+
+{cleanedSchema && (
+  <script type="application/ld+json" set:html={JSON.stringify(cleanedSchema)} />
+)}

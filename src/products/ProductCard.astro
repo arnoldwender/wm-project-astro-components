@@ -1,0 +1,243 @@
+---
+/**
+ * ProductCard Component - WenderMedia Astro Components
+ *
+ * Full-featured product/affiliate card with ratings, pricing, badges
+ * Features: discount calculation, validity dates, trust indicators
+ */
+
+export interface Props {
+  title: string;
+  description: string;
+  partner?: string;
+  originalPrice: number;
+  salePrice?: number;
+  rating?: number;
+  reviewCount?: number;
+  image: string;
+  imageAlt?: string;
+  link: string;
+  trackingId?: string;
+  validUntil?: Date;
+  features?: string[];
+  exclusive?: boolean;
+  featured?: boolean;
+  currency?: string;
+  locale?: string;
+  buyLabel?: string;
+  expiredLabel?: string;
+  class?: string;
+}
+
+const {
+  title,
+  description,
+  partner,
+  originalPrice,
+  salePrice,
+  rating,
+  reviewCount,
+  image,
+  imageAlt = title,
+  link,
+  trackingId,
+  validUntil,
+  features = [],
+  exclusive = false,
+  featured = false,
+  currency = 'EUR',
+  locale = 'en-US',
+  buyLabel = 'Buy Now',
+  expiredLabel = 'Expired',
+  class: className = '',
+} = Astro.props;
+
+const currentPrice = salePrice ?? originalPrice;
+const savings = salePrice ? originalPrice - salePrice : 0;
+const savingsPercentage = salePrice ? Math.round((savings / originalPrice) * 100) : 0;
+const isValid = !validUntil || new Date() <= validUntil;
+
+function formatPrice(price: number): string {
+  return new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency: currency
+  }).format(price);
+}
+
+const formattedCurrentPrice = formatPrice(currentPrice);
+const formattedOriginalPrice = formatPrice(originalPrice);
+const formattedSavings = formatPrice(savings);
+
+const fullStars = rating ? Math.floor(rating) : 0;
+const hasHalfStar = rating ? rating % 1 !== 0 : false;
+const emptyStars = rating ? 5 - Math.ceil(rating) : 5;
+---
+
+<article class:list={["bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group", featured ? 'ring-2 ring-blue-500' : '', className]}>
+  <!-- Image Container -->
+  <div class="relative">
+    <img
+      src={image}
+      alt={imageAlt}
+      class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+      loading="lazy"
+    />
+
+    <!-- Badges -->
+    <div class="absolute top-3 left-3 flex flex-col gap-2">
+      {exclusive && (
+        <span class="bg-purple-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
+          EXCLUSIVE
+        </span>
+      )}
+      {featured && (
+        <span class="bg-blue-600 text-white px-2 py-1 rounded-full text-xs font-semibold">
+          TOP DEAL
+        </span>
+      )}
+      {savingsPercentage > 0 && (
+        <span class="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-semibold">
+          -{savingsPercentage}%
+        </span>
+      )}
+    </div>
+
+    <!-- Expired Overlay -->
+    {!isValid && (
+      <div class="absolute inset-0 bg-black/50 flex items-center justify-center">
+        <span class="bg-red-500 text-white px-4 py-2 rounded-lg font-semibold">
+          {expiredLabel}
+        </span>
+      </div>
+    )}
+  </div>
+
+  <div class="p-6">
+    <!-- Partner & Validity -->
+    <div class="flex items-center justify-between mb-2">
+      {partner && (
+        <span class="text-sm text-gray-600 font-medium">{partner}</span>
+      )}
+      {validUntil && (
+        <div class="flex items-center text-sm text-gray-500">
+          <svg class="h-4 w-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <span>Until {validUntil.toLocaleDateString(locale)}</span>
+        </div>
+      )}
+    </div>
+
+    <!-- Title -->
+    <h3 class="text-lg font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
+      {title}
+    </h3>
+
+    <!-- Description -->
+    <p class="text-gray-600 text-sm mb-4 line-clamp-2">
+      {description}
+    </p>
+
+    <!-- Rating -->
+    {rating && (
+      <div class="flex items-center mb-4">
+        <div class="flex items-center mr-2">
+          {Array.from({ length: fullStars }).map(() => (
+            <svg class="h-4 w-4 text-yellow-400 fill-current" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+            </svg>
+          ))}
+          {hasHalfStar && (
+            <svg class="h-4 w-4 text-yellow-400 fill-current opacity-50" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+            </svg>
+          )}
+          {Array.from({ length: emptyStars }).map(() => (
+            <svg class="h-4 w-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"></path>
+            </svg>
+          ))}
+        </div>
+        <span class="text-sm text-gray-600">
+          {rating} {reviewCount && `(${reviewCount.toLocaleString(locale)} reviews)`}
+        </span>
+      </div>
+    )}
+
+    <!-- Features -->
+    {features.length > 0 && (
+      <div class="mb-4">
+        <ul class="space-y-1">
+          {features.slice(0, 3).map((feature) => (
+            <li class="text-sm text-gray-600 flex items-center">
+              <div class="w-1.5 h-1.5 bg-blue-500 rounded-full mr-2 flex-shrink-0"></div>
+              {feature}
+            </li>
+          ))}
+          {features.length > 3 && (
+            <li class="text-sm text-blue-600 font-medium">
+              +{features.length - 3} more features
+            </li>
+          )}
+        </ul>
+      </div>
+    )}
+
+    <!-- Pricing -->
+    <div class="mb-6">
+      <div class="flex items-baseline gap-2 mb-1">
+        <span class="text-2xl font-bold text-gray-900">
+          {formattedCurrentPrice}
+        </span>
+        {salePrice && originalPrice > salePrice && (
+          <span class="text-lg text-gray-500 line-through">
+            {formattedOriginalPrice}
+          </span>
+        )}
+      </div>
+      {savings > 0 && (
+        <p class="text-sm text-green-600 font-medium">
+          You save {formattedSavings} ({savingsPercentage}%)
+        </p>
+      )}
+    </div>
+
+    <!-- CTA Button -->
+    <a
+      href={link}
+      target="_blank"
+      rel="noopener noreferrer"
+      class:list={[
+        "w-full py-3 px-4 rounded-lg font-semibold transition-all duration-200 flex items-center justify-center gap-2",
+        isValid
+          ? 'bg-blue-600 hover:bg-blue-700 text-white hover:shadow-lg transform hover:-translate-y-0.5'
+          : 'bg-gray-300 text-gray-500 cursor-not-allowed pointer-events-none'
+      ]}
+      data-tracking-id={trackingId}
+    >
+      <span>{isValid ? buyLabel : expiredLabel}</span>
+      {isValid && (
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+        </svg>
+      )}
+    </a>
+
+    <!-- Trust indicators -->
+    <div class="mt-4 flex items-center justify-center text-xs text-gray-500">
+      <svg class="h-3 w-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+      </svg>
+      <span>Secure redirect • No hidden costs</span>
+    </div>
+  </div>
+</article>
+
+<style>
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>

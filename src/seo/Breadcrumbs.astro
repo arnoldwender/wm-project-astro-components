@@ -1,0 +1,94 @@
+---
+/**
+ * Breadcrumbs Component - WenderMedia Astro Components
+ *
+ * Semantic navigation with Schema.org BreadcrumbList
+ * Accessible with proper ARIA attributes
+ */
+
+export interface BreadcrumbItem {
+  name: string;
+  url: string;
+}
+
+export interface Props {
+  items: BreadcrumbItem[];
+  class?: string;
+  separator?: 'chevron' | 'slash' | 'arrow';
+}
+
+const { items, class: className = '', separator = 'chevron' } = Astro.props;
+
+if (!items || items.length <= 1) return null;
+
+const separatorIcons = {
+  chevron: 'M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z',
+  slash: 'M12 3L7 21',
+  arrow: 'M5 12h14m-7-7l7 7-7 7',
+};
+---
+
+<nav aria-label="Breadcrumb" class:list={["px-4 py-3 border-b", className]}>
+  <div class="max-w-7xl mx-auto">
+    <ol class="flex items-center space-x-2 text-sm" itemscope itemtype="https://schema.org/BreadcrumbList">
+      {items.map((item, index) => (
+        <li
+          class="flex items-center"
+          itemprop="itemListElement"
+          itemscope
+          itemtype="https://schema.org/ListItem"
+        >
+          {index > 0 && (
+            <svg
+              class="w-4 h-4 opacity-50 mx-2"
+              fill={separator === 'chevron' ? 'currentColor' : 'none'}
+              stroke={separator !== 'chevron' ? 'currentColor' : 'none'}
+              stroke-width={separator !== 'chevron' ? '2' : '0'}
+              viewBox="0 0 20 20"
+              aria-hidden="true"
+            >
+              <path
+                fill-rule={separator === 'chevron' ? 'evenodd' : undefined}
+                clip-rule={separator === 'chevron' ? 'evenodd' : undefined}
+                stroke-linecap={separator !== 'chevron' ? 'round' : undefined}
+                stroke-linejoin={separator !== 'chevron' ? 'round' : undefined}
+                d={separatorIcons[separator]}
+              />
+            </svg>
+          )}
+
+          {index === items.length - 1 ? (
+            <span
+              class="font-medium"
+              aria-current="page"
+              itemprop="name"
+            >
+              {item.name}
+            </span>
+          ) : (
+            <a
+              href={item.url}
+              class="opacity-70 hover:opacity-100 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 rounded-md px-1 py-1"
+              itemprop="item"
+            >
+              <span itemprop="name">{item.name}</span>
+            </a>
+          )}
+
+          <meta itemprop="position" content={String(index + 1)} />
+        </li>
+      ))}
+    </ol>
+  </div>
+</nav>
+
+<script type="application/ld+json" set:html={JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": items.map((item, index) => ({
+    "@type": "ListItem",
+    "position": index + 1,
+    "name": item.name,
+    "item": item.url
+  }))
+})} />

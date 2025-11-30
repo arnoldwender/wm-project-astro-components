@@ -1,0 +1,226 @@
+---
+/**
+ * FontResizer Component - WenderMedia Astro Components
+ *
+ * WCAG/BFSG compliant text scaling (75%-150%)
+ * Features: localStorage persistence, keyboard shortcuts, screen reader announcements
+ */
+
+export interface Props {
+  label?: string;
+  minSize?: number;
+  maxSize?: number;
+  defaultSize?: number;
+  step?: number;
+  class?: string;
+}
+
+const {
+  label = 'Font Size:',
+  minSize = 75,
+  maxSize = 150,
+  defaultSize = 100,
+  step = 12.5,
+  class: className = '',
+} = Astro.props;
+---
+
+<div class:list={["font-resizer-widget", className]} data-font-resizer data-min={minSize} data-max={maxSize} data-default={defaultSize} data-step={step}>
+  <div class="flex items-center space-x-2 bg-white border border-gray-300 rounded-md p-2 shadow-sm">
+    <span class="text-sm font-medium text-gray-700 mr-2">{label}</span>
+
+    <button
+      type="button"
+      class="font-decrease p-1 rounded-md text-gray-600 hover:text-gray-800 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      aria-label="Decrease font size"
+      title="Decrease font size"
+    >
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+      </svg>
+      <span class="sr-only">A-</span>
+    </button>
+
+    <span class="font-size-display text-sm font-medium text-gray-900 min-w-[3rem] text-center">{defaultSize}%</span>
+
+    <button
+      type="button"
+      class="font-increase p-1 rounded-md text-gray-600 hover:text-gray-800 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      aria-label="Increase font size"
+      title="Increase font size"
+    >
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+      </svg>
+      <span class="sr-only">A+</span>
+    </button>
+
+    <button
+      type="button"
+      class="font-reset ml-2 px-2 py-1 text-xs bg-gray-100 text-gray-700 rounded hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+      aria-label="Reset font size to default"
+      title="Reset font size"
+    >
+      Reset
+    </button>
+  </div>
+</div>
+
+<script>
+  function initFontResizer() {
+    const widgets = document.querySelectorAll('[data-font-resizer]');
+
+    widgets.forEach(widget => {
+      const MIN_SIZE = parseFloat(widget.getAttribute('data-min') || '75');
+      const MAX_SIZE = parseFloat(widget.getAttribute('data-max') || '150');
+      const DEFAULT_SIZE = parseFloat(widget.getAttribute('data-default') || '100');
+      const STEP = parseFloat(widget.getAttribute('data-step') || '12.5');
+
+      const decreaseBtn = widget.querySelector('.font-decrease') as HTMLButtonElement;
+      const increaseBtn = widget.querySelector('.font-increase') as HTMLButtonElement;
+      const resetBtn = widget.querySelector('.font-reset') as HTMLButtonElement;
+      const display = widget.querySelector('.font-size-display') as HTMLSpanElement;
+
+      let currentSize = DEFAULT_SIZE;
+
+      function getSavedSize(): number {
+        if (typeof localStorage !== 'undefined') {
+          const saved = localStorage.getItem('fontSize');
+          if (saved) {
+            const parsed = parseFloat(saved);
+            if (parsed >= MIN_SIZE && parsed <= MAX_SIZE) {
+              return parsed;
+            }
+          }
+        }
+        return DEFAULT_SIZE;
+      }
+
+      function saveSize(size: number): void {
+        if (typeof localStorage !== 'undefined') {
+          localStorage.setItem('fontSize', size.toString());
+        }
+      }
+
+      function applySize(size: number): void {
+        const percentage = size / 100;
+        document.documentElement.style.fontSize = `${percentage}rem`;
+
+        if (display) display.textContent = `${size}%`;
+        if (decreaseBtn) decreaseBtn.disabled = size <= MIN_SIZE;
+        if (increaseBtn) increaseBtn.disabled = size >= MAX_SIZE;
+        if (resetBtn) resetBtn.disabled = size === DEFAULT_SIZE;
+
+        announceChange(size);
+      }
+
+      function announceChange(size: number): void {
+        let liveRegion = document.getElementById('font-size-announcement');
+        if (!liveRegion) {
+          liveRegion = document.createElement('div');
+          liveRegion.id = 'font-size-announcement';
+          liveRegion.setAttribute('aria-live', 'polite');
+          liveRegion.setAttribute('aria-atomic', 'true');
+          liveRegion.className = 'sr-only';
+          document.body.appendChild(liveRegion);
+        }
+        liveRegion.textContent = `Font size changed to ${size} percent`;
+      }
+
+      function increase(): void {
+        if (currentSize < MAX_SIZE) {
+          currentSize = Math.min(currentSize + STEP, MAX_SIZE);
+          applySize(currentSize);
+          saveSize(currentSize);
+        }
+      }
+
+      function decrease(): void {
+        if (currentSize > MIN_SIZE) {
+          currentSize = Math.max(currentSize - STEP, MIN_SIZE);
+          applySize(currentSize);
+          saveSize(currentSize);
+        }
+      }
+
+      function reset(): void {
+        currentSize = DEFAULT_SIZE;
+        applySize(currentSize);
+        saveSize(currentSize);
+      }
+
+      // Initialize
+      currentSize = getSavedSize();
+      applySize(currentSize);
+
+      increaseBtn?.addEventListener('click', increase);
+      decreaseBtn?.addEventListener('click', decrease);
+      resetBtn?.addEventListener('click', reset);
+    });
+
+    // Global keyboard shortcuts
+    function handleKeyboard(e: KeyboardEvent): void {
+      if ((e.ctrlKey || e.metaKey) && (e.key === '+' || e.key === '=')) {
+        e.preventDefault();
+        document.querySelector('.font-increase')?.dispatchEvent(new Event('click'));
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === '-') {
+        e.preventDefault();
+        document.querySelector('.font-decrease')?.dispatchEvent(new Event('click'));
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key === '0') {
+        e.preventDefault();
+        document.querySelector('.font-reset')?.dispatchEvent(new Event('click'));
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyboard);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initFontResizer);
+  } else {
+    initFontResizer();
+  }
+
+  document.addEventListener('astro:page-load', initFontResizer);
+</script>
+
+<style>
+  @media (prefers-contrast: high) {
+    .font-resizer-widget button {
+      border: 2px solid ButtonText;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .font-resizer-widget {
+      forced-color-adjust: none;
+      background: ButtonFace;
+      border-color: ButtonText;
+    }
+
+    .font-resizer-widget button {
+      background: ButtonFace;
+      color: ButtonText;
+      border: 1px solid ButtonText;
+    }
+
+    .font-resizer-widget button:hover {
+      background: Highlight;
+      color: HighlightText;
+    }
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+</style>

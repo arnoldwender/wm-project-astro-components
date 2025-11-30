@@ -1,0 +1,119 @@
+---
+/**
+ * BackToTop Component - WenderMedia Astro Components
+ *
+ * Smooth scroll to top with accessibility support
+ * Features: focus management, reduced motion support, high contrast mode
+ */
+
+export interface Props {
+  threshold?: number;
+  label?: string;
+  class?: string;
+}
+
+const {
+  threshold = 300,
+  label = 'Back to top',
+  class: className = '',
+} = Astro.props;
+---
+
+<button
+  type="button"
+  class:list={[
+    "back-to-top fixed bottom-6 right-6 z-50 p-3 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-300 opacity-0 invisible translate-y-4",
+    className
+  ]}
+  aria-label={label}
+  title={label}
+  data-back-to-top
+  data-threshold={threshold}
+>
+  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+  </svg>
+</button>
+
+<script>
+  function initBackToTop() {
+    const buttons = document.querySelectorAll('[data-back-to-top]');
+
+    buttons.forEach(button => {
+      const threshold = parseInt(button.getAttribute('data-threshold') || '300', 10);
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      function toggleVisibility() {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const shouldShow = scrollTop > threshold;
+
+        if (shouldShow) {
+          button.classList.remove('opacity-0', 'invisible', 'translate-y-4');
+          button.classList.add('opacity-100', 'visible', 'translate-y-0');
+        } else {
+          button.classList.add('opacity-0', 'invisible', 'translate-y-4');
+          button.classList.remove('opacity-100', 'visible', 'translate-y-0');
+        }
+      }
+
+      function scrollToTop() {
+        if (prefersReducedMotion) {
+          window.scrollTo(0, 0);
+        } else {
+          window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+          });
+        }
+
+        // Focus management
+        setTimeout(() => {
+          const skipLink = document.querySelector('.skip-link') as HTMLElement;
+          const mainHeading = document.querySelector('h1') as HTMLElement;
+          const target = skipLink || mainHeading;
+
+          if (target) {
+            target.focus();
+          }
+        }, prefersReducedMotion ? 0 : 500);
+      }
+
+      window.addEventListener('scroll', toggleVisibility, { passive: true });
+      button.addEventListener('click', scrollToTop);
+
+      button.addEventListener('keydown', (e: KeyboardEvent) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          scrollToTop();
+        }
+      });
+
+      toggleVisibility();
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initBackToTop);
+  } else {
+    initBackToTop();
+  }
+
+  document.addEventListener('astro:page-load', initBackToTop);
+</script>
+
+<style>
+  @media (prefers-contrast: high) {
+    .back-to-top {
+      border: 2px solid ButtonText;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .back-to-top {
+      forced-color-adjust: none;
+      background: ButtonFace;
+      color: ButtonText;
+      border: 1px solid ButtonText;
+    }
+  }
+</style>

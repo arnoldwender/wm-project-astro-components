@@ -1,0 +1,180 @@
+---
+/**
+ * BeforeAfter Component - WenderMedia Astro Components
+ *
+ * Interactive image comparison slider
+ * Features: Touch/mouse/keyboard support, accessible, responsive
+ */
+
+export interface Props {
+  beforeUrl: string;
+  afterUrl: string;
+  beforeAlt: string;
+  afterAlt: string;
+  beforeLabel?: string;
+  afterLabel?: string;
+  aspectRatio?: string;
+  initialPosition?: number;
+  class?: string;
+}
+
+const {
+  beforeUrl,
+  afterUrl,
+  beforeAlt,
+  afterAlt,
+  beforeLabel = 'Before',
+  afterLabel = 'After',
+  aspectRatio = '4/3',
+  initialPosition = 50,
+  class: className = '',
+} = Astro.props;
+---
+
+<div class:list={["before-after-container relative w-full max-w-4xl mx-auto", className]} data-before-after data-initial={initialPosition}>
+  <div class="before-after-wrapper relative w-full overflow-hidden rounded-lg cursor-ew-resize select-none shadow-xl" style={`aspect-ratio: ${aspectRatio};`}>
+    <!-- After Image (full background) -->
+    <div class="image-layer absolute inset-0 w-full h-full">
+      <img
+        src={afterUrl}
+        alt={afterAlt}
+        class="w-full h-full object-cover block pointer-events-none"
+        loading="lazy"
+        decoding="async"
+      />
+    </div>
+
+    <!-- Before Image (clipped overlay) -->
+    <div class="image-layer absolute inset-0 w-full h-full" data-clip-layer style={`clip-path: inset(0 ${100 - initialPosition}% 0 0);`}>
+      <img
+        src={beforeUrl}
+        alt={beforeAlt}
+        class="w-full h-full object-cover block pointer-events-none"
+        loading="lazy"
+        decoding="async"
+      />
+    </div>
+
+    <!-- Slider Control -->
+    <div class="slider-control absolute top-0 bottom-0 z-10 pointer-events-none" style={`left: ${initialPosition}%; transform: translateX(-50%);`} data-slider tabindex="0" role="slider" aria-label="Image comparison slider" aria-valuemin="0" aria-valuemax="100" aria-valuenow={initialPosition}>
+      <div class="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-0.5 bg-white shadow-lg"></div>
+      <div class="slider-button absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center cursor-grab pointer-events-auto transition-transform hover:scale-110 active:scale-95 active:cursor-grabbing">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none" class="drop-shadow-lg">
+          <circle cx="20" cy="20" r="18" fill="white" stroke="#333" stroke-width="2"/>
+          <path d="M15 20L12 17M12 17L15 14M12 17H28M28 17L25 14M28 17L25 20" stroke="#333" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Labels -->
+    <div class="label absolute top-4 left-4 px-3 py-1.5 bg-black/70 backdrop-blur-sm text-white text-xs font-semibold uppercase tracking-wide rounded-md z-5 opacity-90 transition-opacity">
+      {beforeLabel}
+    </div>
+    <div class="label absolute top-4 right-4 px-3 py-1.5 bg-black/70 backdrop-blur-sm text-white text-xs font-semibold uppercase tracking-wide rounded-md z-5 opacity-90 transition-opacity">
+      {afterLabel}
+    </div>
+  </div>
+</div>
+
+<script>
+  function initBeforeAfter() {
+    const containers = document.querySelectorAll('[data-before-after]');
+
+    containers.forEach(container => {
+      const wrapper = container.querySelector('.before-after-wrapper') as HTMLElement;
+      const clipLayer = container.querySelector('[data-clip-layer]') as HTMLElement;
+      const slider = container.querySelector('[data-slider]') as HTMLElement;
+      const initialPos = parseFloat(container.getAttribute('data-initial') || '50');
+
+      let isDragging = false;
+      let currentPos = initialPos;
+
+      function updatePosition(percentage: number) {
+        currentPos = Math.max(0, Math.min(100, percentage));
+        slider.style.left = `${currentPos}%`;
+        clipLayer.style.clipPath = `inset(0 ${100 - currentPos}% 0 0)`;
+        slider.setAttribute('aria-valuenow', String(Math.round(currentPos)));
+      }
+
+      function handleDragStart(e: MouseEvent | TouchEvent) {
+        e.preventDefault();
+        isDragging = true;
+        wrapper.style.cursor = 'grabbing';
+      }
+
+      function handleDrag(e: MouseEvent | TouchEvent) {
+        if (!isDragging) return;
+
+        const rect = wrapper.getBoundingClientRect();
+        const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+        const x = clientX - rect.left;
+        const percentage = (x / rect.width) * 100;
+
+        updatePosition(percentage);
+      }
+
+      function handleDragEnd() {
+        isDragging = false;
+        wrapper.style.cursor = 'ew-resize';
+      }
+
+      function handleClick(e: MouseEvent) {
+        if (e.target === slider || slider.contains(e.target as Node)) return;
+
+        const rect = wrapper.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const percentage = (x / rect.width) * 100;
+
+        updatePosition(percentage);
+      }
+
+      function handleKeyboard(e: KeyboardEvent) {
+        let newPos = currentPos;
+
+        if (e.key === 'ArrowLeft') {
+          newPos = currentPos - 5;
+        } else if (e.key === 'ArrowRight') {
+          newPos = currentPos + 5;
+        } else {
+          return;
+        }
+
+        e.preventDefault();
+        updatePosition(newPos);
+      }
+
+      // Mouse events
+      slider.addEventListener('mousedown', handleDragStart);
+      document.addEventListener('mousemove', handleDrag);
+      document.addEventListener('mouseup', handleDragEnd);
+
+      // Touch events
+      slider.addEventListener('touchstart', handleDragStart, { passive: false });
+      document.addEventListener('touchmove', handleDrag, { passive: false });
+      document.addEventListener('touchend', handleDragEnd);
+
+      // Click to snap
+      wrapper.addEventListener('click', handleClick);
+
+      // Keyboard navigation
+      slider.addEventListener('keydown', handleKeyboard);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initBeforeAfter);
+  } else {
+    initBeforeAfter();
+  }
+
+  document.addEventListener('astro:page-load', initBeforeAfter);
+</script>
+
+<style>
+  @media (prefers-reduced-motion: reduce) {
+    .slider-button,
+    .label {
+      transition: none;
+    }
+  }
+</style>

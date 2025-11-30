@@ -1,0 +1,40 @@
+{
+  "name": "@wendermedia/astro-components",
+  "version": "1.0.0",
+  "description": "Reusable Astro components for WenderMedia projects",
+  "type": "module",
+  "main": "./index.ts",
+  "exports": {
+    ".": "./index.ts",
+    "./layout": "./src/layout/index.ts",
+    "./seo": "./src/seo/index.ts",
+    "./accessibility": "./src/accessibility/index.ts",
+    "./sections": "./src/sections/index.ts",
+    "./gallery": "./src/gallery/index.ts",
+    "./forms": "./src/forms/index.ts",
+    "./products": "./src/products/index.ts",
+    "./images": "./src/images/index.ts"
+  },
+  "files": [
+    "src",
+    "index.ts"
+  ],
+  "keywords": [
+    "astro",
+    "components",
+    "ui",
+    "seo",
+    "accessibility",
+    "wcag",
+    "gdpr"
+  ],
+  "author": "Arnold Wender <arnold.wender@gmail.com>",
+  "license": "PROPRIETARY",
+  "peerDependencies": {
+    "astro": "^4.0.0 || ^5.0.0"
+  },
+  "devDependencies": {
+    "astro": "^5.0.0",
+    "typescript": "^5.0.0"
+  }
+}

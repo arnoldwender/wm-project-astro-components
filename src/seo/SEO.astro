@@ -1,0 +1,132 @@
+---
+/**
+ * SEO Component - WenderMedia Astro Components
+ *
+ * Comprehensive SEO meta tags, OpenGraph, Twitter Cards, and structured data
+ * GDPR/BFSG compliant with security headers
+ */
+
+export interface HreflangLink {
+  lang: string;
+  url: string;
+}
+
+export interface Props {
+  title: string;
+  description: string;
+  canonical?: string;
+  image?: string;
+  imageAlt?: string;
+  type?: 'website' | 'article' | 'profile';
+  lang?: string;
+  hreflang?: HreflangLink[];
+  siteName?: string;
+  twitterHandle?: string;
+  structuredData?: object;
+  noindex?: boolean;
+  nofollow?: boolean;
+  themeColor?: string;
+}
+
+const {
+  title,
+  description,
+  canonical,
+  image = '/og-image.jpg',
+  imageAlt = '',
+  type = 'website',
+  lang = 'en',
+  hreflang = [],
+  siteName = 'Website',
+  twitterHandle,
+  structuredData,
+  noindex = false,
+  nofollow = false,
+  themeColor = '#000000',
+} = Astro.props;
+
+const fullTitle = title.includes('|') ? title : `${title} | ${siteName}`;
+const currentUrl = canonical || Astro.url.href;
+const robotsContent = `${noindex ? 'noindex' : 'index'}, ${nofollow ? 'nofollow' : 'follow'}`;
+
+const localeMap: Record<string, string> = {
+  en: 'en_US',
+  de: 'de_DE',
+  es: 'es_ES',
+  fr: 'fr_FR',
+};
+---
+
+<!-- Primary Meta Tags -->
+<title>{fullTitle}</title>
+<meta name="title" content={fullTitle} />
+<meta name="description" content={description} />
+<meta name="robots" content={robotsContent} />
+<meta name="language" content={lang} />
+<meta name="author" content={siteName} />
+<meta name="publisher" content={siteName} />
+<meta name="copyright" content={`© ${new Date().getFullYear()} ${siteName}`} />
+<meta name="theme-color" content={themeColor} />
+
+<!-- Canonical URL -->
+{canonical && <link rel="canonical" href={canonical} />}
+
+<!-- Hreflang Links -->
+{hreflang.map(({ lang, url }) => (
+  <link rel="alternate" hreflang={lang} href={url} />
+))}
+{hreflang.length > 0 && (
+  <link rel="alternate" hreflang="x-default" href={hreflang.find(h => h.lang === 'en')?.url || canonical} />
+)}
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content={type} />
+<meta property="og:url" content={currentUrl} />
+<meta property="og:title" content={fullTitle} />
+<meta property="og:description" content={description} />
+<meta property="og:image" content={image} />
+<meta property="og:image:alt" content={imageAlt || description} />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:image:type" content="image/jpeg" />
+<meta property="og:locale" content={localeMap[lang] || 'en_US'} />
+<meta property="og:site_name" content={siteName} />
+<meta property="og:updated_time" content={new Date().toISOString()} />
+
+<!-- Twitter -->
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:url" content={currentUrl} />
+<meta property="twitter:title" content={fullTitle} />
+<meta property="twitter:description" content={description} />
+<meta property="twitter:image" content={image} />
+<meta property="twitter:image:alt" content={imageAlt || description} />
+{twitterHandle && (
+  <>
+    <meta name="twitter:creator" content={`@${twitterHandle}`} />
+    <meta name="twitter:site" content={`@${twitterHandle}`} />
+  </>
+)}
+
+<!-- LinkedIn / Article -->
+<meta property="og:image:secure_url" content={image} />
+<meta property="article:author" content={siteName} />
+<meta property="article:publisher" content={siteName} />
+
+<!-- Apple -->
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content={siteName} />
+
+<!-- Microsoft -->
+<meta name="msapplication-TileColor" content={themeColor} />
+
+<!-- Structured Data -->
+{structuredData && (
+  <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+)}
+
+<!-- Security Headers -->
+<meta http-equiv="X-Content-Type-Options" content="nosniff" />
+<meta http-equiv="X-Frame-Options" content="DENY" />
+<meta http-equiv="X-XSS-Protection" content="1; mode=block" />
+<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />

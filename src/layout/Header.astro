@@ -1,0 +1,273 @@
+---
+/**
+ * Header Component - WenderMedia Astro Components
+ *
+ * Sticky navigation with blur backdrop, mobile menu toggle
+ * Fully configurable via props
+ */
+
+export interface NavItem {
+  label: string;
+  href: string;
+  external?: boolean;
+}
+
+export interface Props {
+  navItems: NavItem[];
+  logo?: {
+    src: string;
+    alt: string;
+    width?: number;
+    height?: number;
+  };
+  siteName?: string;
+  contactEmail?: string;
+  contactPhone?: string;
+  transparent?: boolean;
+  class?: string;
+}
+
+const {
+  navItems,
+  logo,
+  siteName = 'Site Name',
+  contactEmail,
+  contactPhone,
+  transparent = true,
+  class: className = '',
+} = Astro.props;
+
+const currentPath = Astro.url.pathname;
+---
+
+<header
+  id="site-header"
+  class:list={[
+    "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
+    className
+  ]}
+  data-header
+  data-transparent={transparent}
+>
+  <nav class="container mx-auto px-4">
+    <div class="flex items-center justify-between h-20 md:h-24">
+      <!-- Logo / Site Name -->
+      <a
+        href="/"
+        class="hover:opacity-80 transition-opacity"
+        aria-label={`${siteName} - Home`}
+      >
+        {logo ? (
+          <img
+            src={logo.src}
+            alt={logo.alt}
+            class="h-10 md:h-12 w-auto"
+            width={logo.width || 200}
+            height={logo.height || 40}
+          />
+        ) : (
+          <span class="text-xl font-bold">{siteName}</span>
+        )}
+      </a>
+
+      <!-- Desktop Navigation -->
+      <ul class="hidden lg:flex items-center gap-8">
+        {navItems.map((item) => {
+          const isActive = currentPath === item.href ||
+                          (item.href !== '/' && currentPath.startsWith(item.href));
+
+          return (
+            <li>
+              <a
+                href={item.href}
+                class:list={[
+                  "text-sm font-medium tracking-wide uppercase transition-colors hover:opacity-80",
+                  isActive ? 'opacity-100' : 'opacity-70'
+                ]}
+                {...(item.external && {
+                  target: '_blank',
+                  rel: 'noopener noreferrer',
+                })}
+              >
+                {item.label}
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+
+      <!-- Mobile Menu Button -->
+      <button
+        id="mobile-menu-button"
+        class="lg:hidden p-2 transition-colors hover:opacity-80"
+        aria-label="Open menu"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+      >
+        <svg
+          class="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            class="menu-icon-open"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 6h16M4 12h16M4 18h16"
+          />
+          <path
+            class="menu-icon-close hidden"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"
+          />
+        </svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu -->
+  <div
+    id="mobile-menu"
+    class="lg:hidden fixed inset-0 top-20 bg-black/95 backdrop-blur-xl opacity-0 invisible transition-all duration-300"
+    aria-hidden="true"
+  >
+    <nav class="container mx-auto px-4 py-8">
+      <ul class="flex flex-col gap-6">
+        {navItems.map((item) => {
+          const isActive = currentPath === item.href ||
+                          (item.href !== '/' && currentPath.startsWith(item.href));
+
+          return (
+            <li>
+              <a
+                href={item.href}
+                class:list={[
+                  "block text-2xl font-medium tracking-wide transition-colors hover:opacity-80",
+                  isActive ? 'opacity-100' : 'opacity-70'
+                ]}
+                {...(item.external && {
+                  target: '_blank',
+                  rel: 'noopener noreferrer',
+                })}
+              >
+                {item.label}
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+
+      <!-- Mobile Contact Info -->
+      {(contactEmail || contactPhone) && (
+        <div class="mt-12 pt-8 border-t border-gray-700">
+          {contactEmail && (
+            <a
+              href={`mailto:${contactEmail}`}
+              class="block opacity-70 hover:opacity-100 transition-colors mb-3"
+            >
+              {contactEmail}
+            </a>
+          )}
+          {contactPhone && (
+            <a
+              href={`tel:${contactPhone}`}
+              class="block opacity-70 hover:opacity-100 transition-colors"
+            >
+              {contactPhone}
+            </a>
+          )}
+        </div>
+      )}
+    </nav>
+  </div>
+</header>
+
+<script>
+  function initHeader() {
+    const header = document.getElementById('site-header');
+    const mobileMenuButton = document.getElementById('mobile-menu-button');
+    const mobileMenu = document.getElementById('mobile-menu');
+
+    if (!header || !mobileMenuButton || !mobileMenu) return;
+
+    let isMenuOpen = false;
+    const isTransparent = header.hasAttribute('data-transparent');
+
+    const handleScroll = () => {
+      const currentScroll = window.pageYOffset;
+
+      if (isTransparent) {
+        if (currentScroll > 100) {
+          header.classList.add('bg-black/95', 'backdrop-blur-xl', 'shadow-2xl');
+          header.classList.remove('bg-transparent');
+        } else {
+          header.classList.remove('bg-black/95', 'backdrop-blur-xl', 'shadow-2xl');
+          header.classList.add('bg-transparent');
+        }
+      } else {
+        if (currentScroll > 20) {
+          header.classList.add('bg-black/80', 'backdrop-blur-xl', 'shadow-lg');
+        } else {
+          header.classList.remove('bg-black/80', 'backdrop-blur-xl', 'shadow-lg');
+        }
+      }
+    };
+
+    const toggleMenu = () => {
+      isMenuOpen = !isMenuOpen;
+
+      mobileMenuButton.setAttribute('aria-expanded', String(isMenuOpen));
+      mobileMenu.setAttribute('aria-hidden', String(!isMenuOpen));
+
+      if (isMenuOpen) {
+        mobileMenu.classList.remove('opacity-0', 'invisible');
+        mobileMenu.classList.add('opacity-100', 'visible');
+        document.body.style.overflow = 'hidden';
+
+        mobileMenuButton.querySelector('.menu-icon-open')?.classList.add('hidden');
+        mobileMenuButton.querySelector('.menu-icon-close')?.classList.remove('hidden');
+      } else {
+        mobileMenu.classList.add('opacity-0', 'invisible');
+        mobileMenu.classList.remove('opacity-100', 'visible');
+        document.body.style.overflow = '';
+
+        mobileMenuButton.querySelector('.menu-icon-open')?.classList.remove('hidden');
+        mobileMenuButton.querySelector('.menu-icon-close')?.classList.add('hidden');
+      }
+    };
+
+    const closeMenu = () => {
+      if (isMenuOpen) {
+        toggleMenu();
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    mobileMenuButton.addEventListener('click', toggleMenu);
+
+    const menuLinks = mobileMenu.querySelectorAll('a');
+    menuLinks.forEach(link => {
+      link.addEventListener('click', closeMenu);
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && isMenuOpen) {
+        toggleMenu();
+      }
+    });
+
+    handleScroll();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initHeader);
+  } else {
+    initHeader();
+  }
+
+  document.addEventListener('astro:page-load', initHeader);
+</script>

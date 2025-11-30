@@ -1,0 +1,50 @@
+---
+/**
+ * OptimizedImage Component - WenderMedia Astro Components
+ *
+ * Responsive image with srcset and sizes
+ * Features: lazy loading, priority loading option, responsive breakpoints
+ */
+
+export interface Props {
+  src: string;
+  alt: string;
+  width?: number;
+  height?: number;
+  loading?: 'lazy' | 'eager';
+  priority?: boolean;
+  sizes?: string;
+  breakpoints?: number[];
+  class?: string;
+}
+
+const {
+  src,
+  alt,
+  width = 800,
+  height = 600,
+  loading = 'lazy',
+  priority = false,
+  sizes = '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw',
+  breakpoints = [400, 600, 800, 1200],
+  class: className = '',
+} = Astro.props;
+
+// Generate srcset from breakpoints
+const srcset = breakpoints
+  .map((size) => `${src} ${size}w`)
+  .join(', ');
+---
+
+<img
+  src={src}
+  srcset={srcset}
+  sizes={sizes}
+  alt={alt}
+  width={width}
+  height={height}
+  loading={priority ? 'eager' : loading}
+  decoding={priority ? 'sync' : 'async'}
+  fetchpriority={priority ? 'high' : 'auto'}
+  class={className}
+/>
