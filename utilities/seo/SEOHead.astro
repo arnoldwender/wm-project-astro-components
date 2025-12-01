@@ -1,0 +1,167 @@
+---
+/**
+ * SEO Head Component
+ *
+ * Comprehensive meta tags for SEO, Open Graph, and Twitter Cards.
+ * Usage: <SEOHead title="Page Title" description="..." />
+ */
+
+interface Props {
+  // Required
+  title: string;
+  description: string;
+
+  // Optional: Override canonical URL
+  canonical?: string;
+
+  // Optional: Images
+  image?: string;
+  imageAlt?: string;
+  imageWidth?: number;
+  imageHeight?: number;
+
+  // Optional: Article metadata
+  article?: {
+    publishedTime?: string;
+    modifiedTime?: string;
+    author?: string;
+    section?: string;
+    tags?: string[];
+  };
+
+  // Optional: Site info
+  siteName?: string;
+  locale?: string;
+
+  // Optional: Twitter
+  twitterHandle?: string;
+  twitterCardType?: 'summary' | 'summary_large_image' | 'app' | 'player';
+
+  // Optional: Robots
+  noindex?: boolean;
+  nofollow?: boolean;
+
+  // Optional: JSON-LD schema
+  schema?: Record<string, unknown>;
+}
+
+const {
+  title,
+  description,
+  canonical,
+  image,
+  imageAlt,
+  imageWidth = 1200,
+  imageHeight = 630,
+  article,
+  siteName = 'My Site',
+  locale = 'de_DE',
+  twitterHandle,
+  twitterCardType = 'summary_large_image',
+  noindex = false,
+  nofollow = false,
+  schema,
+} = Astro.props;
+
+// Build canonical URL
+const canonicalURL = canonical ? new URL(canonical, Astro.site) : new URL(Astro.url.pathname, Astro.site);
+
+// Build image URL
+const imageURL = image ? new URL(image, Astro.site).toString() : undefined;
+
+// Build robots content
+const robotsContent = [
+  noindex ? 'noindex' : 'index',
+  nofollow ? 'nofollow' : 'follow',
+].join(', ');
+
+// Build JSON-LD schema
+const defaultSchema = {
+  '@context': 'https://schema.org',
+  '@type': article ? 'Article' : 'WebPage',
+  name: title,
+  description,
+  url: canonicalURL.toString(),
+  ...(image && {
+    image: {
+      '@type': 'ImageObject',
+      url: imageURL,
+      width: imageWidth,
+      height: imageHeight,
+    },
+  }),
+  ...(article && {
+    datePublished: article.publishedTime,
+    dateModified: article.modifiedTime || article.publishedTime,
+    author: article.author
+      ? {
+          '@type': 'Person',
+          name: article.author,
+        }
+      : undefined,
+  }),
+  publisher: {
+    '@type': 'Organization',
+    name: siteName,
+  },
+};
+
+const jsonLD = schema || defaultSchema;
+---
+
+<!-- Primary Meta Tags -->
+<title>{title}</title>
+<meta name="title" content={title} />
+<meta name="description" content={description} />
+<link rel="canonical" href={canonicalURL} />
+
+<!-- Robots -->
+<meta name="robots" content={robotsContent} />
+<meta name="googlebot" content={robotsContent} />
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content={article ? 'article' : 'website'} />
+<meta property="og:url" content={canonicalURL} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:site_name" content={siteName} />
+<meta property="og:locale" content={locale} />
+
+{imageURL && (
+  <>
+    <meta property="og:image" content={imageURL} />
+    <meta property="og:image:width" content={String(imageWidth)} />
+    <meta property="og:image:height" content={String(imageHeight)} />
+    {imageAlt && <meta property="og:image:alt" content={imageAlt} />}
+  </>
+)}
+
+<!-- Article specific -->
+{article?.publishedTime && (
+  <meta property="article:published_time" content={article.publishedTime} />
+)}
+{article?.modifiedTime && (
+  <meta property="article:modified_time" content={article.modifiedTime} />
+)}
+{article?.author && (
+  <meta property="article:author" content={article.author} />
+)}
+{article?.section && (
+  <meta property="article:section" content={article.section} />
+)}
+{article?.tags?.map((tag) => (
+  <meta property="article:tag" content={tag} />
+))}
+
+<!-- Twitter -->
+<meta name="twitter:card" content={twitterCardType} />
+<meta name="twitter:url" content={canonicalURL.toString()} />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+{imageURL && <meta name="twitter:image" content={imageURL} />}
+{imageAlt && <meta name="twitter:image:alt" content={imageAlt} />}
+{twitterHandle && <meta name="twitter:site" content={`@${twitterHandle}`} />}
+{twitterHandle && <meta name="twitter:creator" content={`@${twitterHandle}`} />}
+
+<!-- JSON-LD Structured Data -->
+<script type="application/ld+json" set:html={JSON.stringify(jsonLD)} />

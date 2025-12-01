@@ -1,0 +1,26 @@
+{
+  "name": "@wendermedia/astro-corporate-bundle",
+  "version": "1.0.0",
+  "description": "Multi-language corporate site setup",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "astro": "^5.0.0",
+    "@astrojs/mdx": "^4.0.0",
+    "@astrojs/tailwind": "^5.0.0",
+    "@astrojs/sitemap": "^3.0.0",
+    "@astrojs/react": "^3.0.0",
+    "@astrojs/netlify": "^5.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "tailwindcss": "^3.4.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.0",
+    "typescript": "^5.0.0"
+  }
+}

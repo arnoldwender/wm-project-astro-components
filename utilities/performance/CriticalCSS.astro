@@ -1,0 +1,125 @@
+---
+/**
+ * Critical CSS Component
+ *
+ * Inlines critical CSS and defers non-critical styles.
+ * Use for above-the-fold performance optimization.
+ */
+
+interface Props {
+  // Path to the full stylesheet
+  href: string;
+  // Whether to load the full stylesheet async
+  loadAsync?: boolean;
+}
+
+const { href, loadAsync = true } = Astro.props;
+---
+
+{/* Critical CSS inlined */}
+<style is:inline>
+  /* Critical above-the-fold styles */
+
+  /* Reset */
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  /* Body defaults */
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+      sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Layout */
+  .container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  /* Typography */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  /* Images */
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* Links */
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* Header (above the fold) */
+  header {
+    position: sticky;
+    top: 0;
+    background: white;
+    z-index: 100;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  /* Hero section (above the fold) */
+  .hero {
+    min-height: 50vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 2rem;
+  }
+
+  /* Loading state */
+  .skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton 1.5s infinite;
+    border-radius: 4px;
+  }
+
+  @keyframes skeleton {
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
+  }
+</style>
+
+{/* Load full stylesheet async */}
+{
+  loadAsync ? (
+    <>
+      <link
+        rel="preload"
+        href={href}
+        as="style"
+        onload="this.onload=null;this.rel='stylesheet'"
+      />
+      <noscript>
+        <link rel="stylesheet" href={href} />
+      </noscript>
+    </>
+  ) : (
+    <link rel="stylesheet" href={href} />
+  )
+}

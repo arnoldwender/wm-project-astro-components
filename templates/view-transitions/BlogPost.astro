@@ -1,0 +1,232 @@
+---
+/**
+ * Blog Post Layout with View Transitions
+ *
+ * The image and title will morph FROM the blog card
+ * creating a smooth transition effect.
+ */
+
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+  slug: string;
+  title: string;
+  description: string;
+  image: string;
+  imageAlt: string;
+  pubDate: Date;
+  updatedDate?: Date;
+  author?: {
+    name: string;
+    avatar?: string;
+  };
+  readingTime?: number;
+}
+
+const { slug, title, description, image, imageAlt, pubDate, updatedDate, author, readingTime } =
+  Astro.props;
+
+// Match the transition names from BlogCard
+const imageTransition = `blog-image-${slug}`;
+const titleTransition = `blog-title-${slug}`;
+---
+
+<BaseLayout title={title} description={description} image={image}>
+  <article class="blog-post">
+    <!-- Hero Image - morphs from card -->
+    <div class="hero-image">
+      <img
+        src={image}
+        alt={imageAlt}
+        width="1200"
+        height="630"
+        transition:name={imageTransition}
+      />
+    </div>
+
+    <div class="content-wrapper">
+      <!-- Title - morphs from card -->
+      <h1 transition:name={titleTransition}>{title}</h1>
+
+      <!-- Meta (fades in) -->
+      <div class="meta" transition:animate="fade">
+        {
+          author && (
+            <div class="author">
+              {author.avatar && <img src={author.avatar} alt={author.name} class="avatar" />}
+              <span>{author.name}</span>
+            </div>
+          )
+        }
+
+        <div class="date-info">
+          <time datetime={pubDate.toISOString()}>
+            {
+              pubDate.toLocaleDateString('de-DE', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+              })
+            }
+          </time>
+          {
+            updatedDate && (
+              <span class="updated">
+                (Aktualisiert:{' '}
+                {updatedDate.toLocaleDateString('de-DE', {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                })}
+                )
+              </span>
+            )
+          }
+        </div>
+
+        {readingTime && <span class="reading-time">{readingTime} Min. Lesezeit</span>}
+      </div>
+
+      <!-- Content (slides in) -->
+      <div class="content" transition:animate="slide">
+        <slot />
+      </div>
+
+      <!-- Back Link -->
+      <div class="back-link">
+        <a href="/blog">← Zurück zum Blog</a>
+      </div>
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .blog-post {
+    max-width: 100%;
+  }
+
+  .hero-image {
+    width: 100%;
+    max-height: 60vh;
+    overflow: hidden;
+  }
+
+  .hero-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .content-wrapper {
+    max-width: 48rem;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin: 0 0 1rem;
+  }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: center;
+    padding-bottom: 1.5rem;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid #e2e8f0;
+    color: #64748b;
+    font-size: 0.875rem;
+  }
+
+  .author {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .avatar {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .updated {
+    font-style: italic;
+    font-size: 0.75rem;
+  }
+
+  .content {
+    line-height: 1.8;
+    font-size: 1.125rem;
+  }
+
+  .content :global(h2) {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+  }
+
+  .content :global(h3) {
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+
+  .content :global(p) {
+    margin-bottom: 1.5rem;
+  }
+
+  .content :global(img) {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
+    margin: 2rem 0;
+  }
+
+  .content :global(pre) {
+    background: #1e293b;
+    color: #e2e8f0;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    margin: 1.5rem 0;
+  }
+
+  .content :global(code) {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.875rem;
+  }
+
+  .back-link {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e2e8f0;
+  }
+
+  .back-link a {
+    color: #3b82f6;
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .back-link a:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 768px) {
+    h1 {
+      font-size: 1.75rem;
+    }
+
+    .content {
+      font-size: 1rem;
+    }
+  }
+</style>
