@@ -1,0 +1,384 @@
+---
+/**
+ * Premium Language Switcher Component
+ *
+ * Accessible i18n language selector with:
+ * - Native language labels (日本語, Deutsch, etc.)
+ * - Screen reader optimized with lang attributes
+ * - Multiple display modes (dropdown, inline, flags)
+ * - RTL support
+ * - Current language highlighting
+ * - URL-based or localStorage persistence
+ *
+ * Best practices implemented:
+ * - Languages in their native names
+ * - lang attribute on each option
+ * - Keyboard accessible
+ * - No auto-redirect based on IP
+ */
+
+export interface Language {
+  code: string;
+  name: string;
+  nativeName: string;
+  flag?: string;
+  url?: string;
+  dir?: 'ltr' | 'rtl';
+}
+
+export interface Props {
+  languages: Language[];
+  currentLanguage: string;
+  mode?: 'dropdown' | 'inline' | 'flags' | 'select';
+  showFlag?: boolean;
+  showNativeName?: boolean;
+  showEnglishName?: boolean;
+  urlPattern?: string;
+  persistMethod?: 'url' | 'localStorage' | 'cookie' | 'none';
+  storageKey?: string;
+  ariaLabel?: string;
+  class?: string;
+}
+
+const {
+  languages,
+  currentLanguage,
+  mode = 'dropdown',
+  showFlag = true,
+  showNativeName = true,
+  showEnglishName = false,
+  urlPattern = '/{lang}',
+  persistMethod = 'url',
+  storageKey = 'preferred-language',
+  ariaLabel = 'Select language',
+  class: className = '',
+} = Astro.props;
+
+const currentLang = languages.find(l => l.code === currentLanguage) || languages[0];
+
+function getLanguageUrl(lang: Language): string {
+  if (lang.url) return lang.url;
+  return urlPattern.replace('{lang}', lang.code);
+}
+---
+
+<div
+  class:list={['language-switcher', `mode-${mode}`, className]}
+  data-language-switcher
+  data-persist={persistMethod}
+  data-storage-key={storageKey}
+>
+  {/* Dropdown Mode */}
+  {mode === 'dropdown' && (
+    <div class="relative" data-dropdown>
+      <button
+        type="button"
+        class="flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
+        aria-expanded="false"
+        aria-haspopup="listbox"
+        aria-label={ariaLabel}
+        data-dropdown-trigger
+      >
+        {showFlag && currentLang.flag && (
+          <span class="text-xl" aria-hidden="true">{currentLang.flag}</span>
+        )}
+        <span lang={currentLang.code}>
+          {showNativeName ? currentLang.nativeName : currentLang.name}
+        </span>
+        <svg class="w-4 h-4 text-gray-500 transition-transform" data-dropdown-icon aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      <ul
+        class="absolute z-50 mt-2 w-full min-w-[200px] py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg hidden"
+        role="listbox"
+        aria-label={ariaLabel}
+        data-dropdown-menu
+      >
+        {languages.map((lang) => (
+          <li role="option" aria-selected={lang.code === currentLanguage}>
+            <a
+              href={getLanguageUrl(lang)}
+              lang={lang.code}
+              dir={lang.dir}
+              hreflang={lang.code}
+              class:list={[
+                'flex items-center gap-3 px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors',
+                lang.code === currentLanguage && 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400'
+              ]}
+              data-language={lang.code}
+            >
+              {showFlag && lang.flag && (
+                <span class="text-xl" aria-hidden="true">{lang.flag}</span>
+              )}
+              <span class="flex-grow">
+                {showNativeName && <span class="block">{lang.nativeName}</span>}
+                {showEnglishName && lang.name !== lang.nativeName && (
+                  <span class="block text-xs text-gray-500 dark:text-gray-400" lang="en">
+                    {lang.name}
+                  </span>
+                )}
+              </span>
+              {lang.code === currentLanguage && (
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+              )}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )}
+
+  {/* Inline Mode */}
+  {mode === 'inline' && (
+    <nav aria-label={ariaLabel}>
+      <ul class="flex flex-wrap items-center gap-2" role="list">
+        {languages.map((lang, index) => (
+          <>
+            <li>
+              <a
+                href={getLanguageUrl(lang)}
+                lang={lang.code}
+                dir={lang.dir}
+                hreflang={lang.code}
+                class:list={[
+                  'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors',
+                  lang.code === currentLanguage
+                    ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 font-medium'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-400'
+                ]}
+                aria-current={lang.code === currentLanguage ? 'true' : undefined}
+                data-language={lang.code}
+              >
+                {showFlag && lang.flag && (
+                  <span aria-hidden="true">{lang.flag}</span>
+                )}
+                <span>{showNativeName ? lang.nativeName : lang.name}</span>
+              </a>
+            </li>
+            {index < languages.length - 1 && (
+              <li aria-hidden="true" class="text-gray-300 dark:text-gray-600">|</li>
+            )}
+          </>
+        ))}
+      </ul>
+    </nav>
+  )}
+
+  {/* Flags Mode */}
+  {mode === 'flags' && (
+    <nav aria-label={ariaLabel}>
+      <ul class="flex items-center gap-1" role="list">
+        {languages.map((lang) => (
+          <li>
+            <a
+              href={getLanguageUrl(lang)}
+              lang={lang.code}
+              dir={lang.dir}
+              hreflang={lang.code}
+              class:list={[
+                'inline-flex items-center justify-center w-10 h-10 text-2xl rounded-lg transition-all',
+                lang.code === currentLanguage
+                  ? 'bg-blue-100 dark:bg-blue-900/30 ring-2 ring-blue-500'
+                  : 'hover:bg-gray-100 dark:hover:bg-gray-800 opacity-70 hover:opacity-100'
+              ]}
+              aria-label={lang.nativeName}
+              aria-current={lang.code === currentLanguage ? 'true' : undefined}
+              title={lang.nativeName}
+              data-language={lang.code}
+            >
+              {lang.flag || lang.code.toUpperCase()}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  )}
+
+  {/* Native Select Mode */}
+  {mode === 'select' && (
+    <div class="relative">
+      <label for="language-select" class="sr-only">{ariaLabel}</label>
+      <select
+        id="language-select"
+        class="appearance-none px-4 py-2 pr-10 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+        data-language-select
+      >
+        {languages.map((lang) => (
+          <option
+            value={lang.code}
+            lang={lang.code}
+            selected={lang.code === currentLanguage}
+            data-url={getLanguageUrl(lang)}
+          >
+            {showFlag && lang.flag ? `${lang.flag} ` : ''}{showNativeName ? lang.nativeName : lang.name}
+          </option>
+        ))}
+      </select>
+      <svg class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+      </svg>
+    </div>
+  )}
+</div>
+
+<script>
+function initLanguageSwitcher() {
+  const switchers = document.querySelectorAll('[data-language-switcher]');
+
+  switchers.forEach(switcher => {
+    const persistMethod = switcher.getAttribute('data-persist');
+    const storageKey = switcher.getAttribute('data-storage-key') || 'preferred-language';
+
+    // Dropdown functionality
+    const dropdown = switcher.querySelector('[data-dropdown]');
+    if (dropdown) {
+      const trigger = dropdown.querySelector('[data-dropdown-trigger]');
+      const menu = dropdown.querySelector('[data-dropdown-menu]');
+      const icon = dropdown.querySelector('[data-dropdown-icon]');
+
+      let isOpen = false;
+
+      function toggleDropdown() {
+        isOpen = !isOpen;
+        trigger?.setAttribute('aria-expanded', isOpen.toString());
+        menu?.classList.toggle('hidden', !isOpen);
+        if (icon) {
+          icon.style.transform = isOpen ? 'rotate(180deg)' : '';
+        }
+      }
+
+      function closeDropdown() {
+        isOpen = false;
+        trigger?.setAttribute('aria-expanded', 'false');
+        menu?.classList.add('hidden');
+        if (icon) {
+          icon.style.transform = '';
+        }
+      }
+
+      trigger?.addEventListener('click', toggleDropdown);
+
+      // Close on click outside
+      document.addEventListener('click', (e) => {
+        if (!dropdown.contains(e.target as Node)) {
+          closeDropdown();
+        }
+      });
+
+      // Keyboard navigation
+      dropdown.addEventListener('keydown', (e: Event) => {
+        const keyEvent = e as KeyboardEvent;
+
+        if (keyEvent.key === 'Escape') {
+          closeDropdown();
+          (trigger as HTMLElement)?.focus();
+        }
+
+        if (keyEvent.key === 'ArrowDown' && !isOpen) {
+          keyEvent.preventDefault();
+          toggleDropdown();
+          const firstLink = menu?.querySelector('a') as HTMLElement;
+          firstLink?.focus();
+        }
+
+        if (isOpen && (keyEvent.key === 'ArrowDown' || keyEvent.key === 'ArrowUp')) {
+          keyEvent.preventDefault();
+          const links = Array.from(menu?.querySelectorAll('a') || []);
+          const currentIndex = links.findIndex(l => l === document.activeElement);
+
+          let nextIndex;
+          if (keyEvent.key === 'ArrowDown') {
+            nextIndex = currentIndex < links.length - 1 ? currentIndex + 1 : 0;
+          } else {
+            nextIndex = currentIndex > 0 ? currentIndex - 1 : links.length - 1;
+          }
+
+          (links[nextIndex] as HTMLElement)?.focus();
+        }
+      });
+    }
+
+    // Select functionality
+    const select = switcher.querySelector('[data-language-select]') as HTMLSelectElement;
+    if (select) {
+      select.addEventListener('change', () => {
+        const selectedOption = select.options[select.selectedIndex];
+        const url = selectedOption.getAttribute('data-url');
+        const langCode = selectedOption.value;
+
+        // Persist preference
+        if (persistMethod === 'localStorage') {
+          try {
+            localStorage.setItem(storageKey, langCode);
+          } catch (e) {
+            console.warn('Failed to save language preference:', e);
+          }
+        } else if (persistMethod === 'cookie') {
+          document.cookie = `${storageKey}=${langCode};path=/;max-age=31536000`;
+        }
+
+        // Navigate
+        if (url) {
+          window.location.href = url;
+        }
+      });
+    }
+
+    // Link click handling for persistence
+    switcher.querySelectorAll('[data-language]').forEach(link => {
+      link.addEventListener('click', () => {
+        const langCode = link.getAttribute('data-language');
+        if (!langCode) return;
+
+        if (persistMethod === 'localStorage') {
+          try {
+            localStorage.setItem(storageKey, langCode);
+          } catch (e) {
+            console.warn('Failed to save language preference:', e);
+          }
+        } else if (persistMethod === 'cookie') {
+          document.cookie = `${storageKey}=${langCode};path=/;max-age=31536000`;
+        }
+      });
+    });
+  });
+}
+
+// Initialize
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initLanguageSwitcher);
+} else {
+  initLanguageSwitcher();
+}
+
+// View Transitions support
+document.addEventListener('astro:page-load', initLanguageSwitcher);
+</script>
+
+<style>
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  [data-dropdown-menu] {
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  /* RTL support */
+  [dir="rtl"] .language-switcher {
+    direction: rtl;
+  }
+</style>

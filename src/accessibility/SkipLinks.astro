@@ -1,0 +1,186 @@
+---
+/**
+ * Premium Skip Links Component
+ *
+ * WCAG 2.4.1 compliant skip navigation for keyboard users.
+ * Provides quick access to main content, navigation, and search.
+ *
+ * Features:
+ * - Multiple skip targets
+ * - Visible on focus (hidden otherwise)
+ * - Customizable labels for i18n
+ * - High contrast styling
+ * - Screen reader optimized
+ */
+
+export interface SkipLink {
+  href: string;
+  label: string;
+}
+
+export interface Props {
+  links?: SkipLink[];
+  mainContentId?: string;
+  navigationId?: string;
+  searchId?: string;
+  footerId?: string;
+  class?: string;
+}
+
+const defaultLinks: SkipLink[] = [
+  { href: '#main-content', label: 'Skip to main content' },
+  { href: '#main-navigation', label: 'Skip to navigation' },
+];
+
+const {
+  links = defaultLinks,
+  mainContentId,
+  navigationId,
+  searchId,
+  footerId,
+  class: className = '',
+} = Astro.props;
+
+// Build links array from props
+const allLinks: SkipLink[] = [...links];
+
+if (mainContentId && !links.some(l => l.href === `#${mainContentId}`)) {
+  allLinks.unshift({ href: `#${mainContentId}`, label: 'Skip to main content' });
+}
+if (navigationId && !links.some(l => l.href === `#${navigationId}`)) {
+  allLinks.push({ href: `#${navigationId}`, label: 'Skip to navigation' });
+}
+if (searchId && !links.some(l => l.href === `#${searchId}`)) {
+  allLinks.push({ href: `#${searchId}`, label: 'Skip to search' });
+}
+if (footerId && !links.some(l => l.href === `#${footerId}`)) {
+  allLinks.push({ href: `#${footerId}`, label: 'Skip to footer' });
+}
+---
+
+<nav
+  class:list={['skip-links', className]}
+  aria-label="Skip links"
+  data-skip-links
+>
+  {allLinks.map((link) => (
+    <a
+      href={link.href}
+      class="skip-link"
+      data-skip-link
+    >
+      {link.label}
+    </a>
+  ))}
+</nav>
+
+<script>
+function initSkipLinks() {
+  const skipLinks = document.querySelectorAll('[data-skip-link]');
+
+  skipLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      const href = link.getAttribute('href');
+      if (!href) return;
+
+      const target = document.querySelector(href);
+      if (target) {
+        e.preventDefault();
+
+        // Make target focusable if it isn't
+        if (!target.hasAttribute('tabindex')) {
+          target.setAttribute('tabindex', '-1');
+        }
+
+        // Focus the target
+        (target as HTMLElement).focus();
+
+        // Scroll into view
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+}
+
+// Initialize
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initSkipLinks);
+} else {
+  initSkipLinks();
+}
+
+// View Transitions support
+document.addEventListener('astro:page-load', initSkipLinks);
+</script>
+
+<style>
+  .skip-links {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.5rem;
+  }
+
+  .skip-link {
+    position: absolute;
+    left: -9999px;
+    top: auto;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    padding: 1rem 1.5rem;
+    background: #000;
+    color: #fff;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 0 0 0.5rem 0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transition: none;
+  }
+
+  .skip-link:focus {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: auto;
+    height: auto;
+    outline: 3px solid #ffd700;
+    outline-offset: 2px;
+    z-index: 10001;
+  }
+
+  .skip-link:focus:not(:first-child) {
+    top: auto;
+    margin-top: 3.5rem;
+  }
+
+  .skip-link:focus:nth-child(3) {
+    margin-top: 7rem;
+  }
+
+  .skip-link:focus:nth-child(4) {
+    margin-top: 10.5rem;
+  }
+
+  /* High contrast mode support */
+  @media (prefers-contrast: more) {
+    .skip-link:focus {
+      background: #fff;
+      color: #000;
+      outline-color: #000;
+      outline-width: 4px;
+    }
+  }
+
+  /* Dark mode */
+  @media (prefers-color-scheme: dark) {
+    .skip-link {
+      background: #fff;
+      color: #000;
+    }
+  }
+</style>
