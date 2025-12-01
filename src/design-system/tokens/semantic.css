@@ -1,0 +1,437 @@
+/**
+ * Semantic Design Tokens
+ *
+ * Decision/Alias tokens - add meaning and context to primitives
+ * These reference primitive tokens and communicate purpose
+ *
+ * @see https://www.w3.org/community/design-tokens/
+ */
+
+:root {
+  /* ========================================
+   * SEMANTIC COLORS - LIGHT MODE (DEFAULT)
+   * ======================================== */
+
+  /* Background Colors */
+  --color-background: var(--color-white);
+  --color-background-subtle: var(--color-gray-50);
+  --color-background-muted: var(--color-gray-100);
+  --color-background-emphasis: var(--color-gray-200);
+  --color-background-inverse: var(--color-gray-900);
+
+  /* Surface Colors (cards, panels, elevated elements) */
+  --color-surface: var(--color-white);
+  --color-surface-raised: var(--color-white);
+  --color-surface-overlay: var(--color-white);
+  --color-surface-sunken: var(--color-gray-50);
+
+  /* Text Colors */
+  --color-text-primary: var(--color-gray-900);
+  --color-text-secondary: var(--color-gray-600);
+  --color-text-tertiary: var(--color-gray-500);
+  --color-text-muted: var(--color-gray-400);
+  --color-text-inverse: var(--color-white);
+  --color-text-disabled: var(--color-gray-400);
+
+  /* Border Colors */
+  --color-border-default: var(--color-gray-200);
+  --color-border-subtle: var(--color-gray-100);
+  --color-border-strong: var(--color-gray-300);
+  --color-border-inverse: var(--color-gray-700);
+
+  /* Interactive Colors */
+  --color-interactive: var(--color-blue-600);
+  --color-interactive-hover: var(--color-blue-700);
+  --color-interactive-active: var(--color-blue-800);
+  --color-interactive-muted: var(--color-blue-100);
+
+  /* Primary (Brand) */
+  --color-primary: var(--color-blue-600);
+  --color-primary-hover: var(--color-blue-700);
+  --color-primary-active: var(--color-blue-800);
+  --color-primary-subtle: var(--color-blue-50);
+  --color-primary-muted: var(--color-blue-100);
+  --color-primary-text: var(--color-white);
+
+  /* Secondary */
+  --color-secondary: var(--color-gray-600);
+  --color-secondary-hover: var(--color-gray-700);
+  --color-secondary-active: var(--color-gray-800);
+  --color-secondary-subtle: var(--color-gray-50);
+  --color-secondary-muted: var(--color-gray-100);
+  --color-secondary-text: var(--color-white);
+
+  /* Success State */
+  --color-success: var(--color-green-600);
+  --color-success-hover: var(--color-green-700);
+  --color-success-active: var(--color-green-800);
+  --color-success-subtle: var(--color-green-50);
+  --color-success-muted: var(--color-green-100);
+  --color-success-text: var(--color-white);
+
+  /* Warning State */
+  --color-warning: var(--color-amber-500);
+  --color-warning-hover: var(--color-amber-600);
+  --color-warning-active: var(--color-amber-700);
+  --color-warning-subtle: var(--color-amber-50);
+  --color-warning-muted: var(--color-amber-100);
+  --color-warning-text: var(--color-gray-900);
+
+  /* Error/Danger State */
+  --color-error: var(--color-red-600);
+  --color-error-hover: var(--color-red-700);
+  --color-error-active: var(--color-red-800);
+  --color-error-subtle: var(--color-red-50);
+  --color-error-muted: var(--color-red-100);
+  --color-error-text: var(--color-white);
+
+  /* Info State */
+  --color-info: var(--color-blue-500);
+  --color-info-hover: var(--color-blue-600);
+  --color-info-active: var(--color-blue-700);
+  --color-info-subtle: var(--color-blue-50);
+  --color-info-muted: var(--color-blue-100);
+  --color-info-text: var(--color-white);
+
+  /* Focus State */
+  --color-focus-ring: var(--color-blue-500);
+  --color-focus-ring-offset: var(--color-white);
+
+  /* Link Colors */
+  --color-link: var(--color-blue-600);
+  --color-link-hover: var(--color-blue-800);
+  --color-link-visited: var(--color-purple-600);
+
+  /* ========================================
+   * SEMANTIC SPACING
+   * ======================================== */
+
+  /* Inline Spacing (horizontal, within elements) */
+  --spacing-inline-xs: var(--spacing-1);
+  --spacing-inline-sm: var(--spacing-2);
+  --spacing-inline-md: var(--spacing-3);
+  --spacing-inline-lg: var(--spacing-4);
+  --spacing-inline-xl: var(--spacing-6);
+
+  /* Stack Spacing (vertical, between elements) */
+  --spacing-stack-xs: var(--spacing-1);
+  --spacing-stack-sm: var(--spacing-2);
+  --spacing-stack-md: var(--spacing-4);
+  --spacing-stack-lg: var(--spacing-6);
+  --spacing-stack-xl: var(--spacing-8);
+  --spacing-stack-2xl: var(--spacing-12);
+
+  /* Section Spacing (major layout divisions) */
+  --spacing-section-sm: var(--spacing-8);
+  --spacing-section-md: var(--spacing-12);
+  --spacing-section-lg: var(--spacing-16);
+  --spacing-section-xl: var(--spacing-24);
+
+  /* Gap Spacing (grid/flex gaps) */
+  --spacing-gap-xs: var(--spacing-2);
+  --spacing-gap-sm: var(--spacing-3);
+  --spacing-gap-md: var(--spacing-4);
+  --spacing-gap-lg: var(--spacing-6);
+  --spacing-gap-xl: var(--spacing-8);
+
+  /* ========================================
+   * SEMANTIC TYPOGRAPHY
+   * ======================================== */
+
+  /* Display Text (hero sections, large headings) */
+  --font-size-display: var(--font-size-fluid-7xl);
+  --font-weight-display: var(--font-weight-bold);
+  --line-height-display: var(--line-height-tight);
+  --letter-spacing-display: var(--letter-spacing-tight);
+
+  /* Heading Sizes */
+  --font-size-h1: var(--font-size-fluid-5xl);
+  --font-size-h2: var(--font-size-fluid-4xl);
+  --font-size-h3: var(--font-size-fluid-3xl);
+  --font-size-h4: var(--font-size-fluid-2xl);
+  --font-size-h5: var(--font-size-fluid-xl);
+  --font-size-h6: var(--font-size-fluid-lg);
+
+  /* Heading Weights */
+  --font-weight-heading: var(--font-weight-bold);
+  --line-height-heading: var(--line-height-tight);
+  --letter-spacing-heading: var(--letter-spacing-tight);
+
+  /* Body Text */
+  --font-size-body-lg: var(--font-size-lg);
+  --font-size-body: var(--font-size-base);
+  --font-size-body-sm: var(--font-size-sm);
+  --font-weight-body: var(--font-weight-normal);
+  --line-height-body: var(--line-height-normal);
+  --letter-spacing-body: var(--letter-spacing-normal);
+
+  /* Caption/Small Text */
+  --font-size-caption: var(--font-size-xs);
+  --font-weight-caption: var(--font-weight-normal);
+  --line-height-caption: var(--line-height-normal);
+
+  /* Label Text (form labels, badges) */
+  --font-size-label: var(--font-size-sm);
+  --font-weight-label: var(--font-weight-medium);
+  --line-height-label: var(--line-height-tight);
+
+  /* Code/Monospace */
+  --font-size-code: var(--font-size-sm);
+  --font-weight-code: var(--font-weight-normal);
+  --line-height-code: var(--line-height-relaxed);
+
+  /* ========================================
+   * SEMANTIC BORDERS
+   * ======================================== */
+
+  --border-width-default: var(--border-width-1);
+  --border-width-thick: var(--border-width-2);
+
+  --border-default: var(--border-width-1) solid var(--color-border-default);
+  --border-subtle: var(--border-width-1) solid var(--color-border-subtle);
+  --border-strong: var(--border-width-1) solid var(--color-border-strong);
+  --border-focus: var(--border-width-2) solid var(--color-focus-ring);
+
+  /* Border Radius */
+  --radius-button: var(--radius-md);
+  --radius-input: var(--radius-md);
+  --radius-card: var(--radius-lg);
+  --radius-badge: var(--radius-full);
+  --radius-avatar: var(--radius-full);
+  --radius-modal: var(--radius-xl);
+  --radius-tooltip: var(--radius-md);
+
+  /* ========================================
+   * SEMANTIC SHADOWS
+   * ======================================== */
+
+  --shadow-card: var(--shadow-sm);
+  --shadow-card-hover: var(--shadow-md);
+  --shadow-dropdown: var(--shadow-lg);
+  --shadow-modal: var(--shadow-xl);
+  --shadow-toast: var(--shadow-lg);
+  --shadow-tooltip: var(--shadow-md);
+  --shadow-popover: var(--shadow-lg);
+
+  /* ========================================
+   * SEMANTIC MOTION
+   * ======================================== */
+
+  /* Transition Speeds */
+  --transition-fast: var(--duration-150) var(--ease-out);
+  --transition-normal: var(--duration-200) var(--ease-in-out);
+  --transition-slow: var(--duration-300) var(--ease-in-out);
+
+  /* Specific Transitions */
+  --transition-colors: color var(--duration-150) var(--ease-out),
+                       background-color var(--duration-150) var(--ease-out),
+                       border-color var(--duration-150) var(--ease-out);
+  --transition-opacity: opacity var(--duration-200) var(--ease-in-out);
+  --transition-transform: transform var(--duration-200) var(--ease-out);
+  --transition-shadow: box-shadow var(--duration-200) var(--ease-out);
+  --transition-all: all var(--duration-200) var(--ease-in-out);
+
+  /* ========================================
+   * SEMANTIC FOCUS
+   * ======================================== */
+
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+  --focus-ring-color: var(--color-focus-ring);
+  --focus-ring: 0 0 0 var(--focus-ring-offset) var(--color-focus-ring-offset),
+                0 0 0 calc(var(--focus-ring-offset) + var(--focus-ring-width)) var(--color-focus-ring);
+
+  /* ========================================
+   * SEMANTIC LAYOUT
+   * ======================================== */
+
+  /* Container */
+  --container-max-width: var(--container-7xl);
+  --container-padding: var(--spacing-4);
+
+  /* Touch Targets (WCAG 2.5.5) */
+  --touch-target-min: 44px;
+
+  /* Content Width */
+  --content-width-narrow: var(--container-2xl);
+  --content-width-medium: var(--container-4xl);
+  --content-width-wide: var(--container-6xl);
+  --content-width-prose: var(--container-prose);
+}
+
+/* ========================================
+ * DARK MODE OVERRIDES
+ * ======================================== */
+
+:root[data-theme="dark"],
+.dark {
+  /* Background Colors */
+  --color-background: var(--color-gray-950);
+  --color-background-subtle: var(--color-gray-900);
+  --color-background-muted: var(--color-gray-800);
+  --color-background-emphasis: var(--color-gray-700);
+  --color-background-inverse: var(--color-gray-50);
+
+  /* Surface Colors */
+  --color-surface: var(--color-gray-900);
+  --color-surface-raised: var(--color-gray-800);
+  --color-surface-overlay: var(--color-gray-800);
+  --color-surface-sunken: var(--color-gray-950);
+
+  /* Text Colors */
+  --color-text-primary: var(--color-gray-50);
+  --color-text-secondary: var(--color-gray-300);
+  --color-text-tertiary: var(--color-gray-400);
+  --color-text-muted: var(--color-gray-500);
+  --color-text-inverse: var(--color-gray-900);
+  --color-text-disabled: var(--color-gray-600);
+
+  /* Border Colors */
+  --color-border-default: var(--color-gray-700);
+  --color-border-subtle: var(--color-gray-800);
+  --color-border-strong: var(--color-gray-600);
+  --color-border-inverse: var(--color-gray-300);
+
+  /* Interactive Colors */
+  --color-interactive: var(--color-blue-400);
+  --color-interactive-hover: var(--color-blue-300);
+  --color-interactive-active: var(--color-blue-200);
+  --color-interactive-muted: var(--color-blue-900);
+
+  /* Primary */
+  --color-primary: var(--color-blue-500);
+  --color-primary-hover: var(--color-blue-400);
+  --color-primary-active: var(--color-blue-300);
+  --color-primary-subtle: var(--color-blue-950);
+  --color-primary-muted: var(--color-blue-900);
+
+  /* Secondary */
+  --color-secondary: var(--color-gray-400);
+  --color-secondary-hover: var(--color-gray-300);
+  --color-secondary-active: var(--color-gray-200);
+  --color-secondary-subtle: var(--color-gray-900);
+  --color-secondary-muted: var(--color-gray-800);
+
+  /* Success State */
+  --color-success: var(--color-green-500);
+  --color-success-hover: var(--color-green-400);
+  --color-success-active: var(--color-green-300);
+  --color-success-subtle: var(--color-green-950);
+  --color-success-muted: var(--color-green-900);
+
+  /* Warning State */
+  --color-warning: var(--color-amber-400);
+  --color-warning-hover: var(--color-amber-300);
+  --color-warning-active: var(--color-amber-200);
+  --color-warning-subtle: var(--color-amber-950);
+  --color-warning-muted: var(--color-amber-900);
+
+  /* Error State */
+  --color-error: var(--color-red-500);
+  --color-error-hover: var(--color-red-400);
+  --color-error-active: var(--color-red-300);
+  --color-error-subtle: var(--color-red-950);
+  --color-error-muted: var(--color-red-900);
+
+  /* Info State */
+  --color-info: var(--color-blue-400);
+  --color-info-hover: var(--color-blue-300);
+  --color-info-active: var(--color-blue-200);
+  --color-info-subtle: var(--color-blue-950);
+  --color-info-muted: var(--color-blue-900);
+
+  /* Focus */
+  --color-focus-ring: var(--color-blue-400);
+  --color-focus-ring-offset: var(--color-gray-950);
+
+  /* Links */
+  --color-link: var(--color-blue-400);
+  --color-link-hover: var(--color-blue-300);
+  --color-link-visited: var(--color-purple-400);
+
+  /* Shadows (more subtle in dark mode) */
+  --shadow-card: 0 2px 8px 0 rgb(0 0 0 / 0.3);
+  --shadow-card-hover: 0 4px 12px 0 rgb(0 0 0 / 0.4);
+  --shadow-dropdown: 0 8px 24px 0 rgb(0 0 0 / 0.5);
+  --shadow-modal: 0 16px 48px 0 rgb(0 0 0 / 0.6);
+}
+
+/* ========================================
+ * SYSTEM PREFERENCE DETECTION
+ * ======================================== */
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    /* Background Colors */
+    --color-background: var(--color-gray-950);
+    --color-background-subtle: var(--color-gray-900);
+    --color-background-muted: var(--color-gray-800);
+    --color-background-emphasis: var(--color-gray-700);
+    --color-background-inverse: var(--color-gray-50);
+
+    /* Surface Colors */
+    --color-surface: var(--color-gray-900);
+    --color-surface-raised: var(--color-gray-800);
+    --color-surface-overlay: var(--color-gray-800);
+    --color-surface-sunken: var(--color-gray-950);
+
+    /* Text Colors */
+    --color-text-primary: var(--color-gray-50);
+    --color-text-secondary: var(--color-gray-300);
+    --color-text-tertiary: var(--color-gray-400);
+    --color-text-muted: var(--color-gray-500);
+    --color-text-inverse: var(--color-gray-900);
+    --color-text-disabled: var(--color-gray-600);
+
+    /* Border Colors */
+    --color-border-default: var(--color-gray-700);
+    --color-border-subtle: var(--color-gray-800);
+    --color-border-strong: var(--color-gray-600);
+    --color-border-inverse: var(--color-gray-300);
+
+    /* Interactive Colors */
+    --color-interactive: var(--color-blue-400);
+    --color-interactive-hover: var(--color-blue-300);
+    --color-interactive-active: var(--color-blue-200);
+    --color-interactive-muted: var(--color-blue-900);
+
+    /* Primary */
+    --color-primary: var(--color-blue-500);
+    --color-primary-hover: var(--color-blue-400);
+    --color-primary-active: var(--color-blue-300);
+    --color-primary-subtle: var(--color-blue-950);
+    --color-primary-muted: var(--color-blue-900);
+
+    /* Secondary */
+    --color-secondary: var(--color-gray-400);
+    --color-secondary-hover: var(--color-gray-300);
+    --color-secondary-active: var(--color-gray-200);
+    --color-secondary-subtle: var(--color-gray-900);
+    --color-secondary-muted: var(--color-gray-800);
+
+    /* State Colors */
+    --color-success: var(--color-green-500);
+    --color-success-subtle: var(--color-green-950);
+    --color-warning: var(--color-amber-400);
+    --color-warning-subtle: var(--color-amber-950);
+    --color-error: var(--color-red-500);
+    --color-error-subtle: var(--color-red-950);
+    --color-info: var(--color-blue-400);
+    --color-info-subtle: var(--color-blue-950);
+
+    /* Focus */
+    --color-focus-ring: var(--color-blue-400);
+    --color-focus-ring-offset: var(--color-gray-950);
+
+    /* Links */
+    --color-link: var(--color-blue-400);
+    --color-link-hover: var(--color-blue-300);
+    --color-link-visited: var(--color-purple-400);
+
+    /* Shadows */
+    --shadow-card: 0 2px 8px 0 rgb(0 0 0 / 0.3);
+    --shadow-card-hover: 0 4px 12px 0 rgb(0 0 0 / 0.4);
+    --shadow-dropdown: 0 8px 24px 0 rgb(0 0 0 / 0.5);
+    --shadow-modal: 0 16px 48px 0 rgb(0 0 0 / 0.6);
+  }
+}

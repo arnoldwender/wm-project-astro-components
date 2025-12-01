@@ -1,0 +1,504 @@
+/**
+ * Component Design Tokens
+ *
+ * Component-level tokens for specific UI elements
+ * These reference semantic tokens exclusively
+ *
+ * @see https://www.w3.org/community/design-tokens/
+ */
+
+:root {
+  /* ========================================
+   * BUTTON TOKENS
+   * ======================================== */
+
+  /* Button Base */
+  --button-font-family: var(--font-family-sans);
+  --button-font-size: var(--font-size-body);
+  --button-font-weight: var(--font-weight-medium);
+  --button-line-height: var(--line-height-tight);
+  --button-letter-spacing: var(--letter-spacing-normal);
+  --button-border-radius: var(--radius-button);
+  --button-border-width: var(--border-width-1);
+  --button-transition: var(--transition-colors), var(--transition-shadow);
+
+  /* Button Sizes */
+  --button-padding-xs: var(--spacing-1) var(--spacing-2);
+  --button-padding-sm: var(--spacing-1-5) var(--spacing-3);
+  --button-padding-md: var(--spacing-2) var(--spacing-4);
+  --button-padding-lg: var(--spacing-2-5) var(--spacing-5);
+  --button-padding-xl: var(--spacing-3) var(--spacing-6);
+
+  --button-font-size-xs: var(--font-size-xs);
+  --button-font-size-sm: var(--font-size-sm);
+  --button-font-size-md: var(--font-size-base);
+  --button-font-size-lg: var(--font-size-lg);
+  --button-font-size-xl: var(--font-size-xl);
+
+  --button-min-height-xs: 28px;
+  --button-min-height-sm: 32px;
+  --button-min-height-md: 40px;
+  --button-min-height-lg: var(--touch-target-min);
+  --button-min-height-xl: 52px;
+
+  /* Button Primary */
+  --button-primary-bg: var(--color-primary);
+  --button-primary-bg-hover: var(--color-primary-hover);
+  --button-primary-bg-active: var(--color-primary-active);
+  --button-primary-text: var(--color-primary-text);
+  --button-primary-border: transparent;
+  --button-primary-shadow: var(--shadow-sm);
+  --button-primary-shadow-hover: var(--shadow-md);
+
+  /* Button Secondary */
+  --button-secondary-bg: var(--color-background);
+  --button-secondary-bg-hover: var(--color-background-subtle);
+  --button-secondary-bg-active: var(--color-background-muted);
+  --button-secondary-text: var(--color-text-primary);
+  --button-secondary-border: var(--color-border-default);
+  --button-secondary-shadow: var(--shadow-xs);
+  --button-secondary-shadow-hover: var(--shadow-sm);
+
+  /* Button Ghost */
+  --button-ghost-bg: transparent;
+  --button-ghost-bg-hover: var(--color-background-subtle);
+  --button-ghost-bg-active: var(--color-background-muted);
+  --button-ghost-text: var(--color-text-primary);
+  --button-ghost-border: transparent;
+
+  /* Button Danger */
+  --button-danger-bg: var(--color-error);
+  --button-danger-bg-hover: var(--color-error-hover);
+  --button-danger-bg-active: var(--color-error-active);
+  --button-danger-text: var(--color-error-text);
+  --button-danger-border: transparent;
+
+  /* Button Success */
+  --button-success-bg: var(--color-success);
+  --button-success-bg-hover: var(--color-success-hover);
+  --button-success-bg-active: var(--color-success-active);
+  --button-success-text: var(--color-success-text);
+  --button-success-border: transparent;
+
+  /* Button Disabled */
+  --button-disabled-bg: var(--color-background-muted);
+  --button-disabled-text: var(--color-text-disabled);
+  --button-disabled-border: var(--color-border-subtle);
+  --button-disabled-opacity: var(--opacity-60);
+
+  /* ========================================
+   * INPUT/FORM TOKENS
+   * ======================================== */
+
+  /* Input Base */
+  --input-font-family: var(--font-family-sans);
+  --input-font-size: var(--font-size-body);
+  --input-font-weight: var(--font-weight-normal);
+  --input-line-height: var(--line-height-normal);
+  --input-border-radius: var(--radius-input);
+  --input-border-width: var(--border-width-1);
+  --input-transition: var(--transition-colors);
+
+  /* Input Sizes */
+  --input-padding-sm: var(--spacing-1-5) var(--spacing-2-5);
+  --input-padding-md: var(--spacing-2) var(--spacing-3);
+  --input-padding-lg: var(--spacing-2-5) var(--spacing-4);
+
+  --input-min-height-sm: 32px;
+  --input-min-height-md: 40px;
+  --input-min-height-lg: var(--touch-target-min);
+
+  /* Input Colors */
+  --input-bg: var(--color-background);
+  --input-bg-hover: var(--color-background);
+  --input-bg-focus: var(--color-background);
+  --input-bg-disabled: var(--color-background-muted);
+
+  --input-text: var(--color-text-primary);
+  --input-text-placeholder: var(--color-text-muted);
+  --input-text-disabled: var(--color-text-disabled);
+
+  --input-border: var(--color-border-default);
+  --input-border-hover: var(--color-border-strong);
+  --input-border-focus: var(--color-focus-ring);
+  --input-border-error: var(--color-error);
+  --input-border-success: var(--color-success);
+  --input-border-disabled: var(--color-border-subtle);
+
+  /* Label */
+  --label-font-size: var(--font-size-label);
+  --label-font-weight: var(--font-weight-label);
+  --label-line-height: var(--line-height-label);
+  --label-color: var(--color-text-primary);
+  --label-color-disabled: var(--color-text-disabled);
+  --label-margin-bottom: var(--spacing-1-5);
+
+  /* Helper Text */
+  --helper-font-size: var(--font-size-sm);
+  --helper-line-height: var(--line-height-normal);
+  --helper-color: var(--color-text-secondary);
+  --helper-color-error: var(--color-error);
+  --helper-color-success: var(--color-success);
+  --helper-margin-top: var(--spacing-1);
+
+  /* ========================================
+   * CARD TOKENS
+   * ======================================== */
+
+  --card-bg: var(--color-surface);
+  --card-border: var(--border-subtle);
+  --card-border-radius: var(--radius-card);
+  --card-shadow: var(--shadow-card);
+  --card-shadow-hover: var(--shadow-card-hover);
+  --card-transition: var(--transition-shadow);
+
+  /* Card Padding */
+  --card-padding-sm: var(--spacing-3);
+  --card-padding-md: var(--spacing-4);
+  --card-padding-lg: var(--spacing-6);
+
+  /* Card Header */
+  --card-header-padding: var(--spacing-4);
+  --card-header-border: var(--border-subtle);
+
+  /* Card Footer */
+  --card-footer-padding: var(--spacing-4);
+  --card-footer-bg: var(--color-surface-sunken);
+
+  /* ========================================
+   * MODAL/DIALOG TOKENS
+   * ======================================== */
+
+  --modal-bg: var(--color-surface-overlay);
+  --modal-border-radius: var(--radius-modal);
+  --modal-shadow: var(--shadow-modal);
+  --modal-padding: var(--spacing-6);
+  --modal-max-width: var(--container-lg);
+
+  /* Modal Backdrop */
+  --modal-backdrop-bg: rgb(0 0 0 / 0.5);
+  --modal-backdrop-blur: 4px;
+
+  /* Modal Header */
+  --modal-header-padding: var(--spacing-4) var(--spacing-6);
+  --modal-header-border: var(--border-subtle);
+
+  /* Modal Footer */
+  --modal-footer-padding: var(--spacing-4) var(--spacing-6);
+  --modal-footer-bg: var(--color-surface-sunken);
+  --modal-footer-gap: var(--spacing-3);
+
+  /* ========================================
+   * DROPDOWN/SELECT TOKENS
+   * ======================================== */
+
+  --dropdown-bg: var(--color-surface);
+  --dropdown-border: var(--border-default);
+  --dropdown-border-radius: var(--radius-lg);
+  --dropdown-shadow: var(--shadow-dropdown);
+  --dropdown-max-height: 300px;
+  --dropdown-padding: var(--spacing-1);
+
+  /* Dropdown Item */
+  --dropdown-item-padding: var(--spacing-2) var(--spacing-3);
+  --dropdown-item-border-radius: var(--radius-md);
+  --dropdown-item-bg-hover: var(--color-background-subtle);
+  --dropdown-item-bg-active: var(--color-primary-muted);
+  --dropdown-item-text: var(--color-text-primary);
+  --dropdown-item-text-hover: var(--color-text-primary);
+  --dropdown-item-text-active: var(--color-primary);
+
+  /* ========================================
+   * TOOLTIP TOKENS
+   * ======================================== */
+
+  --tooltip-bg: var(--color-gray-900);
+  --tooltip-text: var(--color-white);
+  --tooltip-font-size: var(--font-size-sm);
+  --tooltip-padding: var(--spacing-1-5) var(--spacing-2-5);
+  --tooltip-border-radius: var(--radius-tooltip);
+  --tooltip-shadow: var(--shadow-tooltip);
+  --tooltip-max-width: 250px;
+
+  /* ========================================
+   * BADGE TOKENS
+   * ======================================== */
+
+  --badge-font-size: var(--font-size-xs);
+  --badge-font-weight: var(--font-weight-medium);
+  --badge-line-height: var(--line-height-tight);
+  --badge-padding: var(--spacing-0-5) var(--spacing-2);
+  --badge-border-radius: var(--radius-badge);
+
+  /* Badge Variants */
+  --badge-primary-bg: var(--color-primary-muted);
+  --badge-primary-text: var(--color-primary);
+
+  --badge-secondary-bg: var(--color-background-muted);
+  --badge-secondary-text: var(--color-text-secondary);
+
+  --badge-success-bg: var(--color-success-muted);
+  --badge-success-text: var(--color-success);
+
+  --badge-warning-bg: var(--color-warning-muted);
+  --badge-warning-text: var(--color-warning);
+
+  --badge-error-bg: var(--color-error-muted);
+  --badge-error-text: var(--color-error);
+
+  /* ========================================
+   * ALERT TOKENS
+   * ======================================== */
+
+  --alert-padding: var(--spacing-4);
+  --alert-border-radius: var(--radius-lg);
+  --alert-border-width: var(--border-width-1);
+  --alert-font-size: var(--font-size-body);
+  --alert-icon-size: 20px;
+  --alert-gap: var(--spacing-3);
+
+  /* Alert Variants */
+  --alert-info-bg: var(--color-info-subtle);
+  --alert-info-border: var(--color-info);
+  --alert-info-text: var(--color-info);
+  --alert-info-icon: var(--color-info);
+
+  --alert-success-bg: var(--color-success-subtle);
+  --alert-success-border: var(--color-success);
+  --alert-success-text: var(--color-success);
+  --alert-success-icon: var(--color-success);
+
+  --alert-warning-bg: var(--color-warning-subtle);
+  --alert-warning-border: var(--color-warning);
+  --alert-warning-text: var(--color-text-primary);
+  --alert-warning-icon: var(--color-warning);
+
+  --alert-error-bg: var(--color-error-subtle);
+  --alert-error-border: var(--color-error);
+  --alert-error-text: var(--color-error);
+  --alert-error-icon: var(--color-error);
+
+  /* ========================================
+   * AVATAR TOKENS
+   * ======================================== */
+
+  --avatar-border-radius: var(--radius-avatar);
+  --avatar-bg: var(--color-background-muted);
+  --avatar-text: var(--color-text-secondary);
+  --avatar-font-weight: var(--font-weight-medium);
+
+  /* Avatar Sizes */
+  --avatar-size-xs: 24px;
+  --avatar-size-sm: 32px;
+  --avatar-size-md: 40px;
+  --avatar-size-lg: 48px;
+  --avatar-size-xl: 64px;
+  --avatar-size-2xl: 96px;
+
+  /* ========================================
+   * TABLE TOKENS
+   * ======================================== */
+
+  --table-border-radius: var(--radius-lg);
+  --table-border: var(--border-default);
+
+  /* Table Header */
+  --table-header-bg: var(--color-background-subtle);
+  --table-header-text: var(--color-text-primary);
+  --table-header-font-weight: var(--font-weight-semibold);
+  --table-header-padding: var(--spacing-3) var(--spacing-4);
+
+  /* Table Cell */
+  --table-cell-padding: var(--spacing-3) var(--spacing-4);
+  --table-cell-border: var(--border-subtle);
+
+  /* Table Row */
+  --table-row-bg: var(--color-surface);
+  --table-row-bg-hover: var(--color-background-subtle);
+  --table-row-bg-striped: var(--color-background-subtle);
+  --table-row-bg-selected: var(--color-primary-subtle);
+
+  /* ========================================
+   * TABS TOKENS
+   * ======================================== */
+
+  --tabs-border: var(--border-subtle);
+  --tabs-gap: var(--spacing-1);
+
+  /* Tab Item */
+  --tab-padding: var(--spacing-2) var(--spacing-4);
+  --tab-font-size: var(--font-size-body);
+  --tab-font-weight: var(--font-weight-medium);
+  --tab-text: var(--color-text-secondary);
+  --tab-text-hover: var(--color-text-primary);
+  --tab-text-active: var(--color-primary);
+  --tab-bg: transparent;
+  --tab-bg-hover: var(--color-background-subtle);
+  --tab-bg-active: transparent;
+  --tab-border-radius: var(--radius-md);
+  --tab-indicator-height: 2px;
+  --tab-indicator-color: var(--color-primary);
+
+  /* ========================================
+   * TOAST/NOTIFICATION TOKENS
+   * ======================================== */
+
+  --toast-bg: var(--color-surface);
+  --toast-border-radius: var(--radius-lg);
+  --toast-shadow: var(--shadow-toast);
+  --toast-padding: var(--spacing-4);
+  --toast-max-width: 400px;
+  --toast-gap: var(--spacing-3);
+
+  /* ========================================
+   * PROGRESS TOKENS
+   * ======================================== */
+
+  --progress-height: 8px;
+  --progress-border-radius: var(--radius-full);
+  --progress-bg: var(--color-background-muted);
+  --progress-fill: var(--color-primary);
+  --progress-transition: width var(--duration-300) var(--ease-out);
+
+  /* ========================================
+   * SKELETON TOKENS
+   * ======================================== */
+
+  --skeleton-bg: var(--color-background-muted);
+  --skeleton-shine: linear-gradient(
+    90deg,
+    var(--color-background-muted) 0%,
+    var(--color-background-subtle) 50%,
+    var(--color-background-muted) 100%
+  );
+  --skeleton-border-radius: var(--radius-md);
+
+  /* ========================================
+   * DIVIDER TOKENS
+   * ======================================== */
+
+  --divider-color: var(--color-border-default);
+  --divider-thickness: 1px;
+  --divider-spacing: var(--spacing-4);
+
+  /* ========================================
+   * SWITCH/TOGGLE TOKENS
+   * ======================================== */
+
+  --switch-width: 44px;
+  --switch-height: 24px;
+  --switch-thumb-size: 20px;
+  --switch-padding: 2px;
+  --switch-border-radius: var(--radius-full);
+  --switch-transition: var(--transition-colors);
+
+  --switch-bg: var(--color-background-emphasis);
+  --switch-bg-checked: var(--color-primary);
+  --switch-thumb-bg: var(--color-white);
+  --switch-thumb-shadow: var(--shadow-sm);
+
+  /* ========================================
+   * CHECKBOX/RADIO TOKENS
+   * ======================================== */
+
+  --checkbox-size: 18px;
+  --checkbox-border-radius: var(--radius-base);
+  --checkbox-border-width: var(--border-width-2);
+  --checkbox-border: var(--color-border-strong);
+  --checkbox-bg: var(--color-background);
+  --checkbox-bg-checked: var(--color-primary);
+  --checkbox-border-checked: var(--color-primary);
+  --checkbox-check-color: var(--color-white);
+
+  --radio-size: 18px;
+  --radio-border-radius: var(--radius-full);
+  --radio-border-width: var(--border-width-2);
+  --radio-dot-size: 8px;
+
+  /* ========================================
+   * BREADCRUMB TOKENS
+   * ======================================== */
+
+  --breadcrumb-font-size: var(--font-size-sm);
+  --breadcrumb-gap: var(--spacing-2);
+  --breadcrumb-separator-color: var(--color-text-muted);
+  --breadcrumb-link-color: var(--color-text-secondary);
+  --breadcrumb-link-color-hover: var(--color-primary);
+  --breadcrumb-current-color: var(--color-text-primary);
+
+  /* ========================================
+   * PAGINATION TOKENS
+   * ======================================== */
+
+  --pagination-gap: var(--spacing-1);
+  --pagination-item-size: 36px;
+  --pagination-item-border-radius: var(--radius-md);
+  --pagination-item-font-size: var(--font-size-sm);
+  --pagination-item-bg: transparent;
+  --pagination-item-bg-hover: var(--color-background-subtle);
+  --pagination-item-bg-active: var(--color-primary);
+  --pagination-item-text: var(--color-text-secondary);
+  --pagination-item-text-hover: var(--color-text-primary);
+  --pagination-item-text-active: var(--color-primary-text);
+
+  /* ========================================
+   * SLIDER TOKENS
+   * ======================================== */
+
+  --slider-track-height: 6px;
+  --slider-track-bg: var(--color-background-muted);
+  --slider-track-fill: var(--color-primary);
+  --slider-track-border-radius: var(--radius-full);
+
+  --slider-thumb-size: 20px;
+  --slider-thumb-bg: var(--color-white);
+  --slider-thumb-border: 2px solid var(--color-primary);
+  --slider-thumb-shadow: var(--shadow-sm);
+  --slider-thumb-border-radius: var(--radius-full);
+
+  /* ========================================
+   * ACCORDION TOKENS
+   * ======================================== */
+
+  --accordion-border: var(--border-default);
+  --accordion-border-radius: var(--radius-lg);
+
+  --accordion-header-padding: var(--spacing-4);
+  --accordion-header-bg: var(--color-surface);
+  --accordion-header-bg-hover: var(--color-background-subtle);
+  --accordion-header-font-weight: var(--font-weight-medium);
+
+  --accordion-content-padding: var(--spacing-4);
+  --accordion-content-bg: var(--color-surface);
+
+  --accordion-icon-size: 20px;
+  --accordion-transition: var(--duration-200) var(--ease-in-out);
+
+  /* ========================================
+   * NAVIGATION TOKENS
+   * ======================================== */
+
+  /* Navbar */
+  --navbar-height: 64px;
+  --navbar-bg: var(--color-surface);
+  --navbar-border: var(--border-subtle);
+  --navbar-shadow: var(--shadow-sm);
+  --navbar-padding: 0 var(--spacing-4);
+
+  /* Nav Item */
+  --nav-item-padding: var(--spacing-2) var(--spacing-3);
+  --nav-item-font-size: var(--font-size-body);
+  --nav-item-font-weight: var(--font-weight-medium);
+  --nav-item-text: var(--color-text-secondary);
+  --nav-item-text-hover: var(--color-text-primary);
+  --nav-item-text-active: var(--color-primary);
+  --nav-item-bg-hover: var(--color-background-subtle);
+  --nav-item-border-radius: var(--radius-md);
+
+  /* Sidebar */
+  --sidebar-width: 280px;
+  --sidebar-width-collapsed: 64px;
+  --sidebar-bg: var(--color-surface);
+  --sidebar-border: var(--border-subtle);
+  --sidebar-padding: var(--spacing-4);
+}

@@ -1,0 +1,12 @@
+/**
+ * Design System Tokens - Main Entry Point
+ *
+ * Import this file to get all design tokens.
+ * Order matters: primitives → semantic → components
+ *
+ * @package @wendermedia/astro-components
+ */
+
+@import './primitives.css';
+@import './semantic.css';
+@import './components.css';
