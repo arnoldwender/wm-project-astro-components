@@ -1,0 +1,9 @@
+/**
+ * Base Styles - Main Entry Point
+ *
+ * Includes CSS reset and base typography
+ * Import this after tokens for a complete foundation
+ */
+
+@import './reset.css';
+@import './typography.css';
