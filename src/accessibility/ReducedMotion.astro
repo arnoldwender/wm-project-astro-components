@@ -1,0 +1,252 @@
+---
+/**
+ * Reduced Motion Preference Component
+ *
+ * Respects prefers-reduced-motion media query and provides
+ * user control for motion preferences.
+ *
+ * Features:
+ * - Auto-detects system preference
+ * - User toggle override
+ * - localStorage persistence
+ * - CSS custom property injection
+ * - JavaScript API
+ *
+ * Use with CSS:
+ * - --motion-duration: 0s (reduced) or normal value
+ * - --motion-ok: 0 (reduced) or 1 (normal)
+ */
+
+export interface Props {
+  defaultReduced?: boolean;
+  storageKey?: string;
+  injectStyles?: boolean;
+  showToggle?: boolean;
+  labels?: {
+    enable?: string;
+    disable?: string;
+  };
+  class?: string;
+}
+
+const {
+  defaultReduced,
+  storageKey = 'reduced-motion',
+  injectStyles = true,
+  showToggle = false,
+  labels = {
+    enable: 'Enable animations',
+    disable: 'Disable animations',
+  },
+  class: className = '',
+} = Astro.props;
+---
+
+{showToggle && (
+  <button
+    type="button"
+    class:list={[
+      'reduced-motion-toggle inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500',
+      className
+    ]}
+    aria-pressed="false"
+    data-reduced-motion-toggle
+    data-label-enable={labels.enable}
+    data-label-disable={labels.disable}
+  >
+    <svg class="w-5 h-5" data-motion-icon-on fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <svg class="w-5 h-5 hidden" data-motion-icon-off fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <span data-motion-label>{labels.disable}</span>
+  </button>
+)}
+
+<div
+  data-reduced-motion-controller
+  data-storage-key={storageKey}
+  data-default={defaultReduced}
+  data-inject-styles={injectStyles}
+  class="hidden"
+  aria-hidden="true"
+/>
+
+{injectStyles && (
+  <style is:global>
+    /* Default motion values */
+    :root {
+      --motion-duration: 0.3s;
+      --motion-ok: 1;
+    }
+
+    /* Reduced motion - system preference */
+    @media (prefers-reduced-motion: reduce) {
+      :root {
+        --motion-duration: 0.01ms;
+        --motion-ok: 0;
+      }
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+
+    /* Reduced motion - user override */
+    .reduced-motion,
+    .reduced-motion *,
+    .reduced-motion *::before,
+    .reduced-motion *::after {
+      --motion-duration: 0.01ms !important;
+      --motion-ok: 0 !important;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+
+    /* Force motion - user override (even if system prefers reduced) */
+    .force-motion,
+    .force-motion *,
+    .force-motion *::before,
+    .force-motion *::after {
+      --motion-duration: 0.3s;
+      --motion-ok: 1;
+    }
+  </style>
+)}
+
+<script>
+declare global {
+  interface Window {
+    motionPreference: {
+      isReduced: () => boolean;
+      setReduced: (reduced: boolean) => void;
+      toggle: () => void;
+      reset: () => void;
+    };
+  }
+}
+
+function initReducedMotion() {
+  const controller = document.querySelector('[data-reduced-motion-controller]');
+  const toggleBtns = document.querySelectorAll('[data-reduced-motion-toggle]');
+
+  const storageKey = controller?.getAttribute('data-storage-key') || 'reduced-motion';
+  const defaultReduced = controller?.getAttribute('data-default') === 'true';
+
+  // Check system preference
+  const systemPrefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Get stored preference
+  let storedPreference: boolean | null = null;
+  try {
+    const stored = localStorage.getItem(storageKey);
+    if (stored !== null) {
+      storedPreference = stored === 'true';
+    }
+  } catch (e) {
+    // localStorage not available
+  }
+
+  // Determine initial state
+  let isReduced = storedPreference ?? defaultReduced ?? systemPrefersReduced;
+
+  function applyPreference() {
+    document.documentElement.classList.toggle('reduced-motion', isReduced);
+    document.documentElement.classList.toggle('force-motion', !isReduced && systemPrefersReduced);
+
+    // Update toggle buttons
+    toggleBtns.forEach(btn => {
+      btn.setAttribute('aria-pressed', isReduced.toString());
+
+      const iconOn = btn.querySelector('[data-motion-icon-on]');
+      const iconOff = btn.querySelector('[data-motion-icon-off]');
+      const label = btn.querySelector('[data-motion-label]');
+
+      if (iconOn && iconOff) {
+        iconOn.classList.toggle('hidden', isReduced);
+        iconOff.classList.toggle('hidden', !isReduced);
+      }
+
+      if (label) {
+        const enableLabel = btn.getAttribute('data-label-enable') || 'Enable animations';
+        const disableLabel = btn.getAttribute('data-label-disable') || 'Disable animations';
+        label.textContent = isReduced ? enableLabel : disableLabel;
+      }
+    });
+
+    // Dispatch custom event
+    document.dispatchEvent(new CustomEvent('motionpreference:change', {
+      detail: { reduced: isReduced }
+    }));
+  }
+
+  function savePreference() {
+    try {
+      localStorage.setItem(storageKey, isReduced.toString());
+    } catch (e) {
+      // localStorage not available
+    }
+  }
+
+  // Global API
+  window.motionPreference = {
+    isReduced: () => isReduced,
+    setReduced: (reduced: boolean) => {
+      isReduced = reduced;
+      applyPreference();
+      savePreference();
+    },
+    toggle: () => {
+      isReduced = !isReduced;
+      applyPreference();
+      savePreference();
+    },
+    reset: () => {
+      try {
+        localStorage.removeItem(storageKey);
+      } catch (e) {}
+      isReduced = systemPrefersReduced;
+      document.documentElement.classList.remove('reduced-motion', 'force-motion');
+      applyPreference();
+    }
+  };
+
+  // Toggle button handlers
+  toggleBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      window.motionPreference.toggle();
+    });
+  });
+
+  // Listen for system preference changes
+  window.matchMedia('(prefers-reduced-motion: reduce)').addEventListener('change', (e) => {
+    // Only auto-update if user hasn't set a preference
+    if (storedPreference === null) {
+      isReduced = e.matches;
+      applyPreference();
+    }
+  });
+
+  // Initial apply
+  applyPreference();
+}
+
+// Initialize
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initReducedMotion);
+} else {
+  initReducedMotion();
+}
+
+// View Transitions support
+document.addEventListener('astro:page-load', initReducedMotion);
+</script>
