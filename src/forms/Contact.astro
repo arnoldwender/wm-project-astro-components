@@ -1,0 +1,713 @@
+---
+/**
+ * Premium Contact Form Component
+ *
+ * GDPR/DSGVO compliant contact form with:
+ * - Honeypot spam protection
+ * - Client-side validation
+ * - Server-side validation ready
+ * - File upload support
+ * - Multiple layout variants
+ * - Success/error states
+ * - Accessibility compliant (WCAG 2.1)
+ *
+ * GDPR Requirements:
+ * - Explicit consent checkbox
+ * - Privacy policy link
+ * - Data minimization (only required fields)
+ * - Clear purpose statement
+ */
+
+export interface ContactField {
+  name: string;
+  label: string;
+  type: 'text' | 'email' | 'tel' | 'textarea' | 'select' | 'file';
+  placeholder?: string;
+  required?: boolean;
+  options?: Array<{ value: string; label: string }>;
+  rows?: number;
+  accept?: string;
+  maxSize?: number;
+}
+
+export interface Props {
+  // Content
+  title?: string;
+  subtitle?: string;
+  description?: string;
+
+  // Form
+  fields?: ContactField[];
+  action?: string;
+  method?: 'POST' | 'GET';
+
+  // Consent
+  consentRequired?: boolean;
+  consentText?: string;
+  privacyPolicyUrl: string;
+  privacyPolicyText?: string;
+
+  // Layout
+  variant?: 'default' | 'split' | 'minimal' | 'card';
+
+  // Contact info sidebar
+  showContactInfo?: boolean;
+  contactInfo?: {
+    email?: string;
+    phone?: string;
+    address?: string;
+    hours?: string;
+  };
+  socialLinks?: Array<{
+    platform: string;
+    url: string;
+    icon: string;
+  }>;
+
+  // Messages
+  submitText?: string;
+  successTitle?: string;
+  successMessage?: string;
+  errorMessage?: string;
+
+  class?: string;
+}
+
+const {
+  title = 'Get in touch',
+  subtitle,
+  description = 'Have a question or want to work together? Send us a message.',
+  fields = [
+    { name: 'name', label: 'Name', type: 'text', required: true, placeholder: 'Your name' },
+    { name: 'email', label: 'Email', type: 'email', required: true, placeholder: 'your@email.com' },
+    { name: 'subject', label: 'Subject', type: 'text', placeholder: 'How can we help?' },
+    { name: 'message', label: 'Message', type: 'textarea', required: true, rows: 5, placeholder: 'Your message...' },
+  ],
+  action = '/api/contact',
+  method = 'POST',
+  consentRequired = true,
+  consentText = 'I agree to the processing of my data according to the',
+  privacyPolicyUrl,
+  privacyPolicyText = 'Privacy Policy',
+  variant = 'default',
+  showContactInfo = true,
+  contactInfo,
+  socialLinks = [],
+  submitText = 'Send Message',
+  successTitle = 'Message sent!',
+  successMessage = 'Thank you for your message. We\'ll get back to you soon.',
+  errorMessage = 'Something went wrong. Please try again or contact us directly.',
+  class: className = '',
+} = Astro.props;
+
+const formId = `contact-${Math.random().toString(36).substring(2, 9)}`;
+---
+
+<section
+  class:list={['contact-section py-16 md:py-24 lg:py-32', className]}
+  data-contact-section
+  data-form-id={formId}
+>
+  <div class="container mx-auto px-4">
+    {/* Header */}
+    {variant !== 'minimal' && (
+      <div class="text-center max-w-3xl mx-auto mb-12">
+        {subtitle && (
+          <p class="text-sm uppercase tracking-wider text-blue-600 dark:text-blue-400 font-semibold mb-4">
+            {subtitle}
+          </p>
+        )}
+        <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
+          {title}
+        </h2>
+        {description && (
+          <p class="text-lg text-gray-600 dark:text-gray-400">
+            {description}
+          </p>
+        )}
+      </div>
+    )}
+
+    {/* Default Layout */}
+    {variant === 'default' && (
+      <div class="max-w-2xl mx-auto">
+        <form
+          id={formId}
+          action={action}
+          method={method}
+          class="space-y-6"
+          data-contact-form
+          enctype="multipart/form-data"
+        >
+          {/* Honeypot */}
+          <div class="hidden" aria-hidden="true">
+            <input type="text" name="website" tabindex="-1" autocomplete="off" />
+          </div>
+
+          {/* Dynamic Fields */}
+          {fields.map((field) => (
+            <div>
+              <label
+                for={`${formId}-${field.name}`}
+                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >
+                {field.label}
+                {field.required && <span class="text-red-500 ml-1">*</span>}
+              </label>
+
+              {field.type === 'textarea' ? (
+                <textarea
+                  id={`${formId}-${field.name}`}
+                  name={field.name}
+                  required={field.required}
+                  rows={field.rows || 4}
+                  placeholder={field.placeholder}
+                  class="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-y"
+                />
+              ) : field.type === 'select' ? (
+                <select
+                  id={`${formId}-${field.name}`}
+                  name={field.name}
+                  required={field.required}
+                  class="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                >
+                  <option value="">{field.placeholder || 'Select an option'}</option>
+                  {field.options?.map((option) => (
+                    <option value={option.value}>{option.label}</option>
+                  ))}
+                </select>
+              ) : field.type === 'file' ? (
+                <div class="relative">
+                  <input
+                    type="file"
+                    id={`${formId}-${field.name}`}
+                    name={field.name}
+                    required={field.required}
+                    accept={field.accept}
+                    class="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-blue-50 file:text-blue-700 dark:file:bg-blue-900/30 dark:file:text-blue-400 hover:file:bg-blue-100"
+                    data-max-size={field.maxSize}
+                  />
+                  {field.maxSize && (
+                    <p class="text-xs text-gray-500 mt-1">
+                      Max file size: {(field.maxSize / 1024 / 1024).toFixed(0)}MB
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <input
+                  type={field.type}
+                  id={`${formId}-${field.name}`}
+                  name={field.name}
+                  required={field.required}
+                  placeholder={field.placeholder}
+                  class="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                />
+              )}
+            </div>
+          ))}
+
+          {/* Consent */}
+          {consentRequired && (
+            <div class="flex items-start gap-3">
+              <input
+                type="checkbox"
+                id={`${formId}-consent`}
+                name="consent"
+                required
+                class="mt-1 w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <label for={`${formId}-consent`} class="text-sm text-gray-600 dark:text-gray-400">
+                {consentText} <a href={privacyPolicyUrl} class="text-blue-600 hover:underline" target="_blank" rel="noopener">{privacyPolicyText}</a>.
+              </label>
+            </div>
+          )}
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            class="w-full px-6 py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            data-contact-submit
+          >
+            <span data-button-text>{submitText}</span>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+            </svg>
+            <svg class="w-5 h-5 hidden animate-spin" data-loading-spinner viewBox="0 0 24 24" fill="none">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+          </button>
+        </form>
+
+        {/* Success State */}
+        <div class="hidden text-center py-12" data-contact-success>
+          <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+            <svg class="w-10 h-10 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h3 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">{successTitle}</h3>
+          <p class="text-gray-600 dark:text-gray-400">{successMessage}</p>
+        </div>
+
+        {/* Error State */}
+        <div class="hidden mt-4 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg" data-contact-error>
+          <p class="text-red-600 dark:text-red-400 flex items-center gap-2">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span data-error-message>{errorMessage}</span>
+          </p>
+        </div>
+      </div>
+    )}
+
+    {/* Split Layout */}
+    {variant === 'split' && (
+      <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 max-w-6xl mx-auto">
+        {/* Contact Info Sidebar */}
+        {showContactInfo && contactInfo && (
+          <div class="lg:order-2">
+            <div class="lg:sticky lg:top-8 space-y-8">
+              <div>
+                <h3 class="text-2xl font-bold mb-4">Contact Information</h3>
+                <p class="text-gray-600 dark:text-gray-400 mb-6">
+                  Reach out through the form or contact us directly using the information below.
+                </p>
+              </div>
+
+              <div class="space-y-6">
+                {contactInfo.email && (
+                  <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 flex-shrink-0">
+                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 class="font-semibold mb-1">Email</h4>
+                      <a href={`mailto:${contactInfo.email}`} class="text-blue-600 hover:underline">
+                        {contactInfo.email}
+                      </a>
+                    </div>
+                  </div>
+                )}
+
+                {contactInfo.phone && (
+                  <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 flex-shrink-0">
+                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 class="font-semibold mb-1">Phone</h4>
+                      <a href={`tel:${contactInfo.phone.replace(/\s/g, '')}`} class="text-blue-600 hover:underline">
+                        {contactInfo.phone}
+                      </a>
+                    </div>
+                  </div>
+                )}
+
+                {contactInfo.address && (
+                  <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 flex-shrink-0">
+                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 class="font-semibold mb-1">Address</h4>
+                      <p class="text-gray-600 dark:text-gray-400 whitespace-pre-line">
+                        {contactInfo.address}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {contactInfo.hours && (
+                  <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 flex-shrink-0">
+                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h4 class="font-semibold mb-1">Business Hours</h4>
+                      <p class="text-gray-600 dark:text-gray-400 whitespace-pre-line">
+                        {contactInfo.hours}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Social Links */}
+              {socialLinks.length > 0 && (
+                <div class="pt-6 border-t border-gray-200 dark:border-gray-700">
+                  <h4 class="font-semibold mb-4">Follow Us</h4>
+                  <div class="flex gap-4">
+                    {socialLinks.map((link) => (
+                      <a
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-600 dark:text-gray-400 hover:bg-blue-100 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                        aria-label={link.platform}
+                      >
+                        <Fragment set:html={link.icon} />
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Form */}
+        <div class="lg:order-1">
+          <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 md:p-8">
+            <form
+              id={formId}
+              action={action}
+              method={method}
+              class="space-y-6"
+              data-contact-form
+              enctype="multipart/form-data"
+            >
+              <div class="hidden" aria-hidden="true">
+                <input type="text" name="website" tabindex="-1" autocomplete="off" />
+              </div>
+
+              {fields.map((field) => (
+                <div>
+                  <label
+                    for={`${formId}-${field.name}`}
+                    class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                  >
+                    {field.label}
+                    {field.required && <span class="text-red-500 ml-1">*</span>}
+                  </label>
+
+                  {field.type === 'textarea' ? (
+                    <textarea
+                      id={`${formId}-${field.name}`}
+                      name={field.name}
+                      required={field.required}
+                      rows={field.rows || 4}
+                      placeholder={field.placeholder}
+                      class="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-y"
+                    />
+                  ) : field.type === 'select' ? (
+                    <select
+                      id={`${formId}-${field.name}`}
+                      name={field.name}
+                      required={field.required}
+                      class="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    >
+                      <option value="">{field.placeholder || 'Select...'}</option>
+                      {field.options?.map((option) => (
+                        <option value={option.value}>{option.label}</option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      type={field.type}
+                      id={`${formId}-${field.name}`}
+                      name={field.name}
+                      required={field.required}
+                      placeholder={field.placeholder}
+                      class="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    />
+                  )}
+                </div>
+              ))}
+
+              {consentRequired && (
+                <div class="flex items-start gap-3">
+                  <input
+                    type="checkbox"
+                    id={`${formId}-consent`}
+                    name="consent"
+                    required
+                    class="mt-1 w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <label for={`${formId}-consent`} class="text-sm text-gray-600 dark:text-gray-400">
+                    {consentText} <a href={privacyPolicyUrl} class="text-blue-600 hover:underline" target="_blank" rel="noopener">{privacyPolicyText}</a>.
+                  </label>
+                </div>
+              )}
+
+              <button
+                type="submit"
+                class="w-full px-6 py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                data-contact-submit
+              >
+                <span data-button-text>{submitText}</span>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </button>
+            </form>
+
+            <div class="hidden text-center py-8" data-contact-success>
+              <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+                <svg class="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">{successTitle}</h3>
+              <p class="text-gray-600 dark:text-gray-400">{successMessage}</p>
+            </div>
+
+            <div class="hidden mt-4 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg" data-contact-error>
+              <p class="text-red-600 dark:text-red-400 text-sm flex items-center gap-2">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span data-error-message>{errorMessage}</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* Card Layout */}
+    {variant === 'card' && (
+      <div class="max-w-lg mx-auto">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
+          <h3 class="text-2xl font-bold text-center mb-2">{title}</h3>
+          {description && (
+            <p class="text-gray-600 dark:text-gray-400 text-center mb-8">{description}</p>
+          )}
+
+          <form
+            id={formId}
+            action={action}
+            method={method}
+            class="space-y-4"
+            data-contact-form
+          >
+            <div class="hidden" aria-hidden="true">
+              <input type="text" name="website" tabindex="-1" autocomplete="off" />
+            </div>
+
+            {fields.map((field) => (
+              <div>
+                <label for={`${formId}-${field.name}`} class="sr-only">{field.label}</label>
+                {field.type === 'textarea' ? (
+                  <textarea
+                    id={`${formId}-${field.name}`}
+                    name={field.name}
+                    required={field.required}
+                    rows={field.rows || 4}
+                    placeholder={`${field.label}${field.required ? ' *' : ''}`}
+                    class="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-y"
+                  />
+                ) : (
+                  <input
+                    type={field.type}
+                    id={`${formId}-${field.name}`}
+                    name={field.name}
+                    required={field.required}
+                    placeholder={`${field.label}${field.required ? ' *' : ''}`}
+                    class="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  />
+                )}
+              </div>
+            ))}
+
+            {consentRequired && (
+              <div class="flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  id={`${formId}-consent`}
+                  name="consent"
+                  required
+                  class="mt-1 w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                <label for={`${formId}-consent`} class="text-sm text-gray-600 dark:text-gray-400">
+                  {consentText} <a href={privacyPolicyUrl} class="text-blue-600 hover:underline">{privacyPolicyText}</a>
+                </label>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              class="w-full px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all"
+              data-contact-submit
+            >
+              {submitText}
+            </button>
+          </form>
+
+          <div class="hidden text-center py-6" data-contact-success>
+            <p class="text-green-600 dark:text-green-400 font-medium">✓ {successTitle}</p>
+          </div>
+
+          <div class="hidden mt-4 text-red-600 text-sm text-center" data-contact-error>
+            {errorMessage}
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* Minimal Layout */}
+    {variant === 'minimal' && (
+      <div class="max-w-xl mx-auto">
+        <form
+          id={formId}
+          action={action}
+          method={method}
+          class="space-y-4"
+          data-contact-form
+        >
+          <div class="hidden" aria-hidden="true">
+            <input type="text" name="website" tabindex="-1" autocomplete="off" />
+          </div>
+
+          <div class="grid sm:grid-cols-2 gap-4">
+            {fields.filter(f => f.type !== 'textarea').slice(0, 2).map((field) => (
+              <input
+                type={field.type}
+                name={field.name}
+                required={field.required}
+                placeholder={field.placeholder || field.label}
+                class="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+              />
+            ))}
+          </div>
+
+          {fields.filter(f => f.type === 'textarea').map((field) => (
+            <textarea
+              name={field.name}
+              required={field.required}
+              rows={field.rows || 4}
+              placeholder={field.placeholder || field.label}
+              class="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-700 bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all resize-y"
+            />
+          ))}
+
+          {consentRequired && (
+            <label class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+              <input type="checkbox" name="consent" required class="rounded" />
+              {consentText} <a href={privacyPolicyUrl} class="underline">{privacyPolicyText}</a>
+            </label>
+          )}
+
+          <button
+            type="submit"
+            class="px-8 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors"
+            data-contact-submit
+          >
+            {submitText}
+          </button>
+        </form>
+
+        <div class="hidden mt-4 text-green-600" data-contact-success>
+          {successMessage}
+        </div>
+      </div>
+    )}
+  </div>
+</section>
+
+<script>
+function initContactForm() {
+  const sections = document.querySelectorAll('[data-contact-section]');
+
+  sections.forEach(section => {
+    const form = section.querySelector('[data-contact-form]') as HTMLFormElement;
+    const submitBtn = section.querySelector('[data-contact-submit]') as HTMLButtonElement;
+    const successEl = section.querySelector('[data-contact-success]');
+    const errorEl = section.querySelector('[data-contact-error]');
+    const buttonText = section.querySelector('[data-button-text]');
+    const loadingSpinner = section.querySelector('[data-loading-spinner]');
+    const errorMessage = section.querySelector('[data-error-message]');
+
+    if (!form) return;
+
+    // File size validation
+    const fileInputs = form.querySelectorAll('input[type="file"][data-max-size]');
+    fileInputs.forEach(input => {
+      input.addEventListener('change', (e) => {
+        const target = e.target as HTMLInputElement;
+        const maxSize = parseInt(target.getAttribute('data-max-size') || '0');
+        const file = target.files?.[0];
+
+        if (file && maxSize && file.size > maxSize) {
+          alert(`File is too large. Maximum size is ${(maxSize / 1024 / 1024).toFixed(0)}MB.`);
+          target.value = '';
+        }
+      });
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // Check honeypot
+      const honeypot = form.querySelector('input[name="website"]') as HTMLInputElement;
+      if (honeypot && honeypot.value) {
+        return; // Bot detected
+      }
+
+      // Show loading state
+      if (submitBtn) submitBtn.disabled = true;
+      if (buttonText) buttonText.classList.add('opacity-0');
+      if (loadingSpinner) loadingSpinner.classList.remove('hidden');
+      if (errorEl) errorEl.classList.add('hidden');
+
+      try {
+        const formData = new FormData(form);
+        const response = await fetch(form.action, {
+          method: form.method,
+          body: formData,
+          headers: {
+            'Accept': 'application/json',
+          },
+        });
+
+        if (response.ok) {
+          form.classList.add('hidden');
+          if (successEl) successEl.classList.remove('hidden');
+        } else {
+          throw new Error('Submission failed');
+        }
+      } catch (error) {
+        if (errorEl) errorEl.classList.remove('hidden');
+        if (errorMessage && error instanceof Error) {
+          errorMessage.textContent = error.message || 'Something went wrong. Please try again.';
+        }
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+        if (buttonText) buttonText.classList.remove('opacity-0');
+        if (loadingSpinner) loadingSpinner.classList.add('hidden');
+      }
+    });
+  });
+}
+
+// Initialize
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initContactForm);
+} else {
+  initContactForm();
+}
+
+// View Transitions support
+document.addEventListener('astro:page-load', initContactForm);
+</script>
+
+<style>
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .animate-spin {
+    animation: spin 1s linear infinite;
+  }
+</style>
