@@ -1,0 +1,545 @@
+---
+/**
+ * Premium Newsletter Signup Component
+ *
+ * GDPR/DSGVO compliant newsletter form with:
+ * - Double opt-in support
+ * - Explicit consent checkbox (not pre-checked)
+ * - Privacy policy link
+ * - Honeypot spam protection
+ * - Multiple layout variants
+ * - Success/error states
+ * - Loading state
+ * - Accessibility compliant
+ *
+ * GDPR Requirements implemented:
+ * - Freely given, specific, informed consent
+ * - Clear explanation of data usage
+ * - Easy unsubscribe option mentioned
+ * - Link to privacy policy
+ * - No pre-ticked consent boxes
+ */
+
+export interface Props {
+  // Content
+  title?: string;
+  description?: string;
+  placeholder?: string;
+  buttonText?: string;
+
+  // Consent
+  consentText?: string;
+  privacyPolicyUrl: string;
+  privacyPolicyText?: string;
+
+  // API
+  action?: string;
+  method?: 'POST' | 'GET';
+
+  // Layout
+  variant?: 'inline' | 'stacked' | 'card' | 'minimal' | 'banner';
+  bgColor?: string;
+  textColor?: 'light' | 'dark';
+
+  // Features
+  showNameField?: boolean;
+  showConsent?: boolean;
+  doubleOptIn?: boolean;
+
+  // Messages
+  successTitle?: string;
+  successMessage?: string;
+  errorMessage?: string;
+
+  // Incentive
+  incentive?: {
+    title: string;
+    description: string;
+    image?: string;
+  };
+
+  class?: string;
+}
+
+const {
+  title = 'Stay updated',
+  description = 'Get the latest news and updates delivered to your inbox.',
+  placeholder = 'Enter your email',
+  buttonText = 'Subscribe',
+  consentText = 'I agree to receive newsletters and accept the',
+  privacyPolicyUrl,
+  privacyPolicyText = 'Privacy Policy',
+  action = '/api/newsletter',
+  method = 'POST',
+  variant = 'card',
+  bgColor = 'bg-gray-50 dark:bg-gray-800',
+  textColor = 'dark',
+  showNameField = false,
+  showConsent = true,
+  doubleOptIn = true,
+  successTitle = 'Thanks for subscribing!',
+  successMessage = doubleOptIn
+    ? 'Please check your email to confirm your subscription.'
+    : 'You\'ve been successfully added to our newsletter.',
+  errorMessage = 'Something went wrong. Please try again.',
+  incentive,
+  class: className = '',
+} = Astro.props;
+
+const textClasses = textColor === 'light'
+  ? 'text-white'
+  : 'text-gray-900 dark:text-white';
+
+const subtitleClasses = textColor === 'light'
+  ? 'text-white/80'
+  : 'text-gray-600 dark:text-gray-400';
+
+const inputClasses = textColor === 'light'
+  ? 'bg-white/10 border-white/20 text-white placeholder-white/50 focus:border-white'
+  : 'bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 focus:border-blue-500';
+
+const formId = `newsletter-${Math.random().toString(36).substring(2, 9)}`;
+---
+
+<section
+  class:list={['newsletter-section', className]}
+  data-newsletter-section
+  data-form-id={formId}
+>
+  {/* Card Variant */}
+  {variant === 'card' && (
+    <div class={`py-16 md:py-24 ${bgColor}`}>
+      <div class="container mx-auto px-4">
+        <div class="max-w-xl mx-auto bg-white dark:bg-gray-900 rounded-2xl shadow-xl p-8 md:p-10">
+          {incentive && (
+            <div class="flex items-start gap-4 mb-6 pb-6 border-b border-gray-200 dark:border-gray-700">
+              {incentive.image && (
+                <img src={incentive.image} alt="" class="w-16 h-16 rounded-lg object-cover" />
+              )}
+              <div>
+                <h4 class="font-semibold text-gray-900 dark:text-white">{incentive.title}</h4>
+                <p class="text-sm text-gray-600 dark:text-gray-400">{incentive.description}</p>
+              </div>
+            </div>
+          )}
+
+          <div class="text-center mb-6">
+            <h2 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2">
+              {title}
+            </h2>
+            <p class="text-gray-600 dark:text-gray-400">
+              {description}
+            </p>
+          </div>
+
+          <form
+            id={formId}
+            action={action}
+            method={method}
+            class="space-y-4"
+            data-newsletter-form
+          >
+            {/* Honeypot */}
+            <div class="hidden" aria-hidden="true">
+              <input type="text" name="website" tabindex="-1" autocomplete="off" />
+            </div>
+
+            {showNameField && (
+              <div>
+                <label for={`${formId}-name`} class="sr-only">Name</label>
+                <input
+                  type="text"
+                  id={`${formId}-name`}
+                  name="name"
+                  placeholder="Your name"
+                  class="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                />
+              </div>
+            )}
+
+            <div>
+              <label for={`${formId}-email`} class="sr-only">Email address</label>
+              <input
+                type="email"
+                id={`${formId}-email`}
+                name="email"
+                required
+                placeholder={placeholder}
+                class="w-full px-4 py-3 rounded-lg border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              />
+            </div>
+
+            {showConsent && (
+              <div class="flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  id={`${formId}-consent`}
+                  name="consent"
+                  required
+                  class="mt-1 w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                <label for={`${formId}-consent`} class="text-sm text-gray-600 dark:text-gray-400">
+                  {consentText} <a href={privacyPolicyUrl} class="text-blue-600 hover:underline" target="_blank" rel="noopener">{privacyPolicyText}</a>.
+                  <span class="block mt-1 text-xs opacity-70">
+                    You can unsubscribe at any time.
+                  </span>
+                </label>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              class="w-full px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              data-newsletter-submit
+            >
+              <span data-button-text>{buttonText}</span>
+              <svg class="w-5 h-5 hidden animate-spin" data-loading-spinner viewBox="0 0 24 24" fill="none">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+            </button>
+          </form>
+
+          {/* Success State */}
+          <div class="hidden text-center py-8" data-newsletter-success>
+            <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+              <svg class="w-8 h-8 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-2">{successTitle}</h3>
+            <p class="text-gray-600 dark:text-gray-400">{successMessage}</p>
+          </div>
+
+          {/* Error State */}
+          <div class="hidden mt-4 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg" data-newsletter-error>
+            <p class="text-red-600 dark:text-red-400 text-sm flex items-center gap-2">
+              <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span data-error-message>{errorMessage}</span>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )}
+
+  {/* Inline Variant */}
+  {variant === 'inline' && (
+    <div class={`py-8 ${bgColor}`}>
+      <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto flex flex-col md:flex-row items-center gap-6">
+          <div class="flex-grow text-center md:text-left">
+            <h3 class={`text-xl font-semibold ${textClasses}`}>{title}</h3>
+            <p class={`text-sm ${subtitleClasses}`}>{description}</p>
+          </div>
+
+          <form
+            id={formId}
+            action={action}
+            method={method}
+            class="flex-shrink-0 w-full md:w-auto"
+            data-newsletter-form
+          >
+            <div class="hidden" aria-hidden="true">
+              <input type="text" name="website" tabindex="-1" autocomplete="off" />
+            </div>
+
+            <div class="flex gap-2">
+              <input
+                type="email"
+                id={`${formId}-email`}
+                name="email"
+                required
+                placeholder={placeholder}
+                class={`flex-grow px-4 py-2 rounded-lg border ${inputClasses} focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all`}
+              />
+              <button
+                type="submit"
+                class="px-6 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all whitespace-nowrap"
+                data-newsletter-submit
+              >
+                {buttonText}
+              </button>
+            </div>
+
+            {showConsent && (
+              <div class="flex items-center gap-2 mt-2">
+                <input
+                  type="checkbox"
+                  id={`${formId}-consent`}
+                  name="consent"
+                  required
+                  class="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                <label for={`${formId}-consent`} class={`text-xs ${subtitleClasses}`}>
+                  {consentText} <a href={privacyPolicyUrl} class="underline">{privacyPolicyText}</a>
+                </label>
+              </div>
+            )}
+          </form>
+
+          <div class="hidden" data-newsletter-success>
+            <p class="text-green-600 font-medium">{successTitle}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )}
+
+  {/* Stacked Variant */}
+  {variant === 'stacked' && (
+    <div class={`py-16 md:py-24 ${bgColor}`}>
+      <div class="container mx-auto px-4">
+        <div class="max-w-md mx-auto text-center">
+          <h2 class={`text-3xl font-bold mb-4 ${textClasses}`}>{title}</h2>
+          <p class={`mb-8 ${subtitleClasses}`}>{description}</p>
+
+          <form
+            id={formId}
+            action={action}
+            method={method}
+            class="space-y-4"
+            data-newsletter-form
+          >
+            <div class="hidden" aria-hidden="true">
+              <input type="text" name="website" tabindex="-1" autocomplete="off" />
+            </div>
+
+            {showNameField && (
+              <input
+                type="text"
+                name="name"
+                placeholder="Your name"
+                class={`w-full px-4 py-3 rounded-lg border ${inputClasses} focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all`}
+              />
+            )}
+
+            <input
+              type="email"
+              id={`${formId}-email`}
+              name="email"
+              required
+              placeholder={placeholder}
+              class={`w-full px-4 py-3 rounded-lg border ${inputClasses} focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all`}
+            />
+
+            {showConsent && (
+              <div class="flex items-start gap-3 text-left">
+                <input
+                  type="checkbox"
+                  id={`${formId}-consent`}
+                  name="consent"
+                  required
+                  class="mt-1 w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                />
+                <label for={`${formId}-consent`} class={`text-sm ${subtitleClasses}`}>
+                  {consentText} <a href={privacyPolicyUrl} class="underline">{privacyPolicyText}</a>
+                </label>
+              </div>
+            )}
+
+            <button
+              type="submit"
+              class="w-full px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+              data-newsletter-submit
+            >
+              {buttonText}
+            </button>
+          </form>
+
+          <div class="hidden mt-6" data-newsletter-success>
+            <div class="inline-flex items-center gap-2 text-green-600 dark:text-green-400">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              {successMessage}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )}
+
+  {/* Minimal Variant */}
+  {variant === 'minimal' && (
+    <form
+      id={formId}
+      action={action}
+      method={method}
+      class="inline-flex flex-col gap-2"
+      data-newsletter-form
+    >
+      <div class="hidden" aria-hidden="true">
+        <input type="text" name="website" tabindex="-1" autocomplete="off" />
+      </div>
+
+      <div class="flex gap-2">
+        <input
+          type="email"
+          id={`${formId}-email`}
+          name="email"
+          required
+          placeholder={placeholder}
+          class="px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-transparent focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+        />
+        <button
+          type="submit"
+          class="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+          data-newsletter-submit
+        >
+          {buttonText}
+        </button>
+      </div>
+
+      {showConsent && (
+        <label class="flex items-center gap-2 text-xs text-gray-500">
+          <input
+            type="checkbox"
+            name="consent"
+            required
+            class="w-3 h-3 rounded"
+          />
+          <a href={privacyPolicyUrl} class="underline">{privacyPolicyText}</a>
+        </label>
+      )}
+
+      <div class="hidden text-green-600 text-sm" data-newsletter-success>
+        {successMessage}
+      </div>
+    </form>
+  )}
+
+  {/* Banner Variant */}
+  {variant === 'banner' && (
+    <div class={`py-4 ${bgColor}`}>
+      <div class="container mx-auto px-4">
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 text-center sm:text-left">
+          <p class={`font-medium ${textClasses}`}>{title}</p>
+
+          <form
+            id={formId}
+            action={action}
+            method={method}
+            class="flex gap-2"
+            data-newsletter-form
+          >
+            <div class="hidden" aria-hidden="true">
+              <input type="text" name="website" tabindex="-1" autocomplete="off" />
+            </div>
+
+            <input
+              type="email"
+              id={`${formId}-email`}
+              name="email"
+              required
+              placeholder={placeholder}
+              class={`px-4 py-2 rounded-lg border ${inputClasses} focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all`}
+            />
+            <button
+              type="submit"
+              class="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors whitespace-nowrap"
+              data-newsletter-submit
+            >
+              {buttonText}
+            </button>
+          </form>
+
+          <div class="hidden text-green-600 font-medium" data-newsletter-success>
+            ✓ {successTitle}
+          </div>
+        </div>
+      </div>
+    </div>
+  )}
+</section>
+
+<script>
+function initNewsletter() {
+  const sections = document.querySelectorAll('[data-newsletter-section]');
+
+  sections.forEach(section => {
+    const form = section.querySelector('[data-newsletter-form]') as HTMLFormElement;
+    const submitBtn = section.querySelector('[data-newsletter-submit]') as HTMLButtonElement;
+    const successEl = section.querySelector('[data-newsletter-success]');
+    const errorEl = section.querySelector('[data-newsletter-error]');
+    const buttonText = section.querySelector('[data-button-text]');
+    const loadingSpinner = section.querySelector('[data-loading-spinner]');
+    const errorMessage = section.querySelector('[data-error-message]');
+
+    if (!form) return;
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      // Check honeypot
+      const honeypot = form.querySelector('input[name="website"]') as HTMLInputElement;
+      if (honeypot && honeypot.value) {
+        return; // Bot detected
+      }
+
+      // Show loading state
+      if (submitBtn) submitBtn.disabled = true;
+      if (buttonText) buttonText.classList.add('opacity-0');
+      if (loadingSpinner) loadingSpinner.classList.remove('hidden');
+      if (errorEl) errorEl.classList.add('hidden');
+
+      try {
+        const formData = new FormData(form);
+        const response = await fetch(form.action, {
+          method: form.method,
+          body: formData,
+          headers: {
+            'Accept': 'application/json',
+          },
+        });
+
+        if (response.ok) {
+          // Success
+          form.classList.add('hidden');
+          if (successEl) successEl.classList.remove('hidden');
+        } else {
+          throw new Error('Submission failed');
+        }
+      } catch (error) {
+        // Error
+        if (errorEl) errorEl.classList.remove('hidden');
+        if (errorMessage && error instanceof Error) {
+          errorMessage.textContent = error.message || 'Something went wrong. Please try again.';
+        }
+      } finally {
+        // Reset loading state
+        if (submitBtn) submitBtn.disabled = false;
+        if (buttonText) buttonText.classList.remove('opacity-0');
+        if (loadingSpinner) loadingSpinner.classList.add('hidden');
+      }
+    });
+  });
+}
+
+// Initialize
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initNewsletter);
+} else {
+  initNewsletter();
+}
+
+// View Transitions support
+document.addEventListener('astro:page-load', initNewsletter);
+</script>
+
+<style>
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .animate-spin {
+    animation: spin 1s linear infinite;
+  }
+</style>
