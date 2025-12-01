@@ -1,0 +1,159 @@
+---
+/**
+ * ARIA Live Region Component
+ *
+ * Announces dynamic content changes to screen readers.
+ * Essential for SPAs and dynamic updates.
+ *
+ * Features:
+ * - Polite and assertive modes
+ * - Atomic updates option
+ * - Relevant content filtering
+ * - JavaScript API for announcements
+ *
+ * Use cases:
+ * - Form validation messages
+ * - Loading states
+ * - Toast notifications
+ * - Cart updates
+ * - Search results count
+ */
+
+export interface Props {
+  id?: string;
+  mode?: 'polite' | 'assertive' | 'off';
+  atomic?: boolean;
+  relevant?: 'additions' | 'removals' | 'text' | 'all' | 'additions text';
+  role?: 'status' | 'alert' | 'log' | 'timer' | 'marquee';
+  clearDelay?: number;
+  class?: string;
+}
+
+const {
+  id = 'live-region',
+  mode = 'polite',
+  atomic = true,
+  relevant = 'additions text',
+  role = 'status',
+  clearDelay = 0,
+  class: className = '',
+} = Astro.props;
+---
+
+<div
+  id={id}
+  role={role}
+  aria-live={mode}
+  aria-atomic={atomic}
+  aria-relevant={relevant}
+  class:list={['live-region sr-only', className]}
+  data-live-region
+  data-clear-delay={clearDelay}
+>
+  <slot />
+</div>
+
+<script>
+// Global announce function
+declare global {
+  interface Window {
+    announceToScreenReader: (message: string, options?: { priority?: 'polite' | 'assertive'; regionId?: string }) => void;
+  }
+}
+
+function initLiveRegions() {
+  const regions = document.querySelectorAll('[data-live-region]');
+
+  // Create a default assertive region if not exists
+  if (!document.getElementById('live-region-assertive')) {
+    const assertiveRegion = document.createElement('div');
+    assertiveRegion.id = 'live-region-assertive';
+    assertiveRegion.setAttribute('role', 'alert');
+    assertiveRegion.setAttribute('aria-live', 'assertive');
+    assertiveRegion.setAttribute('aria-atomic', 'true');
+    assertiveRegion.className = 'sr-only';
+    assertiveRegion.setAttribute('data-live-region', '');
+    document.body.appendChild(assertiveRegion);
+  }
+
+  // Create a default polite region if not exists
+  if (!document.getElementById('live-region-polite')) {
+    const politeRegion = document.createElement('div');
+    politeRegion.id = 'live-region-polite';
+    politeRegion.setAttribute('role', 'status');
+    politeRegion.setAttribute('aria-live', 'polite');
+    politeRegion.setAttribute('aria-atomic', 'true');
+    politeRegion.className = 'sr-only';
+    politeRegion.setAttribute('data-live-region', '');
+    document.body.appendChild(politeRegion);
+  }
+
+  // Global announce function
+  window.announceToScreenReader = (message, options = {}) => {
+    const { priority = 'polite', regionId } = options;
+
+    let region: HTMLElement | null = null;
+
+    if (regionId) {
+      region = document.getElementById(regionId);
+    } else {
+      region = document.getElementById(`live-region-${priority}`);
+    }
+
+    if (!region) {
+      console.warn('Live region not found');
+      return;
+    }
+
+    // Clear first, then announce (helps with repeated messages)
+    region.textContent = '';
+
+    // Small delay to ensure screen readers detect the change
+    requestAnimationFrame(() => {
+      region!.textContent = message;
+
+      // Clear after delay if configured
+      const clearDelay = parseInt(region!.getAttribute('data-clear-delay') || '0');
+      if (clearDelay > 0) {
+        setTimeout(() => {
+          region!.textContent = '';
+        }, clearDelay);
+      }
+    });
+  };
+
+  // Auto-clear regions with delay
+  regions.forEach(region => {
+    const clearDelay = parseInt(region.getAttribute('data-clear-delay') || '0');
+    if (clearDelay > 0 && region.textContent?.trim()) {
+      setTimeout(() => {
+        region.textContent = '';
+      }, clearDelay);
+    }
+  });
+}
+
+// Initialize
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initLiveRegions);
+} else {
+  initLiveRegions();
+}
+
+// View Transitions support
+document.addEventListener('astro:page-load', initLiveRegions);
+</script>
+
+<style>
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+</style>

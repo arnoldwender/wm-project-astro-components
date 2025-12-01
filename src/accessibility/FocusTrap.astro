@@ -1,0 +1,167 @@
+---
+/**
+ * Premium Focus Trap Component
+ *
+ * Traps keyboard focus within a container (for modals, dialogs, etc.).
+ * WCAG 2.4.3 compliant focus order management.
+ *
+ * Features:
+ * - Traps Tab and Shift+Tab within container
+ * - Returns focus to trigger element on close
+ * - Auto-focus first focusable element
+ * - Escape key support
+ * - Works with dynamic content
+ */
+
+export interface Props {
+  active?: boolean;
+  returnFocusOnDeactivate?: boolean;
+  initialFocus?: string;
+  class?: string;
+}
+
+const {
+  active = false,
+  returnFocusOnDeactivate = true,
+  initialFocus,
+  class: className = '',
+} = Astro.props;
+---
+
+<div
+  class:list={['focus-trap', className]}
+  data-focus-trap
+  data-active={active}
+  data-return-focus={returnFocusOnDeactivate}
+  data-initial-focus={initialFocus}
+>
+  <slot />
+</div>
+
+<script>
+function initFocusTraps() {
+  const traps = document.querySelectorAll('[data-focus-trap]');
+
+  traps.forEach(trap => {
+    let previouslyFocused: HTMLElement | null = null;
+    let isActive = trap.getAttribute('data-active') === 'true';
+
+    const focusableSelector = [
+      'a[href]',
+      'button:not([disabled])',
+      'input:not([disabled])',
+      'select:not([disabled])',
+      'textarea:not([disabled])',
+      '[tabindex]:not([tabindex="-1"])',
+      'audio[controls]',
+      'video[controls]',
+      '[contenteditable]:not([contenteditable="false"])',
+    ].join(', ');
+
+    function getFocusableElements(): HTMLElement[] {
+      return Array.from(trap.querySelectorAll(focusableSelector)) as HTMLElement[];
+    }
+
+    function activate() {
+      if (isActive) return;
+      isActive = true;
+
+      previouslyFocused = document.activeElement as HTMLElement;
+
+      const initialFocusSelector = trap.getAttribute('data-initial-focus');
+      const focusables = getFocusableElements();
+
+      if (initialFocusSelector) {
+        const initialElement = trap.querySelector(initialFocusSelector) as HTMLElement;
+        initialElement?.focus();
+      } else if (focusables.length > 0) {
+        focusables[0].focus();
+      }
+
+      trap.setAttribute('data-active', 'true');
+    }
+
+    function deactivate() {
+      if (!isActive) return;
+      isActive = false;
+
+      const returnFocus = trap.getAttribute('data-return-focus') === 'true';
+      if (returnFocus && previouslyFocused) {
+        previouslyFocused.focus();
+      }
+
+      trap.setAttribute('data-active', 'false');
+    }
+
+    function handleKeyDown(e: KeyboardEvent) {
+      if (!isActive) return;
+
+      if (e.key === 'Tab') {
+        const focusables = getFocusableElements();
+        if (focusables.length === 0) return;
+
+        const firstFocusable = focusables[0];
+        const lastFocusable = focusables[focusables.length - 1];
+
+        if (e.shiftKey) {
+          // Shift + Tab
+          if (document.activeElement === firstFocusable) {
+            e.preventDefault();
+            lastFocusable.focus();
+          }
+        } else {
+          // Tab
+          if (document.activeElement === lastFocusable) {
+            e.preventDefault();
+            firstFocusable.focus();
+          }
+        }
+      }
+
+      if (e.key === 'Escape') {
+        deactivate();
+        trap.dispatchEvent(new CustomEvent('focustrap:escape', { bubbles: true }));
+      }
+    }
+
+    // Listen for keydown
+    trap.addEventListener('keydown', handleKeyDown as EventListener);
+
+    // Expose activate/deactivate methods via custom events
+    trap.addEventListener('focustrap:activate', activate);
+    trap.addEventListener('focustrap:deactivate', deactivate);
+
+    // Auto-activate if data-active is true
+    if (trap.getAttribute('data-active') === 'true') {
+      // Slight delay to ensure DOM is ready
+      requestAnimationFrame(activate);
+    }
+
+    // MutationObserver to watch for data-active changes
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach(mutation => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'data-active') {
+          const newValue = trap.getAttribute('data-active') === 'true';
+          if (newValue && !isActive) {
+            activate();
+          } else if (!newValue && isActive) {
+            deactivate();
+          }
+        }
+      });
+    });
+
+    observer.observe(trap, { attributes: true, attributeFilter: ['data-active'] });
+  });
+}
+
+// Initialize
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initFocusTraps);
+} else {
+  initFocusTraps();
+}
+
+// View Transitions support
+document.addEventListener('astro:page-load', initFocusTraps);
+</script>

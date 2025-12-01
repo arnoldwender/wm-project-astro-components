@@ -1,0 +1,66 @@
+---
+/**
+ * Screen Reader Only Component
+ *
+ * Visually hides content while keeping it accessible to screen readers.
+ * Essential for providing additional context to assistive technology users.
+ *
+ * Use cases:
+ * - Icon button labels
+ * - Form field instructions
+ * - Skip link targets
+ * - Table captions
+ * - Live region announcements
+ */
+
+export interface Props {
+  as?: 'span' | 'div' | 'p' | 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'label';
+  id?: string;
+  focusable?: boolean;
+  class?: string;
+}
+
+const {
+  as: Tag = 'span',
+  id,
+  focusable = false,
+  class: className = '',
+} = Astro.props;
+---
+
+<Tag
+  id={id}
+  class:list={[
+    'sr-only',
+    focusable && 'sr-only-focusable',
+    className
+  ]}
+>
+  <slot />
+</Tag>
+
+<style>
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .sr-only-focusable:focus,
+  .sr-only-focusable:active {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: inherit;
+    margin: inherit;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+  }
+</style>
