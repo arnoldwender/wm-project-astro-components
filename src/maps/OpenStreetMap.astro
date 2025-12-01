@@ -1,0 +1,475 @@
+---
+/**
+ * DSGVO-Compliant OpenStreetMap Component
+ *
+ * Uses OpenStreetMap/Leaflet which is more privacy-friendly than Google Maps.
+ * Still shows consent placeholder as OSM tiles are loaded from external servers.
+ *
+ * For fully DSGVO-compliant usage, self-host OSM tiles.
+ *
+ * Usage:
+ * <OpenStreetMap
+ *   lat={52.520008}
+ *   lng={13.404954}
+ *   zoom={15}
+ *   title="Unser Standort"
+ * />
+ */
+
+interface Props {
+  // Required: Coordinates
+  lat: number;
+  lng: number;
+
+  // Optional: Map settings
+  zoom?: number;
+
+  // Optional: Dimensions
+  width?: string;
+  height?: string;
+
+  // Optional: Marker
+  markerTitle?: string;
+  markerPopup?: string;
+
+  // Optional: Tile provider
+  tileProvider?: 'osm' | 'carto' | 'stamen' | 'custom';
+  customTileUrl?: string;
+
+  // Optional: Styling
+  class?: string;
+
+  // Optional: Consent text customization
+  title?: string;
+  consentText?: string;
+  buttonText?: string;
+  privacyLinkText?: string;
+  privacyLinkUrl?: string;
+
+  // Optional: Cookie/consent key
+  consentKey?: string;
+
+  // Optional: Show attribution
+  showAttribution?: boolean;
+}
+
+const {
+  lat,
+  lng,
+  zoom = 14,
+  width = '100%',
+  height = '400px',
+  markerTitle = 'Standort',
+  markerPopup,
+  tileProvider = 'osm',
+  customTileUrl,
+  class: className = '',
+  title = 'OpenStreetMap',
+  consentText = 'Diese Karte verwendet OpenStreetMap. Beim Laden werden Kartendaten von externen Servern geladen.',
+  buttonText = 'Karte laden',
+  privacyLinkText = 'Mehr erfahren',
+  privacyLinkUrl = '/datenschutz#openstreetmap',
+  consentKey = 'osm-consent',
+  showAttribution = true,
+} = Astro.props;
+
+// Generate unique ID
+const mapId = `osm-map-${Math.random().toString(36).slice(2, 9)}`;
+
+// Tile provider URLs
+const tileProviders = {
+  osm: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+  carto: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+  stamen: 'https://stamen-tiles.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}.png',
+  custom: customTileUrl || '',
+};
+
+const tileUrl = tileProviders[tileProvider];
+
+// Attribution text based on provider
+const attributions = {
+  osm: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+  carto: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+  stamen: '&copy; <a href="http://stamen.com">Stamen Design</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+  custom: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+};
+
+// OpenStreetMap link
+const osmUrl = `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=${zoom}/${lat}/${lng}`;
+---
+
+<div
+  class:list={['osm-container', className]}
+  style={`width: ${width}; height: ${height};`}
+  data-map-id={mapId}
+  data-consent-key={consentKey}
+  data-lat={lat}
+  data-lng={lng}
+  data-zoom={zoom}
+  data-tile-url={tileUrl}
+  data-attribution={attributions[tileProvider]}
+  data-marker-title={markerTitle}
+  data-marker-popup={markerPopup}
+  data-show-attribution={showAttribution}
+>
+  <!-- Consent Placeholder -->
+  <div class="map-placeholder" id={`${mapId}-placeholder`}>
+    <div class="placeholder-bg">
+      <!-- SVG Map Pattern Background -->
+      <svg class="pattern-bg" viewBox="0 0 100 100" preserveAspectRatio="none">
+        <defs>
+          <pattern id={`grid-${mapId}`} width="10" height="10" patternUnits="userSpaceOnUse">
+            <path d="M 10 0 L 0 0 0 10" fill="none" stroke="#d1d5db" stroke-width="0.5"/>
+          </pattern>
+        </defs>
+        <rect width="100" height="100" fill={`url(#grid-${mapId})`}/>
+      </svg>
+    </div>
+    <div class="placeholder-content">
+      <svg class="map-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+        <circle cx="12" cy="10" r="3" />
+      </svg>
+      <h3 class="placeholder-title">{title}</h3>
+      <p class="placeholder-text">{consentText}</p>
+      <div class="placeholder-actions">
+        <button
+          type="button"
+          class="consent-button"
+          data-action="load-osm"
+        >
+          {buttonText}
+        </button>
+        <a href={privacyLinkUrl} class="privacy-link">
+          {privacyLinkText}
+        </a>
+      </div>
+      <label class="remember-choice">
+        <input type="checkbox" data-action="remember" />
+        <span>Auswahl merken</span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Map Container (hidden until consent) -->
+  <div class="map-wrapper" id={`${mapId}-map`} style="display: none;"></div>
+
+  <!-- External link to OSM -->
+  <a
+    href={osmUrl}
+    target="_blank"
+    rel="noopener noreferrer"
+    class="osm-link"
+  >
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+      <polyline points="15 3 21 3 21 9" />
+      <line x1="10" y1="14" x2="21" y2="3" />
+    </svg>
+    Größere Karte
+  </a>
+</div>
+
+<style>
+  .osm-container {
+    position: relative;
+    background: #f3f4f6;
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+
+  .map-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f3f4f6;
+  }
+
+  .placeholder-bg {
+    position: absolute;
+    inset: 0;
+    opacity: 0.5;
+  }
+
+  .pattern-bg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .placeholder-content {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    padding: 2rem;
+    max-width: 400px;
+    background: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  }
+
+  .map-icon {
+    width: 3rem;
+    height: 3rem;
+    margin: 0 auto 1rem;
+    color: #6b7280;
+  }
+
+  .placeholder-title {
+    margin: 0 0 0.5rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1f2937;
+  }
+
+  .placeholder-text {
+    margin: 0 0 1.5rem;
+    font-size: 0.875rem;
+    color: #6b7280;
+    line-height: 1.5;
+  }
+
+  .placeholder-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: center;
+  }
+
+  .consent-button {
+    padding: 0.75rem 2rem;
+    background: #10b981;
+    color: white;
+    border: none;
+    border-radius: 0.375rem;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .consent-button:hover {
+    background: #059669;
+  }
+
+  .consent-button:focus-visible {
+    outline: 2px solid #10b981;
+    outline-offset: 2px;
+  }
+
+  .privacy-link {
+    color: #6b7280;
+    font-size: 0.875rem;
+    text-decoration: underline;
+    transition: color 0.2s;
+  }
+
+  .privacy-link:hover {
+    color: #1f2937;
+  }
+
+  .remember-choice {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    font-size: 0.75rem;
+    color: #6b7280;
+    cursor: pointer;
+  }
+
+  .remember-choice input {
+    width: 1rem;
+    height: 1rem;
+    cursor: pointer;
+  }
+
+  .map-wrapper {
+    width: 100%;
+    height: 100%;
+  }
+
+  .map-wrapper :global(.leaflet-container) {
+    width: 100%;
+    height: 100%;
+    font-family: inherit;
+  }
+
+  .osm-link {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: white;
+    color: #1f2937;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: transform 0.2s, box-shadow 0.2s;
+    z-index: 1000;
+  }
+
+  .osm-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  .osm-link svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  @media (max-width: 640px) {
+    .placeholder-content {
+      margin: 1rem;
+      padding: 1.5rem;
+    }
+
+    .placeholder-title {
+      font-size: 1rem;
+    }
+
+    .placeholder-text {
+      font-size: 0.75rem;
+    }
+  }
+</style>
+
+<script>
+  // Leaflet CSS loading state
+  let leafletLoaded = false;
+  let leafletLoading = false;
+  const loadCallbacks: (() => void)[] = [];
+
+  async function loadLeaflet(): Promise<void> {
+    if (leafletLoaded) return;
+
+    if (leafletLoading) {
+      return new Promise((resolve) => {
+        loadCallbacks.push(resolve);
+      });
+    }
+
+    leafletLoading = true;
+
+    // Load Leaflet CSS
+    const cssLink = document.createElement('link');
+    cssLink.rel = 'stylesheet';
+    cssLink.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+    cssLink.integrity = 'sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=';
+    cssLink.crossOrigin = '';
+    document.head.appendChild(cssLink);
+
+    // Load Leaflet JS
+    await new Promise<void>((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+      script.integrity = 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=';
+      script.crossOrigin = '';
+      script.onload = () => resolve();
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+
+    leafletLoaded = true;
+    loadCallbacks.forEach((cb) => cb());
+  }
+
+  function initOpenStreetMaps() {
+    const containers = document.querySelectorAll('.osm-container');
+
+    containers.forEach((container) => {
+      const mapId = container.getAttribute('data-map-id');
+      const consentKey = container.getAttribute('data-consent-key') || 'osm-consent';
+      const placeholder = document.getElementById(`${mapId}-placeholder`);
+      const mapWrapper = document.getElementById(`${mapId}-map`);
+      const consentButton = container.querySelector('[data-action="load-osm"]');
+      const rememberCheckbox = container.querySelector('[data-action="remember"]') as HTMLInputElement;
+
+      // Check for existing consent
+      const hasConsent = localStorage.getItem(consentKey) === 'true';
+      if (hasConsent) {
+        loadMap();
+      }
+
+      // Handle consent button click
+      consentButton?.addEventListener('click', async () => {
+        // Save consent if checkbox is checked
+        if (rememberCheckbox?.checked) {
+          localStorage.setItem(consentKey, 'true');
+        }
+
+        await loadMap();
+      });
+
+      async function loadMap() {
+        if (!mapWrapper || !placeholder) return;
+
+        // Show loading state
+        const button = consentButton as HTMLButtonElement;
+        if (button) {
+          button.textContent = 'Lädt...';
+          button.disabled = true;
+        }
+
+        try {
+          await loadLeaflet();
+
+          const lat = parseFloat(container.getAttribute('data-lat') || '0');
+          const lng = parseFloat(container.getAttribute('data-lng') || '0');
+          const zoom = parseInt(container.getAttribute('data-zoom') || '14');
+          const tileUrl = container.getAttribute('data-tile-url') || '';
+          const attribution = container.getAttribute('data-attribution') || '';
+          const markerTitle = container.getAttribute('data-marker-title') || 'Standort';
+          const markerPopup = container.getAttribute('data-marker-popup');
+          const showAttribution = container.getAttribute('data-show-attribution') === 'true';
+
+          // Show map container
+          placeholder.style.display = 'none';
+          mapWrapper.style.display = 'block';
+
+          // Initialize map
+          const L = (window as any).L;
+          const map = L.map(mapWrapper).setView([lat, lng], zoom);
+
+          // Add tile layer
+          L.tileLayer(tileUrl, {
+            attribution: showAttribution ? attribution : '',
+            maxZoom: 19,
+          }).addTo(map);
+
+          // Add marker
+          const marker = L.marker([lat, lng], { title: markerTitle }).addTo(map);
+
+          if (markerPopup) {
+            marker.bindPopup(markerPopup).openPopup();
+          }
+
+          // Fix map size issues
+          setTimeout(() => map.invalidateSize(), 100);
+        } catch (error) {
+          console.error('Failed to load OpenStreetMap:', error);
+          if (button) {
+            button.textContent = 'Fehler beim Laden';
+          }
+        }
+      }
+    });
+  }
+
+  // Initialize on page load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initOpenStreetMaps);
+  } else {
+    initOpenStreetMaps();
+  }
+
+  // Re-initialize after Astro page transitions
+  document.addEventListener('astro:page-load', initOpenStreetMaps);
+</script>

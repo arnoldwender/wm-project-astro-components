@@ -1,0 +1,395 @@
+---
+/**
+ * DSGVO-Compliant Google Maps Component
+ *
+ * Shows a placeholder until user consents to loading Google Maps.
+ * No external requests are made without explicit consent.
+ *
+ * Usage:
+ * <GoogleMap
+ *   lat={52.520008}
+ *   lng={13.404954}
+ *   zoom={15}
+ *   apiKey={import.meta.env.PUBLIC_GOOGLE_MAPS_KEY}
+ *   title="Unser Standort"
+ * />
+ */
+
+interface Props {
+  // Required: Coordinates
+  lat: number;
+  lng: number;
+
+  // Optional: Map settings
+  zoom?: number;
+  mapType?: 'roadmap' | 'satellite' | 'hybrid' | 'terrain';
+
+  // Required for embed: API key
+  apiKey?: string;
+
+  // Optional: Dimensions
+  width?: string;
+  height?: string;
+
+  // Optional: Marker
+  markerTitle?: string;
+
+  // Optional: Styling
+  class?: string;
+
+  // Optional: Consent text customization
+  title?: string;
+  consentText?: string;
+  buttonText?: string;
+  privacyLinkText?: string;
+  privacyLinkUrl?: string;
+
+  // Optional: Placeholder image (static map preview)
+  placeholderImage?: string;
+
+  // Optional: Cookie/consent key
+  consentKey?: string;
+}
+
+const {
+  lat,
+  lng,
+  zoom = 14,
+  mapType = 'roadmap',
+  apiKey,
+  width = '100%',
+  height = '400px',
+  markerTitle,
+  class: className = '',
+  title = 'Google Maps',
+  consentText = 'Diese Karte wird von Google Maps bereitgestellt. Beim Laden der Karte werden Daten an Google übertragen.',
+  buttonText = 'Karte laden',
+  privacyLinkText = 'Mehr erfahren',
+  privacyLinkUrl = '/datenschutz#google-maps',
+  placeholderImage,
+  consentKey = 'google-maps-consent',
+} = Astro.props;
+
+// Generate unique ID for this instance
+const mapId = `google-map-${Math.random().toString(36).slice(2, 9)}`;
+
+// Build Google Maps URL
+const mapsUrl = apiKey
+  ? `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${lat},${lng}&zoom=${zoom}&maptype=${mapType}`
+  : `https://maps.google.com/maps?q=${lat},${lng}&z=${zoom}&output=embed`;
+
+// Static map for placeholder (requires API key)
+const staticMapUrl = apiKey && placeholderImage === undefined
+  ? `https://maps.googleapis.com/maps/api/staticmap?center=${lat},${lng}&zoom=${zoom}&size=600x400&maptype=${mapType}&key=${apiKey}`
+  : placeholderImage;
+
+// Google Maps link for directions
+const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+---
+
+<div
+  class:list={['google-map-container', className]}
+  style={`width: ${width}; height: ${height};`}
+  data-map-id={mapId}
+  data-consent-key={consentKey}
+>
+  <!-- Consent Placeholder -->
+  <div class="map-placeholder" id={`${mapId}-placeholder`}>
+    {staticMapUrl && (
+      <img
+        src={staticMapUrl}
+        alt={title}
+        class="placeholder-image"
+        loading="lazy"
+      />
+    )}
+    <div class="placeholder-overlay">
+      <div class="placeholder-content">
+        <svg class="map-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+          <circle cx="12" cy="10" r="3" />
+        </svg>
+        <h3 class="placeholder-title">{title}</h3>
+        <p class="placeholder-text">{consentText}</p>
+        <div class="placeholder-actions">
+          <button
+            type="button"
+            class="consent-button"
+            data-action="load-map"
+            data-map-url={mapsUrl}
+            data-map-id={mapId}
+          >
+            {buttonText}
+          </button>
+          <a href={privacyLinkUrl} class="privacy-link">
+            {privacyLinkText}
+          </a>
+        </div>
+        <label class="remember-choice">
+          <input type="checkbox" data-action="remember" />
+          <span>Auswahl merken</span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Map Container (hidden until consent) -->
+  <div class="map-frame-container" id={`${mapId}-map`} style="display: none;">
+    <!-- iframe will be inserted here -->
+  </div>
+
+  <!-- Directions Link -->
+  <a
+    href={directionsUrl}
+    target="_blank"
+    rel="noopener noreferrer"
+    class="directions-link"
+  >
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M9 20l-5.447-2.724A1 1 0 0 1 3 16.382V5.618a1 1 0 0 1 1.447-.894L9 7m0 13l6-3m-6 3V7m6 10l5.447 2.724A1 1 0 0 0 21 18.382V7.618a1 1 0 0 0-.553-.894L15 4m0 13V4m0 0L9 7" />
+    </svg>
+    Route planen
+  </a>
+</div>
+
+<style>
+  .google-map-container {
+    position: relative;
+    background: #e5e7eb;
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+
+  .map-placeholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .placeholder-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: blur(3px) grayscale(50%);
+  }
+
+  .placeholder-overlay {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    padding: 1.5rem;
+  }
+
+  .placeholder-content {
+    text-align: center;
+    color: white;
+    max-width: 400px;
+  }
+
+  .map-icon {
+    width: 3rem;
+    height: 3rem;
+    margin: 0 auto 1rem;
+    opacity: 0.9;
+  }
+
+  .placeholder-title {
+    margin: 0 0 0.5rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+
+  .placeholder-text {
+    margin: 0 0 1.5rem;
+    font-size: 0.875rem;
+    opacity: 0.9;
+    line-height: 1.5;
+  }
+
+  .placeholder-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: center;
+  }
+
+  .consent-button {
+    padding: 0.75rem 2rem;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 0.375rem;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .consent-button:hover {
+    background: #2563eb;
+  }
+
+  .consent-button:focus-visible {
+    outline: 2px solid white;
+    outline-offset: 2px;
+  }
+
+  .privacy-link {
+    color: white;
+    opacity: 0.8;
+    font-size: 0.875rem;
+    text-decoration: underline;
+    transition: opacity 0.2s;
+  }
+
+  .privacy-link:hover {
+    opacity: 1;
+  }
+
+  .remember-choice {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    font-size: 0.75rem;
+    opacity: 0.8;
+    cursor: pointer;
+  }
+
+  .remember-choice input {
+    width: 1rem;
+    height: 1rem;
+    cursor: pointer;
+  }
+
+  .map-frame-container {
+    width: 100%;
+    height: 100%;
+  }
+
+  .map-frame-container iframe {
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  .directions-link {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: white;
+    color: #1f2937;
+    border-radius: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: transform 0.2s, box-shadow 0.2s;
+    z-index: 10;
+  }
+
+  .directions-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  .directions-link svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  @media (max-width: 640px) {
+    .placeholder-content {
+      padding: 0 1rem;
+    }
+
+    .placeholder-title {
+      font-size: 1rem;
+    }
+
+    .placeholder-text {
+      font-size: 0.75rem;
+    }
+
+    .consent-button {
+      padding: 0.625rem 1.5rem;
+      font-size: 0.875rem;
+    }
+  }
+</style>
+
+<script>
+  function initGoogleMaps() {
+    const containers = document.querySelectorAll('.google-map-container');
+
+    containers.forEach((container) => {
+      const mapId = container.getAttribute('data-map-id');
+      const consentKey = container.getAttribute('data-consent-key') || 'google-maps-consent';
+      const placeholder = document.getElementById(`${mapId}-placeholder`);
+      const mapContainer = document.getElementById(`${mapId}-map`);
+      const consentButton = container.querySelector('[data-action="load-map"]');
+      const rememberCheckbox = container.querySelector('[data-action="remember"]') as HTMLInputElement;
+
+      // Check for existing consent
+      const hasConsent = localStorage.getItem(consentKey) === 'true';
+      if (hasConsent && consentButton) {
+        loadMap(consentButton as HTMLButtonElement);
+      }
+
+      // Handle consent button click
+      consentButton?.addEventListener('click', (e) => {
+        const button = e.currentTarget as HTMLButtonElement;
+
+        // Save consent if checkbox is checked
+        if (rememberCheckbox?.checked) {
+          localStorage.setItem(consentKey, 'true');
+        }
+
+        loadMap(button);
+      });
+
+      function loadMap(button: HTMLButtonElement) {
+        const mapUrl = button.getAttribute('data-map-url');
+
+        if (mapUrl && mapContainer && placeholder) {
+          // Create and insert iframe
+          const iframe = document.createElement('iframe');
+          iframe.src = mapUrl;
+          iframe.setAttribute('loading', 'lazy');
+          iframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
+          iframe.setAttribute('allowfullscreen', '');
+          iframe.setAttribute('title', 'Google Maps');
+
+          mapContainer.appendChild(iframe);
+
+          // Show map, hide placeholder
+          placeholder.style.display = 'none';
+          mapContainer.style.display = 'block';
+        }
+      }
+    });
+  }
+
+  // Initialize on page load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initGoogleMaps);
+  } else {
+    initGoogleMaps();
+  }
+
+  // Re-initialize after Astro page transitions
+  document.addEventListener('astro:page-load', initGoogleMaps);
+</script>
