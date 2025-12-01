@@ -24,7 +24,54 @@ export type {
 
 // Accessibility Components
 export { FontResizer, BackToTop, ThemeToggle } from './src/accessibility';
-export type { FontResizerProps, BackToTopProps, ThemeToggleProps } from './src/accessibility';
+export {
+  AccessibilityToolbar,
+  SkipLinks,
+  FocusTrap,
+  LanguageSwitcher,
+  TextToSpeech,
+  ScreenReaderOnly,
+  LiveRegion,
+  ReducedMotion,
+} from './src/accessibility';
+export type {
+  FontResizerProps,
+  BackToTopProps,
+  ThemeToggleProps,
+  AccessibilityToolbarProps,
+  SkipLinksProps,
+  SkipLink,
+  FocusTrapProps,
+  LanguageSwitcherProps,
+  Language,
+  TextToSpeechProps,
+  ScreenReaderOnlyProps,
+  LiveRegionProps,
+  ReducedMotionProps,
+} from './src/accessibility';
+
+// Design System
+export { DesignSystemProvider } from './src/design-system';
+export {
+  createTheme,
+  generateCSSVariables,
+  defaultTheme,
+  themePresets,
+} from './src/design-system';
+export type {
+  DesignSystemProviderProps,
+  ThemeConfig,
+  ThemeColors,
+  ThemeTypography,
+  ThemeSpacing,
+  ThemeBorderRadius,
+  ThemeShadow,
+  ThemeAnimation,
+  ThemeBreakpoints,
+  ThemeContainer,
+  ColorScale,
+  ThemePreset,
+} from './src/design-system';
 
 // Section Components
 export { Hero } from './src/sections';
