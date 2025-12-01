@@ -1,0 +1,387 @@
+/**
+ * Modern CSS Reset
+ *
+ * A minimal, modern CSS reset that provides a clean foundation
+ * while respecting user preferences and accessibility
+ *
+ * Based on:
+ * - Josh Comeau's Modern CSS Reset
+ * - Andy Bell's CSS Reset
+ * - Tailwind's Preflight
+ */
+
+/*
+ * 1. Use a more-intuitive box-sizing model
+ * 2. Remove default margin
+ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box; /* 1 */
+  margin: 0; /* 2 */
+}
+
+/*
+ * 1. Use the system font stack by default
+ * 2. Use a smooth font rendering
+ * 3. Prevent font size adjustment on orientation change
+ * 4. Tab size standardization
+ * 5. Use the configured line height from tokens
+ */
+html {
+  font-family: var(--font-family-body, ui-sans-serif, system-ui, sans-serif); /* 1 */
+  -webkit-font-smoothing: antialiased; /* 2 */
+  -moz-osx-font-smoothing: grayscale; /* 2 */
+  -webkit-text-size-adjust: 100%; /* 3 */
+  text-size-adjust: 100%; /* 3 */
+  tab-size: 4; /* 4 */
+  line-height: var(--line-height-normal, 1.5); /* 5 */
+}
+
+/*
+ * 1. Remove the default body margin
+ * 2. Ensure body fills the viewport
+ */
+body {
+  margin: 0; /* 1 */
+  min-height: 100vh; /* 2 */
+  min-height: 100dvh; /* 2 - dynamic viewport height */
+}
+
+/*
+ * Improve media defaults
+ * 1. Block display for modern HTML5 elements
+ * 2. Responsive images and media
+ * 3. Remove the border on iframes
+ */
+img,
+picture,
+video,
+canvas,
+svg,
+iframe {
+  display: block; /* 1 */
+  max-width: 100%; /* 2 */
+}
+
+iframe {
+  border: 0; /* 3 */
+}
+
+/*
+ * Maintain intrinsic aspect ratio
+ */
+img,
+video {
+  height: auto;
+}
+
+/*
+ * Remove built-in form typography styles
+ * and inherit from parent
+ */
+input,
+button,
+textarea,
+select,
+optgroup {
+  font: inherit;
+  color: inherit;
+}
+
+/*
+ * Avoid text overflows
+ */
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+}
+
+/*
+ * Set headings to inherit font-weight and size
+ * (allows semantic HTML without visual override)
+ */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+/*
+ * Reset list styles
+ * Lists without classes should look like lists
+ */
+ol,
+ul,
+menu {
+  list-style: none;
+  padding: 0;
+}
+
+/*
+ * Lists with role="list" keep default styles
+ * (Safari VoiceOver fix)
+ */
+ol[role="list"],
+ul[role="list"] {
+  list-style: revert;
+}
+
+/*
+ * Prevent textarea resize except vertically
+ */
+textarea {
+  resize: vertical;
+}
+
+/*
+ * Remove default button styles
+ */
+button {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+/*
+ * Disabled elements
+ */
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled {
+  cursor: not-allowed;
+}
+
+/*
+ * Make sure textareas without a rows attribute are not tiny
+ */
+textarea:not([rows]) {
+  min-height: 10em;
+}
+
+/*
+ * Anchor defaults
+ */
+a {
+  color: inherit;
+  text-decoration: inherit;
+}
+
+/*
+ * Remove default table spacing
+ */
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+/*
+ * Horizontal rule
+ */
+hr {
+  border: 0;
+  border-top: 1px solid;
+  color: inherit;
+  height: 0;
+}
+
+/*
+ * Add the correct text decoration in Chrome, Edge, and Safari.
+ */
+abbr[title] {
+  text-decoration: underline dotted;
+}
+
+/*
+ * Add the correct font weight in Edge and Safari.
+ */
+b,
+strong {
+  font-weight: bolder;
+}
+
+/*
+ * Correct font sizing for code elements
+ */
+code,
+kbd,
+samp,
+pre {
+  font-family: var(--font-family-code, ui-monospace, monospace);
+  font-size: 1em;
+}
+
+/*
+ * Prevent horizontal overflow from pre
+ */
+pre {
+  overflow-x: auto;
+}
+
+/*
+ * Add the correct font size and display in all browsers
+ */
+small {
+  font-size: 80%;
+}
+
+/*
+ * Prevent sub and sup affecting line height
+ */
+sub,
+sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+
+sub {
+  bottom: -0.25em;
+}
+
+sup {
+  top: -0.5em;
+}
+
+/*
+ * Remove default fieldset styles
+ */
+fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+/*
+ * Legend display fix
+ */
+legend {
+  padding: 0;
+}
+
+/*
+ * Fix progress bar styling
+ */
+progress {
+  vertical-align: baseline;
+}
+
+/*
+ * Hidden attribute support
+ */
+[hidden] {
+  display: none !important;
+}
+
+/*
+ * Summary marker styling
+ */
+summary {
+  display: list-item;
+  cursor: pointer;
+}
+
+/*
+ * Dialog element reset
+ */
+dialog {
+  background: inherit;
+  border: 0;
+  color: inherit;
+  max-height: unset;
+  max-width: unset;
+  padding: 0;
+}
+
+dialog::backdrop {
+  background: rgb(0 0 0 / 0.5);
+}
+
+/*
+ * Remove search input styling in WebKit
+ */
+::-webkit-search-decoration,
+::-webkit-search-cancel-button,
+::-webkit-search-results-button,
+::-webkit-search-results-decoration {
+  -webkit-appearance: none;
+}
+
+/*
+ * Remove number input spinners
+ */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/*
+ * Improve file input appearance
+ */
+::-webkit-file-upload-button {
+  -webkit-appearance: button;
+  font: inherit;
+}
+
+/*
+ * Correct the cursor style of increment and decrement buttons in Safari.
+ */
+::-webkit-inner-spin-button,
+::-webkit-outer-spin-button {
+  height: auto;
+}
+
+/*
+ * Improve outline on focus
+ */
+:focus-visible {
+  outline: 2px solid var(--color-focus-ring, #3b82f6);
+  outline-offset: 2px;
+}
+
+/*
+ * Remove outline for non-keyboard focus
+ */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/*
+ * Smooth scrolling with reduced motion support
+ */
+@media (prefers-reduced-motion: no-preference) {
+  html:focus-within {
+    scroll-behavior: smooth;
+  }
+}
+
+/*
+ * Reduced motion preferences
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

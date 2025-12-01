@@ -1,0 +1,259 @@
+---
+/**
+ * Design System Provider Component
+ *
+ * Injects design system tokens, base styles, and utilities
+ * Place this component in your layout's <head> for global styles
+ *
+ * Features:
+ * - Three-tier token system (primitive, semantic, component)
+ * - Automatic dark mode support
+ * - Responsive and fluid typography
+ * - Comprehensive utility classes
+ * - Modern CSS reset
+ *
+ * @example
+ * ---
+ * import { DesignSystemProvider } from '@wendermedia/astro-components/design-system';
+ * ---
+ *
+ * <html>
+ *   <head>
+ *     <DesignSystemProvider />
+ *   </head>
+ *   <body>
+ *     <slot />
+ *   </body>
+ * </html>
+ */
+
+export interface Props {
+  /** Include CSS reset (default: true) */
+  includeReset?: boolean;
+  /** Include base typography styles (default: true) */
+  includeTypography?: boolean;
+  /** Include utility classes (default: true) */
+  includeUtilities?: boolean;
+  /** Enable dark mode support (default: true) */
+  darkMode?: boolean;
+  /** Default theme (light or dark) - uses system preference if not set */
+  defaultTheme?: 'light' | 'dark' | 'system';
+  /** Custom CSS variables to override tokens */
+  customTokens?: Record<string, string>;
+  /** Theme preset to use */
+  preset?: 'default' | 'minimal' | 'rounded' | 'corporate' | 'playful';
+}
+
+const {
+  includeReset = true,
+  includeTypography = true,
+  includeUtilities = true,
+  darkMode = true,
+  defaultTheme = 'system',
+  customTokens = {},
+  preset = 'default',
+} = Astro.props;
+
+// Generate custom token CSS
+const customTokenCSS = Object.entries(customTokens)
+  .map(([key, value]) => `  ${key}: ${value};`)
+  .join('\n');
+---
+
+<!-- Design System Tokens -->
+<style is:global>
+  @import './tokens/primitives.css';
+  @import './tokens/semantic.css';
+  @import './tokens/components.css';
+</style>
+
+{includeReset && (
+  <style is:global>
+    @import './base/reset.css';
+  </style>
+)}
+
+{includeTypography && (
+  <style is:global>
+    @import './base/typography.css';
+  </style>
+)}
+
+{includeUtilities && (
+  <style is:global>
+    @import './utilities/layout.css';
+    @import './utilities/spacing.css';
+    @import './utilities/visual.css';
+  </style>
+)}
+
+{/* Custom tokens override */}
+{Object.keys(customTokens).length > 0 && (
+  <style is:global set:html={`:root {\n${customTokenCSS}\n}`} />
+)}
+
+{/* Theme preset modifications */}
+{preset === 'minimal' && (
+  <style is:global>
+    :root {
+      --radius-none: 0;
+      --radius-sm: 0;
+      --radius-base: 0;
+      --radius-md: 2px;
+      --radius-lg: 4px;
+      --radius-xl: 6px;
+      --radius-2xl: 8px;
+      --radius-3xl: 12px;
+      --shadow-xs: none;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.03);
+      --shadow-base: 0 2px 4px 0 rgb(0 0 0 / 0.05);
+      --shadow-md: 0 4px 8px 0 rgb(0 0 0 / 0.05);
+    }
+  </style>
+)}
+
+{preset === 'rounded' && (
+  <style is:global>
+    :root {
+      --radius-sm: 0.375rem;
+      --radius-base: 0.5rem;
+      --radius-md: 0.75rem;
+      --radius-lg: 1rem;
+      --radius-xl: 1.25rem;
+      --radius-2xl: 1.5rem;
+      --radius-3xl: 2rem;
+    }
+  </style>
+)}
+
+{preset === 'corporate' && (
+  <style is:global>
+    :root {
+      --color-blue-50: #f0f5ff;
+      --color-blue-100: #e0ebff;
+      --color-blue-200: #c7d7fe;
+      --color-blue-500: #5c75f2;
+      --color-blue-600: #4055e5;
+      --color-blue-700: #3344cc;
+      --font-family-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+      --font-family-heading: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    }
+  </style>
+)}
+
+{preset === 'playful' && (
+  <style is:global>
+    :root {
+      --color-primary: #8b5cf6;
+      --color-primary-hover: #7c3aed;
+      --color-primary-active: #6d28d9;
+      --color-primary-subtle: #f5f3ff;
+      --color-primary-muted: #ede9fe;
+      --radius-sm: 0.5rem;
+      --radius-base: 0.75rem;
+      --radius-md: 1rem;
+      --radius-lg: 1.25rem;
+      --radius-xl: 1.5rem;
+      --radius-2xl: 2rem;
+      --radius-3xl: 2.5rem;
+    }
+  </style>
+)}
+
+<script define:vars={{ darkMode, defaultTheme }}>
+  // Theme initialization script (runs before paint)
+  (function initTheme() {
+    const STORAGE_KEY = 'theme-preference';
+
+    function getSystemTheme() {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+
+    function getStoredTheme() {
+      try {
+        return localStorage.getItem(STORAGE_KEY);
+      } catch {
+        return null;
+      }
+    }
+
+    function setTheme(theme) {
+      const resolvedTheme = theme === 'system' ? getSystemTheme() : theme;
+      document.documentElement.setAttribute('data-theme', resolvedTheme);
+
+      // For Tailwind dark mode compatibility
+      if (resolvedTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+      }
+    }
+
+    function saveTheme(theme) {
+      try {
+        localStorage.setItem(STORAGE_KEY, theme);
+      } catch {
+        // localStorage not available
+      }
+    }
+
+    // Determine initial theme
+    let initialTheme = getStoredTheme();
+
+    if (!initialTheme) {
+      if (defaultTheme === 'system') {
+        initialTheme = getSystemTheme();
+      } else {
+        initialTheme = defaultTheme;
+      }
+    }
+
+    // Apply theme immediately
+    setTheme(initialTheme);
+
+    // Expose theme API globally
+    window.theme = {
+      get: () => document.documentElement.getAttribute('data-theme'),
+      set: (theme) => {
+        setTheme(theme);
+        saveTheme(theme);
+      },
+      toggle: () => {
+        const current = document.documentElement.getAttribute('data-theme');
+        const newTheme = current === 'dark' ? 'light' : 'dark';
+        setTheme(newTheme);
+        saveTheme(newTheme);
+        return newTheme;
+      },
+      setSystem: () => {
+        const systemTheme = getSystemTheme();
+        setTheme(systemTheme);
+        saveTheme('system');
+        return systemTheme;
+      },
+    };
+
+    // Listen for system theme changes
+    if (darkMode) {
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+        const storedTheme = getStoredTheme();
+        if (!storedTheme || storedTheme === 'system') {
+          setTheme(e.matches ? 'dark' : 'light');
+        }
+      });
+    }
+  })();
+</script>
+
+<script>
+  // Re-initialize on Astro page transitions
+  document.addEventListener('astro:page-load', () => {
+    // Theme is already set by inline script, but we can reinitialize if needed
+    if (window.theme) {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      if (!currentTheme) {
+        window.theme.setSystem();
+      }
+    }
+  });
+</script>

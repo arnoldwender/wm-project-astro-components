@@ -1,0 +1,453 @@
+/**
+ * Base Typography Styles
+ *
+ * Applies design system typography tokens to HTML elements
+ * These are optional and can be disabled if you prefer utility classes only
+ */
+
+/* ========================================
+ * ROOT & BODY
+ * ======================================== */
+
+html {
+  font-size: 100%; /* Respects user browser settings (16px default) */
+}
+
+body {
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-body);
+  line-height: var(--line-height-body);
+  letter-spacing: var(--letter-spacing-body);
+  color: var(--color-text-primary);
+  background-color: var(--color-background);
+}
+
+/* ========================================
+ * HEADINGS
+ * ======================================== */
+
+h1,
+.h1 {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-heading);
+  line-height: var(--line-height-heading);
+  letter-spacing: var(--letter-spacing-heading);
+  color: var(--color-text-primary);
+}
+
+h2,
+.h2 {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-heading);
+  line-height: var(--line-height-heading);
+  letter-spacing: var(--letter-spacing-heading);
+  color: var(--color-text-primary);
+}
+
+h3,
+.h3 {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-heading);
+  line-height: var(--line-height-heading);
+  letter-spacing: var(--letter-spacing-heading);
+  color: var(--color-text-primary);
+}
+
+h4,
+.h4 {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-h4);
+  font-weight: var(--font-weight-heading);
+  line-height: var(--line-height-heading);
+  letter-spacing: var(--letter-spacing-heading);
+  color: var(--color-text-primary);
+}
+
+h5,
+.h5 {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-h5);
+  font-weight: var(--font-weight-heading);
+  line-height: var(--line-height-heading);
+  letter-spacing: var(--letter-spacing-heading);
+  color: var(--color-text-primary);
+}
+
+h6,
+.h6 {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-h6);
+  font-weight: var(--font-weight-heading);
+  line-height: var(--line-height-heading);
+  letter-spacing: var(--letter-spacing-heading);
+  color: var(--color-text-primary);
+}
+
+/* Display heading (larger than h1) */
+.display {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-display);
+  font-weight: var(--font-weight-display);
+  line-height: var(--line-height-display);
+  letter-spacing: var(--letter-spacing-display);
+  color: var(--color-text-primary);
+}
+
+/* ========================================
+ * PARAGRAPHS & BODY TEXT
+ * ======================================== */
+
+p {
+  margin-bottom: var(--spacing-stack-md);
+}
+
+p:last-child {
+  margin-bottom: 0;
+}
+
+.lead,
+.text-lg {
+  font-size: var(--font-size-body-lg);
+  line-height: var(--line-height-relaxed);
+}
+
+.text-sm,
+small {
+  font-size: var(--font-size-body-sm);
+}
+
+.text-xs {
+  font-size: var(--font-size-caption);
+}
+
+/* ========================================
+ * LINKS
+ * ======================================== */
+
+a {
+  color: var(--color-link);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: var(--transition-colors);
+}
+
+a:hover {
+  color: var(--color-link-hover);
+}
+
+a:visited {
+  color: var(--color-link-visited);
+}
+
+a:focus-visible {
+  outline: var(--focus-ring-width) solid var(--color-focus-ring);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: var(--radius-sm);
+}
+
+/* Links without underline */
+.link-plain {
+  text-decoration: none;
+}
+
+.link-plain:hover {
+  text-decoration: underline;
+}
+
+/* ========================================
+ * LISTS
+ * ======================================== */
+
+/* Semantic lists (with class) get proper styling */
+.list,
+article ul,
+article ol,
+.prose ul,
+.prose ol {
+  padding-left: var(--spacing-6);
+  margin-bottom: var(--spacing-stack-md);
+}
+
+.list li,
+article ul li,
+article ol li,
+.prose ul li,
+.prose ol li {
+  margin-bottom: var(--spacing-stack-xs);
+}
+
+article ul,
+.prose ul {
+  list-style-type: disc;
+}
+
+article ol,
+.prose ol {
+  list-style-type: decimal;
+}
+
+/* Nested lists */
+.list ul,
+.list ol,
+article ul ul,
+article ol ol,
+.prose ul ul,
+.prose ol ol {
+  margin-top: var(--spacing-stack-xs);
+  margin-bottom: 0;
+}
+
+/* ========================================
+ * BLOCKQUOTE
+ * ======================================== */
+
+blockquote,
+.blockquote {
+  padding-left: var(--spacing-4);
+  border-left: 4px solid var(--color-border-strong);
+  font-style: italic;
+  color: var(--color-text-secondary);
+  margin: var(--spacing-stack-lg) 0;
+}
+
+blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+/* ========================================
+ * CODE & PREFORMATTED TEXT
+ * ======================================== */
+
+code,
+kbd,
+samp {
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-code);
+  background-color: var(--color-background-muted);
+  padding: var(--spacing-0-5) var(--spacing-1);
+  border-radius: var(--radius-base);
+}
+
+pre {
+  font-family: var(--font-family-code);
+  font-size: var(--font-size-code);
+  line-height: var(--line-height-code);
+  background-color: var(--color-background-muted);
+  padding: var(--spacing-4);
+  border-radius: var(--radius-lg);
+  overflow-x: auto;
+  margin: var(--spacing-stack-lg) 0;
+}
+
+pre code {
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+}
+
+kbd {
+  border: 1px solid var(--color-border-default);
+  box-shadow: 0 1px 0 var(--color-border-default);
+}
+
+/* ========================================
+ * HORIZONTAL RULE
+ * ======================================== */
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--color-border-default);
+  margin: var(--spacing-section-sm) 0;
+}
+
+/* ========================================
+ * EMPHASIS & MARKS
+ * ======================================== */
+
+strong,
+b {
+  font-weight: var(--font-weight-bold);
+}
+
+em,
+i {
+  font-style: italic;
+}
+
+mark {
+  background-color: var(--color-warning-muted);
+  padding: 0 var(--spacing-0-5);
+  border-radius: var(--radius-sm);
+}
+
+del,
+s {
+  text-decoration: line-through;
+  color: var(--color-text-muted);
+}
+
+ins {
+  text-decoration: underline;
+}
+
+/* ========================================
+ * ABBREVIATIONS
+ * ======================================== */
+
+abbr[title] {
+  text-decoration: underline dotted;
+  cursor: help;
+}
+
+/* ========================================
+ * SELECTION
+ * ======================================== */
+
+::selection {
+  background-color: var(--color-primary-muted);
+  color: var(--color-text-primary);
+}
+
+/* ========================================
+ * PROSE CONTAINER (Article Content)
+ * ======================================== */
+
+.prose {
+  max-width: var(--content-width-prose);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-relaxed);
+}
+
+.prose > * + * {
+  margin-top: var(--spacing-stack-md);
+}
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  margin-top: var(--spacing-stack-xl);
+  margin-bottom: var(--spacing-stack-sm);
+}
+
+.prose h1:first-child,
+.prose h2:first-child,
+.prose h3:first-child {
+  margin-top: 0;
+}
+
+.prose img,
+.prose figure {
+  margin: var(--spacing-stack-lg) 0;
+}
+
+.prose figure figcaption {
+  font-size: var(--font-size-body-sm);
+  color: var(--color-text-secondary);
+  margin-top: var(--spacing-stack-xs);
+  text-align: center;
+}
+
+.prose table {
+  width: 100%;
+  margin: var(--spacing-stack-lg) 0;
+}
+
+.prose thead th {
+  background-color: var(--color-background-subtle);
+  padding: var(--spacing-3) var(--spacing-4);
+  text-align: left;
+  font-weight: var(--font-weight-semibold);
+  border-bottom: 2px solid var(--color-border-default);
+}
+
+.prose tbody td {
+  padding: var(--spacing-3) var(--spacing-4);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.prose tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* ========================================
+ * TEXT UTILITIES
+ * ======================================== */
+
+/* Text alignment */
+.text-left { text-align: left; }
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+.text-justify { text-align: justify; }
+
+/* Text colors */
+.text-primary { color: var(--color-text-primary); }
+.text-secondary { color: var(--color-text-secondary); }
+.text-tertiary { color: var(--color-text-tertiary); }
+.text-muted { color: var(--color-text-muted); }
+.text-inverse { color: var(--color-text-inverse); }
+
+/* Text transform */
+.uppercase { text-transform: uppercase; }
+.lowercase { text-transform: lowercase; }
+.capitalize { text-transform: capitalize; }
+.normal-case { text-transform: none; }
+
+/* Font weight utilities */
+.font-thin { font-weight: var(--font-weight-thin); }
+.font-extralight { font-weight: var(--font-weight-extralight); }
+.font-light { font-weight: var(--font-weight-light); }
+.font-normal { font-weight: var(--font-weight-normal); }
+.font-medium { font-weight: var(--font-weight-medium); }
+.font-semibold { font-weight: var(--font-weight-semibold); }
+.font-bold { font-weight: var(--font-weight-bold); }
+.font-extrabold { font-weight: var(--font-weight-extrabold); }
+.font-black { font-weight: var(--font-weight-black); }
+
+/* Font style */
+.italic { font-style: italic; }
+.not-italic { font-style: normal; }
+
+/* Text decoration */
+.underline { text-decoration: underline; }
+.line-through { text-decoration: line-through; }
+.no-underline { text-decoration: none; }
+
+/* Truncation */
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Word break */
+.break-normal { word-break: normal; overflow-wrap: normal; }
+.break-words { overflow-wrap: break-word; }
+.break-all { word-break: break-all; }
