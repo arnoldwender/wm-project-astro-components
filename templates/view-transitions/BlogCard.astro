@@ -1,0 +1,120 @@
+---
+/**
+ * Blog Card with View Transition Name
+ *
+ * The image and title will morph into the blog post page
+ * when clicking on the card.
+ */
+
+interface Props {
+  slug: string;
+  title: string;
+  description: string;
+  image: string;
+  imageAlt: string;
+  date: Date;
+  author?: string;
+}
+
+const { slug, title, description, image, imageAlt, date, author } = Astro.props;
+
+// Create unique transition names based on slug
+const imageTransition = `blog-image-${slug}`;
+const titleTransition = `blog-title-${slug}`;
+---
+
+<article class="blog-card">
+  <a href={`/blog/${slug}`} class="card-link">
+    <div class="card-image">
+      <img
+        src={image}
+        alt={imageAlt}
+        loading="lazy"
+        decoding="async"
+        transition:name={imageTransition}
+      />
+    </div>
+    <div class="card-content">
+      <h2 transition:name={titleTransition}>{title}</h2>
+      <p class="description">{description}</p>
+      <div class="meta">
+        <time datetime={date.toISOString()}>
+          {
+            date.toLocaleDateString('de-DE', {
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })
+          }
+        </time>
+        {author && <span class="author">von {author}</span>}
+      </div>
+    </div>
+  </a>
+</article>
+
+<style>
+  .blog-card {
+    border-radius: 1rem;
+    overflow: hidden;
+    background: white;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .blog-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+  }
+
+  .card-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .card-image {
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+  }
+
+  .card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+  }
+
+  .blog-card:hover .card-image img {
+    transform: scale(1.05);
+  }
+
+  .card-content {
+    padding: 1.5rem;
+  }
+
+  h2 {
+    margin: 0 0 0.5rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  .description {
+    margin: 0 0 1rem;
+    color: #64748b;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: #94a3b8;
+  }
+</style>

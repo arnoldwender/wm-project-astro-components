@@ -1,0 +1,221 @@
+---
+/**
+ * Base Layout with View Transitions
+ *
+ * Provides full page transitions and persistent elements.
+ * Copy to src/layouts/BaseLayout.astro
+ */
+
+import { ViewTransitions } from 'astro:transitions';
+
+interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+}
+
+const { title, description, image } = Astro.props;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- SEO -->
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalURL} />
+    {image && <meta property="og:image" content={new URL(image, Astro.site)} />}
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <!-- View Transitions -->
+    <ViewTransitions />
+
+    <!-- Custom Transition Styles -->
+    <style is:global>
+      /* ================================
+         DEFAULT TRANSITIONS
+         ================================ */
+
+      /* Morph animation (default for matching elements) */
+      ::view-transition-old(root),
+      ::view-transition-new(root) {
+        animation-duration: 300ms;
+        animation-timing-function: ease-in-out;
+      }
+
+      /* ================================
+         FADE TRANSITION
+         ================================ */
+      @keyframes fade-in {
+        from {
+          opacity: 0;
+        }
+      }
+
+      @keyframes fade-out {
+        to {
+          opacity: 0;
+        }
+      }
+
+      [data-astro-transition='fade']::view-transition-old(root) {
+        animation: 200ms ease-out fade-out;
+      }
+
+      [data-astro-transition='fade']::view-transition-new(root) {
+        animation: 200ms ease-in fade-in;
+      }
+
+      /* ================================
+         SLIDE TRANSITION
+         ================================ */
+      @keyframes slide-out-left {
+        to {
+          transform: translateX(-100%);
+        }
+      }
+
+      @keyframes slide-in-right {
+        from {
+          transform: translateX(100%);
+        }
+      }
+
+      @keyframes slide-out-right {
+        to {
+          transform: translateX(100%);
+        }
+      }
+
+      @keyframes slide-in-left {
+        from {
+          transform: translateX(-100%);
+        }
+      }
+
+      /* Forward navigation (default) */
+      [data-astro-transition='slide']::view-transition-old(root) {
+        animation: 300ms ease-in-out slide-out-left;
+      }
+
+      [data-astro-transition='slide']::view-transition-new(root) {
+        animation: 300ms ease-in-out slide-in-right;
+      }
+
+      /* Backward navigation */
+      .back-navigation::view-transition-old(root) {
+        animation: 300ms ease-in-out slide-out-right;
+      }
+
+      .back-navigation::view-transition-new(root) {
+        animation: 300ms ease-in-out slide-in-left;
+      }
+
+      /* ================================
+         SCALE TRANSITION
+         ================================ */
+      @keyframes scale-out {
+        to {
+          transform: scale(0.9);
+          opacity: 0;
+        }
+      }
+
+      @keyframes scale-in {
+        from {
+          transform: scale(1.1);
+          opacity: 0;
+        }
+      }
+
+      [data-astro-transition='scale']::view-transition-old(root) {
+        animation: 250ms ease-out scale-out;
+      }
+
+      [data-astro-transition='scale']::view-transition-new(root) {
+        animation: 250ms ease-out scale-in;
+      }
+
+      /* ================================
+         PERSIST ELEMENTS (no transition)
+         ================================ */
+      ::view-transition-group(header),
+      ::view-transition-group(nav),
+      ::view-transition-group(footer) {
+        animation: none;
+      }
+
+      /* ================================
+         HERO IMAGE MORPH
+         ================================ */
+      ::view-transition-old(hero-image),
+      ::view-transition-new(hero-image) {
+        animation-duration: 400ms;
+        animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      /* ================================
+         REDUCED MOTION
+         ================================ */
+      @media (prefers-reduced-motion: reduce) {
+        ::view-transition-old(root),
+        ::view-transition-new(root),
+        ::view-transition-old(hero-image),
+        ::view-transition-new(hero-image) {
+          animation: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header with persist (won't animate on page change) -->
+    <header transition:persist transition:name="header">
+      <slot name="header">
+        <nav>
+          <a href="/">Home</a>
+          <a href="/blog">Blog</a>
+          <a href="/about">About</a>
+        </nav>
+      </slot>
+    </header>
+
+    <!-- Main content (animates on page change) -->
+    <main transition:animate="fade">
+      <slot />
+    </main>
+
+    <!-- Footer with persist -->
+    <footer transition:persist transition:name="footer">
+      <slot name="footer">
+        <p>&copy; {new Date().getFullYear()} My Site</p>
+      </slot>
+    </footer>
+
+    <!-- Handle back navigation direction -->
+    <script>
+      document.addEventListener('astro:before-preparation', (event) => {
+        const direction = (event as any).direction;
+        if (direction === 'back') {
+          document.documentElement.classList.add('back-navigation');
+        } else {
+          document.documentElement.classList.remove('back-navigation');
+        }
+      });
+
+      document.addEventListener('astro:after-swap', () => {
+        document.documentElement.classList.remove('back-navigation');
+      });
+    </script>
+  </body>
+</html>
