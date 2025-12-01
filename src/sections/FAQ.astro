@@ -1,0 +1,421 @@
+---
+/**
+ * Premium FAQ Accordion Component
+ *
+ * SEO-optimized FAQ section with:
+ * - Schema.org FAQPage markup for rich snippets
+ * - Pure CSS accordion (no JS required, enhanced with JS)
+ * - Smooth animations with reduced motion support
+ * - Category grouping support
+ * - Search/filter functionality
+ * - Keyboard accessible
+ *
+ * SEO Benefits:
+ * - FAQ rich results in Google search
+ * - "People Also Ask" eligibility
+ * - Voice search optimization
+ */
+
+export interface FAQItem {
+  id: string;
+  question: string;
+  answer: string;
+  category?: string;
+}
+
+export interface Props {
+  title?: string;
+  subtitle?: string;
+  faqs: FAQItem[];
+  showSchema?: boolean;
+  showSearch?: boolean;
+  showCategories?: boolean;
+  defaultOpen?: string[];
+  allowMultiple?: boolean;
+  columns?: 1 | 2;
+  class?: string;
+}
+
+const {
+  title = 'Frequently Asked Questions',
+  subtitle = 'Find answers to common questions',
+  faqs,
+  showSchema = true,
+  showSearch = true,
+  showCategories = true,
+  defaultOpen = [],
+  allowMultiple = true,
+  columns = 1,
+  class: className = '',
+} = Astro.props;
+
+// Extract unique categories
+const categories = [...new Set(faqs.filter(f => f.category).map(f => f.category!))];
+const hasCategories = showCategories && categories.length > 0;
+---
+
+<section
+  class:list={['faq-section py-16 md:py-24 lg:py-32', className]}
+  data-faq-section
+  data-allow-multiple={allowMultiple}
+>
+  <div class="container mx-auto px-4">
+    <!-- Header -->
+    <div class="text-center max-w-3xl mx-auto mb-12 md:mb-16">
+      <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
+        {title}
+      </h2>
+      <p class="text-lg md:text-xl text-gray-600 dark:text-gray-400">
+        {subtitle}
+      </p>
+    </div>
+
+    {/* Search */}
+    {showSearch && (
+      <div class="max-w-2xl mx-auto mb-8">
+        <div class="relative">
+          <svg
+            class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input
+            type="search"
+            placeholder="Search questions..."
+            class="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            data-faq-search
+            aria-label="Search frequently asked questions"
+          />
+          <button
+            type="button"
+            class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hidden"
+            data-faq-clear
+            aria-label="Clear search"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    )}
+
+    {/* Category Filters */}
+    {hasCategories && (
+      <div class="flex flex-wrap items-center justify-center gap-2 mb-8" role="tablist" aria-label="FAQ categories">
+        <button
+          type="button"
+          role="tab"
+          aria-selected="true"
+          class="px-4 py-2 rounded-full text-sm font-medium transition-all bg-blue-500 text-white"
+          data-faq-category="all"
+        >
+          All
+        </button>
+        {categories.map((category) => (
+          <button
+            type="button"
+            role="tab"
+            aria-selected="false"
+            class="px-4 py-2 rounded-full text-sm font-medium transition-all bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+            data-faq-category={category}
+          >
+            {category}
+          </button>
+        ))}
+      </div>
+    )}
+
+    <!-- FAQ Accordion -->
+    <div
+      class:list={[
+        'max-w-4xl mx-auto',
+        columns === 2 && 'md:grid md:grid-cols-2 md:gap-6'
+      ]}
+      role="region"
+      aria-label="Frequently asked questions"
+    >
+      {faqs.map((faq, index) => {
+        const isOpen = defaultOpen.includes(faq.id);
+        return (
+          <div
+            class="faq-item border-b border-gray-200 dark:border-gray-700 last:border-b-0"
+            data-faq-item
+            data-faq-id={faq.id}
+            data-category={faq.category || ''}
+          >
+            <h3>
+              <button
+                type="button"
+                class="faq-trigger w-full flex items-center justify-between py-5 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 group"
+                aria-expanded={isOpen}
+                aria-controls={`faq-content-${faq.id}`}
+                data-faq-trigger
+              >
+                <span class="text-lg font-medium text-gray-900 dark:text-white pr-4 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                  {faq.question}
+                </span>
+                <span class="faq-icon flex-shrink-0 w-6 h-6 text-gray-400 group-hover:text-blue-500 transition-transform duration-200" aria-hidden="true">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </span>
+              </button>
+            </h3>
+            <div
+              id={`faq-content-${faq.id}`}
+              class="faq-content overflow-hidden transition-all duration-300"
+              data-faq-content
+              style={isOpen ? '' : 'max-height: 0;'}
+              aria-hidden={!isOpen}
+            >
+              <div class="pb-5 text-gray-600 dark:text-gray-400 leading-relaxed prose prose-sm dark:prose-invert max-w-none">
+                <Fragment set:html={faq.answer} />
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+
+    <!-- No results message -->
+    <div
+      class="hidden text-center py-12"
+      data-faq-no-results
+    >
+      <svg class="w-16 h-16 mx-auto text-gray-300 dark:text-gray-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+      <p class="text-gray-500 dark:text-gray-400 text-lg">
+        No questions found matching your search.
+      </p>
+      <button
+        type="button"
+        class="mt-4 text-blue-500 hover:text-blue-600 font-medium"
+        data-faq-clear-search
+      >
+        Clear search
+      </button>
+    </div>
+
+    <!-- Still have questions CTA -->
+    <div class="text-center mt-12 pt-12 border-t border-gray-200 dark:border-gray-700">
+      <h3 class="text-xl font-semibold mb-2">Still have questions?</h3>
+      <p class="text-gray-600 dark:text-gray-400 mb-4">
+        Can't find the answer you're looking for? Our team is here to help.
+      </p>
+      <a
+        href="#contact"
+        class="inline-flex items-center gap-2 px-6 py-3 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition-colors"
+      >
+        Contact Support
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+        </svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+{/* Schema.org FAQPage markup */}
+{showSchema && (
+  <script type="application/ld+json" set:html={JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqs.map((faq) => ({
+      "@type": "Question",
+      "name": faq.question,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": faq.answer.replace(/<[^>]*>/g, '')
+      }
+    }))
+  })} />
+)}
+
+<script>
+function initFAQ() {
+  const section = document.querySelector('[data-faq-section]');
+  if (!section) return;
+
+  const allowMultiple = section.getAttribute('data-allow-multiple') === 'true';
+  const items = section.querySelectorAll('[data-faq-item]');
+  const triggers = section.querySelectorAll('[data-faq-trigger]');
+  const searchInput = section.querySelector('[data-faq-search]') as HTMLInputElement;
+  const clearBtn = section.querySelector('[data-faq-clear]');
+  const clearSearchBtn = section.querySelector('[data-faq-clear-search]');
+  const categoryBtns = section.querySelectorAll('[data-faq-category]');
+  const noResults = section.querySelector('[data-faq-no-results]');
+
+  let activeCategory = 'all';
+  let searchQuery = '';
+
+  function toggleItem(trigger: Element, forceState?: boolean) {
+    const item = trigger.closest('[data-faq-item]');
+    const content = item?.querySelector('[data-faq-content]') as HTMLElement;
+    const icon = trigger.querySelector('.faq-icon');
+
+    if (!content) return;
+
+    const isExpanded = trigger.getAttribute('aria-expanded') === 'true';
+    const shouldOpen = forceState !== undefined ? forceState : !isExpanded;
+
+    // Close other items if not allowing multiple
+    if (shouldOpen && !allowMultiple) {
+      triggers.forEach(otherTrigger => {
+        if (otherTrigger !== trigger) {
+          toggleItem(otherTrigger, false);
+        }
+      });
+    }
+
+    // Toggle state
+    trigger.setAttribute('aria-expanded', shouldOpen.toString());
+    content.setAttribute('aria-hidden', (!shouldOpen).toString());
+
+    if (shouldOpen) {
+      content.style.maxHeight = content.scrollHeight + 'px';
+      icon?.classList.add('rotate-180');
+    } else {
+      content.style.maxHeight = '0';
+      icon?.classList.remove('rotate-180');
+    }
+  }
+
+  function filterItems() {
+    let visibleCount = 0;
+
+    items.forEach(item => {
+      const category = item.getAttribute('data-category') || '';
+      const question = item.querySelector('[data-faq-trigger] span')?.textContent?.toLowerCase() || '';
+      const answer = item.querySelector('[data-faq-content]')?.textContent?.toLowerCase() || '';
+
+      const matchesCategory = activeCategory === 'all' || category === activeCategory;
+      const matchesSearch = !searchQuery ||
+        question.includes(searchQuery.toLowerCase()) ||
+        answer.includes(searchQuery.toLowerCase());
+
+      const isVisible = matchesCategory && matchesSearch;
+      (item as HTMLElement).style.display = isVisible ? '' : 'none';
+
+      if (isVisible) visibleCount++;
+    });
+
+    // Show/hide no results message
+    if (noResults) {
+      (noResults as HTMLElement).classList.toggle('hidden', visibleCount > 0);
+    }
+
+    // Update clear button visibility
+    if (clearBtn) {
+      (clearBtn as HTMLElement).classList.toggle('hidden', !searchQuery);
+    }
+  }
+
+  // Trigger click handlers
+  triggers.forEach(trigger => {
+    trigger.addEventListener('click', () => toggleItem(trigger));
+
+    trigger.addEventListener('keydown', (e: Event) => {
+      const keyEvent = e as KeyboardEvent;
+      if (keyEvent.key === 'Enter' || keyEvent.key === ' ') {
+        e.preventDefault();
+        toggleItem(trigger);
+      }
+    });
+  });
+
+  // Search handler
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      searchQuery = (e.target as HTMLInputElement).value;
+      filterItems();
+    });
+  }
+
+  // Clear buttons
+  clearBtn?.addEventListener('click', () => {
+    if (searchInput) {
+      searchInput.value = '';
+      searchQuery = '';
+      filterItems();
+    }
+  });
+
+  clearSearchBtn?.addEventListener('click', () => {
+    if (searchInput) {
+      searchInput.value = '';
+      searchQuery = '';
+      filterItems();
+    }
+  });
+
+  // Category handlers
+  categoryBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const category = btn.getAttribute('data-faq-category') || 'all';
+      activeCategory = category;
+
+      // Update button styles
+      categoryBtns.forEach(b => {
+        const isActive = b.getAttribute('data-faq-category') === category;
+        b.setAttribute('aria-selected', isActive.toString());
+        b.classList.toggle('bg-blue-500', isActive);
+        b.classList.toggle('text-white', isActive);
+        b.classList.toggle('bg-gray-100', !isActive);
+        b.classList.toggle('dark:bg-gray-800', !isActive);
+        b.classList.toggle('text-gray-700', !isActive);
+        b.classList.toggle('dark:text-gray-300', !isActive);
+      });
+
+      filterItems();
+    });
+  });
+
+  // Initialize items that should be open
+  triggers.forEach(trigger => {
+    if (trigger.getAttribute('aria-expanded') === 'true') {
+      const content = trigger.closest('[data-faq-item]')?.querySelector('[data-faq-content]') as HTMLElement;
+      if (content) {
+        content.style.maxHeight = content.scrollHeight + 'px';
+        trigger.querySelector('.faq-icon')?.classList.add('rotate-180');
+      }
+    }
+  });
+}
+
+// Initialize
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initFAQ);
+} else {
+  initFAQ();
+}
+
+// View Transitions support
+document.addEventListener('astro:page-load', initFAQ);
+</script>
+
+<style>
+  .faq-icon {
+    transition: transform 0.2s ease;
+  }
+
+  .faq-icon.rotate-180 {
+    transform: rotate(180deg);
+  }
+
+  .faq-content {
+    transition: max-height 0.3s ease;
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .faq-icon,
+    .faq-content {
+      transition: none;
+    }
+  }
+</style>

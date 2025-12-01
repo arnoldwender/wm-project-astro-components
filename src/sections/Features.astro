@@ -1,0 +1,464 @@
+---
+/**
+ * Premium Features Section Component
+ *
+ * Showcase features with:
+ * - Multiple layout variants (grid, alternating, bento)
+ * - Icon or image support
+ * - Animated entrance on scroll
+ * - Feature highlighting
+ * - Accessible markup
+ *
+ * Design patterns:
+ * - Visual hierarchy with icons
+ * - Scannable benefit-focused copy
+ * - Progressive disclosure
+ */
+
+export interface Feature {
+  id: string;
+  title: string;
+  description: string;
+  icon?: string;
+  image?: string;
+  imageAlt?: string;
+  link?: {
+    text: string;
+    href: string;
+  };
+  badge?: string;
+  highlighted?: boolean;
+}
+
+export interface Props {
+  title?: string;
+  subtitle?: string;
+  description?: string;
+  features: Feature[];
+  layout?: 'grid' | 'alternating' | 'bento' | 'cards' | 'list';
+  columns?: 2 | 3 | 4;
+  animate?: boolean;
+  centered?: boolean;
+  class?: string;
+}
+
+const {
+  title,
+  subtitle,
+  description,
+  features,
+  layout = 'grid',
+  columns = 3,
+  animate = true,
+  centered = true,
+  class: className = '',
+} = Astro.props;
+
+const gridCols = {
+  2: 'md:grid-cols-2',
+  3: 'md:grid-cols-2 lg:grid-cols-3',
+  4: 'md:grid-cols-2 lg:grid-cols-4',
+};
+---
+
+<section
+  class:list={['features-section py-16 md:py-24 lg:py-32', className]}
+  data-features-section
+  data-animate={animate}
+>
+  <div class="container mx-auto px-4">
+    {/* Header */}
+    {(title || subtitle || description) && (
+      <div class:list={['max-w-3xl mb-12 md:mb-16', centered && 'mx-auto text-center']}>
+        {subtitle && (
+          <p class="text-sm uppercase tracking-wider text-blue-600 dark:text-blue-400 font-semibold mb-4">
+            {subtitle}
+          </p>
+        )}
+        {title && (
+          <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
+            {title}
+          </h2>
+        )}
+        {description && (
+          <p class="text-lg md:text-xl text-gray-600 dark:text-gray-400">
+            {description}
+          </p>
+        )}
+      </div>
+    )}
+
+    {/* Grid Layout */}
+    {layout === 'grid' && (
+      <div class={`grid gap-8 ${gridCols[columns]}`}>
+        {features.map((feature, index) => (
+          <article
+            class:list={[
+              'feature-card group relative p-6 rounded-2xl transition-all duration-300',
+              feature.highlighted
+                ? 'bg-blue-50 dark:bg-blue-900/20 ring-2 ring-blue-500'
+                : 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 shadow-sm hover:shadow-lg'
+            ]}
+            data-feature-card
+            style={animate ? `--delay: ${index * 100}ms` : ''}
+          >
+            {feature.badge && (
+              <span class="absolute -top-3 right-4 px-3 py-1 text-xs font-semibold bg-blue-500 text-white rounded-full">
+                {feature.badge}
+              </span>
+            )}
+
+            {/* Icon */}
+            {feature.icon && (
+              <div class="w-12 h-12 mb-4 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform">
+                <Fragment set:html={feature.icon} />
+              </div>
+            )}
+
+            {/* Image */}
+            {feature.image && (
+              <img
+                src={feature.image}
+                alt={feature.imageAlt || feature.title}
+                class="w-full h-40 object-cover rounded-xl mb-4"
+                loading="lazy"
+              />
+            )}
+
+            <h3 class="text-xl font-semibold mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+              {feature.title}
+            </h3>
+
+            <p class="text-gray-600 dark:text-gray-400 mb-4">
+              {feature.description}
+            </p>
+
+            {feature.link && (
+              <a
+                href={feature.link.href}
+                class="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 font-medium hover:gap-2 transition-all"
+              >
+                {feature.link.text}
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </a>
+            )}
+          </article>
+        ))}
+      </div>
+    )}
+
+    {/* Alternating Layout */}
+    {layout === 'alternating' && (
+      <div class="space-y-16 md:space-y-24">
+        {features.map((feature, index) => (
+          <article
+            class="grid md:grid-cols-2 gap-8 md:gap-12 items-center"
+            data-feature-card
+            style={animate ? `--delay: ${index * 150}ms` : ''}
+          >
+            <div class:list={[index % 2 === 1 && 'md:order-2']}>
+              {feature.badge && (
+                <span class="inline-block px-3 py-1 text-xs font-semibold bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full mb-4">
+                  {feature.badge}
+                </span>
+              )}
+
+              <h3 class="text-2xl md:text-3xl font-bold mb-4">
+                {feature.title}
+              </h3>
+
+              <p class="text-lg text-gray-600 dark:text-gray-400 mb-6">
+                {feature.description}
+              </p>
+
+              {feature.link && (
+                <a
+                  href={feature.link.href}
+                  class="inline-flex items-center gap-2 px-6 py-3 bg-blue-500 text-white font-semibold rounded-lg hover:bg-blue-600 transition-colors"
+                >
+                  {feature.link.text}
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </a>
+              )}
+            </div>
+
+            <div class:list={[index % 2 === 1 && 'md:order-1']}>
+              {feature.image ? (
+                <img
+                  src={feature.image}
+                  alt={feature.imageAlt || feature.title}
+                  class="rounded-2xl shadow-xl"
+                  loading="lazy"
+                />
+              ) : feature.icon && (
+                <div class="aspect-square rounded-2xl bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900/30 dark:to-purple-900/30 flex items-center justify-center">
+                  <div class="w-32 h-32 text-blue-500">
+                    <Fragment set:html={feature.icon} />
+                  </div>
+                </div>
+              )}
+            </div>
+          </article>
+        ))}
+      </div>
+    )}
+
+    {/* Bento Grid Layout */}
+    {layout === 'bento' && (
+      <div class="grid gap-4 md:grid-cols-4 md:grid-rows-3">
+        {features.slice(0, 6).map((feature, index) => {
+          const gridSpans = [
+            'md:col-span-2 md:row-span-2',
+            'md:col-span-2',
+            'md:col-span-1',
+            'md:col-span-1',
+            'md:col-span-2',
+            'md:col-span-2'
+          ];
+
+          return (
+            <article
+              class:list={[
+                'feature-card group relative p-6 rounded-2xl bg-white dark:bg-gray-800 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden',
+                gridSpans[index] || ''
+              ]}
+              data-feature-card
+              style={animate ? `--delay: ${index * 100}ms` : ''}
+            >
+              {feature.badge && (
+                <span class="absolute top-4 right-4 px-3 py-1 text-xs font-semibold bg-blue-500 text-white rounded-full">
+                  {feature.badge}
+                </span>
+              )}
+
+              {feature.image && index === 0 && (
+                <img
+                  src={feature.image}
+                  alt={feature.imageAlt || feature.title}
+                  class="absolute inset-0 w-full h-full object-cover opacity-20 group-hover:opacity-30 transition-opacity"
+                  loading="lazy"
+                />
+              )}
+
+              <div class="relative z-10">
+                {feature.icon && (
+                  <div class:list={[
+                    'mb-4 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400',
+                    index === 0 ? 'w-16 h-16' : 'w-12 h-12'
+                  ]}>
+                    <Fragment set:html={feature.icon} />
+                  </div>
+                )}
+
+                <h3 class:list={[
+                  'font-semibold mb-2',
+                  index === 0 ? 'text-2xl' : 'text-lg'
+                ]}>
+                  {feature.title}
+                </h3>
+
+                <p class:list={[
+                  'text-gray-600 dark:text-gray-400',
+                  index === 0 ? 'text-base' : 'text-sm'
+                ]}>
+                  {feature.description}
+                </p>
+
+                {feature.link && (
+                  <a
+                    href={feature.link.href}
+                    class="inline-flex items-center gap-1 mt-4 text-blue-600 dark:text-blue-400 font-medium text-sm hover:gap-2 transition-all"
+                  >
+                    {feature.link.text}
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </a>
+                )}
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    )}
+
+    {/* Cards Layout */}
+    {layout === 'cards' && (
+      <div class={`grid gap-6 ${gridCols[columns]}`}>
+        {features.map((feature, index) => (
+          <article
+            class="feature-card group relative bg-white dark:bg-gray-800 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden"
+            data-feature-card
+            style={animate ? `--delay: ${index * 100}ms` : ''}
+          >
+            {feature.image && (
+              <div class="relative h-48 overflow-hidden">
+                <img
+                  src={feature.image}
+                  alt={feature.imageAlt || feature.title}
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  loading="lazy"
+                />
+                {feature.badge && (
+                  <span class="absolute top-4 right-4 px-3 py-1 text-xs font-semibold bg-blue-500 text-white rounded-full">
+                    {feature.badge}
+                  </span>
+                )}
+              </div>
+            )}
+
+            <div class="p-6">
+              {!feature.image && feature.icon && (
+                <div class="w-12 h-12 mb-4 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform">
+                  <Fragment set:html={feature.icon} />
+                </div>
+              )}
+
+              <h3 class="text-xl font-semibold mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                {feature.title}
+              </h3>
+
+              <p class="text-gray-600 dark:text-gray-400 mb-4">
+                {feature.description}
+              </p>
+
+              {feature.link && (
+                <a
+                  href={feature.link.href}
+                  class="inline-flex items-center gap-1 text-blue-600 dark:text-blue-400 font-medium hover:gap-2 transition-all"
+                >
+                  {feature.link.text}
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </a>
+              )}
+            </div>
+          </article>
+        ))}
+      </div>
+    )}
+
+    {/* List Layout */}
+    {layout === 'list' && (
+      <div class="max-w-3xl mx-auto space-y-4">
+        {features.map((feature, index) => (
+          <article
+            class="feature-card group flex items-start gap-4 p-4 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
+            data-feature-card
+            style={animate ? `--delay: ${index * 50}ms` : ''}
+          >
+            {feature.icon && (
+              <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                <Fragment set:html={feature.icon} />
+              </div>
+            )}
+
+            <div class="flex-grow">
+              <h3 class="text-lg font-semibold mb-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                {feature.title}
+                {feature.badge && (
+                  <span class="ml-2 px-2 py-0.5 text-xs font-semibold bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded">
+                    {feature.badge}
+                  </span>
+                )}
+              </h3>
+              <p class="text-gray-600 dark:text-gray-400 text-sm">
+                {feature.description}
+              </p>
+            </div>
+
+            {feature.link && (
+              <a
+                href={feature.link.href}
+                class="flex-shrink-0 p-2 text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                aria-label={`Learn more about ${feature.title}`}
+              >
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </a>
+            )}
+          </article>
+        ))}
+      </div>
+    )}
+  </div>
+</section>
+
+<script>
+function initFeatures() {
+  const sections = document.querySelectorAll('[data-features-section]');
+
+  sections.forEach(section => {
+    const shouldAnimate = section.getAttribute('data-animate') === 'true';
+    if (!shouldAnimate) return;
+
+    const cards = section.querySelectorAll('[data-feature-card]');
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const card = entry.target as HTMLElement;
+            const delay = card.style.getPropertyValue('--delay') || '0ms';
+
+            setTimeout(() => {
+              card.classList.add('animate-in');
+            }, parseInt(delay));
+
+            observer.unobserve(card);
+          }
+        });
+      },
+      {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+      }
+    );
+
+    cards.forEach(card => {
+      (card as HTMLElement).classList.add('animate-ready');
+      observer.observe(card);
+    });
+  });
+}
+
+// Initialize
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initFeatures);
+} else {
+  initFeatures();
+}
+
+// View Transitions support
+document.addEventListener('astro:page-load', initFeatures);
+</script>
+
+<style>
+  .feature-card.animate-ready {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  .feature-card.animate-in {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .feature-card.animate-ready {
+      opacity: 1;
+      transform: none;
+    }
+    .feature-card.animate-in {
+      transition: none;
+    }
+  }
+</style>
