@@ -1,0 +1,322 @@
+---
+/**
+ * Premium Stats/Counter Section Component
+ *
+ * Animated statistics display with:
+ * - Count-up animation on scroll
+ * - Multiple layout variants
+ * - Icon/image support
+ * - Suffix/prefix support (%, +, K, M)
+ * - Responsive grid
+ * - Accessibility (respects prefers-reduced-motion)
+ *
+ * Psychological impact:
+ * - Social proof through numbers
+ * - Authority through achievements
+ * - Trust through transparency
+ */
+
+export interface Stat {
+  id: string;
+  value: number;
+  label: string;
+  prefix?: string;
+  suffix?: string;
+  icon?: string;
+  description?: string;
+}
+
+export interface Props {
+  title?: string;
+  subtitle?: string;
+  stats: Stat[];
+  layout?: 'inline' | 'cards' | 'banner' | 'minimal';
+  animate?: boolean;
+  animationDuration?: number;
+  bgColor?: string;
+  textColor?: 'light' | 'dark';
+  class?: string;
+}
+
+const {
+  title,
+  subtitle,
+  stats,
+  layout = 'cards',
+  animate = true,
+  animationDuration = 2000,
+  bgColor = 'bg-white dark:bg-gray-900',
+  textColor = 'dark',
+  class: className = '',
+} = Astro.props;
+
+const textClasses = textColor === 'light'
+  ? 'text-white'
+  : 'text-gray-900 dark:text-white';
+
+const subtitleClasses = textColor === 'light'
+  ? 'text-white/70'
+  : 'text-gray-600 dark:text-gray-400';
+
+function formatValue(value: number): string {
+  if (value >= 1000000) return (value / 1000000).toFixed(1);
+  if (value >= 1000) return (value / 1000).toFixed(0);
+  return value.toString();
+}
+
+function getSuffix(value: number, customSuffix?: string): string {
+  if (customSuffix) return customSuffix;
+  if (value >= 1000000) return 'M';
+  if (value >= 1000) return 'K';
+  return '';
+}
+---
+
+<section
+  class:list={['stats-section py-16 md:py-24', bgColor, className]}
+  data-stats-section
+  data-animate={animate}
+  data-duration={animationDuration}
+>
+  <div class="container mx-auto px-4">
+    {/* Header */}
+    {(title || subtitle) && (
+      <div class="text-center max-w-3xl mx-auto mb-12">
+        {title && (
+          <h2 class={`text-3xl md:text-4xl font-bold mb-4 ${textClasses}`}>
+            {title}
+          </h2>
+        )}
+        {subtitle && (
+          <p class={`text-lg ${subtitleClasses}`}>
+            {subtitle}
+          </p>
+        )}
+      </div>
+    )}
+
+    {/* Inline Layout */}
+    {layout === 'inline' && (
+      <div class="flex flex-wrap items-center justify-center gap-8 md:gap-16">
+        {stats.map((stat) => (
+          <div class="text-center" data-stat-item data-value={stat.value}>
+            <div class={`text-4xl md:text-5xl lg:text-6xl font-bold ${textClasses}`}>
+              {stat.prefix && <span>{stat.prefix}</span>}
+              <span data-stat-value>{animate ? '0' : formatValue(stat.value)}</span>
+              <span>{stat.suffix || getSuffix(stat.value)}</span>
+            </div>
+            <p class={`mt-2 text-sm md:text-base font-medium uppercase tracking-wider ${subtitleClasses}`}>
+              {stat.label}
+            </p>
+          </div>
+        ))}
+      </div>
+    )}
+
+    {/* Cards Layout */}
+    {layout === 'cards' && (
+      <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        {stats.map((stat, index) => (
+          <article
+            class="stat-card relative p-6 md:p-8 bg-gray-50 dark:bg-gray-800 rounded-2xl text-center hover:shadow-lg transition-all duration-300"
+            data-stat-item
+            data-value={stat.value}
+            style={`--delay: ${index * 100}ms`}
+          >
+            {stat.icon && (
+              <div class="w-12 h-12 mx-auto mb-4 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                <Fragment set:html={stat.icon} />
+              </div>
+            )}
+
+            <div class={`text-4xl md:text-5xl font-bold mb-2 ${textClasses}`}>
+              {stat.prefix && <span>{stat.prefix}</span>}
+              <span data-stat-value>{animate ? '0' : formatValue(stat.value)}</span>
+              <span>{stat.suffix || getSuffix(stat.value)}</span>
+            </div>
+
+            <h3 class={`font-semibold mb-1 ${textClasses}`}>
+              {stat.label}
+            </h3>
+
+            {stat.description && (
+              <p class={`text-sm ${subtitleClasses}`}>
+                {stat.description}
+              </p>
+            )}
+          </article>
+        ))}
+      </div>
+    )}
+
+    {/* Banner Layout */}
+    {layout === 'banner' && (
+      <div class="grid grid-cols-2 md:grid-cols-4 divide-x divide-y md:divide-y-0 divide-gray-200 dark:divide-gray-700 border border-gray-200 dark:border-gray-700 rounded-2xl overflow-hidden">
+        {stats.map((stat) => (
+          <div
+            class="p-6 md:p-8 text-center bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750 transition-colors"
+            data-stat-item
+            data-value={stat.value}
+          >
+            {stat.icon && (
+              <div class="w-10 h-10 mx-auto mb-3 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
+                <Fragment set:html={stat.icon} />
+              </div>
+            )}
+
+            <div class={`text-3xl md:text-4xl font-bold mb-1 ${textClasses}`}>
+              {stat.prefix && <span>{stat.prefix}</span>}
+              <span data-stat-value>{animate ? '0' : formatValue(stat.value)}</span>
+              <span>{stat.suffix || getSuffix(stat.value)}</span>
+            </div>
+
+            <p class={`text-sm font-medium ${subtitleClasses}`}>
+              {stat.label}
+            </p>
+          </div>
+        ))}
+      </div>
+    )}
+
+    {/* Minimal Layout */}
+    {layout === 'minimal' && (
+      <div class="flex flex-wrap items-start justify-center gap-12 md:gap-20">
+        {stats.map((stat) => (
+          <div class="text-center" data-stat-item data-value={stat.value}>
+            <div class={`text-5xl md:text-6xl lg:text-7xl font-light ${textClasses}`}>
+              {stat.prefix && <span>{stat.prefix}</span>}
+              <span data-stat-value>{animate ? '0' : formatValue(stat.value)}</span>
+              <span class="text-blue-500">{stat.suffix || getSuffix(stat.value)}</span>
+            </div>
+            <p class={`mt-2 text-lg ${subtitleClasses}`}>
+              {stat.label}
+            </p>
+            {stat.description && (
+              <p class={`mt-1 text-sm ${subtitleClasses} opacity-70`}>
+                {stat.description}
+              </p>
+            )}
+          </div>
+        ))}
+      </div>
+    )}
+  </div>
+</section>
+
+<script>
+function initStats() {
+  const sections = document.querySelectorAll('[data-stats-section]');
+
+  sections.forEach(section => {
+    const shouldAnimate = section.getAttribute('data-animate') === 'true';
+    const duration = parseInt(section.getAttribute('data-duration') || '2000');
+    const items = section.querySelectorAll('[data-stat-item]');
+
+    // Check for reduced motion preference
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (!shouldAnimate || prefersReducedMotion) {
+      // Show final values immediately
+      items.forEach(item => {
+        const valueEl = item.querySelector('[data-stat-value]');
+        const targetValue = parseInt(item.getAttribute('data-value') || '0');
+        if (valueEl) {
+          valueEl.textContent = formatValue(targetValue);
+        }
+      });
+      return;
+    }
+
+    function formatValue(value: number): string {
+      if (value >= 1000000) return (value / 1000000).toFixed(1);
+      if (value >= 1000) return (value / 1000).toFixed(0);
+      return value.toString();
+    }
+
+    function animateValue(element: Element, targetValue: number) {
+      const valueEl = element.querySelector('[data-stat-value]');
+      if (!valueEl) return;
+
+      const start = 0;
+      const startTime = performance.now();
+
+      // Easing function (easeOutExpo)
+      function easeOutExpo(t: number): number {
+        return t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+      }
+
+      function update(currentTime: number) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const easedProgress = easeOutExpo(progress);
+        const currentValue = Math.floor(start + (targetValue - start) * easedProgress);
+
+        valueEl.textContent = formatValue(currentValue);
+
+        if (progress < 1) {
+          requestAnimationFrame(update);
+        }
+      }
+
+      requestAnimationFrame(update);
+    }
+
+    // Use Intersection Observer to trigger animation
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const item = entry.target;
+            const targetValue = parseInt(item.getAttribute('data-value') || '0');
+
+            // Delay based on index for staggered effect
+            const delay = parseInt((item as HTMLElement).style.getPropertyValue('--delay') || '0');
+
+            setTimeout(() => {
+              animateValue(item, targetValue);
+            }, parseInt(delay.toString()));
+
+            observer.unobserve(item);
+          }
+        });
+      },
+      {
+        threshold: 0.3,
+        rootMargin: '0px 0px -50px 0px'
+      }
+    );
+
+    items.forEach(item => observer.observe(item));
+  });
+}
+
+// Initialize
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initStats);
+} else {
+  initStats();
+}
+
+// View Transitions support
+document.addEventListener('astro:page-load', initStats);
+</script>
+
+<style>
+  .stat-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-4px);
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .stat-card {
+      transition: none;
+    }
+    .stat-card:hover {
+      transform: none;
+    }
+  }
+</style>
