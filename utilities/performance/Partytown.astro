@@ -1,0 +1,161 @@
+---
+/**
+ * Partytown Third-Party Scripts Component
+ *
+ * Moves third-party scripts to web workers for better performance.
+ * Use for analytics, tracking, and non-critical scripts.
+ */
+
+interface Props {
+  // Google Analytics
+  gaId?: string;
+
+  // Google Tag Manager
+  gtmId?: string;
+
+  // Facebook Pixel
+  fbPixelId?: string;
+
+  // Plausible Analytics
+  plausibleDomain?: string;
+
+  // Hotjar
+  hotjarId?: string;
+
+  // Custom scripts
+  customScripts?: Array<{
+    src?: string;
+    innerHTML?: string;
+    type?: 'text/partytown' | 'text/javascript';
+  }>;
+}
+
+const {
+  gaId,
+  gtmId,
+  fbPixelId,
+  plausibleDomain,
+  hotjarId,
+  customScripts = [],
+} = Astro.props;
+---
+
+{/* Google Analytics 4 */}
+{
+  gaId && (
+    <>
+      <script
+        type="text/partytown"
+        src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
+      />
+      <script type="text/partytown">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', '${gaId}', {
+            page_path: window.location.pathname,
+          });
+        `}
+      </script>
+    </>
+  )
+}
+
+{/* Google Tag Manager */}
+{
+  gtmId && (
+    <>
+      <script type="text/partytown">
+        {`
+          (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+          new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+          j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+          'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+          })(window,document,'script','dataLayer','${gtmId}');
+        `}
+      </script>
+      {/* GTM noscript iframe in body */}
+    </>
+  )
+}
+
+{/* Facebook Pixel */}
+{
+  fbPixelId && (
+    <script type="text/partytown">
+      {`
+        !function(f,b,e,v,n,t,s)
+        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+        n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t,s)}(window, document,'script',
+        'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', '${fbPixelId}');
+        fbq('track', 'PageView');
+      `}
+    </script>
+  )
+}
+
+{/* Plausible Analytics */}
+{
+  plausibleDomain && (
+    <script
+      type="text/partytown"
+      defer
+      data-domain={plausibleDomain}
+      src="https://plausible.io/js/script.js"
+    />
+  )
+}
+
+{/* Hotjar */}
+{
+  hotjarId && (
+    <script type="text/partytown">
+      {`
+        (function(h,o,t,j,a,r){
+          h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+          h._hjSettings={hjid:${hotjarId},hjsv:6};
+          a=o.getElementsByTagName('head')[0];
+          r=o.createElement('script');r.async=1;
+          r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+          a.appendChild(r);
+        })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+      `}
+    </script>
+  )
+}
+
+{/* Custom Scripts */}
+{
+  customScripts.map((script) =>
+    script.src ? (
+      <script
+        type={script.type || 'text/partytown'}
+        src={script.src}
+      />
+    ) : (
+      <script type={script.type || 'text/partytown'}>
+        {script.innerHTML}
+      </script>
+    )
+  )
+}
+
+{/* GTM Noscript (for body) */}
+{
+  gtmId && (
+    <noscript>
+      <iframe
+        src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
+        height="0"
+        width="0"
+        style="display:none;visibility:hidden"
+      />
+    </noscript>
+  )
+}

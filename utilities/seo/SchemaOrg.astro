@@ -1,0 +1,356 @@
+---
+/**
+ * Schema.org Structured Data Components
+ *
+ * Pre-built JSON-LD schemas for common use cases.
+ * Usage: <SchemaOrg type="LocalBusiness" data={businessData} />
+ */
+
+type SchemaType =
+  | 'Organization'
+  | 'LocalBusiness'
+  | 'Product'
+  | 'Article'
+  | 'BlogPosting'
+  | 'BreadcrumbList'
+  | 'FAQPage'
+  | 'HowTo'
+  | 'Event'
+  | 'Person'
+  | 'WebSite'
+  | 'WebPage';
+
+interface Props {
+  type: SchemaType;
+  data: Record<string, unknown>;
+}
+
+const { type, data } = Astro.props;
+
+// Schema builders
+const schemas: Record<SchemaType, (data: Record<string, unknown>) => Record<string, unknown>> = {
+  Organization: (d) => ({
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: d.name,
+    url: d.url,
+    logo: d.logo,
+    description: d.description,
+    sameAs: d.socialProfiles,
+    contactPoint: d.contactPoint,
+    address: d.address
+      ? {
+          '@type': 'PostalAddress',
+          ...d.address,
+        }
+      : undefined,
+  }),
+
+  LocalBusiness: (d) => ({
+    '@context': 'https://schema.org',
+    '@type': d.businessType || 'LocalBusiness',
+    name: d.name,
+    description: d.description,
+    url: d.url,
+    telephone: d.phone,
+    email: d.email,
+    image: d.image,
+    priceRange: d.priceRange,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: d.street,
+      addressLocality: d.city,
+      postalCode: d.postalCode,
+      addressCountry: d.country,
+    },
+    geo: d.coordinates
+      ? {
+          '@type': 'GeoCoordinates',
+          latitude: d.coordinates.lat,
+          longitude: d.coordinates.lng,
+        }
+      : undefined,
+    openingHoursSpecification: d.openingHours,
+    aggregateRating: d.rating
+      ? {
+          '@type': 'AggregateRating',
+          ratingValue: d.rating.value,
+          reviewCount: d.rating.count,
+        }
+      : undefined,
+  }),
+
+  Product: (d) => ({
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: d.name,
+    description: d.description,
+    image: d.images,
+    sku: d.sku,
+    mpn: d.mpn,
+    gtin13: d.ean,
+    brand: d.brand
+      ? {
+          '@type': 'Brand',
+          name: d.brand,
+        }
+      : undefined,
+    offers: {
+      '@type': 'Offer',
+      url: d.url,
+      priceCurrency: d.currency || 'EUR',
+      price: d.price,
+      priceValidUntil: d.priceValidUntil,
+      availability: d.inStock
+        ? 'https://schema.org/InStock'
+        : 'https://schema.org/OutOfStock',
+      itemCondition: 'https://schema.org/NewCondition',
+      seller: d.seller
+        ? {
+            '@type': 'Organization',
+            name: d.seller,
+          }
+        : undefined,
+    },
+    aggregateRating: d.rating
+      ? {
+          '@type': 'AggregateRating',
+          ratingValue: d.rating.value,
+          reviewCount: d.rating.count,
+          bestRating: 5,
+          worstRating: 1,
+        }
+      : undefined,
+    review: d.reviews?.map((r: Record<string, unknown>) => ({
+      '@type': 'Review',
+      author: {
+        '@type': 'Person',
+        name: r.author,
+      },
+      reviewRating: {
+        '@type': 'Rating',
+        ratingValue: r.rating,
+        bestRating: 5,
+        worstRating: 1,
+      },
+      reviewBody: r.content,
+      datePublished: r.date,
+    })),
+  }),
+
+  Article: (d) => ({
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: d.title,
+    description: d.description,
+    image: d.image,
+    datePublished: d.publishedTime,
+    dateModified: d.modifiedTime || d.publishedTime,
+    author: {
+      '@type': 'Person',
+      name: d.author,
+      url: d.authorUrl,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: d.publisherName,
+      logo: {
+        '@type': 'ImageObject',
+        url: d.publisherLogo,
+      },
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': d.url,
+    },
+  }),
+
+  BlogPosting: (d) => ({
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: d.title,
+    description: d.description,
+    image: d.image,
+    datePublished: d.publishedTime,
+    dateModified: d.modifiedTime || d.publishedTime,
+    author: {
+      '@type': 'Person',
+      name: d.author,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: d.publisherName,
+      logo: {
+        '@type': 'ImageObject',
+        url: d.publisherLogo,
+      },
+    },
+    wordCount: d.wordCount,
+    articleSection: d.category,
+    keywords: d.tags?.join(', '),
+  }),
+
+  BreadcrumbList: (d) => ({
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: (d.items as Array<{ name: string; url: string }>).map(
+      (item, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: item.name,
+        item: item.url,
+      })
+    ),
+  }),
+
+  FAQPage: (d) => ({
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: (d.questions as Array<{ question: string; answer: string }>).map(
+      (q) => ({
+        '@type': 'Question',
+        name: q.question,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: q.answer,
+        },
+      })
+    ),
+  }),
+
+  HowTo: (d) => ({
+    '@context': 'https://schema.org',
+    '@type': 'HowTo',
+    name: d.name,
+    description: d.description,
+    image: d.image,
+    totalTime: d.totalTime,
+    estimatedCost: d.cost
+      ? {
+          '@type': 'MonetaryAmount',
+          currency: d.cost.currency || 'EUR',
+          value: d.cost.value,
+        }
+      : undefined,
+    supply: (d.supplies as string[])?.map((s) => ({
+      '@type': 'HowToSupply',
+      name: s,
+    })),
+    tool: (d.tools as string[])?.map((t) => ({
+      '@type': 'HowToTool',
+      name: t,
+    })),
+    step: (
+      d.steps as Array<{ name: string; text: string; image?: string }>
+    ).map((step, index) => ({
+      '@type': 'HowToStep',
+      position: index + 1,
+      name: step.name,
+      text: step.text,
+      image: step.image,
+    })),
+  }),
+
+  Event: (d) => ({
+    '@context': 'https://schema.org',
+    '@type': 'Event',
+    name: d.name,
+    description: d.description,
+    image: d.image,
+    startDate: d.startDate,
+    endDate: d.endDate,
+    eventStatus: d.status || 'https://schema.org/EventScheduled',
+    eventAttendanceMode:
+      d.attendanceMode || 'https://schema.org/OfflineEventAttendanceMode',
+    location: d.location
+      ? {
+          '@type': d.isOnline ? 'VirtualLocation' : 'Place',
+          ...(d.isOnline
+            ? { url: d.locationUrl }
+            : {
+                name: d.location,
+                address: {
+                  '@type': 'PostalAddress',
+                  streetAddress: d.street,
+                  addressLocality: d.city,
+                  postalCode: d.postalCode,
+                  addressCountry: d.country,
+                },
+              }),
+        }
+      : undefined,
+    organizer: d.organizer
+      ? {
+          '@type': 'Organization',
+          name: d.organizer,
+          url: d.organizerUrl,
+        }
+      : undefined,
+    offers: d.price
+      ? {
+          '@type': 'Offer',
+          price: d.price,
+          priceCurrency: d.currency || 'EUR',
+          availability: 'https://schema.org/InStock',
+          url: d.ticketUrl,
+        }
+      : undefined,
+  }),
+
+  Person: (d) => ({
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: d.name,
+    jobTitle: d.jobTitle,
+    description: d.description,
+    image: d.image,
+    email: d.email,
+    url: d.url,
+    sameAs: d.socialProfiles,
+    worksFor: d.company
+      ? {
+          '@type': 'Organization',
+          name: d.company,
+        }
+      : undefined,
+  }),
+
+  WebSite: (d) => ({
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: d.name,
+    url: d.url,
+    description: d.description,
+    potentialAction: d.searchUrl
+      ? {
+          '@type': 'SearchAction',
+          target: {
+            '@type': 'EntryPoint',
+            urlTemplate: `${d.searchUrl}?q={search_term_string}`,
+          },
+          'query-input': 'required name=search_term_string',
+        }
+      : undefined,
+  }),
+
+  WebPage: (d) => ({
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: d.name,
+    description: d.description,
+    url: d.url,
+    datePublished: d.publishedTime,
+    dateModified: d.modifiedTime,
+    isPartOf: d.siteName
+      ? {
+          '@type': 'WebSite',
+          name: d.siteName,
+        }
+      : undefined,
+  }),
+};
+
+const schemaData = schemas[type](data);
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(schemaData)} />

@@ -1,0 +1,19 @@
+{
+  "name": "@wendermedia/astro-docs-bundle",
+  "version": "1.0.0",
+  "description": "Documentation site setup using Starlight",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "astro": "^5.0.0",
+    "@astrojs/starlight": "^0.30.0",
+    "sharp": "^0.33.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
