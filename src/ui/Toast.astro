@@ -1,0 +1,426 @@
+---
+/**
+ * Toast Notification System
+ *
+ * Non-blocking notification system with auto-dismiss and stacking.
+ * Uses ARIA live regions for screen reader announcements.
+ *
+ * Features:
+ * - Multiple toast types (success, error, warning, info)
+ * - Auto-dismiss with configurable duration
+ * - Manual dismiss with close button
+ * - Stacked positioning (top-right, top-left, bottom-right, bottom-left, top-center, bottom-center)
+ * - Action buttons support
+ * - Progress indicator for auto-dismiss
+ * - Reduced motion support
+ * - Pause on hover
+ *
+ * @example
+ * <!-- Place once in layout -->
+ * <Toast position="top-right" />
+ *
+ * <!-- Trigger via JavaScript -->
+ * <script>
+ *   window.toast.success('Changes saved successfully!');
+ *   window.toast.error('Something went wrong', { duration: 5000 });
+ *   window.toast.info('New update available', {
+ *     action: { label: 'Update', onClick: () => location.reload() }
+ *   });
+ * </script>
+ */
+
+export interface Props {
+  position?: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' | 'top-center' | 'bottom-center';
+  maxToasts?: number;
+  defaultDuration?: number;
+  pauseOnHover?: boolean;
+  closeOnClick?: boolean;
+  showProgress?: boolean;
+  class?: string;
+}
+
+const {
+  position = 'top-right',
+  maxToasts = 5,
+  defaultDuration = 4000,
+  pauseOnHover = true,
+  closeOnClick = false,
+  showProgress = true,
+  class: className = '',
+} = Astro.props;
+
+const positionClasses = {
+  'top-right': 'top-4 right-4',
+  'top-left': 'top-4 left-4',
+  'bottom-right': 'bottom-4 right-4',
+  'bottom-left': 'bottom-4 left-4',
+  'top-center': 'top-4 left-1/2 -translate-x-1/2',
+  'bottom-center': 'bottom-4 left-1/2 -translate-x-1/2',
+};
+---
+
+<div
+  class:list={[
+    'toast-container fixed z-toast flex flex-col gap-2 pointer-events-none',
+    positionClasses[position],
+    className,
+  ]}
+  data-toast-container
+  data-position={position}
+  data-max-toasts={maxToasts}
+  data-default-duration={defaultDuration}
+  data-pause-on-hover={pauseOnHover}
+  data-close-on-click={closeOnClick}
+  data-show-progress={showProgress}
+  role="region"
+  aria-label="Notifications"
+>
+  <!-- Toasts are inserted here dynamically -->
+</div>
+
+<!-- Toast Template -->
+<template id="toast-template">
+  <div
+    class="toast pointer-events-auto w-full max-w-sm bg-surface shadow-lg rounded-lg overflow-hidden transform transition-all duration-300 ease-out"
+    role="alert"
+    aria-live="polite"
+    aria-atomic="true"
+    data-toast
+  >
+    <div class="flex items-start gap-3 p-4">
+      <!-- Icon -->
+      <div class="toast-icon flex-shrink-0 w-5 h-5" data-toast-icon></div>
+
+      <!-- Content -->
+      <div class="flex-1 min-w-0">
+        <p class="toast-title text-sm font-medium text-text-primary" data-toast-title></p>
+        <p class="toast-message text-sm text-text-secondary mt-1 hidden" data-toast-message></p>
+        <div class="toast-action mt-3 hidden" data-toast-action></div>
+      </div>
+
+      <!-- Close button -->
+      <button
+        type="button"
+        class="toast-close flex-shrink-0 p-1 rounded-full text-text-tertiary hover:text-text-primary hover:bg-background-muted transition-colors"
+        data-toast-close
+        aria-label="Dismiss notification"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="toast-progress h-1 bg-background-muted overflow-hidden" data-toast-progress>
+      <div class="toast-progress-bar h-full transition-all ease-linear" data-toast-progress-bar></div>
+    </div>
+  </div>
+</template>
+
+<style>
+  /* Toast entrance/exit animations */
+  .toast {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+
+  [data-position^="top-left"] .toast,
+  [data-position="bottom-left"] .toast {
+    transform: translateX(-100%);
+  }
+
+  [data-position="top-center"] .toast,
+  [data-position="bottom-center"] .toast {
+    transform: translateY(-100%);
+  }
+
+  [data-position^="bottom"] .toast {
+    transform: translateY(100%);
+  }
+
+  .toast.toast-enter {
+    opacity: 1;
+    transform: translateX(0) translateY(0);
+  }
+
+  .toast.toast-exit {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  /* Toast variants */
+  .toast[data-type="success"] {
+    border-left: 4px solid var(--color-success);
+  }
+
+  .toast[data-type="success"] .toast-icon {
+    color: var(--color-success);
+  }
+
+  .toast[data-type="success"] .toast-progress-bar {
+    background-color: var(--color-success);
+  }
+
+  .toast[data-type="error"] {
+    border-left: 4px solid var(--color-error);
+  }
+
+  .toast[data-type="error"] .toast-icon {
+    color: var(--color-error);
+  }
+
+  .toast[data-type="error"] .toast-progress-bar {
+    background-color: var(--color-error);
+  }
+
+  .toast[data-type="warning"] {
+    border-left: 4px solid var(--color-warning);
+  }
+
+  .toast[data-type="warning"] .toast-icon {
+    color: var(--color-warning);
+  }
+
+  .toast[data-type="warning"] .toast-progress-bar {
+    background-color: var(--color-warning);
+  }
+
+  .toast[data-type="info"] {
+    border-left: 4px solid var(--color-info);
+  }
+
+  .toast[data-type="info"] .toast-icon {
+    color: var(--color-info);
+  }
+
+  .toast[data-type="info"] .toast-progress-bar {
+    background-color: var(--color-info);
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .toast {
+      transition-duration: 0.01ms !important;
+    }
+  }
+</style>
+
+<script>
+  interface ToastOptions {
+    type?: 'success' | 'error' | 'warning' | 'info';
+    title?: string;
+    message?: string;
+    duration?: number;
+    action?: {
+      label: string;
+      onClick: () => void;
+    };
+  }
+
+  const icons = {
+    success: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>`,
+    error: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>`,
+    warning: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>`,
+    info: `<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`,
+  };
+
+  function initToastSystem() {
+    const container = document.querySelector('[data-toast-container]') as HTMLElement;
+    if (!container) return;
+
+    const template = document.getElementById('toast-template') as HTMLTemplateElement;
+    const maxToasts = parseInt(container.dataset.maxToasts || '5');
+    const defaultDuration = parseInt(container.dataset.defaultDuration || '4000');
+    const pauseOnHover = container.dataset.pauseOnHover === 'true';
+    const closeOnClick = container.dataset.closeOnClick === 'true';
+    const showProgress = container.dataset.showProgress === 'true';
+
+    const activeToasts: Map<HTMLElement, { timeout: number; startTime: number; remaining: number }> = new Map();
+
+    function createToast(options: ToastOptions): HTMLElement {
+      const clone = template.content.cloneNode(true) as DocumentFragment;
+      const toast = clone.querySelector('[data-toast]') as HTMLElement;
+      const type = options.type || 'info';
+      const duration = options.duration ?? defaultDuration;
+
+      toast.setAttribute('data-type', type);
+
+      // Set icon
+      const iconContainer = toast.querySelector('[data-toast-icon]') as HTMLElement;
+      iconContainer.innerHTML = icons[type];
+
+      // Set title
+      const titleEl = toast.querySelector('[data-toast-title]') as HTMLElement;
+      titleEl.textContent = options.title || '';
+
+      // Set message
+      if (options.message) {
+        const messageEl = toast.querySelector('[data-toast-message]') as HTMLElement;
+        messageEl.textContent = options.message;
+        messageEl.classList.remove('hidden');
+      }
+
+      // Set action
+      if (options.action) {
+        const actionContainer = toast.querySelector('[data-toast-action]') as HTMLElement;
+        const actionBtn = document.createElement('button');
+        actionBtn.className = 'text-sm font-medium text-primary hover:text-primary-hover transition-colors';
+        actionBtn.textContent = options.action.label;
+        actionBtn.addEventListener('click', () => {
+          options.action!.onClick();
+          removeToast(toast);
+        });
+        actionContainer.appendChild(actionBtn);
+        actionContainer.classList.remove('hidden');
+      }
+
+      // Progress bar
+      const progressContainer = toast.querySelector('[data-toast-progress]') as HTMLElement;
+      const progressBar = toast.querySelector('[data-toast-progress-bar]') as HTMLElement;
+      if (!showProgress || duration === 0) {
+        progressContainer.classList.add('hidden');
+      } else {
+        progressBar.style.width = '100%';
+        progressBar.style.transitionDuration = `${duration}ms`;
+      }
+
+      // Close button
+      const closeBtn = toast.querySelector('[data-toast-close]') as HTMLElement;
+      closeBtn.addEventListener('click', () => removeToast(toast));
+
+      // Click to close
+      if (closeOnClick) {
+        toast.style.cursor = 'pointer';
+        toast.addEventListener('click', (e) => {
+          if (!(e.target as HTMLElement).closest('[data-toast-close], [data-toast-action] button')) {
+            removeToast(toast);
+          }
+        });
+      }
+
+      // Hover pause
+      if (pauseOnHover && duration > 0) {
+        toast.addEventListener('mouseenter', () => pauseToast(toast));
+        toast.addEventListener('mouseleave', () => resumeToast(toast));
+      }
+
+      return toast;
+    }
+
+    function showToast(options: ToastOptions) {
+      // Remove oldest toast if max reached
+      while (container.children.length >= maxToasts) {
+        const oldest = container.firstElementChild as HTMLElement;
+        if (oldest) removeToast(oldest);
+      }
+
+      const toast = createToast(options);
+      const duration = options.duration ?? defaultDuration;
+
+      container.appendChild(toast);
+
+      // Trigger entrance animation
+      requestAnimationFrame(() => {
+        toast.classList.add('toast-enter');
+
+        // Start progress bar animation
+        if (showProgress && duration > 0) {
+          const progressBar = toast.querySelector('[data-toast-progress-bar]') as HTMLElement;
+          requestAnimationFrame(() => {
+            progressBar.style.width = '0%';
+          });
+        }
+      });
+
+      // Auto dismiss
+      if (duration > 0) {
+        const timeout = window.setTimeout(() => removeToast(toast), duration);
+        activeToasts.set(toast, { timeout, startTime: Date.now(), remaining: duration });
+      }
+
+      // Announce to screen readers
+      toast.setAttribute('aria-live', options.type === 'error' ? 'assertive' : 'polite');
+
+      return toast;
+    }
+
+    function removeToast(toast: HTMLElement) {
+      const state = activeToasts.get(toast);
+      if (state) {
+        clearTimeout(state.timeout);
+        activeToasts.delete(toast);
+      }
+
+      toast.classList.remove('toast-enter');
+      toast.classList.add('toast-exit');
+
+      setTimeout(() => {
+        toast.remove();
+      }, 300);
+    }
+
+    function pauseToast(toast: HTMLElement) {
+      const state = activeToasts.get(toast);
+      if (state) {
+        clearTimeout(state.timeout);
+        state.remaining = state.remaining - (Date.now() - state.startTime);
+
+        // Pause progress bar
+        const progressBar = toast.querySelector('[data-toast-progress-bar]') as HTMLElement;
+        if (progressBar) {
+          const currentWidth = progressBar.getBoundingClientRect().width;
+          const containerWidth = progressBar.parentElement!.getBoundingClientRect().width;
+          progressBar.style.transitionDuration = '0ms';
+          progressBar.style.width = `${(currentWidth / containerWidth) * 100}%`;
+        }
+      }
+    }
+
+    function resumeToast(toast: HTMLElement) {
+      const state = activeToasts.get(toast);
+      if (state && state.remaining > 0) {
+        state.startTime = Date.now();
+        state.timeout = window.setTimeout(() => removeToast(toast), state.remaining);
+
+        // Resume progress bar
+        const progressBar = toast.querySelector('[data-toast-progress-bar]') as HTMLElement;
+        if (progressBar) {
+          progressBar.style.transitionDuration = `${state.remaining}ms`;
+          requestAnimationFrame(() => {
+            progressBar.style.width = '0%';
+          });
+        }
+      }
+    }
+
+    // Global API
+    const toastAPI = {
+      show: (options: ToastOptions) => showToast(options),
+      success: (title: string, options?: Omit<ToastOptions, 'type' | 'title'>) =>
+        showToast({ ...options, type: 'success', title }),
+      error: (title: string, options?: Omit<ToastOptions, 'type' | 'title'>) =>
+        showToast({ ...options, type: 'error', title }),
+      warning: (title: string, options?: Omit<ToastOptions, 'type' | 'title'>) =>
+        showToast({ ...options, type: 'warning', title }),
+      info: (title: string, options?: Omit<ToastOptions, 'type' | 'title'>) =>
+        showToast({ ...options, type: 'info', title }),
+      dismiss: (toast: HTMLElement) => removeToast(toast),
+      dismissAll: () => {
+        container.querySelectorAll('[data-toast]').forEach(toast => {
+          removeToast(toast as HTMLElement);
+        });
+      },
+    };
+
+    (window as any).toast = toastAPI;
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initToastSystem);
+  } else {
+    initToastSystem();
+  }
+
+  document.addEventListener('astro:page-load', initToastSystem);
+</script>

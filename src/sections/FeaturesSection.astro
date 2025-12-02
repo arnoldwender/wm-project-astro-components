@@ -1,0 +1,133 @@
+---
+/**
+ * FeaturesSection Component
+ *
+ * Multiple layouts for showcasing features and benefits.
+ *
+ * Variants:
+ * - grid: Simple grid of feature cards
+ * - alternating: Zigzag layout with images
+ * - icons: Icon-focused compact grid
+ * - cards: Elevated card design
+ * - list: Vertical list with large icons
+ * - bento: Bento-style asymmetric grid
+ *
+ * @example
+ * <FeaturesSection variant="grid" columns={3}>
+ *   <FeatureCard icon="⚡" title="Fast" description="Lightning fast performance" />
+ * </FeaturesSection>
+ */
+
+import SectionWrapper from './SectionWrapper.astro';
+import SectionHeader from './SectionHeader.astro';
+
+export interface Props {
+  variant?: 'grid' | 'alternating' | 'icons' | 'cards' | 'list' | 'bento';
+  columns?: 2 | 3 | 4;
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+  align?: 'left' | 'center';
+  background?: 'transparent' | 'subtle' | 'muted' | 'pattern';
+  class?: string;
+}
+
+const {
+  variant = 'grid',
+  columns = 3,
+  eyebrow,
+  title,
+  description,
+  align = 'center',
+  background = 'transparent',
+  class: className = '',
+} = Astro.props;
+
+// Column classes
+const columnClasses = {
+  2: 'md:grid-cols-2',
+  3: 'md:grid-cols-2 lg:grid-cols-3',
+  4: 'sm:grid-cols-2 lg:grid-cols-4',
+};
+---
+
+<SectionWrapper background={background} class={className}>
+  {(eyebrow || title || description) && (
+    <SectionHeader
+      eyebrow={eyebrow}
+      title={title || ''}
+      description={description}
+      align={align}
+    />
+  )}
+
+  {/* Grid Variant */}
+  {variant === 'grid' && (
+    <div class:list={['features-grid grid gap-8', columnClasses[columns]]}>
+      <slot />
+    </div>
+  )}
+
+  {/* Icons Variant - Compact with prominent icons */}
+  {variant === 'icons' && (
+    <div class:list={['features-icons grid gap-6 lg:gap-8', columnClasses[columns]]}>
+      <slot />
+    </div>
+  )}
+
+  {/* Cards Variant - Elevated cards */}
+  {variant === 'cards' && (
+    <div class:list={['features-cards grid gap-6 lg:gap-8', columnClasses[columns]]}>
+      <slot />
+    </div>
+  )}
+
+  {/* List Variant - Vertical stack */}
+  {variant === 'list' && (
+    <div class="features-list max-w-3xl mx-auto space-y-8">
+      <slot />
+    </div>
+  )}
+
+  {/* Alternating Variant - Zigzag with images */}
+  {variant === 'alternating' && (
+    <div class="features-alternating space-y-16 lg:space-y-24">
+      <slot />
+    </div>
+  )}
+
+  {/* Bento Variant */}
+  {variant === 'bento' && (
+    <div class="features-bento grid grid-cols-2 lg:grid-cols-4 gap-4 auto-rows-[minmax(180px,auto)]">
+      <slot />
+    </div>
+  )}
+</SectionWrapper>
+
+<style>
+  /* Card hover effects */
+  .features-cards :global(> *) {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-xl);
+    padding: 1.5rem;
+    transition: transform var(--duration-200) var(--ease-out),
+                box-shadow var(--duration-200) var(--ease-out);
+  }
+
+  .features-cards :global(> *:hover) {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .features-cards :global(> *) {
+      transition: none;
+    }
+
+    .features-cards :global(> *:hover) {
+      transform: none;
+    }
+  }
+</style>

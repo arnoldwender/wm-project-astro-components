@@ -1,0 +1,258 @@
+---
+/**
+ * Skeleton Loader Component
+ *
+ * Premium loading placeholder with smooth animations.
+ * Supports various shapes and common UI patterns.
+ *
+ * Features:
+ * - Multiple variants (text, circle, rect, card, avatar)
+ * - Shimmer animation
+ * - Pulse animation option
+ * - Responsive sizing
+ * - Custom dimensions
+ * - Reduced motion support
+ *
+ * @example
+ * <Skeleton variant="text" lines={3} />
+ * <Skeleton variant="avatar" size="lg" />
+ * <Skeleton variant="card" />
+ */
+
+export interface Props {
+  variant?: 'text' | 'circle' | 'rect' | 'avatar' | 'card' | 'image' | 'button';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
+  width?: string;
+  height?: string;
+  lines?: number;
+  animation?: 'shimmer' | 'pulse' | 'none';
+  rounded?: boolean | 'sm' | 'md' | 'lg' | 'full';
+  class?: string;
+}
+
+const {
+  variant = 'rect',
+  size = 'md',
+  width,
+  height,
+  lines = 1,
+  animation = 'shimmer',
+  rounded = false,
+  class: className = '',
+} = Astro.props;
+
+// Size mappings for different variants
+const sizeMap = {
+  text: {
+    sm: 'h-3',
+    md: 'h-4',
+    lg: 'h-5',
+    xl: 'h-6',
+  },
+  circle: {
+    sm: 'w-8 h-8',
+    md: 'w-12 h-12',
+    lg: 'w-16 h-16',
+    xl: 'w-24 h-24',
+  },
+  avatar: {
+    sm: 'w-8 h-8',
+    md: 'w-10 h-10',
+    lg: 'w-12 h-12',
+    xl: 'w-16 h-16',
+  },
+  rect: {
+    sm: 'h-16',
+    md: 'h-24',
+    lg: 'h-32',
+    xl: 'h-48',
+  },
+  image: {
+    sm: 'h-32 aspect-video',
+    md: 'h-48 aspect-video',
+    lg: 'h-64 aspect-video',
+    xl: 'h-96 aspect-video',
+  },
+  card: {
+    sm: 'h-48',
+    md: 'h-64',
+    lg: 'h-80',
+    xl: 'h-96',
+  },
+  button: {
+    sm: 'h-8 w-20',
+    md: 'h-10 w-24',
+    lg: 'h-12 w-32',
+    xl: 'h-14 w-40',
+  },
+};
+
+const roundedMap = {
+  true: 'rounded-md',
+  sm: 'rounded-sm',
+  md: 'rounded-md',
+  lg: 'rounded-lg',
+  full: 'rounded-full',
+  false: '',
+};
+
+const getRounded = () => {
+  if (variant === 'circle' || variant === 'avatar') return 'rounded-full';
+  if (variant === 'button') return 'rounded-md';
+  if (rounded === true) return 'rounded-md';
+  if (typeof rounded === 'string') return roundedMap[rounded];
+  return '';
+};
+
+const getVariantClasses = () => {
+  switch (variant) {
+    case 'text':
+      return `${sizeMap.text[size]} w-full`;
+    case 'circle':
+      return sizeMap.circle[size];
+    case 'avatar':
+      return sizeMap.avatar[size];
+    case 'image':
+      return `${sizeMap.image[size]} w-full`;
+    case 'card':
+      return `${sizeMap.card[size]} w-full rounded-lg`;
+    case 'button':
+      return sizeMap.button[size];
+    case 'rect':
+    default:
+      return `${sizeMap.rect[size]} w-full`;
+  }
+};
+
+const customStyle = [
+  width && `width: ${width}`,
+  height && `height: ${height}`,
+].filter(Boolean).join('; ');
+---
+
+{variant === 'text' && lines > 1 ? (
+  <div class:list={['skeleton-lines space-y-2', className]}>
+    {Array.from({ length: lines }).map((_, i) => (
+      <div
+        class:list={[
+          'skeleton',
+          `skeleton-${animation}`,
+          sizeMap.text[size],
+          getRounded(),
+          i === lines - 1 && 'w-4/5',
+        ]}
+        aria-hidden="true"
+      />
+    ))}
+  </div>
+) : variant === 'card' ? (
+  <div class:list={['skeleton-card rounded-lg overflow-hidden', className]} aria-hidden="true">
+    <div class:list={['skeleton skeleton-image aspect-video', `skeleton-${animation}`]} />
+    <div class="skeleton-card-body p-4 space-y-3 bg-surface">
+      <div class:list={['skeleton h-5 w-3/4 rounded', `skeleton-${animation}`]} />
+      <div class="space-y-2">
+        <div class:list={['skeleton h-3 rounded', `skeleton-${animation}`]} />
+        <div class:list={['skeleton h-3 w-5/6 rounded', `skeleton-${animation}`]} />
+      </div>
+      <div class="flex gap-2 pt-2">
+        <div class:list={['skeleton h-8 w-20 rounded-md', `skeleton-${animation}`]} />
+        <div class:list={['skeleton h-8 w-20 rounded-md', `skeleton-${animation}`]} />
+      </div>
+    </div>
+  </div>
+) : (
+  <div
+    class:list={[
+      'skeleton',
+      `skeleton-${animation}`,
+      getVariantClasses(),
+      getRounded(),
+      className,
+    ]}
+    style={customStyle || undefined}
+    aria-hidden="true"
+  />
+)}
+
+<style>
+  .skeleton {
+    background-color: var(--color-background-muted);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Shimmer animation */
+  .skeleton-shimmer::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.2),
+      transparent
+    );
+    animation: shimmer 1.5s infinite;
+  }
+
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  /* Pulse animation */
+  .skeleton-pulse {
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  /* No animation */
+  .skeleton-none::after {
+    display: none;
+  }
+
+  .skeleton-none {
+    animation: none;
+  }
+
+  /* Card variant */
+  .skeleton-card {
+    border: 1px solid var(--color-border-subtle);
+  }
+
+  .skeleton-card .skeleton-image {
+    background-color: var(--color-background-muted);
+  }
+
+  /* Dark mode adjustments */
+  :global(.dark) .skeleton-shimmer::after {
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.05),
+      transparent
+    );
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .skeleton-shimmer::after {
+      animation: none;
+      background: transparent;
+    }
+
+    .skeleton-pulse {
+      animation: none;
+    }
+  }
+</style>

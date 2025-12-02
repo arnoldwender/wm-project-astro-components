@@ -1,0 +1,402 @@
+---
+/**
+ * Modal/Dialog Component
+ *
+ * Accessible modal dialog with focus trap, backdrop, and animations.
+ * Built following WAI-ARIA Dialog pattern.
+ *
+ * Features:
+ * - Focus trap and restoration
+ * - Escape key to close
+ * - Backdrop click to close (optional)
+ * - Scroll lock when open
+ * - Multiple sizes and variants
+ * - Animation support with reduced motion
+ * - Nested modals support
+ *
+ * @example
+ * <Modal id="my-modal" title="Confirm Action">
+ *   <p>Are you sure you want to continue?</p>
+ *   <div slot="footer">
+ *     <button data-modal-close>Cancel</button>
+ *     <button>Confirm</button>
+ *   </div>
+ * </Modal>
+ *
+ * <button data-modal-open="my-modal">Open Modal</button>
+ */
+
+export interface Props {
+  id: string;
+  title?: string;
+  description?: string;
+  size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
+  variant?: 'default' | 'centered' | 'sheet-right' | 'sheet-left' | 'sheet-bottom';
+  closeOnBackdrop?: boolean;
+  closeOnEscape?: boolean;
+  showCloseButton?: boolean;
+  preventScroll?: boolean;
+  initialOpen?: boolean;
+  class?: string;
+}
+
+const {
+  id,
+  title,
+  description,
+  size = 'md',
+  variant = 'default',
+  closeOnBackdrop = true,
+  closeOnEscape = true,
+  showCloseButton = true,
+  preventScroll = true,
+  initialOpen = false,
+  class: className = '',
+} = Astro.props;
+
+const sizeClasses = {
+  sm: 'max-w-sm',
+  md: 'max-w-lg',
+  lg: 'max-w-2xl',
+  xl: 'max-w-4xl',
+  full: 'max-w-[calc(100vw-2rem)] max-h-[calc(100vh-2rem)]',
+};
+
+const variantClasses = {
+  default: 'rounded-xl',
+  centered: 'rounded-xl',
+  'sheet-right': 'rounded-l-xl ml-auto h-full max-h-full',
+  'sheet-left': 'rounded-r-xl mr-auto h-full max-h-full',
+  'sheet-bottom': 'rounded-t-xl mt-auto w-full max-w-full',
+};
+
+const variantAnimations = {
+  default: 'modal-animation-scale',
+  centered: 'modal-animation-scale',
+  'sheet-right': 'modal-animation-slide-right',
+  'sheet-left': 'modal-animation-slide-left',
+  'sheet-bottom': 'modal-animation-slide-bottom',
+};
+
+const isSheet = variant.startsWith('sheet-');
+const dialogId = `${id}-dialog`;
+const titleId = `${id}-title`;
+const descriptionId = `${id}-description`;
+---
+
+<div
+  id={id}
+  class="modal-root"
+  data-modal
+  data-close-on-backdrop={closeOnBackdrop}
+  data-close-on-escape={closeOnEscape}
+  data-prevent-scroll={preventScroll}
+  data-initial-open={initialOpen}
+  aria-hidden="true"
+>
+  <!-- Backdrop -->
+  <div
+    class="modal-backdrop fixed inset-0 z-modal-backdrop bg-black/50 backdrop-blur-sm opacity-0 transition-opacity duration-200"
+    data-modal-backdrop
+    aria-hidden="true"
+  />
+
+  <!-- Dialog Container -->
+  <div
+    class:list={[
+      'modal-container fixed inset-0 z-modal overflow-y-auto',
+      variant === 'centered' && 'flex items-center justify-center p-4',
+      variant === 'default' && 'flex items-start justify-center p-4 pt-[10vh]',
+      isSheet && 'flex',
+      variant === 'sheet-right' && 'justify-end',
+      variant === 'sheet-left' && 'justify-start',
+      variant === 'sheet-bottom' && 'items-end',
+    ]}
+  >
+    <!-- Dialog -->
+    <div
+      id={dialogId}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby={title ? titleId : undefined}
+      aria-describedby={description ? descriptionId : undefined}
+      class:list={[
+        'modal-dialog relative w-full bg-surface shadow-modal',
+        'opacity-0 transform',
+        sizeClasses[size],
+        variantClasses[variant],
+        variantAnimations[variant],
+        className,
+      ]}
+      data-modal-dialog
+      tabindex="-1"
+    >
+      <!-- Close Button -->
+      {showCloseButton && (
+        <button
+          type="button"
+          class="modal-close absolute top-4 right-4 p-1.5 rounded-full text-text-tertiary hover:text-text-primary hover:bg-background-muted transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
+          data-modal-close
+          aria-label="Close dialog"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      )}
+
+      <!-- Header -->
+      {(title || description) && (
+        <div class="modal-header px-6 pt-6 pb-4">
+          {title && (
+            <h2
+              id={titleId}
+              class="text-lg font-semibold text-text-primary pr-8"
+            >
+              {title}
+            </h2>
+          )}
+          {description && (
+            <p
+              id={descriptionId}
+              class="mt-1 text-sm text-text-secondary"
+            >
+              {description}
+            </p>
+          )}
+        </div>
+      )}
+
+      <!-- Body -->
+      <div class:list={[
+        'modal-body px-6',
+        !title && !description && 'pt-6',
+        !Astro.slots.has('footer') && 'pb-6',
+      ]}>
+        <slot />
+      </div>
+
+      <!-- Footer -->
+      {Astro.slots.has('footer') && (
+        <div class="modal-footer px-6 py-4 bg-surface-sunken rounded-b-xl flex items-center justify-end gap-3">
+          <slot name="footer" />
+        </div>
+      )}
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Base modal styles */
+  .modal-root[aria-hidden="true"] {
+    display: none;
+  }
+
+  .modal-root[aria-hidden="false"] {
+    display: block;
+  }
+
+  /* Backdrop animation */
+  .modal-root[aria-hidden="false"] .modal-backdrop {
+    opacity: 1;
+  }
+
+  /* Dialog animations */
+  .modal-animation-scale {
+    --modal-transform-from: scale(0.95) translateY(-10px);
+    --modal-transform-to: scale(1) translateY(0);
+  }
+
+  .modal-animation-slide-right {
+    --modal-transform-from: translateX(100%);
+    --modal-transform-to: translateX(0);
+  }
+
+  .modal-animation-slide-left {
+    --modal-transform-from: translateX(-100%);
+    --modal-transform-to: translateX(0);
+  }
+
+  .modal-animation-slide-bottom {
+    --modal-transform-from: translateY(100%);
+    --modal-transform-to: translateY(0);
+  }
+
+  .modal-dialog {
+    transform: var(--modal-transform-from);
+    transition: opacity var(--duration-200) var(--ease-out),
+                transform var(--duration-200) var(--ease-out);
+  }
+
+  .modal-root[aria-hidden="false"] .modal-dialog {
+    opacity: 1;
+    transform: var(--modal-transform-to);
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .modal-backdrop,
+    .modal-dialog {
+      transition-duration: 0.01ms !important;
+    }
+  }
+</style>
+
+<script>
+  interface ModalState {
+    element: HTMLElement;
+    previousActiveElement: Element | null;
+    scrollPosition: number;
+  }
+
+  const modalStack: ModalState[] = [];
+
+  function initModal(modal: HTMLElement) {
+    const backdrop = modal.querySelector('[data-modal-backdrop]') as HTMLElement;
+    const dialog = modal.querySelector('[data-modal-dialog]') as HTMLElement;
+    const closeOnBackdrop = modal.dataset.closeOnBackdrop === 'true';
+    const closeOnEscape = modal.dataset.closeOnEscape === 'true';
+    const preventScroll = modal.dataset.preventScroll === 'true';
+    const initialOpen = modal.dataset.initialOpen === 'true';
+
+    // Open modal function
+    function openModal() {
+      const state: ModalState = {
+        element: modal,
+        previousActiveElement: document.activeElement,
+        scrollPosition: window.scrollY,
+      };
+      modalStack.push(state);
+
+      modal.setAttribute('aria-hidden', 'false');
+
+      // Prevent scroll
+      if (preventScroll) {
+        document.body.style.overflow = 'hidden';
+        document.body.style.paddingRight = `${window.innerWidth - document.documentElement.clientWidth}px`;
+      }
+
+      // Focus dialog
+      requestAnimationFrame(() => {
+        const focusableElements = getFocusableElements(dialog);
+        const firstFocusable = focusableElements[0] as HTMLElement;
+        if (firstFocusable) {
+          firstFocusable.focus();
+        } else {
+          dialog.focus();
+        }
+      });
+
+      // Dispatch event
+      modal.dispatchEvent(new CustomEvent('modal:open', { bubbles: true }));
+    }
+
+    // Close modal function
+    function closeModal() {
+      modal.setAttribute('aria-hidden', 'true');
+
+      const state = modalStack.pop();
+
+      // Restore scroll if no more modals
+      if (modalStack.length === 0) {
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
+      }
+
+      // Restore focus
+      if (state?.previousActiveElement instanceof HTMLElement) {
+        state.previousActiveElement.focus();
+      }
+
+      // Dispatch event
+      modal.dispatchEvent(new CustomEvent('modal:close', { bubbles: true }));
+    }
+
+    // Get focusable elements
+    function getFocusableElements(container: HTMLElement): NodeListOf<HTMLElement> {
+      return container.querySelectorAll(
+        'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"]):not([disabled])'
+      );
+    }
+
+    // Focus trap
+    function handleKeydown(e: KeyboardEvent) {
+      if (modal.getAttribute('aria-hidden') === 'true') return;
+
+      if (e.key === 'Escape' && closeOnEscape) {
+        e.preventDefault();
+        closeModal();
+        return;
+      }
+
+      if (e.key === 'Tab') {
+        const focusableElements = getFocusableElements(dialog);
+        const firstFocusable = focusableElements[0] as HTMLElement;
+        const lastFocusable = focusableElements[focusableElements.length - 1] as HTMLElement;
+
+        if (e.shiftKey && document.activeElement === firstFocusable) {
+          e.preventDefault();
+          lastFocusable?.focus();
+        } else if (!e.shiftKey && document.activeElement === lastFocusable) {
+          e.preventDefault();
+          firstFocusable?.focus();
+        }
+      }
+    }
+
+    // Backdrop click
+    backdrop?.addEventListener('click', () => {
+      if (closeOnBackdrop) {
+        closeModal();
+      }
+    });
+
+    // Close button clicks
+    modal.querySelectorAll('[data-modal-close]').forEach(btn => {
+      btn.addEventListener('click', closeModal);
+    });
+
+    // Keyboard handling
+    modal.addEventListener('keydown', handleKeydown);
+
+    // Expose API
+    (modal as any).openModal = openModal;
+    (modal as any).closeModal = closeModal;
+
+    // Open triggers
+    document.querySelectorAll(`[data-modal-open="${modal.id}"]`).forEach(trigger => {
+      trigger.addEventListener('click', openModal);
+    });
+
+    // Initial open
+    if (initialOpen) {
+      openModal();
+    }
+  }
+
+  // Initialize on load
+  function initAllModals() {
+    document.querySelectorAll('[data-modal]').forEach(modal => {
+      initModal(modal as HTMLElement);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAllModals);
+  } else {
+    initAllModals();
+  }
+
+  document.addEventListener('astro:page-load', initAllModals);
+
+  // Global API
+  (window as any).openModal = (id: string) => {
+    const modal = document.getElementById(id) as any;
+    modal?.openModal?.();
+  };
+
+  (window as any).closeModal = (id: string) => {
+    const modal = document.getElementById(id) as any;
+    modal?.closeModal?.();
+  };
+</script>

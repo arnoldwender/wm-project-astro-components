@@ -1,0 +1,107 @@
+---
+/**
+ * SectionHeader Component
+ *
+ * Reusable header for sections with eyebrow, title, and description.
+ *
+ * @example
+ * <SectionHeader
+ *   eyebrow="Features"
+ *   title="Everything you need"
+ *   description="Powerful features to help you succeed."
+ *   align="center"
+ * />
+ */
+
+export interface Props {
+  eyebrow?: string;
+  title: string;
+  description?: string;
+  align?: 'left' | 'center' | 'right';
+  size?: 'sm' | 'md' | 'lg';
+  titleTag?: 'h1' | 'h2' | 'h3';
+  class?: string;
+}
+
+const {
+  eyebrow,
+  title,
+  description,
+  align = 'center',
+  size = 'md',
+  titleTag = 'h2',
+  class: className = '',
+} = Astro.props;
+
+// Alignment classes
+const alignClasses = {
+  left: 'text-left',
+  center: 'text-center mx-auto',
+  right: 'text-right ml-auto',
+};
+
+// Size classes
+const sizeClasses = {
+  sm: {
+    eyebrow: 'text-xs',
+    title: 'text-2xl lg:text-3xl',
+    description: 'text-base',
+    maxWidth: 'max-w-xl',
+  },
+  md: {
+    eyebrow: 'text-sm',
+    title: 'text-3xl lg:text-4xl',
+    description: 'text-lg',
+    maxWidth: 'max-w-2xl',
+  },
+  lg: {
+    eyebrow: 'text-sm',
+    title: 'text-4xl lg:text-5xl',
+    description: 'text-xl',
+    maxWidth: 'max-w-3xl',
+  },
+};
+
+const TitleTag = titleTag;
+---
+
+<header
+  class:list={[
+    'section-header mb-12 lg:mb-16',
+    alignClasses[align],
+    sizeClasses[size].maxWidth,
+    className,
+  ]}
+>
+  {eyebrow && (
+    <span class:list={[
+      'section-eyebrow inline-block font-semibold uppercase tracking-wider text-primary mb-3',
+      sizeClasses[size].eyebrow,
+    ]}>
+      {eyebrow}
+    </span>
+  )}
+
+  <TitleTag class:list={[
+    'section-title font-bold text-text-primary mb-4',
+    sizeClasses[size].title,
+  ]}>
+    {title}
+  </TitleTag>
+
+  {description && (
+    <p class:list={[
+      'section-description text-text-secondary',
+      sizeClasses[size].description,
+    ]}>
+      {description}
+    </p>
+  )}
+
+  {/* Additional content slot (e.g., buttons) */}
+  {Astro.slots.has('default') && (
+    <div class="section-header-extra mt-6">
+      <slot />
+    </div>
+  )}
+</header>

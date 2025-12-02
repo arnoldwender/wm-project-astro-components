@@ -1,0 +1,450 @@
+---
+/**
+ * NewsletterSection Component
+ *
+ * Email subscription sections with various layouts.
+ *
+ * Variants:
+ * - inline: Compact inline form
+ * - centered: Centered with large input
+ * - card: Form in elevated card
+ * - split: Image/illustration + form
+ * - banner: Full-width banner style
+ * - minimal: Simple text + input
+ *
+ * @example
+ * <NewsletterSection
+ *   variant="centered"
+ *   title="Stay Updated"
+ *   description="Get the latest news and updates."
+ *   buttonText="Subscribe"
+ * />
+ */
+
+import SectionWrapper from './SectionWrapper.astro';
+
+export interface Props {
+  variant?: 'inline' | 'centered' | 'card' | 'split' | 'banner' | 'minimal';
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+  placeholder?: string;
+  buttonText?: string;
+  privacyText?: string;
+  privacyLink?: string;
+  formAction?: string;
+  formMethod?: 'GET' | 'POST';
+  inputName?: string;
+  background?: 'transparent' | 'subtle' | 'muted' | 'dark' | 'gradient';
+  class?: string;
+}
+
+const {
+  variant = 'centered',
+  eyebrow,
+  title,
+  description,
+  placeholder = 'Ihre E-Mail-Adresse',
+  buttonText = 'Abonnieren',
+  privacyText,
+  privacyLink,
+  formAction = '/api/subscribe',
+  formMethod = 'POST',
+  inputName = 'email',
+  background = 'transparent',
+  class: className = '',
+} = Astro.props;
+
+// Background classes
+const bgClasses = {
+  transparent: '',
+  subtle: 'bg-background-subtle',
+  muted: 'bg-background-muted',
+  dark: 'bg-background-inverse text-white',
+  gradient: 'bg-gradient-to-br from-primary-600 to-primary-800 text-white',
+};
+---
+
+{variant === 'banner' ? (
+  <section
+    class:list={[
+      'newsletter-banner py-12 lg:py-16',
+      bgClasses[background],
+      className,
+    ]}
+  >
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col lg:flex-row items-center justify-between gap-8">
+        <div class="text-center lg:text-left">
+          {eyebrow && (
+            <span class:list={[
+              'text-sm font-semibold uppercase tracking-wider mb-2 block',
+              (background === 'dark' || background === 'gradient') ? 'opacity-80' : 'text-primary',
+            ]}>
+              {eyebrow}
+            </span>
+          )}
+          {title && (
+            <h2 class:list={[
+              'text-2xl lg:text-3xl font-bold mb-2',
+              (background === 'dark' || background === 'gradient') ? 'text-white' : 'text-text-primary',
+            ]}>
+              {title}
+            </h2>
+          )}
+          {description && (
+            <p class:list={[
+              (background === 'dark' || background === 'gradient') ? 'text-white/80' : 'text-text-secondary',
+            ]}>
+              {description}
+            </p>
+          )}
+        </div>
+
+        <form
+          action={formAction}
+          method={formMethod}
+          class="newsletter-form flex flex-col sm:flex-row gap-3 w-full lg:w-auto"
+        >
+          <input
+            type="email"
+            name={inputName}
+            placeholder={placeholder}
+            required
+            class:list={[
+              'px-5 py-3 rounded-xl border-0 min-w-[280px]',
+              (background === 'dark' || background === 'gradient')
+                ? 'bg-white/10 text-white placeholder:text-white/60 focus:bg-white/20'
+                : 'bg-surface border border-border-subtle text-text-primary',
+            ]}
+          />
+          <button
+            type="submit"
+            class:list={[
+              'px-6 py-3 rounded-xl font-semibold transition-colors whitespace-nowrap',
+              (background === 'dark' || background === 'gradient')
+                ? 'bg-white text-primary hover:bg-white/90'
+                : 'bg-primary text-white hover:bg-primary-600',
+            ]}
+          >
+            {buttonText}
+          </button>
+        </form>
+      </div>
+
+      {privacyText && (
+        <p class:list={[
+          'text-sm mt-4 text-center lg:text-right',
+          (background === 'dark' || background === 'gradient') ? 'text-white/60' : 'text-text-tertiary',
+        ]}>
+          {privacyText}
+          {privacyLink && (
+            <a href={privacyLink} class="underline hover:no-underline ml-1">
+              Datenschutz
+            </a>
+          )}
+        </p>
+      )}
+    </div>
+  </section>
+) : variant === 'split' ? (
+  <SectionWrapper background={background === 'gradient' ? 'transparent' : background} class={className}>
+    <div class:list={[
+      'grid lg:grid-cols-2 gap-8 lg:gap-16 items-center',
+      background === 'gradient' && 'p-8 lg:p-12 rounded-3xl bg-gradient-to-br from-primary-600 to-primary-800',
+    ]}>
+      {/* Illustration/Image slot */}
+      <div class="newsletter-media order-2 lg:order-1">
+        <slot name="media">
+          <div class="aspect-square max-w-md mx-auto rounded-2xl bg-primary/10 flex items-center justify-center">
+            <svg class="w-32 h-32 text-primary/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+          </div>
+        </slot>
+      </div>
+
+      {/* Content */}
+      <div class="order-1 lg:order-2">
+        {eyebrow && (
+          <span class:list={[
+            'text-sm font-semibold uppercase tracking-wider mb-3 block',
+            background === 'gradient' ? 'text-white/80' : 'text-primary',
+          ]}>
+            {eyebrow}
+          </span>
+        )}
+        {title && (
+          <h2 class:list={[
+            'text-3xl lg:text-4xl font-bold mb-4',
+            background === 'gradient' ? 'text-white' : 'text-text-primary',
+          ]}>
+            {title}
+          </h2>
+        )}
+        {description && (
+          <p class:list={[
+            'mb-6',
+            background === 'gradient' ? 'text-white/80' : 'text-text-secondary',
+          ]}>
+            {description}
+          </p>
+        )}
+
+        <form action={formAction} method={formMethod} class="newsletter-form">
+          <div class="flex flex-col sm:flex-row gap-3">
+            <input
+              type="email"
+              name={inputName}
+              placeholder={placeholder}
+              required
+              class:list={[
+                'flex-1 px-5 py-3 rounded-xl',
+                background === 'gradient'
+                  ? 'bg-white/10 border-0 text-white placeholder:text-white/60 focus:bg-white/20'
+                  : 'border border-border-subtle bg-surface text-text-primary',
+              ]}
+            />
+            <button
+              type="submit"
+              class:list={[
+                'px-6 py-3 rounded-xl font-semibold transition-colors',
+                background === 'gradient'
+                  ? 'bg-white text-primary hover:bg-white/90'
+                  : 'bg-primary text-white hover:bg-primary-600',
+              ]}
+            >
+              {buttonText}
+            </button>
+          </div>
+
+          {privacyText && (
+            <p class:list={[
+              'text-sm mt-3',
+              background === 'gradient' ? 'text-white/60' : 'text-text-tertiary',
+            ]}>
+              {privacyText}
+              {privacyLink && (
+                <a href={privacyLink} class="underline hover:no-underline ml-1">
+                  Datenschutz
+                </a>
+              )}
+            </p>
+          )}
+        </form>
+      </div>
+    </div>
+  </SectionWrapper>
+) : variant === 'card' ? (
+  <SectionWrapper background={background} class={className}>
+    <div class="max-w-xl mx-auto">
+      <div class="bg-surface border border-border-subtle rounded-2xl p-8 lg:p-10 shadow-lg text-center">
+        {eyebrow && (
+          <span class="text-sm font-semibold text-primary uppercase tracking-wider mb-3 block">
+            {eyebrow}
+          </span>
+        )}
+        {title && (
+          <h2 class="text-2xl lg:text-3xl font-bold text-text-primary mb-4">
+            {title}
+          </h2>
+        )}
+        {description && (
+          <p class="text-text-secondary mb-6">{description}</p>
+        )}
+
+        <form action={formAction} method={formMethod} class="newsletter-form">
+          <div class="flex flex-col sm:flex-row gap-3">
+            <input
+              type="email"
+              name={inputName}
+              placeholder={placeholder}
+              required
+              class="flex-1 px-5 py-3 rounded-xl border border-border-subtle bg-background text-text-primary"
+            />
+            <button
+              type="submit"
+              class="px-6 py-3 rounded-xl bg-primary text-white font-semibold hover:bg-primary-600 transition-colors"
+            >
+              {buttonText}
+            </button>
+          </div>
+
+          {privacyText && (
+            <p class="text-sm text-text-tertiary mt-4">
+              {privacyText}
+              {privacyLink && (
+                <a href={privacyLink} class="underline hover:no-underline ml-1">
+                  Datenschutz
+                </a>
+              )}
+            </p>
+          )}
+        </form>
+      </div>
+    </div>
+  </SectionWrapper>
+) : variant === 'inline' ? (
+  <section
+    class:list={[
+      'newsletter-inline py-8',
+      bgClasses[background],
+      className,
+    ]}
+  >
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <form
+        action={formAction}
+        method={formMethod}
+        class="newsletter-form flex flex-col sm:flex-row items-center justify-center gap-4"
+      >
+        {title && (
+          <span class:list={[
+            'font-medium',
+            (background === 'dark' || background === 'gradient') ? 'text-white' : 'text-text-primary',
+          ]}>
+            {title}
+          </span>
+        )}
+        <input
+          type="email"
+          name={inputName}
+          placeholder={placeholder}
+          required
+          class:list={[
+            'px-4 py-2.5 rounded-lg min-w-[240px]',
+            (background === 'dark' || background === 'gradient')
+              ? 'bg-white/10 border-0 text-white placeholder:text-white/60'
+              : 'border border-border-subtle bg-surface text-text-primary',
+          ]}
+        />
+        <button
+          type="submit"
+          class:list={[
+            'px-5 py-2.5 rounded-lg font-medium transition-colors',
+            (background === 'dark' || background === 'gradient')
+              ? 'bg-white text-primary hover:bg-white/90'
+              : 'bg-primary text-white hover:bg-primary-600',
+          ]}
+        >
+          {buttonText}
+        </button>
+      </form>
+    </div>
+  </section>
+) : variant === 'minimal' ? (
+  <SectionWrapper background={background} class={className}>
+    <div class="max-w-md mx-auto text-center">
+      {title && (
+        <h2 class="text-xl font-semibold text-text-primary mb-4">{title}</h2>
+      )}
+      <form action={formAction} method={formMethod} class="newsletter-form">
+        <div class="flex gap-2">
+          <input
+            type="email"
+            name={inputName}
+            placeholder={placeholder}
+            required
+            class="flex-1 px-4 py-2.5 rounded-lg border border-border-subtle bg-surface text-text-primary text-sm"
+          />
+          <button
+            type="submit"
+            class="px-4 py-2.5 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary-600 transition-colors"
+          >
+            {buttonText}
+          </button>
+        </div>
+      </form>
+    </div>
+  </SectionWrapper>
+) : (
+  <SectionWrapper background={background} class={className}>
+    <div class="max-w-2xl mx-auto text-center">
+      {eyebrow && (
+        <span class:list={[
+          'text-sm font-semibold uppercase tracking-wider mb-3 block',
+          (background === 'dark' || background === 'gradient') ? 'opacity-80' : 'text-primary',
+        ]}>
+          {eyebrow}
+        </span>
+      )}
+      {title && (
+        <h2 class:list={[
+          'text-3xl lg:text-4xl font-bold mb-4',
+          (background === 'dark' || background === 'gradient') ? 'text-white' : 'text-text-primary',
+        ]}>
+          {title}
+        </h2>
+      )}
+      {description && (
+        <p class:list={[
+          'mb-8 text-lg',
+          (background === 'dark' || background === 'gradient') ? 'text-white/80' : 'text-text-secondary',
+        ]}>
+          {description}
+        </p>
+      )}
+
+      <form action={formAction} method={formMethod} class="newsletter-form">
+        <div class="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto">
+          <input
+            type="email"
+            name={inputName}
+            placeholder={placeholder}
+            required
+            class:list={[
+              'flex-1 px-5 py-4 rounded-xl text-lg',
+              (background === 'dark' || background === 'gradient')
+                ? 'bg-white/10 border-0 text-white placeholder:text-white/60 focus:bg-white/20'
+                : 'border border-border-subtle bg-surface text-text-primary',
+            ]}
+          />
+          <button
+            type="submit"
+            class:list={[
+              'px-8 py-4 rounded-xl font-semibold text-lg transition-colors',
+              (background === 'dark' || background === 'gradient')
+                ? 'bg-white text-primary hover:bg-white/90'
+                : 'bg-primary text-white hover:bg-primary-600',
+            ]}
+          >
+            {buttonText}
+          </button>
+        </div>
+
+        {privacyText && (
+          <p class:list={[
+            'text-sm mt-4',
+            (background === 'dark' || background === 'gradient') ? 'text-white/60' : 'text-text-tertiary',
+          ]}>
+            {privacyText}
+            {privacyLink && (
+              <a href={privacyLink} class="underline hover:no-underline ml-1">
+                Datenschutz
+              </a>
+            )}
+          </p>
+        )}
+      </form>
+    </div>
+  </SectionWrapper>
+)}
+
+<style>
+  /* Input focus styles */
+  .newsletter-form input:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--color-primary-100);
+  }
+
+  .bg-gradient-to-br .newsletter-form input:focus,
+  .bg-background-inverse .newsletter-form input:focus {
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+  }
+
+  /* Loading state */
+  .newsletter-form button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+</style>

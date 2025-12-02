@@ -1,0 +1,886 @@
+---
+/**
+ * ComingSoonSection Component
+ *
+ * Coming soon / launching soon pages.
+ *
+ * Variants:
+ * - default: Standard centered with countdown
+ * - minimal: Simple text with email signup
+ * - split: Split layout with image
+ * - fullscreen: Full background image/video
+ * - animated: With animated background
+ * - card: Card-style centered content
+ *
+ * @example
+ * <ComingSoonSection
+ *   variant="default"
+ *   title="Coming Soon"
+ *   launchDate="2025-03-01"
+ *   showCountdown={true}
+ * />
+ */
+
+export interface Props {
+  variant?: 'default' | 'minimal' | 'split' | 'fullscreen' | 'animated' | 'card';
+  title?: string;
+  subtitle?: string;
+  description?: string;
+  launchDate?: string;
+  showCountdown?: boolean;
+  showNewsletter?: boolean;
+  newsletterTitle?: string;
+  newsletterPlaceholder?: string;
+  newsletterButtonText?: string;
+  backgroundImage?: string;
+  backgroundVideo?: string;
+  logo?: string;
+  socials?: { platform: string; href: string; icon: string }[];
+  class?: string;
+}
+
+const {
+  variant = 'default',
+  title = 'Coming Soon',
+  subtitle,
+  description = "We're working hard to bring you something amazing. Stay tuned!",
+  launchDate,
+  showCountdown = true,
+  showNewsletter = true,
+  newsletterTitle = 'Get notified when we launch',
+  newsletterPlaceholder = 'Enter your email',
+  newsletterButtonText = 'Notify Me',
+  backgroundImage,
+  backgroundVideo,
+  logo,
+  socials = [],
+  class: className = '',
+} = Astro.props;
+
+const countdownId = `countdown-${Math.random().toString(36).slice(2, 9)}`;
+---
+
+<section
+  class:list={[
+    'coming-soon',
+    `coming-soon--${variant}`,
+    className,
+  ]}
+  style={backgroundImage && (variant === 'fullscreen' || variant === 'split') ? `--bg-image: url(${backgroundImage})` : undefined}
+  data-launch-date={launchDate}
+  data-countdown-id={countdownId}
+>
+  {/* Background video for fullscreen */}
+  {variant === 'fullscreen' && backgroundVideo && (
+    <video
+      class="bg-video"
+      autoplay
+      muted
+      loop
+      playsinline
+      poster={backgroundImage}
+    >
+      <source src={backgroundVideo} type="video/mp4" />
+    </video>
+  )}
+
+  {/* Animated background */}
+  {variant === 'animated' && (
+    <div class="animated-bg">
+      <div class="gradient-orb orb-1" />
+      <div class="gradient-orb orb-2" />
+      <div class="gradient-orb orb-3" />
+    </div>
+  )}
+
+  {/* Overlay for fullscreen/animated */}
+  {(variant === 'fullscreen' || variant === 'animated') && (
+    <div class="overlay" />
+  )}
+
+  <div class="coming-soon-container">
+    {/* Default variant */}
+    {variant === 'default' && (
+      <div class="content content--centered">
+        {logo && <img src={logo} alt="Logo" class="logo" />}
+        {subtitle && <span class="subtitle">{subtitle}</span>}
+        <h1 class="title">{title}</h1>
+        {description && <p class="description">{description}</p>}
+
+        {showCountdown && launchDate && (
+          <div class="countdown" id={countdownId}>
+            <div class="countdown-item">
+              <span class="countdown-value" data-days>00</span>
+              <span class="countdown-label">Days</span>
+            </div>
+            <div class="countdown-separator">:</div>
+            <div class="countdown-item">
+              <span class="countdown-value" data-hours>00</span>
+              <span class="countdown-label">Hours</span>
+            </div>
+            <div class="countdown-separator">:</div>
+            <div class="countdown-item">
+              <span class="countdown-value" data-minutes>00</span>
+              <span class="countdown-label">Minutes</span>
+            </div>
+            <div class="countdown-separator">:</div>
+            <div class="countdown-item">
+              <span class="countdown-value" data-seconds>00</span>
+              <span class="countdown-label">Seconds</span>
+            </div>
+          </div>
+        )}
+
+        {showNewsletter && (
+          <div class="newsletter">
+            {newsletterTitle && <p class="newsletter-title">{newsletterTitle}</p>}
+            <form class="newsletter-form">
+              <input
+                type="email"
+                placeholder={newsletterPlaceholder}
+                class="newsletter-input"
+                required
+              />
+              <button type="submit" class="newsletter-btn">
+                {newsletterButtonText}
+              </button>
+            </form>
+          </div>
+        )}
+
+        {socials.length > 0 && (
+          <div class="socials">
+            {socials.map((social) => (
+              <a
+                href={social.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="social-link"
+                aria-label={social.platform}
+              >
+                <span set:html={social.icon} />
+              </a>
+            ))}
+          </div>
+        )}
+      </div>
+    )}
+
+    {/* Minimal variant */}
+    {variant === 'minimal' && (
+      <div class="content content--minimal">
+        {logo && <img src={logo} alt="Logo" class="logo logo--sm" />}
+        <h1 class="title title--lg">{title}</h1>
+        {description && <p class="description">{description}</p>}
+
+        {showNewsletter && (
+          <form class="newsletter-form newsletter-form--inline">
+            <input
+              type="email"
+              placeholder={newsletterPlaceholder}
+              class="newsletter-input"
+              required
+            />
+            <button type="submit" class="newsletter-btn">
+              {newsletterButtonText}
+            </button>
+          </form>
+        )}
+      </div>
+    )}
+
+    {/* Split variant */}
+    {variant === 'split' && (
+      <div class="content content--split">
+        <div class="split-content">
+          {logo && <img src={logo} alt="Logo" class="logo" />}
+          {subtitle && <span class="subtitle">{subtitle}</span>}
+          <h1 class="title">{title}</h1>
+          {description && <p class="description">{description}</p>}
+
+          {showCountdown && launchDate && (
+            <div class="countdown countdown--compact" id={countdownId}>
+              <div class="countdown-item">
+                <span class="countdown-value" data-days>00</span>
+                <span class="countdown-label">Days</span>
+              </div>
+              <div class="countdown-item">
+                <span class="countdown-value" data-hours>00</span>
+                <span class="countdown-label">Hours</span>
+              </div>
+              <div class="countdown-item">
+                <span class="countdown-value" data-minutes>00</span>
+                <span class="countdown-label">Min</span>
+              </div>
+              <div class="countdown-item">
+                <span class="countdown-value" data-seconds>00</span>
+                <span class="countdown-label">Sec</span>
+              </div>
+            </div>
+          )}
+
+          {showNewsletter && (
+            <div class="newsletter newsletter--left">
+              {newsletterTitle && <p class="newsletter-title">{newsletterTitle}</p>}
+              <form class="newsletter-form">
+                <input
+                  type="email"
+                  placeholder={newsletterPlaceholder}
+                  class="newsletter-input"
+                  required
+                />
+                <button type="submit" class="newsletter-btn">
+                  {newsletterButtonText}
+                </button>
+              </form>
+            </div>
+          )}
+
+          {socials.length > 0 && (
+            <div class="socials socials--left">
+              {socials.map((social) => (
+                <a
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="social-link"
+                  aria-label={social.platform}
+                >
+                  <span set:html={social.icon} />
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
+        <div class="split-image" />
+      </div>
+    )}
+
+    {/* Fullscreen/Animated variant */}
+    {(variant === 'fullscreen' || variant === 'animated') && (
+      <div class="content content--fullscreen">
+        {logo && <img src={logo} alt="Logo" class="logo logo--light" />}
+        {subtitle && <span class="subtitle subtitle--light">{subtitle}</span>}
+        <h1 class="title title--light">{title}</h1>
+        {description && <p class="description description--light">{description}</p>}
+
+        {showCountdown && launchDate && (
+          <div class="countdown countdown--light" id={countdownId}>
+            <div class="countdown-item">
+              <span class="countdown-value" data-days>00</span>
+              <span class="countdown-label">Days</span>
+            </div>
+            <div class="countdown-separator">:</div>
+            <div class="countdown-item">
+              <span class="countdown-value" data-hours>00</span>
+              <span class="countdown-label">Hours</span>
+            </div>
+            <div class="countdown-separator">:</div>
+            <div class="countdown-item">
+              <span class="countdown-value" data-minutes>00</span>
+              <span class="countdown-label">Minutes</span>
+            </div>
+            <div class="countdown-separator">:</div>
+            <div class="countdown-item">
+              <span class="countdown-value" data-seconds>00</span>
+              <span class="countdown-label">Seconds</span>
+            </div>
+          </div>
+        )}
+
+        {showNewsletter && (
+          <div class="newsletter">
+            <form class="newsletter-form newsletter-form--light">
+              <input
+                type="email"
+                placeholder={newsletterPlaceholder}
+                class="newsletter-input"
+                required
+              />
+              <button type="submit" class="newsletter-btn">
+                {newsletterButtonText}
+              </button>
+            </form>
+          </div>
+        )}
+
+        {socials.length > 0 && (
+          <div class="socials">
+            {socials.map((social) => (
+              <a
+                href={social.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="social-link social-link--light"
+                aria-label={social.platform}
+              >
+                <span set:html={social.icon} />
+              </a>
+            ))}
+          </div>
+        )}
+      </div>
+    )}
+
+    {/* Card variant */}
+    {variant === 'card' && (
+      <div class="content content--card">
+        <div class="card">
+          {logo && <img src={logo} alt="Logo" class="logo" />}
+          {subtitle && <span class="subtitle">{subtitle}</span>}
+          <h1 class="title">{title}</h1>
+          {description && <p class="description">{description}</p>}
+
+          {showCountdown && launchDate && (
+            <div class="countdown countdown--card" id={countdownId}>
+              <div class="countdown-item">
+                <span class="countdown-value" data-days>00</span>
+                <span class="countdown-label">Days</span>
+              </div>
+              <div class="countdown-item">
+                <span class="countdown-value" data-hours>00</span>
+                <span class="countdown-label">Hours</span>
+              </div>
+              <div class="countdown-item">
+                <span class="countdown-value" data-minutes>00</span>
+                <span class="countdown-label">Min</span>
+              </div>
+              <div class="countdown-item">
+                <span class="countdown-value" data-seconds>00</span>
+                <span class="countdown-label">Sec</span>
+              </div>
+            </div>
+          )}
+
+          {showNewsletter && (
+            <div class="newsletter">
+              <form class="newsletter-form newsletter-form--stacked">
+                <input
+                  type="email"
+                  placeholder={newsletterPlaceholder}
+                  class="newsletter-input"
+                  required
+                />
+                <button type="submit" class="newsletter-btn newsletter-btn--full">
+                  {newsletterButtonText}
+                </button>
+              </form>
+            </div>
+          )}
+        </div>
+      </div>
+    )}
+  </div>
+</section>
+
+<style>
+  .coming-soon {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    background: var(--color-background);
+  }
+
+  .coming-soon-container {
+    width: 100%;
+    max-width: 80rem;
+    padding: 2rem;
+    position: relative;
+    z-index: 10;
+  }
+
+  .content {
+    width: 100%;
+  }
+
+  .content--centered {
+    text-align: center;
+    max-width: 40rem;
+    margin: 0 auto;
+  }
+
+  .logo {
+    height: 3rem;
+    width: auto;
+    margin-bottom: 2rem;
+  }
+
+  .logo--sm {
+    height: 2rem;
+  }
+
+  .logo--light {
+    filter: brightness(0) invert(1);
+  }
+
+  .subtitle {
+    display: inline-block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-primary);
+    margin-bottom: 1rem;
+  }
+
+  .subtitle--light {
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  .title {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800;
+    margin: 0 0 1rem;
+    color: var(--color-text-primary);
+    line-height: 1.1;
+  }
+
+  .title--lg {
+    font-size: clamp(2.5rem, 6vw, 5rem);
+  }
+
+  .title--light {
+    color: white;
+  }
+
+  .description {
+    font-size: 1.125rem;
+    color: var(--color-text-secondary);
+    margin: 0 0 2rem;
+    line-height: 1.6;
+  }
+
+  .description--light {
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  /* Countdown */
+  .countdown {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 3rem;
+  }
+
+  .countdown-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 4.5rem;
+  }
+
+  .countdown-value {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 700;
+    line-height: 1;
+    color: var(--color-text-primary);
+  }
+
+  .countdown-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-text-tertiary);
+    margin-top: 0.5rem;
+  }
+
+  .countdown-separator {
+    font-size: 2rem;
+    font-weight: 300;
+    color: var(--color-text-tertiary);
+    align-self: flex-start;
+    margin-top: 0.25rem;
+  }
+
+  .countdown--light .countdown-value {
+    color: white;
+  }
+
+  .countdown--light .countdown-label,
+  .countdown--light .countdown-separator {
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  .countdown--compact {
+    gap: 0.75rem;
+  }
+
+  .countdown--compact .countdown-item {
+    min-width: 3.5rem;
+    padding: 0.75rem;
+    background: var(--color-background-subtle);
+    border-radius: var(--radius-lg);
+  }
+
+  .countdown--compact .countdown-value {
+    font-size: 1.5rem;
+  }
+
+  .countdown--card {
+    gap: 0.5rem;
+  }
+
+  .countdown--card .countdown-item {
+    flex: 1;
+    padding: 1rem 0.5rem;
+    background: var(--color-background-subtle);
+    border-radius: var(--radius-lg);
+  }
+
+  .countdown--card .countdown-value {
+    font-size: 1.75rem;
+  }
+
+  /* Newsletter */
+  .newsletter {
+    margin-bottom: 2rem;
+  }
+
+  .newsletter--left {
+    text-align: left;
+  }
+
+  .newsletter-title {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    margin: 0 0 1rem;
+  }
+
+  .newsletter-form {
+    display: flex;
+    gap: 0.5rem;
+    max-width: 28rem;
+    margin: 0 auto;
+  }
+
+  .newsletter-form--inline {
+    max-width: 32rem;
+  }
+
+  .newsletter-form--stacked {
+    flex-direction: column;
+  }
+
+  .newsletter-form--light {
+    max-width: 24rem;
+  }
+
+  .newsletter-input {
+    flex: 1;
+    padding: 0.875rem 1rem;
+    font-size: 0.875rem;
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    outline: none;
+  }
+
+  .newsletter-input:focus {
+    border-color: var(--color-primary);
+  }
+
+  .newsletter-form--light .newsletter-input {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: white;
+  }
+
+  .newsletter-form--light .newsletter-input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  .newsletter-btn {
+    padding: 0.875rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+
+  .newsletter-btn:hover {
+    background: var(--color-primary-dark);
+  }
+
+  .newsletter-btn--full {
+    width: 100%;
+  }
+
+  /* Socials */
+  .socials {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+
+  .socials--left {
+    justify-content: flex-start;
+  }
+
+  .social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    background: var(--color-background-subtle);
+    color: var(--color-text-secondary);
+    border-radius: var(--radius-lg);
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .social-link:hover {
+    background: var(--color-primary);
+    color: white;
+  }
+
+  .social-link--light {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+  }
+
+  .social-link--light:hover {
+    background: white;
+    color: var(--color-primary);
+  }
+
+  .social-link :global(svg) {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  /* Minimal variant */
+  .content--minimal {
+    text-align: center;
+    max-width: 32rem;
+    margin: 0 auto;
+  }
+
+  /* Split variant */
+  .coming-soon--split {
+    background: var(--color-surface);
+  }
+
+  .content--split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 100vh;
+  }
+
+  .split-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 3rem;
+    max-width: 32rem;
+  }
+
+  .split-image {
+    background: var(--bg-image) center/cover no-repeat;
+    background-color: var(--color-background-subtle);
+  }
+
+  /* Fullscreen variant */
+  .coming-soon--fullscreen {
+    background: var(--bg-image) center/cover no-repeat;
+    background-color: var(--color-background-inverse);
+  }
+
+  .bg-video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    transform: translate(-50%, -50%);
+    object-fit: cover;
+    z-index: 1;
+  }
+
+  .overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 2;
+  }
+
+  .content--fullscreen {
+    text-align: center;
+    max-width: 40rem;
+    margin: 0 auto;
+  }
+
+  /* Animated variant */
+  .animated-bg {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  }
+
+  .gradient-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.5;
+    animation: float 15s ease-in-out infinite;
+  }
+
+  .orb-1 {
+    width: 40vw;
+    height: 40vw;
+    background: var(--color-primary);
+    top: -10%;
+    left: -10%;
+    animation-delay: 0s;
+  }
+
+  .orb-2 {
+    width: 35vw;
+    height: 35vw;
+    background: #8b5cf6;
+    bottom: -10%;
+    right: -10%;
+    animation-delay: -5s;
+  }
+
+  .orb-3 {
+    width: 25vw;
+    height: 25vw;
+    background: #06b6d4;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation-delay: -10s;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    25% { transform: translate(5%, 10%) scale(1.1); }
+    50% { transform: translate(-5%, 5%) scale(0.95); }
+    75% { transform: translate(10%, -5%) scale(1.05); }
+  }
+
+  /* Card variant */
+  .coming-soon--card {
+    background: linear-gradient(135deg, var(--color-background-subtle) 0%, var(--color-background-muted) 100%);
+  }
+
+  .content--card {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem;
+  }
+
+  .card {
+    background: var(--color-surface);
+    border-radius: var(--radius-2xl);
+    padding: 3rem;
+    text-align: center;
+    max-width: 28rem;
+    box-shadow: var(--shadow-xl);
+  }
+
+  @media (max-width: 768px) {
+    .content--split {
+      grid-template-columns: 1fr;
+    }
+
+    .split-content {
+      padding: 2rem;
+      order: 2;
+    }
+
+    .split-image {
+      min-height: 30vh;
+      order: 1;
+    }
+
+    .countdown {
+      flex-wrap: wrap;
+    }
+
+    .countdown-separator {
+      display: none;
+    }
+
+    .newsletter-form {
+      flex-direction: column;
+    }
+
+    .card {
+      padding: 2rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gradient-orb {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  function initCountdowns() {
+    const sections = document.querySelectorAll('[data-launch-date]');
+
+    sections.forEach((section) => {
+      const launchDate = section.getAttribute('data-launch-date');
+      const countdownId = section.getAttribute('data-countdown-id');
+      if (!launchDate || !countdownId) return;
+
+      const countdown = document.getElementById(countdownId);
+      if (!countdown) return;
+
+      const targetDate = new Date(launchDate).getTime();
+
+      const daysEl = countdown.querySelector('[data-days]');
+      const hoursEl = countdown.querySelector('[data-hours]');
+      const minutesEl = countdown.querySelector('[data-minutes]');
+      const secondsEl = countdown.querySelector('[data-seconds]');
+
+      function updateCountdown() {
+        const now = new Date().getTime();
+        const distance = targetDate - now;
+
+        if (distance < 0) {
+          if (daysEl) daysEl.textContent = '00';
+          if (hoursEl) hoursEl.textContent = '00';
+          if (minutesEl) minutesEl.textContent = '00';
+          if (secondsEl) secondsEl.textContent = '00';
+          return;
+        }
+
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        if (daysEl) daysEl.textContent = String(days).padStart(2, '0');
+        if (hoursEl) hoursEl.textContent = String(hours).padStart(2, '0');
+        if (minutesEl) minutesEl.textContent = String(minutes).padStart(2, '0');
+        if (secondsEl) secondsEl.textContent = String(seconds).padStart(2, '0');
+      }
+
+      updateCountdown();
+      setInterval(updateCountdown, 1000);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCountdowns);
+  } else {
+    initCountdowns();
+  }
+
+  document.addEventListener('astro:page-load', initCountdowns);
+</script>

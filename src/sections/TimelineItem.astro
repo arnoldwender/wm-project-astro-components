@@ -1,0 +1,193 @@
+---
+/**
+ * TimelineItem Component
+ *
+ * Individual timeline entry.
+ *
+ * @example
+ * <TimelineItem
+ *   date="2024"
+ *   title="Company Founded"
+ *   description="Started with a vision to change the industry."
+ *   icon="🚀"
+ * />
+ */
+
+export interface Props {
+  date: string;
+  title: string;
+  description?: string;
+  icon?: string;
+  image?: string;
+  badge?: string;
+  variant?: 'default' | 'card' | 'minimal' | 'detailed';
+  position?: 'left' | 'right' | 'auto';
+  class?: string;
+}
+
+const {
+  date,
+  title,
+  description,
+  icon,
+  image,
+  badge,
+  variant = 'default',
+  position = 'auto',
+  class: className = '',
+} = Astro.props;
+---
+
+<div
+  class:list={[
+    'timeline-item',
+    `timeline-item--${variant}`,
+    position !== 'auto' && `timeline-item--${position}`,
+    className,
+  ]}
+  data-timeline-item
+>
+  {/* Timeline marker */}
+  <div class="timeline-marker">
+    {icon ? (
+      <div class="timeline-icon w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white">
+        {icon.startsWith('<') ? (
+          <span class="w-5 h-5" set:html={icon} />
+        ) : (
+          <span class="text-lg">{icon}</span>
+        )}
+      </div>
+    ) : (
+      <div class="timeline-dot w-4 h-4 rounded-full bg-primary ring-4 ring-background" />
+    )}
+  </div>
+
+  {/* Content */}
+  <div class:list={[
+    'timeline-content',
+    variant === 'card' && 'bg-surface border border-border-subtle rounded-xl p-6 shadow-sm',
+    variant === 'detailed' && 'bg-surface border border-border-subtle rounded-xl overflow-hidden',
+  ]}>
+    {/* Image for detailed variant */}
+    {variant === 'detailed' && image && (
+      <div class="timeline-image aspect-video overflow-hidden">
+        <img src={image} alt={title} class="w-full h-full object-cover" loading="lazy" />
+      </div>
+    )}
+
+    <div class:list={[variant === 'detailed' && image && 'p-6']}>
+      {/* Date & Badge */}
+      <div class="flex items-center gap-3 mb-2">
+        <span class:list={[
+          'timeline-date font-semibold',
+          variant === 'minimal' ? 'text-sm text-text-tertiary' : 'text-primary',
+        ]}>
+          {date}
+        </span>
+        {badge && (
+          <span class="px-2 py-0.5 text-xs font-medium rounded-full bg-primary/10 text-primary">
+            {badge}
+          </span>
+        )}
+      </div>
+
+      {/* Title */}
+      <h3 class:list={[
+        'timeline-title font-semibold text-text-primary',
+        variant === 'minimal' ? 'text-base' : 'text-lg mb-2',
+      ]}>
+        {title}
+      </h3>
+
+      {/* Description */}
+      {description && variant !== 'minimal' && (
+        <p class="timeline-description text-text-secondary">
+          {description}
+        </p>
+      )}
+
+      {/* Additional content slot */}
+      {Astro.slots.has('default') && (
+        <div class="timeline-extra mt-4">
+          <slot />
+        </div>
+      )}
+    </div>
+  </div>
+</div>
+
+<style>
+  .timeline-item {
+    position: relative;
+    display: grid;
+    gap: 1rem;
+    padding-bottom: 2rem;
+  }
+
+  .timeline-item:last-child {
+    padding-bottom: 0;
+  }
+
+  /* Default layout: marker on left */
+  .timeline-item--default,
+  .timeline-item--card,
+  .timeline-item--detailed {
+    grid-template-columns: auto 1fr;
+    align-items: start;
+  }
+
+  .timeline-item--minimal {
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    padding-bottom: 1.5rem;
+  }
+
+  /* Marker positioning */
+  .timeline-marker {
+    display: flex;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Vertical line */
+  .timeline-item:not(:last-child) .timeline-marker::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: calc(100% + 2rem);
+    background: var(--color-border-subtle);
+  }
+
+  .timeline-item--minimal:not(:last-child) .timeline-marker::after {
+    height: calc(100% + 1.5rem);
+  }
+
+  /* Card hover effect */
+  .timeline-item--card .timeline-content,
+  .timeline-item--detailed .timeline-content {
+    transition: transform var(--duration-200) var(--ease-out),
+                box-shadow var(--duration-200) var(--ease-out);
+  }
+
+  .timeline-item--card:hover .timeline-content,
+  .timeline-item--detailed:hover .timeline-content {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .timeline-item--card .timeline-content,
+    .timeline-item--detailed .timeline-content {
+      transition: none;
+    }
+
+    .timeline-item--card:hover .timeline-content,
+    .timeline-item--detailed:hover .timeline-content {
+      transform: none;
+    }
+  }
+</style>

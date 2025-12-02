@@ -1,0 +1,384 @@
+---
+/**
+ * ContactSection Component
+ *
+ * Contact information and form layouts.
+ *
+ * Variants:
+ * - split: Form and info side by side
+ * - centered: Centered form with info above
+ * - card: Form in a card with background
+ * - minimal: Simple inline contact info
+ * - map: Contact info with map embed
+ *
+ * @example
+ * <ContactSection
+ *   variant="split"
+ *   title="Get in Touch"
+ *   email="hello@example.com"
+ *   phone="+1 (555) 123-4567"
+ * >
+ *   <form slot="form">...</form>
+ * </ContactSection>
+ */
+
+import SectionWrapper from './SectionWrapper.astro';
+import SectionHeader from './SectionHeader.astro';
+
+export interface ContactInfo {
+  type: 'email' | 'phone' | 'address' | 'hours';
+  label: string;
+  value: string;
+  href?: string;
+}
+
+export interface SocialLink {
+  platform: string;
+  url: string;
+  icon: string;
+}
+
+export interface Props {
+  variant?: 'split' | 'centered' | 'card' | 'minimal' | 'map';
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+  contactInfo?: ContactInfo[];
+  socials?: SocialLink[];
+  mapEmbed?: string;
+  background?: 'transparent' | 'subtle' | 'muted';
+  class?: string;
+}
+
+const {
+  variant = 'split',
+  eyebrow,
+  title,
+  description,
+  contactInfo = [],
+  socials = [],
+  mapEmbed,
+  background = 'transparent',
+  class: className = '',
+} = Astro.props;
+
+// Contact type icons
+const contactIcons: Record<ContactInfo['type'], string> = {
+  email: '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>',
+  phone: '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>',
+  address: '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>',
+  hours: '<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',
+};
+---
+
+{variant === 'map' ? (
+  <section class:list={['contact-map', className]}>
+    <div class="grid lg:grid-cols-2">
+      {/* Map Embed */}
+      <div class="contact-map-embed h-64 lg:h-auto lg:min-h-[500px] bg-background-muted">
+        {mapEmbed ? (
+          <iframe
+            src={mapEmbed}
+            class="w-full h-full border-0"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            title="Location map"
+          />
+        ) : (
+          <div class="w-full h-full flex items-center justify-center text-text-tertiary">
+            Map embed URL required
+          </div>
+        )}
+      </div>
+
+      {/* Contact Info & Form */}
+      <div class="p-8 lg:p-16">
+        {eyebrow && (
+          <span class="text-sm font-semibold text-primary uppercase tracking-wider mb-3 block">
+            {eyebrow}
+          </span>
+        )}
+        {title && (
+          <h2 class="text-3xl lg:text-4xl font-bold text-text-primary mb-4">
+            {title}
+          </h2>
+        )}
+        {description && (
+          <p class="text-text-secondary mb-8">{description}</p>
+        )}
+
+        {contactInfo.length > 0 && (
+          <div class="space-y-4 mb-8">
+            {contactInfo.map((info) => (
+              <div class="flex items-start gap-4">
+                <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <span class="w-5 h-5 text-primary" set:html={contactIcons[info.type]} />
+                </div>
+                <div>
+                  <p class="text-sm text-text-tertiary">{info.label}</p>
+                  {info.href ? (
+                    <a href={info.href} class="text-text-primary hover:text-primary transition-colors">
+                      {info.value}
+                    </a>
+                  ) : (
+                    <p class="text-text-primary">{info.value}</p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {Astro.slots.has('form') && (
+          <div class="contact-form">
+            <slot name="form" />
+          </div>
+        )}
+      </div>
+    </div>
+  </section>
+) : variant === 'card' ? (
+  <SectionWrapper background={background} class={className}>
+    <div class="max-w-2xl mx-auto">
+      <div class="bg-surface border border-border-subtle rounded-2xl p-8 lg:p-12 shadow-lg">
+        {eyebrow && (
+          <span class="text-sm font-semibold text-primary uppercase tracking-wider mb-3 block text-center">
+            {eyebrow}
+          </span>
+        )}
+        {title && (
+          <h2 class="text-2xl lg:text-3xl font-bold text-text-primary mb-4 text-center">
+            {title}
+          </h2>
+        )}
+        {description && (
+          <p class="text-text-secondary mb-8 text-center">{description}</p>
+        )}
+
+        {Astro.slots.has('form') && (
+          <div class="contact-form">
+            <slot name="form" />
+          </div>
+        )}
+
+        {contactInfo.length > 0 && (
+          <div class="mt-8 pt-8 border-t border-border-subtle">
+            <div class="flex flex-wrap justify-center gap-6">
+              {contactInfo.map((info) => (
+                <div class="flex items-center gap-2 text-sm">
+                  <span class="w-4 h-4 text-primary" set:html={contactIcons[info.type]} />
+                  {info.href ? (
+                    <a href={info.href} class="text-text-secondary hover:text-primary transition-colors">
+                      {info.value}
+                    </a>
+                  ) : (
+                    <span class="text-text-secondary">{info.value}</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  </SectionWrapper>
+) : variant === 'minimal' ? (
+  <SectionWrapper background={background} class={className}>
+    <div class="flex flex-wrap items-center justify-center gap-8 lg:gap-16">
+      {title && (
+        <h2 class="text-xl font-semibold text-text-primary">{title}</h2>
+      )}
+      {contactInfo.map((info) => (
+        <div class="flex items-center gap-3">
+          <span class="w-5 h-5 text-primary" set:html={contactIcons[info.type]} />
+          {info.href ? (
+            <a href={info.href} class="text-text-primary hover:text-primary transition-colors">
+              {info.value}
+            </a>
+          ) : (
+            <span class="text-text-primary">{info.value}</span>
+          )}
+        </div>
+      ))}
+      {socials.length > 0 && (
+        <div class="flex items-center gap-3">
+          {socials.map((social) => (
+            <a
+              href={social.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="w-10 h-10 rounded-full bg-background-subtle flex items-center justify-center text-text-tertiary hover:text-primary hover:bg-primary/10 transition-colors"
+              aria-label={social.platform}
+            >
+              <span class="w-5 h-5" set:html={social.icon} />
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+  </SectionWrapper>
+) : variant === 'centered' ? (
+  <SectionWrapper background={background} class={className}>
+    <div class="max-w-3xl mx-auto">
+      {(eyebrow || title || description) && (
+        <SectionHeader
+          eyebrow={eyebrow}
+          title={title || ''}
+          description={description}
+        />
+      )}
+
+      {contactInfo.length > 0 && (
+        <div class="flex flex-wrap justify-center gap-8 mb-12">
+          {contactInfo.map((info) => (
+            <div class="text-center">
+              <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                <span class="w-6 h-6 text-primary" set:html={contactIcons[info.type]} />
+              </div>
+              <p class="text-sm text-text-tertiary mb-1">{info.label}</p>
+              {info.href ? (
+                <a href={info.href} class="font-medium text-text-primary hover:text-primary transition-colors">
+                  {info.value}
+                </a>
+              ) : (
+                <p class="font-medium text-text-primary">{info.value}</p>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {Astro.slots.has('form') && (
+        <div class="contact-form">
+          <slot name="form" />
+        </div>
+      )}
+    </div>
+  </SectionWrapper>
+) : (
+  <SectionWrapper background={background} class={className}>
+    <div class="grid lg:grid-cols-2 gap-12 lg:gap-16">
+      {/* Contact Info */}
+      <div>
+        {eyebrow && (
+          <span class="text-sm font-semibold text-primary uppercase tracking-wider mb-3 block">
+            {eyebrow}
+          </span>
+        )}
+        {title && (
+          <h2 class="text-3xl lg:text-4xl font-bold text-text-primary mb-4">
+            {title}
+          </h2>
+        )}
+        {description && (
+          <p class="text-text-secondary mb-8">{description}</p>
+        )}
+
+        {contactInfo.length > 0 && (
+          <div class="space-y-6">
+            {contactInfo.map((info) => (
+              <div class="flex items-start gap-4">
+                <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <span class="w-6 h-6 text-primary" set:html={contactIcons[info.type]} />
+                </div>
+                <div>
+                  <p class="text-sm text-text-tertiary mb-1">{info.label}</p>
+                  {info.href ? (
+                    <a href={info.href} class="text-lg font-medium text-text-primary hover:text-primary transition-colors">
+                      {info.value}
+                    </a>
+                  ) : (
+                    <p class="text-lg font-medium text-text-primary">{info.value}</p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {socials.length > 0 && (
+          <div class="mt-8 pt-8 border-t border-border-subtle">
+            <p class="text-sm text-text-tertiary mb-4">Folgen Sie uns</p>
+            <div class="flex gap-3">
+              {socials.map((social) => (
+                <a
+                  href={social.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="w-10 h-10 rounded-full bg-background-subtle flex items-center justify-center text-text-tertiary hover:text-primary hover:bg-primary/10 transition-colors"
+                  aria-label={social.platform}
+                >
+                  <span class="w-5 h-5" set:html={social.icon} />
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <slot name="info" />
+      </div>
+
+      {/* Contact Form */}
+      <div>
+        {Astro.slots.has('form') && (
+          <div class="contact-form bg-surface border border-border-subtle rounded-2xl p-6 lg:p-8">
+            <slot name="form" />
+          </div>
+        )}
+      </div>
+    </div>
+  </SectionWrapper>
+)}
+
+<style>
+  /* Form styling hints */
+  .contact-form :global(form) {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .contact-form :global(input),
+  .contact-form :global(textarea),
+  .contact-form :global(select) {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-lg);
+    background: var(--color-background);
+    color: var(--color-text-primary);
+    transition: border-color var(--duration-150) var(--ease-out),
+                box-shadow var(--duration-150) var(--ease-out);
+  }
+
+  .contact-form :global(input:focus),
+  .contact-form :global(textarea:focus),
+  .contact-form :global(select:focus) {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-100);
+  }
+
+  .contact-form :global(label) {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-text-primary);
+    margin-bottom: 0.5rem;
+  }
+
+  .contact-form :global(button[type="submit"]) {
+    padding: 0.875rem 2rem;
+    background: var(--color-primary);
+    color: white;
+    font-weight: 600;
+    border-radius: var(--radius-lg);
+    border: none;
+    cursor: pointer;
+    transition: background var(--duration-150) var(--ease-out);
+  }
+
+  .contact-form :global(button[type="submit"]:hover) {
+    background: var(--color-primary-600);
+  }
+</style>

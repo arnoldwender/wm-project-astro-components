@@ -1,0 +1,62 @@
+---
+/**
+ * CommandGroup Component
+ *
+ * Groups related command items with an optional title.
+ *
+ * @example
+ * <CommandGroup title="Navigation">
+ *   <CommandItem value="home" href="/">Home</CommandItem>
+ *   <CommandItem value="about" href="/about">About</CommandItem>
+ * </CommandGroup>
+ */
+
+export interface Props {
+  title?: string;
+  name?: string;
+  class?: string;
+}
+
+const {
+  title,
+  name,
+  class: className = '',
+} = Astro.props;
+
+const groupName = name || title || '';
+---
+
+<div
+  class:list={['command-group', className]}
+  data-command-group={groupName}
+  role="group"
+  aria-label={title}
+>
+  {title && (
+    <div class="command-group-title" data-command-group-title>
+      {title}
+    </div>
+  )}
+  <div class="command-group-items" role="listbox">
+    <slot />
+  </div>
+</div>
+
+<style>
+  .command-group[hidden] {
+    display: none;
+  }
+
+  .command-group-title {
+    padding: 0.5rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-tertiary);
+  }
+
+  .command-group + .command-group {
+    border-top: 1px solid var(--color-border-subtle);
+  }
+</style>

@@ -1,0 +1,338 @@
+---
+/**
+ * Drawer/Sidebar Component
+ *
+ * Slide-in panel for navigation, filters, or secondary content.
+ * Built on the Modal component pattern with directional animations.
+ *
+ * Features:
+ * - Four slide directions (left, right, top, bottom)
+ * - Focus trap and keyboard navigation
+ * - Backdrop with blur
+ * - Customizable widths
+ * - Touch swipe to close
+ * - Reduced motion support
+ *
+ * @example
+ * <Drawer id="menu-drawer" position="left" title="Menu">
+ *   <nav>...</nav>
+ * </Drawer>
+ *
+ * <button data-drawer-open="menu-drawer">Open Menu</button>
+ */
+
+export interface Props {
+  id: string;
+  title?: string;
+  position?: 'left' | 'right' | 'top' | 'bottom';
+  size?: 'sm' | 'md' | 'lg' | 'full';
+  closeOnBackdrop?: boolean;
+  closeOnEscape?: boolean;
+  showCloseButton?: boolean;
+  showOverlay?: boolean;
+  class?: string;
+}
+
+const {
+  id,
+  title,
+  position = 'right',
+  size = 'md',
+  closeOnBackdrop = true,
+  closeOnEscape = true,
+  showCloseButton = true,
+  showOverlay = true,
+  class: className = '',
+} = Astro.props;
+
+const isHorizontal = position === 'left' || position === 'right';
+
+const sizeClasses = {
+  sm: isHorizontal ? 'w-64' : 'h-48',
+  md: isHorizontal ? 'w-80' : 'h-64',
+  lg: isHorizontal ? 'w-96' : 'h-96',
+  full: isHorizontal ? 'w-full max-w-md' : 'h-full max-h-96',
+};
+
+const positionClasses = {
+  left: 'left-0 top-0 h-full',
+  right: 'right-0 top-0 h-full',
+  top: 'top-0 left-0 w-full',
+  bottom: 'bottom-0 left-0 w-full',
+};
+
+const transformClasses = {
+  left: '-translate-x-full',
+  right: 'translate-x-full',
+  top: '-translate-y-full',
+  bottom: 'translate-y-full',
+};
+
+const titleId = `${id}-title`;
+---
+
+<div
+  id={id}
+  class="drawer-root"
+  data-drawer
+  data-position={position}
+  data-close-on-backdrop={closeOnBackdrop}
+  data-close-on-escape={closeOnEscape}
+  aria-hidden="true"
+>
+  <!-- Backdrop -->
+  {showOverlay && (
+    <div
+      class="drawer-backdrop fixed inset-0 z-modal-backdrop bg-black/50 backdrop-blur-sm opacity-0 transition-opacity duration-300"
+      data-drawer-backdrop
+      aria-hidden="true"
+    />
+  )}
+
+  <!-- Drawer Panel -->
+  <div
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby={title ? titleId : undefined}
+    class:list={[
+      'drawer-panel fixed z-modal bg-surface shadow-2xl flex flex-col',
+      'transform transition-transform duration-300 ease-out',
+      positionClasses[position],
+      sizeClasses[size],
+      transformClasses[position],
+      className,
+    ]}
+    data-drawer-panel
+    tabindex="-1"
+  >
+    <!-- Header -->
+    <div class="drawer-header flex items-center justify-between px-4 py-3 border-b border-border-subtle">
+      {title ? (
+        <h2 id={titleId} class="text-lg font-semibold text-text-primary">
+          {title}
+        </h2>
+      ) : (
+        <div />
+      )}
+
+      {showCloseButton && (
+        <button
+          type="button"
+          class="p-2 -mr-2 rounded-lg text-text-tertiary hover:text-text-primary hover:bg-background-muted transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
+          data-drawer-close
+          aria-label="Close drawer"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      )}
+    </div>
+
+    <!-- Body -->
+    <div class="drawer-body flex-1 overflow-y-auto p-4">
+      <slot />
+    </div>
+
+    <!-- Footer (optional) -->
+    {Astro.slots.has('footer') && (
+      <div class="drawer-footer px-4 py-3 border-t border-border-subtle bg-surface-sunken">
+        <slot name="footer" />
+      </div>
+    )}
+  </div>
+</div>
+
+<style>
+  .drawer-root[aria-hidden="true"] {
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .drawer-root[aria-hidden="false"] {
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .drawer-root[aria-hidden="false"] .drawer-backdrop {
+    opacity: 1;
+  }
+
+  .drawer-root[aria-hidden="false"] .drawer-panel {
+    transform: translate(0, 0);
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .drawer-backdrop,
+    .drawer-panel {
+      transition-duration: 0.01ms !important;
+    }
+  }
+</style>
+
+<script>
+  interface DrawerState {
+    element: HTMLElement;
+    previousActiveElement: Element | null;
+    touchStartX: number;
+    touchStartY: number;
+  }
+
+  const drawerStates = new Map<string, DrawerState>();
+
+  function initDrawer(drawer: HTMLElement) {
+    const backdrop = drawer.querySelector('[data-drawer-backdrop]') as HTMLElement;
+    const panel = drawer.querySelector('[data-drawer-panel]') as HTMLElement;
+    const position = drawer.dataset.position || 'right';
+    const closeOnBackdrop = drawer.dataset.closeOnBackdrop === 'true';
+    const closeOnEscape = drawer.dataset.closeOnEscape === 'true';
+
+    let touchStartX = 0;
+    let touchStartY = 0;
+
+    function openDrawer() {
+      const state: DrawerState = {
+        element: drawer,
+        previousActiveElement: document.activeElement,
+        touchStartX: 0,
+        touchStartY: 0,
+      };
+      drawerStates.set(drawer.id, state);
+
+      drawer.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+
+      requestAnimationFrame(() => {
+        const focusableElements = panel.querySelectorAll(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+        const firstFocusable = focusableElements[0] as HTMLElement;
+        if (firstFocusable) {
+          firstFocusable.focus();
+        } else {
+          panel.focus();
+        }
+      });
+
+      drawer.dispatchEvent(new CustomEvent('drawer:open', { bubbles: true }));
+    }
+
+    function closeDrawer() {
+      drawer.setAttribute('aria-hidden', 'true');
+
+      const state = drawerStates.get(drawer.id);
+      drawerStates.delete(drawer.id);
+
+      if (drawerStates.size === 0) {
+        document.body.style.overflow = '';
+      }
+
+      if (state?.previousActiveElement instanceof HTMLElement) {
+        state.previousActiveElement.focus();
+      }
+
+      drawer.dispatchEvent(new CustomEvent('drawer:close', { bubbles: true }));
+    }
+
+    // Backdrop click
+    backdrop?.addEventListener('click', () => {
+      if (closeOnBackdrop) {
+        closeDrawer();
+      }
+    });
+
+    // Close buttons
+    drawer.querySelectorAll('[data-drawer-close]').forEach(btn => {
+      btn.addEventListener('click', closeDrawer);
+    });
+
+    // Keyboard handling
+    drawer.addEventListener('keydown', (e: KeyboardEvent) => {
+      if (drawer.getAttribute('aria-hidden') === 'true') return;
+
+      if (e.key === 'Escape' && closeOnEscape) {
+        e.preventDefault();
+        closeDrawer();
+        return;
+      }
+
+      // Focus trap
+      if (e.key === 'Tab') {
+        const focusableElements = panel.querySelectorAll(
+          'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        );
+        const firstFocusable = focusableElements[0] as HTMLElement;
+        const lastFocusable = focusableElements[focusableElements.length - 1] as HTMLElement;
+
+        if (e.shiftKey && document.activeElement === firstFocusable) {
+          e.preventDefault();
+          lastFocusable?.focus();
+        } else if (!e.shiftKey && document.activeElement === lastFocusable) {
+          e.preventDefault();
+          firstFocusable?.focus();
+        }
+      }
+    });
+
+    // Touch swipe to close
+    panel.addEventListener('touchstart', (e: TouchEvent) => {
+      touchStartX = e.touches[0].clientX;
+      touchStartY = e.touches[0].clientY;
+    }, { passive: true });
+
+    panel.addEventListener('touchend', (e: TouchEvent) => {
+      const touchEndX = e.changedTouches[0].clientX;
+      const touchEndY = e.changedTouches[0].clientY;
+      const diffX = touchEndX - touchStartX;
+      const diffY = touchEndY - touchStartY;
+
+      const threshold = 100;
+      const isHorizontalSwipe = Math.abs(diffX) > Math.abs(diffY);
+
+      if (isHorizontalSwipe && Math.abs(diffX) > threshold) {
+        if ((position === 'left' && diffX < 0) || (position === 'right' && diffX > 0)) {
+          closeDrawer();
+        }
+      } else if (!isHorizontalSwipe && Math.abs(diffY) > threshold) {
+        if ((position === 'top' && diffY < 0) || (position === 'bottom' && diffY > 0)) {
+          closeDrawer();
+        }
+      }
+    }, { passive: true });
+
+    // Expose API
+    (drawer as any).openDrawer = openDrawer;
+    (drawer as any).closeDrawer = closeDrawer;
+
+    // Open triggers
+    document.querySelectorAll(`[data-drawer-open="${drawer.id}"]`).forEach(trigger => {
+      trigger.addEventListener('click', openDrawer);
+    });
+  }
+
+  function initAllDrawers() {
+    document.querySelectorAll('[data-drawer]').forEach(drawer => {
+      initDrawer(drawer as HTMLElement);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAllDrawers);
+  } else {
+    initAllDrawers();
+  }
+
+  document.addEventListener('astro:page-load', initAllDrawers);
+
+  // Global API
+  (window as any).openDrawer = (id: string) => {
+    const drawer = document.getElementById(id) as any;
+    drawer?.openDrawer?.();
+  };
+
+  (window as any).closeDrawer = (id: string) => {
+    const drawer = document.getElementById(id) as any;
+    drawer?.closeDrawer?.();
+  };
+</script>

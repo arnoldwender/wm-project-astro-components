@@ -1,0 +1,95 @@
+---
+/**
+ * FeatureAlternating Component
+ *
+ * Zigzag feature row with image and content.
+ *
+ * @example
+ * <FeatureAlternating
+ *   title="Powerful Analytics"
+ *   description="Get insights into your data."
+ *   image="/analytics.png"
+ *   reverse={false}
+ * />
+ */
+
+export interface Props {
+  eyebrow?: string;
+  title: string;
+  description?: string;
+  image?: string;
+  imageAlt?: string;
+  reverse?: boolean;
+  features?: Array<{ icon?: string; text: string }>;
+  class?: string;
+}
+
+const {
+  eyebrow,
+  title,
+  description,
+  image,
+  imageAlt = '',
+  reverse = false,
+  features = [],
+  class: className = '',
+} = Astro.props;
+---
+
+<div
+  class:list={[
+    'feature-alternating grid lg:grid-cols-2 gap-8 lg:gap-16 items-center',
+    reverse && 'lg:[&>*:first-child]:order-2',
+    className,
+  ]}
+>
+  <div class="feature-content">
+    {eyebrow && (
+      <span class="text-sm font-semibold uppercase tracking-wider text-primary mb-3 block">
+        {eyebrow}
+      </span>
+    )}
+    <h3 class="text-2xl lg:text-3xl font-bold text-text-primary mb-4">
+      {title}
+    </h3>
+    {description && (
+      <p class="text-lg text-text-secondary mb-6">
+        {description}
+      </p>
+    )}
+
+    {features.length > 0 && (
+      <ul class="space-y-3">
+        {features.map((feature) => (
+          <li class="flex items-start gap-3">
+            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm">
+              {feature.icon || '✓'}
+            </span>
+            <span class="text-text-secondary">{feature.text}</span>
+          </li>
+        ))}
+      </ul>
+    )}
+
+    {Astro.slots.has('cta') && (
+      <div class="feature-cta mt-6">
+        <slot name="cta" />
+      </div>
+    )}
+
+    <slot name="content" />
+  </div>
+
+  <div class="feature-media">
+    {image ? (
+      <img
+        src={image}
+        alt={imageAlt}
+        class="rounded-xl shadow-lg w-full"
+        loading="lazy"
+      />
+    ) : (
+      <slot name="media" />
+    )}
+  </div>
+</div>

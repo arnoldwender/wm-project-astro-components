@@ -1,0 +1,262 @@
+---
+/**
+ * NewspaperLayout Component
+ *
+ * Classic newspaper-style multi-column layout.
+ * Inspired by NYT, The Guardian, and traditional broadsheet design.
+ *
+ * Target: News sites, Journals, Academic publications, Daily news
+ *
+ * Features:
+ * - Multi-column text flow
+ * - Breaking news banner
+ * - Section dividers
+ * - Pull quotes support
+ * - Sidebar for related content
+ * - Traditional typography
+ * - Print-friendly styling
+ *
+ * @example
+ * <NewspaperLayout
+ *   headline="Breaking News Headline"
+ *   subheadline="Important subtitle here"
+ *   byline="By John Doe"
+ *   dateline="Berlin, December 1, 2025"
+ * >
+ *   <p>Article content flows in columns...</p>
+ * </NewspaperLayout>
+ */
+
+export interface Props {
+  headline: string;
+  subheadline?: string;
+  byline?: string;
+  dateline?: string;
+  section?: string;
+  columns?: 1 | 2 | 3 | 4;
+  showBreakingBanner?: boolean;
+  breakingText?: string;
+  layout?: 'standard' | 'feature' | 'opinion' | 'investigative';
+  class?: string;
+}
+
+const {
+  headline,
+  subheadline,
+  byline,
+  dateline,
+  section,
+  columns = 2,
+  showBreakingBanner = false,
+  breakingText = 'BREAKING',
+  layout = 'standard',
+  class: className = '',
+} = Astro.props;
+
+// Column classes
+const columnClasses = {
+  1: 'columns-1',
+  2: 'columns-1 md:columns-2',
+  3: 'columns-1 md:columns-2 lg:columns-3',
+  4: 'columns-1 md:columns-2 lg:columns-3 xl:columns-4',
+};
+---
+
+<article
+  class:list={[
+    'newspaper-layout max-w-6xl mx-auto px-4',
+    className,
+  ]}
+  data-newspaper-layout
+  data-layout={layout}
+>
+  <!-- Breaking News Banner -->
+  {showBreakingBanner && (
+    <div class="newspaper-breaking bg-error text-white px-4 py-2 -mx-4 mb-6 flex items-center gap-3">
+      <span class="font-bold uppercase tracking-wider animate-pulse">{breakingText}</span>
+      <div class="h-4 w-px bg-white/30" />
+      <slot name="breaking" />
+    </div>
+  )}
+
+  <!-- Section Label -->
+  {section && (
+    <div class="newspaper-section border-b-2 border-text-primary pb-1 mb-4">
+      <span class="text-sm font-bold uppercase tracking-wider text-text-primary">
+        {section}
+      </span>
+    </div>
+  )}
+
+  <!-- Header -->
+  <header class:list={[
+    'newspaper-header mb-8',
+    layout === 'feature' && 'text-center',
+  ]}>
+    <h1 class:list={[
+      'newspaper-headline font-serif font-bold text-text-primary leading-tight mb-4',
+      layout === 'standard' && 'text-3xl md:text-4xl lg:text-5xl',
+      layout === 'feature' && 'text-4xl md:text-5xl lg:text-6xl',
+      layout === 'opinion' && 'text-3xl md:text-4xl italic',
+      layout === 'investigative' && 'text-3xl md:text-4xl lg:text-5xl uppercase tracking-tight',
+    ]}>
+      {headline}
+    </h1>
+
+    {subheadline && (
+      <p class:list={[
+        'newspaper-subheadline text-text-secondary mb-4',
+        layout === 'standard' && 'text-xl md:text-2xl',
+        layout === 'feature' && 'text-xl md:text-2xl max-w-3xl mx-auto',
+        layout === 'opinion' && 'text-lg font-serif italic',
+        layout === 'investigative' && 'text-lg uppercase tracking-wide',
+      ]}>
+        {subheadline}
+      </p>
+    )}
+
+    <!-- Byline and Dateline -->
+    <div class:list={[
+      'newspaper-meta flex flex-wrap gap-x-4 gap-y-1 text-sm text-text-tertiary border-t border-b border-border-subtle py-3',
+      layout === 'feature' && 'justify-center',
+    ]}>
+      {byline && (
+        <span class="font-medium text-text-secondary">{byline}</span>
+      )}
+      {dateline && (
+        <span>{dateline}</span>
+      )}
+      {Astro.slots.has('meta') && (
+        <slot name="meta" />
+      )}
+    </div>
+  </header>
+
+  <!-- Lead Image -->
+  {Astro.slots.has('lead-image') && (
+    <figure class="newspaper-lead-image mb-8">
+      <slot name="lead-image" />
+    </figure>
+  )}
+
+  <!-- Main Content Area -->
+  <div class:list={[
+    'newspaper-content-wrapper',
+    Astro.slots.has('sidebar') && 'lg:grid lg:grid-cols-[1fr_300px] lg:gap-8',
+  ]}>
+    <!-- Article Body -->
+    <div class:list={[
+      'newspaper-body',
+      columnClasses[columns],
+      'gap-8 text-lg leading-relaxed text-text-secondary',
+    ]}>
+      <!-- Drop Cap for First Paragraph -->
+      <div class="newspaper-content first-letter:text-5xl first-letter:font-serif first-letter:font-bold first-letter:float-left first-letter:mr-2 first-letter:mt-1 first-letter:text-text-primary">
+        <slot />
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    {Astro.slots.has('sidebar') && (
+      <aside class="newspaper-sidebar mt-8 lg:mt-0 pt-8 lg:pt-0 border-t lg:border-t-0 lg:border-l border-border-subtle lg:pl-8">
+        <slot name="sidebar" />
+      </aside>
+    )}
+  </div>
+
+  <!-- Pull Quotes (positioned absolutely in content) -->
+  {Astro.slots.has('pull-quote') && (
+    <aside class="newspaper-pull-quote my-8 py-6 border-t-2 border-b-2 border-text-primary">
+      <blockquote class="text-2xl md:text-3xl font-serif italic text-text-primary text-center px-8">
+        <slot name="pull-quote" />
+      </blockquote>
+    </aside>
+  )}
+
+  <!-- Related Stories -->
+  {Astro.slots.has('related') && (
+    <section class="newspaper-related mt-12 pt-8 border-t-2 border-text-primary">
+      <h2 class="text-lg font-bold uppercase tracking-wider mb-6">Verwandte Artikel</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <slot name="related" />
+      </div>
+    </section>
+  )}
+
+  <!-- Footer -->
+  {Astro.slots.has('footer') && (
+    <footer class="newspaper-footer mt-12 pt-6 border-t border-border-subtle text-sm text-text-tertiary">
+      <slot name="footer" />
+    </footer>
+  )}
+</article>
+
+<style>
+  /* Newspaper typography */
+  .newspaper-layout {
+    font-family: var(--font-serif, Georgia, 'Times New Roman', serif);
+  }
+
+  .newspaper-body {
+    column-rule: 1px solid var(--color-border-subtle);
+  }
+
+  /* Prevent breaks inside paragraphs */
+  .newspaper-body :global(p) {
+    break-inside: avoid;
+    margin-bottom: 1.25em;
+  }
+
+  .newspaper-body :global(p:first-of-type) {
+    margin-top: 0;
+  }
+
+  /* Drop cap styling */
+  .newspaper-content::first-letter {
+    line-height: 1;
+  }
+
+  /* Pull quote styling */
+  .newspaper-pull-quote blockquote::before {
+    content: '"';
+    font-size: 4rem;
+    line-height: 0;
+    position: relative;
+    top: 0.5rem;
+    margin-right: 0.25rem;
+    color: var(--color-primary);
+  }
+
+  /* Lead image caption */
+  .newspaper-lead-image :global(figcaption) {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--color-text-tertiary);
+    font-style: italic;
+  }
+
+  /* Breaking news animation */
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  .animate-pulse {
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  /* Print styles */
+  @media print {
+    .newspaper-breaking {
+      display: none;
+    }
+
+    .newspaper-body {
+      columns: 2 !important;
+    }
+
+    .newspaper-sidebar {
+      display: none;
+    }
+  }
+</style>

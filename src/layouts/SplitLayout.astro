@@ -1,0 +1,185 @@
+---
+/**
+ * SplitLayout Component
+ *
+ * Two-column split layout with flexible content and media placement.
+ * Perfect for hero sections, feature highlights, and storytelling.
+ *
+ * Target: Corporate, Agency, SaaS, Product pages
+ *
+ * Features:
+ * - Reversible columns (content left/right)
+ * - Vertical alignment options
+ * - Responsive stacking
+ * - Sticky media option
+ * - Multiple ratio options
+ * - Full-bleed media option
+ *
+ * @example
+ * <SplitLayout>
+ *   <Fragment slot="content">
+ *     <h2>Headline</h2>
+ *     <p>Description text...</p>
+ *   </Fragment>
+ *   <Fragment slot="media">
+ *     <img src="/image.jpg" alt="Feature" />
+ *   </Fragment>
+ * </SplitLayout>
+ */
+
+export interface Props {
+  reverse?: boolean;
+  ratio?: '1:1' | '1:2' | '2:1' | '3:2' | '2:3' | '5:7' | '7:5';
+  verticalAlign?: 'top' | 'center' | 'bottom' | 'stretch';
+  gap?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
+  stackOn?: 'mobile' | 'tablet' | 'never';
+  stickyMedia?: boolean;
+  fullBleedMedia?: boolean;
+  contentPadding?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
+  background?: 'transparent' | 'subtle' | 'muted' | 'surface' | 'inverse';
+  minHeight?: 'auto' | 'screen' | 'half';
+  class?: string;
+}
+
+const {
+  reverse = false,
+  ratio = '1:1',
+  verticalAlign = 'center',
+  gap = 'lg',
+  stackOn = 'mobile',
+  stickyMedia = false,
+  fullBleedMedia = false,
+  contentPadding = 'lg',
+  background = 'transparent',
+  minHeight = 'auto',
+  class: className = '',
+} = Astro.props;
+
+// Ratio classes
+const ratioClasses = {
+  '1:1': 'lg:grid-cols-2',
+  '1:2': 'lg:grid-cols-[1fr_2fr]',
+  '2:1': 'lg:grid-cols-[2fr_1fr]',
+  '3:2': 'lg:grid-cols-[3fr_2fr]',
+  '2:3': 'lg:grid-cols-[2fr_3fr]',
+  '5:7': 'lg:grid-cols-[5fr_7fr]',
+  '7:5': 'lg:grid-cols-[7fr_5fr]',
+};
+
+// Gap classes
+const gapClasses = {
+  none: 'gap-0',
+  sm: 'gap-4 lg:gap-6',
+  md: 'gap-6 lg:gap-8',
+  lg: 'gap-8 lg:gap-12',
+  xl: 'gap-12 lg:gap-16',
+};
+
+// Vertical align classes
+const alignClasses = {
+  top: 'items-start',
+  center: 'items-center',
+  bottom: 'items-end',
+  stretch: 'items-stretch',
+};
+
+// Stack breakpoint classes
+const stackClasses = {
+  mobile: 'grid-cols-1 lg:grid-cols-2',
+  tablet: 'grid-cols-1 md:grid-cols-2',
+  never: 'grid-cols-2',
+};
+
+// Content padding classes
+const paddingClasses = {
+  none: 'p-0',
+  sm: 'p-4 lg:p-6',
+  md: 'p-6 lg:p-8',
+  lg: 'p-8 lg:p-12',
+  xl: 'p-12 lg:p-16',
+};
+
+// Background classes
+const bgClasses = {
+  transparent: '',
+  subtle: 'bg-background-subtle',
+  muted: 'bg-background-muted',
+  surface: 'bg-surface',
+  inverse: 'bg-surface-inverse text-text-inverse',
+};
+
+// Min height classes
+const heightClasses = {
+  auto: '',
+  screen: 'min-h-screen',
+  half: 'min-h-[50vh]',
+};
+---
+
+<section
+  class:list={[
+    'split-layout grid',
+    stackClasses[stackOn].replace('lg:grid-cols-2', ratioClasses[ratio]),
+    gapClasses[gap],
+    alignClasses[verticalAlign],
+    bgClasses[background],
+    heightClasses[minHeight],
+    className,
+  ]}
+  data-split-layout
+  data-reverse={reverse}
+>
+  <!-- Content Column -->
+  <div
+    class:list={[
+      'split-content',
+      paddingClasses[contentPadding],
+      reverse && stackOn === 'mobile' && 'lg:order-2',
+      reverse && stackOn === 'tablet' && 'md:order-2',
+      reverse && stackOn === 'never' && 'order-2',
+    ]}
+  >
+    <slot name="content" />
+  </div>
+
+  <!-- Media Column -->
+  <div
+    class:list={[
+      'split-media relative',
+      stickyMedia && 'lg:sticky lg:top-0 lg:self-start',
+      fullBleedMedia && '-mx-4 lg:mx-0',
+      verticalAlign === 'stretch' && 'h-full',
+      reverse && stackOn === 'mobile' && 'lg:order-1',
+      reverse && stackOn === 'tablet' && 'md:order-1',
+      reverse && stackOn === 'never' && 'order-1',
+    ]}
+  >
+    <slot name="media" />
+  </div>
+</section>
+
+<style>
+  .split-layout {
+    width: 100%;
+  }
+
+  .split-media :global(img),
+  .split-media :global(video) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Full bleed on mobile */
+  .split-media.-mx-4 :global(img),
+  .split-media.-mx-4 :global(video) {
+    border-radius: 0;
+  }
+
+  @media (min-width: 1024px) {
+    .split-media :global(img),
+    .split-media :global(video) {
+      border-radius: var(--radius-lg);
+    }
+  }
+</style>

@@ -1,0 +1,196 @@
+---
+/**
+ * Alert/Banner Component
+ *
+ * Contextual feedback messages for user actions or system status.
+ *
+ * Features:
+ * - Multiple variants (info, success, warning, error)
+ * - Icon support
+ * - Dismissible option
+ * - Action buttons
+ * - Full-width banner mode
+ * - Accent border option
+ *
+ * @example
+ * <Alert variant="success" title="Success!">
+ *   Your changes have been saved.
+ * </Alert>
+ *
+ * @example
+ * <Alert variant="warning" dismissible>
+ *   Please review your settings.
+ *   <button slot="action">Review</button>
+ * </Alert>
+ */
+
+export interface Props {
+  variant?: 'info' | 'success' | 'warning' | 'error';
+  title?: string;
+  dismissible?: boolean;
+  icon?: boolean;
+  accent?: boolean;
+  banner?: boolean;
+  class?: string;
+}
+
+const {
+  variant = 'info',
+  title,
+  dismissible = false,
+  icon = true,
+  accent = false,
+  banner = false,
+  class: className = '',
+} = Astro.props;
+
+// Variant styles
+const variantClasses = {
+  info: {
+    bg: 'bg-info-muted',
+    border: 'border-info',
+    text: 'text-info-dark',
+    icon: 'text-info',
+  },
+  success: {
+    bg: 'bg-success-muted',
+    border: 'border-success',
+    text: 'text-success-dark',
+    icon: 'text-success',
+  },
+  warning: {
+    bg: 'bg-warning-muted',
+    border: 'border-warning',
+    text: 'text-warning-dark',
+    icon: 'text-warning',
+  },
+  error: {
+    bg: 'bg-error-muted',
+    border: 'border-error',
+    text: 'text-error-dark',
+    icon: 'text-error',
+  },
+};
+
+const iconPaths = {
+  info: 'M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+  success: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z',
+  warning: 'M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z',
+  error: 'M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z',
+};
+
+const styles = variantClasses[variant];
+---
+
+<div
+  role="alert"
+  class:list={[
+    'alert relative',
+    styles.bg,
+    styles.text,
+    accent && `border-l-4 ${styles.border}`,
+    !accent && !banner && 'rounded-lg',
+    banner ? 'px-4 py-3' : 'p-4',
+    className,
+  ]}
+  data-alert
+>
+  <div class="flex gap-3">
+    {icon && (
+      <svg
+        class:list={['w-5 h-5 flex-shrink-0 mt-0.5', styles.icon]}
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d={iconPaths[variant]}
+        />
+      </svg>
+    )}
+
+    <div class="flex-1 min-w-0">
+      {title && (
+        <h3 class="font-semibold mb-1">
+          {title}
+        </h3>
+      )}
+
+      <div class:list={['alert-content', title && 'text-sm opacity-90']}>
+        <slot />
+      </div>
+
+      {Astro.slots.has('action') && (
+        <div class="alert-actions mt-3 flex gap-2">
+          <slot name="action" />
+        </div>
+      )}
+    </div>
+
+    {dismissible && (
+      <button
+        type="button"
+        class:list={[
+          'alert-dismiss flex-shrink-0 p-1 -m-1 rounded',
+          'opacity-70 hover:opacity-100',
+          'focus:outline-none focus-visible:ring-2 focus-visible:ring-current',
+          'transition-opacity',
+        ]}
+        aria-label="Dismiss"
+        data-alert-dismiss
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    )}
+  </div>
+</div>
+
+<style>
+  .alert {
+    transition: opacity var(--duration-200) var(--ease-out),
+                transform var(--duration-200) var(--ease-out);
+  }
+
+  .alert.dismissing {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .alert {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  function initAlerts() {
+    document.querySelectorAll('[data-alert-dismiss]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const alert = btn.closest('[data-alert]') as HTMLElement;
+        if (alert) {
+          alert.classList.add('dismissing');
+          alert.addEventListener('transitionend', () => {
+            alert.dispatchEvent(new CustomEvent('alert:dismiss', { bubbles: true }));
+            alert.remove();
+          }, { once: true });
+        }
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAlerts);
+  } else {
+    initAlerts();
+  }
+
+  document.addEventListener('astro:page-load', initAlerts);
+</script>

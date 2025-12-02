@@ -1,0 +1,686 @@
+---
+/**
+ * ErrorSection Component
+ *
+ * Error and status pages (404, 500, etc.)
+ *
+ * Variants:
+ * - default: Standard centered error
+ * - illustrated: With illustration
+ * - minimal: Simple text-only
+ * - creative: Creative/fun design
+ * - split: Split layout with image
+ * - branded: Brand-focused error page
+ *
+ * @example
+ * <ErrorSection
+ *   variant="default"
+ *   code="404"
+ *   title="Page not found"
+ *   description="Sorry, we couldn't find the page you're looking for."
+ * />
+ */
+
+export interface Props {
+  variant?: 'default' | 'illustrated' | 'minimal' | 'creative' | 'split' | 'branded';
+  code?: string;
+  title: string;
+  description?: string;
+  illustration?: string;
+  image?: string;
+  showHomeButton?: boolean;
+  showBackButton?: boolean;
+  showSearch?: boolean;
+  homeUrl?: string;
+  homeLabel?: string;
+  backLabel?: string;
+  searchPlaceholder?: string;
+  suggestedLinks?: { label: string; href: string }[];
+  class?: string;
+}
+
+const {
+  variant = 'default',
+  code = '404',
+  title,
+  description,
+  illustration,
+  image,
+  showHomeButton = true,
+  showBackButton = true,
+  showSearch = false,
+  homeUrl = '/',
+  homeLabel = 'Go home',
+  backLabel = 'Go back',
+  searchPlaceholder = 'Search...',
+  suggestedLinks = [],
+  class: className = '',
+} = Astro.props;
+
+const defaultIllustration = `
+<svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="100" cy="100" r="80" stroke="currentColor" stroke-width="2" stroke-dasharray="8 4" opacity="0.3"/>
+  <circle cx="100" cy="100" r="60" stroke="currentColor" stroke-width="2" opacity="0.5"/>
+  <path d="M70 90 L90 110 L130 70" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" opacity="0"/>
+  <circle cx="75" cy="85" r="8" fill="currentColor"/>
+  <circle cx="125" cy="85" r="8" fill="currentColor"/>
+  <path d="M75 125 Q100 110 125 125" stroke="currentColor" stroke-width="4" stroke-linecap="round" fill="none"/>
+</svg>
+`;
+---
+
+<section
+  class:list={[
+    'error-section',
+    `error-section--${variant}`,
+    className,
+  ]}
+>
+  {/* Default variant */}
+  {variant === 'default' && (
+    <div class="error-container error-container--centered">
+      <div class="error-code">{code}</div>
+      <h1 class="error-title">{title}</h1>
+      {description && <p class="error-description">{description}</p>}
+
+      <div class="error-actions">
+        {showBackButton && (
+          <button type="button" class="btn btn--secondary" onclick="history.back()">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+            {backLabel}
+          </button>
+        )}
+        {showHomeButton && (
+          <a href={homeUrl} class="btn btn--primary">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            {homeLabel}
+          </a>
+        )}
+      </div>
+
+      {showSearch && (
+        <form class="error-search" action="/search" method="get">
+          <input
+            type="search"
+            name="q"
+            placeholder={searchPlaceholder}
+            class="search-input"
+          />
+          <button type="submit" class="search-btn">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </button>
+        </form>
+      )}
+
+      {suggestedLinks.length > 0 && (
+        <div class="suggested-links">
+          <p class="suggested-title">Try these instead:</p>
+          <ul class="suggested-list">
+            {suggestedLinks.map((link) => (
+              <li>
+                <a href={link.href}>{link.label}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  )}
+
+  {/* Illustrated variant */}
+  {variant === 'illustrated' && (
+    <div class="error-container error-container--illustrated">
+      <div class="error-illustration" set:html={illustration || defaultIllustration} />
+      <div class="error-content">
+        <span class="error-badge">{code}</span>
+        <h1 class="error-title">{title}</h1>
+        {description && <p class="error-description">{description}</p>}
+
+        <div class="error-actions">
+          {showBackButton && (
+            <button type="button" class="btn btn--secondary" onclick="history.back()">
+              {backLabel}
+            </button>
+          )}
+          {showHomeButton && (
+            <a href={homeUrl} class="btn btn--primary">
+              {homeLabel}
+            </a>
+          )}
+        </div>
+      </div>
+    </div>
+  )}
+
+  {/* Minimal variant */}
+  {variant === 'minimal' && (
+    <div class="error-container error-container--minimal">
+      <h1 class="error-title-minimal">
+        <span class="code">{code}</span>
+        <span class="divider">|</span>
+        <span class="text">{title}</span>
+      </h1>
+      {description && <p class="error-description">{description}</p>}
+      <a href={homeUrl} class="link-home">{homeLabel} →</a>
+    </div>
+  )}
+
+  {/* Creative variant */}
+  {variant === 'creative' && (
+    <div class="error-container error-container--creative">
+      <div class="creative-code">
+        <span class="digit">{code[0]}</span>
+        <span class="digit digit--middle">
+          <span class="orbit">
+            <svg fill="currentColor" viewBox="0 0 24 24" width="24" height="24">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+          </span>
+        </span>
+        <span class="digit">{code[2]}</span>
+      </div>
+      <h1 class="error-title">{title}</h1>
+      {description && <p class="error-description">{description}</p>}
+      <div class="error-actions">
+        {showHomeButton && (
+          <a href={homeUrl} class="btn btn--primary btn--lg">
+            {homeLabel}
+          </a>
+        )}
+      </div>
+    </div>
+  )}
+
+  {/* Split variant */}
+  {variant === 'split' && (
+    <div class="error-container error-container--split">
+      <div class="split-content">
+        <span class="error-badge">{code}</span>
+        <h1 class="error-title">{title}</h1>
+        {description && <p class="error-description">{description}</p>}
+
+        <div class="error-actions">
+          {showBackButton && (
+            <button type="button" class="btn btn--secondary" onclick="history.back()">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              {backLabel}
+            </button>
+          )}
+          {showHomeButton && (
+            <a href={homeUrl} class="btn btn--primary">
+              {homeLabel}
+            </a>
+          )}
+        </div>
+
+        {suggestedLinks.length > 0 && (
+          <div class="suggested-links">
+            <p class="suggested-title">Popular pages:</p>
+            <ul class="suggested-list suggested-list--inline">
+              {suggestedLinks.map((link) => (
+                <li>
+                  <a href={link.href}>{link.label}</a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
+
+      <div class="split-image">
+        {image ? (
+          <img src={image} alt="" />
+        ) : (
+          <div class="split-placeholder" set:html={illustration || defaultIllustration} />
+        )}
+      </div>
+    </div>
+  )}
+
+  {/* Branded variant */}
+  {variant === 'branded' && (
+    <div class="error-container error-container--branded">
+      <div class="branded-bg">
+        <span class="bg-code">{code}</span>
+      </div>
+      <div class="branded-content">
+        <slot name="logo" />
+        <h1 class="error-title">{title}</h1>
+        {description && <p class="error-description">{description}</p>}
+
+        <div class="error-actions">
+          {showHomeButton && (
+            <a href={homeUrl} class="btn btn--white">
+              {homeLabel}
+            </a>
+          )}
+        </div>
+
+        {suggestedLinks.length > 0 && (
+          <nav class="branded-nav">
+            {suggestedLinks.map((link) => (
+              <a href={link.href}>{link.label}</a>
+            ))}
+          </nav>
+        )}
+      </div>
+    </div>
+  )}
+
+  {/* Default slot for custom content */}
+  <slot />
+</section>
+
+<style>
+  .error-section {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+
+  .error-container {
+    width: 100%;
+    max-width: 40rem;
+  }
+
+  /* Centered (default) */
+  .error-container--centered {
+    text-align: center;
+  }
+
+  .error-code {
+    font-size: clamp(6rem, 20vw, 12rem);
+    font-weight: 800;
+    line-height: 1;
+    color: var(--color-text-primary);
+    opacity: 0.1;
+    margin-bottom: -2rem;
+  }
+
+  .error-title {
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    font-weight: 700;
+    margin: 0 0 1rem;
+    color: var(--color-text-primary);
+  }
+
+  .error-description {
+    font-size: 1.125rem;
+    color: var(--color-text-secondary);
+    margin: 0 0 2rem;
+    line-height: 1.6;
+  }
+
+  .error-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 2rem;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+    border: none;
+  }
+
+  .btn:hover {
+    transform: translateY(-1px);
+  }
+
+  .btn--primary {
+    background: var(--color-primary);
+    color: white;
+  }
+
+  .btn--primary:hover {
+    background: var(--color-primary-dark);
+  }
+
+  .btn--secondary {
+    background: var(--color-background-subtle);
+    color: var(--color-text-primary);
+  }
+
+  .btn--secondary:hover {
+    background: var(--color-background-muted);
+  }
+
+  .btn--white {
+    background: white;
+    color: var(--color-primary);
+  }
+
+  .btn--lg {
+    padding: 1rem 2rem;
+    font-size: 1rem;
+  }
+
+  .error-search {
+    display: flex;
+    max-width: 24rem;
+    margin: 0 auto 2rem;
+  }
+
+  .search-input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    border: 1px solid var(--color-border-subtle);
+    border-right: none;
+    border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+    outline: none;
+  }
+
+  .search-input:focus {
+    border-color: var(--color-primary);
+  }
+
+  .search-btn {
+    padding: 0.75rem 1rem;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+    cursor: pointer;
+  }
+
+  .suggested-links {
+    margin-top: 2rem;
+  }
+
+  .suggested-title {
+    font-size: 0.875rem;
+    color: var(--color-text-tertiary);
+    margin: 0 0 0.75rem;
+  }
+
+  .suggested-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .suggested-list a {
+    color: var(--color-primary);
+    text-decoration: none;
+    font-size: 0.875rem;
+  }
+
+  .suggested-list a:hover {
+    text-decoration: underline;
+  }
+
+  .suggested-list--inline {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  /* Illustrated */
+  .error-container--illustrated {
+    text-align: center;
+  }
+
+  .error-illustration {
+    width: 200px;
+    height: 200px;
+    margin: 0 auto 2rem;
+    color: var(--color-primary);
+  }
+
+  .error-illustration :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+
+  .error-badge {
+    display: inline-block;
+    padding: 0.375rem 1rem;
+    background: var(--color-primary);
+    color: white;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border-radius: var(--radius-full);
+    margin-bottom: 1rem;
+  }
+
+  /* Minimal */
+  .error-container--minimal {
+    text-align: center;
+  }
+
+  .error-title-minimal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    font-size: 1.25rem;
+    font-weight: 500;
+    margin: 0 0 1rem;
+  }
+
+  .error-title-minimal .code {
+    font-weight: 600;
+  }
+
+  .error-title-minimal .divider {
+    color: var(--color-border);
+  }
+
+  .error-title-minimal .text {
+    color: var(--color-text-secondary);
+  }
+
+  .link-home {
+    color: var(--color-primary);
+    text-decoration: none;
+    font-size: 0.875rem;
+  }
+
+  .link-home:hover {
+    text-decoration: underline;
+  }
+
+  /* Creative */
+  .error-container--creative {
+    text-align: center;
+  }
+
+  .creative-code {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .digit {
+    font-size: clamp(4rem, 15vw, 8rem);
+    font-weight: 800;
+    color: var(--color-text-primary);
+  }
+
+  .digit--middle {
+    position: relative;
+    width: clamp(4rem, 15vw, 8rem);
+    height: clamp(4rem, 15vw, 8rem);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .orbit {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: 3px dashed var(--color-primary);
+    border-radius: 50%;
+    animation: spin 10s linear infinite;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: -0.75rem;
+  }
+
+  .orbit svg {
+    color: var(--color-primary);
+    transform: translateY(-50%);
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Split */
+  .error-container--split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    max-width: 64rem;
+    align-items: center;
+  }
+
+  .split-content {
+    text-align: left;
+  }
+
+  .split-content .error-actions {
+    justify-content: flex-start;
+  }
+
+  .split-image {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .split-image img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--radius-2xl);
+  }
+
+  .split-placeholder {
+    width: 100%;
+    max-width: 400px;
+    aspect-ratio: 1;
+    color: var(--color-primary);
+  }
+
+  .split-placeholder :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Branded */
+  .error-section--branded {
+    background: var(--color-primary);
+    color: white;
+  }
+
+  .error-container--branded {
+    position: relative;
+    text-align: center;
+    max-width: 48rem;
+  }
+
+  .branded-bg {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .bg-code {
+    font-size: clamp(15rem, 50vw, 30rem);
+    font-weight: 900;
+    opacity: 0.1;
+    color: white;
+  }
+
+  .branded-content {
+    position: relative;
+    z-index: 1;
+  }
+
+  .error-container--branded .error-title {
+    color: white;
+  }
+
+  .error-container--branded .error-description {
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  .branded-nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .branded-nav a {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: color 0.2s;
+  }
+
+  .branded-nav a:hover {
+    color: white;
+  }
+
+  @media (max-width: 768px) {
+    .error-container--split {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    .split-content {
+      text-align: center;
+      order: 2;
+    }
+
+    .split-content .error-actions {
+      justify-content: center;
+    }
+
+    .split-image {
+      order: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .orbit {
+      animation: none;
+    }
+  }
+</style>

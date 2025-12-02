@@ -1,0 +1,153 @@
+---
+/**
+ * StatItem Component
+ *
+ * Individual statistic item.
+ *
+ * @example
+ * <StatItem
+ *   value="10K+"
+ *   label="Happy Customers"
+ *   icon="👥"
+ *   description="And growing every day"
+ * />
+ */
+
+export interface Props {
+  value: string | number;
+  label: string;
+  description?: string;
+  icon?: string;
+  prefix?: string;
+  suffix?: string;
+  variant?: 'default' | 'card' | 'inline' | 'centered';
+  animated?: boolean;
+  class?: string;
+}
+
+const {
+  value,
+  label,
+  description,
+  icon,
+  prefix,
+  suffix,
+  variant = 'default',
+  animated = false,
+  class: className = '',
+} = Astro.props;
+
+// Extract numeric value for animation
+const numericValue = typeof value === 'number' ? value : parseInt(value.toString().replace(/[^0-9]/g, ''), 10);
+const displayValue = typeof value === 'string' ? value : value.toLocaleString();
+---
+
+<div
+  class:list={[
+    'stat-item',
+    variant === 'card' && 'bg-surface border border-border-subtle rounded-xl p-6',
+    variant === 'inline' && 'px-8 py-4 text-center',
+    variant === 'centered' && 'text-center',
+    variant === 'default' && 'text-center lg:text-left',
+    className,
+  ]}
+  data-stat-item
+  data-stat-value={animated ? numericValue : undefined}
+>
+  {icon && (
+    <div class:list={[
+      'stat-icon mb-3',
+      variant === 'centered' && 'mx-auto',
+    ]}>
+      {icon.startsWith('<') ? (
+        <div class="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center" set:html={icon} />
+      ) : (
+        <span class="text-3xl">{icon}</span>
+      )}
+    </div>
+  )}
+
+  <div class="stat-value text-4xl lg:text-5xl font-bold text-text-primary mb-2">
+    {prefix && <span>{prefix}</span>}
+    <span data-stat-number={animated ? numericValue : undefined}>
+      {animated ? '0' : displayValue}
+    </span>
+    {suffix && <span>{suffix}</span>}
+  </div>
+
+  <div class="stat-label text-text-secondary font-medium">
+    {label}
+  </div>
+
+  {description && (
+    <p class="stat-description text-sm text-text-tertiary mt-2">
+      {description}
+    </p>
+  )}
+</div>
+
+<script>
+  function initAnimatedStats() {
+    const containers = document.querySelectorAll('[data-stats-container="animated"]');
+
+    containers.forEach((container) => {
+      const stats = container.querySelectorAll('[data-stat-number]');
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              animateStats(container);
+              observer.disconnect();
+            }
+          });
+        },
+        { threshold: 0.5 }
+      );
+
+      observer.observe(container);
+    });
+
+    function animateStats(container: Element) {
+      const stats = container.querySelectorAll('[data-stat-number]');
+
+      stats.forEach((stat) => {
+        const target = parseInt(stat.getAttribute('data-stat-number') || '0', 10);
+        const duration = 2000;
+        const startTime = performance.now();
+
+        function update(currentTime: number) {
+          const elapsed = currentTime - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+
+          // Easing function
+          const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+          const current = Math.floor(target * easeOutQuart);
+
+          stat.textContent = current.toLocaleString();
+
+          if (progress < 1) {
+            requestAnimationFrame(update);
+          } else {
+            // Restore original formatted value
+            const item = stat.closest('[data-stat-item]');
+            const originalValue = item?.getAttribute('data-stat-value');
+            if (originalValue) {
+              stat.textContent = parseInt(originalValue, 10).toLocaleString();
+            }
+          }
+        }
+
+        requestAnimationFrame(update);
+      });
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAnimatedStats);
+  } else {
+    initAnimatedStats();
+  }
+
+  document.addEventListener('astro:page-load', initAnimatedStats);
+</script>

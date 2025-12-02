@@ -1,0 +1,780 @@
+---
+/**
+ * NewsTickerSection Component
+ *
+ * Horizontal scrolling ticker for announcements, news, stocks, etc.
+ *
+ * Variants:
+ * - default: Simple text ticker
+ * - news: News headlines with timestamps
+ * - stocks: Stock market data with prices and changes
+ * - announcement: Announcement bar with CTA
+ * - logos: Scrolling logo/brand ticker
+ * - social: Social media feed style
+ *
+ * @example
+ * <NewsTickerSection
+ *   variant="stocks"
+ *   items={[
+ *     { symbol: 'AAPL', price: 178.52, change: 2.34, changePercent: 1.33 }
+ *   ]}
+ * />
+ */
+
+export interface TickerItem {
+  id?: string;
+  text?: string;
+  label?: string;
+  href?: string;
+  icon?: string;
+  image?: string;
+  timestamp?: string;
+  category?: string;
+  // Stock specific
+  symbol?: string;
+  price?: number;
+  change?: number;
+  changePercent?: number;
+  // Social specific
+  author?: string;
+  avatar?: string;
+  platform?: string;
+}
+
+export interface Props {
+  variant?: 'default' | 'news' | 'stocks' | 'announcement' | 'logos' | 'social';
+  items: TickerItem[];
+  speed?: 'slow' | 'normal' | 'fast';
+  direction?: 'left' | 'right';
+  pauseOnHover?: boolean;
+  showDividers?: boolean;
+  background?: 'primary' | 'dark' | 'light' | 'gradient' | 'transparent';
+  size?: 'sm' | 'md' | 'lg';
+  // Announcement specific
+  dismissible?: boolean;
+  ctaLabel?: string;
+  ctaHref?: string;
+  class?: string;
+}
+
+const {
+  variant = 'default',
+  items,
+  speed = 'normal',
+  direction = 'left',
+  pauseOnHover = true,
+  showDividers = true,
+  background = 'dark',
+  size = 'md',
+  dismissible = false,
+  ctaLabel,
+  ctaHref,
+  class: className = '',
+} = Astro.props;
+
+const speedDurations = {
+  slow: '60s',
+  normal: '40s',
+  fast: '20s',
+};
+
+// Duplicate items for seamless loop
+const duplicatedItems = [...items, ...items];
+---
+
+<div
+  class:list={[
+    'news-ticker',
+    `news-ticker--${variant}`,
+    `news-ticker--${background}`,
+    `news-ticker--${size}`,
+    pauseOnHover && 'news-ticker--pause-hover',
+    className,
+  ]}
+  style={`--ticker-speed: ${speedDurations[speed]}; --ticker-direction: ${direction === 'left' ? 'normal' : 'reverse'};`}
+  data-news-ticker
+>
+  {/* Announcement variant with static content */}
+  {variant === 'announcement' && items[0] && (
+    <div class="announcement-content">
+      <div class="announcement-inner">
+        {items[0].icon && (
+          <span class="announcement-icon" set:html={items[0].icon} />
+        )}
+        <span class="announcement-text">{items[0].text}</span>
+        {ctaHref && (
+          <a href={ctaHref} class="announcement-cta">
+            {ctaLabel || 'Learn more'}
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </a>
+        )}
+      </div>
+      {dismissible && (
+        <button type="button" class="announcement-dismiss" aria-label="Dismiss" data-ticker-dismiss>
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      )}
+    </div>
+  )}
+
+  {/* Scrolling ticker for other variants */}
+  {variant !== 'announcement' && (
+    <div class="ticker-wrapper">
+      <div class="ticker-track" data-ticker-track>
+        {/* Default variant */}
+        {variant === 'default' && duplicatedItems.map((item, index) => (
+          <div class="ticker-item" key={index}>
+            {item.icon && (
+              <span class="item-icon" set:html={item.icon} />
+            )}
+            {item.href ? (
+              <a href={item.href} class="item-link">{item.text}</a>
+            ) : (
+              <span class="item-text">{item.text}</span>
+            )}
+            {showDividers && <span class="ticker-divider">•</span>}
+          </div>
+        ))}
+
+        {/* News variant */}
+        {variant === 'news' && duplicatedItems.map((item, index) => (
+          <div class="ticker-item ticker-item--news" key={index}>
+            {item.category && (
+              <span class="news-category">{item.category}</span>
+            )}
+            {item.href ? (
+              <a href={item.href} class="news-headline">{item.text}</a>
+            ) : (
+              <span class="news-headline">{item.text}</span>
+            )}
+            {item.timestamp && (
+              <span class="news-time">{item.timestamp}</span>
+            )}
+            {showDividers && (
+              <span class="ticker-divider ticker-divider--line" />
+            )}
+          </div>
+        ))}
+
+        {/* Stocks variant */}
+        {variant === 'stocks' && duplicatedItems.map((item, index) => (
+          <div class="ticker-item ticker-item--stock" key={index}>
+            <span class="stock-symbol">{item.symbol}</span>
+            <span class="stock-price">${item.price?.toFixed(2)}</span>
+            <span class:list={[
+              'stock-change',
+              item.change && item.change >= 0 ? 'stock-change--up' : 'stock-change--down',
+            ]}>
+              {item.change && item.change >= 0 ? (
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                </svg>
+              ) : (
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="14" height="14">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              )}
+              {item.change && Math.abs(item.change).toFixed(2)}
+              ({item.changePercent && Math.abs(item.changePercent).toFixed(2)}%)
+            </span>
+            {showDividers && <span class="ticker-divider ticker-divider--stock" />}
+          </div>
+        ))}
+
+        {/* Logos variant */}
+        {variant === 'logos' && duplicatedItems.map((item, index) => (
+          <div class="ticker-item ticker-item--logo" key={index}>
+            {item.href ? (
+              <a href={item.href} class="logo-link">
+                {item.image ? (
+                  <img src={item.image} alt={item.label || ''} class="logo-image" loading="lazy" />
+                ) : item.icon ? (
+                  <span class="logo-icon" set:html={item.icon} />
+                ) : (
+                  <span class="logo-text">{item.label}</span>
+                )}
+              </a>
+            ) : (
+              <div class="logo-item">
+                {item.image ? (
+                  <img src={item.image} alt={item.label || ''} class="logo-image" loading="lazy" />
+                ) : item.icon ? (
+                  <span class="logo-icon" set:html={item.icon} />
+                ) : (
+                  <span class="logo-text">{item.label}</span>
+                )}
+              </div>
+            )}
+          </div>
+        ))}
+
+        {/* Social variant */}
+        {variant === 'social' && duplicatedItems.map((item, index) => (
+          <div class="ticker-item ticker-item--social" key={index}>
+            {item.avatar && (
+              <img src={item.avatar} alt="" class="social-avatar" loading="lazy" />
+            )}
+            <div class="social-content">
+              <span class="social-author">
+                {item.author}
+                {item.platform && (
+                  <span class="social-platform" set:html={item.icon} />
+                )}
+              </span>
+              <span class="social-text">{item.text}</span>
+            </div>
+            {showDividers && <span class="ticker-divider ticker-divider--social" />}
+          </div>
+        ))}
+      </div>
+    </div>
+  )}
+
+  {/* Gradient overlays for fade effect */}
+  {variant !== 'announcement' && (
+    <>
+      <div class="ticker-fade ticker-fade--left" />
+      <div class="ticker-fade ticker-fade--right" />
+    </>
+  )}
+</div>
+
+<style>
+  .news-ticker {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+  }
+
+  /* Backgrounds */
+  .news-ticker--primary {
+    background: var(--color-primary);
+    color: white;
+  }
+
+  .news-ticker--dark {
+    background: var(--color-background-inverse);
+    color: white;
+  }
+
+  .news-ticker--light {
+    background: var(--color-background-subtle);
+    color: var(--color-text-primary);
+  }
+
+  .news-ticker--gradient {
+    background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+    color: white;
+  }
+
+  .news-ticker--transparent {
+    background: transparent;
+    color: var(--color-text-primary);
+  }
+
+  /* Sizes */
+  .news-ticker--sm {
+    font-size: 0.75rem;
+  }
+
+  .news-ticker--sm .ticker-wrapper {
+    padding: 0.5rem 0;
+  }
+
+  .news-ticker--md {
+    font-size: 0.875rem;
+  }
+
+  .news-ticker--md .ticker-wrapper {
+    padding: 0.75rem 0;
+  }
+
+  .news-ticker--lg {
+    font-size: 1rem;
+  }
+
+  .news-ticker--lg .ticker-wrapper {
+    padding: 1rem 0;
+  }
+
+  /* Ticker wrapper */
+  .ticker-wrapper {
+    display: flex;
+    overflow: hidden;
+  }
+
+  .ticker-track {
+    display: flex;
+    animation: ticker var(--ticker-speed) linear infinite;
+    animation-direction: var(--ticker-direction);
+  }
+
+  .news-ticker--pause-hover .ticker-track:hover {
+    animation-play-state: paused;
+  }
+
+  @keyframes ticker {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  /* Ticker items */
+  .ticker-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+    padding: 0 1rem;
+  }
+
+  .item-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1em;
+    height: 1em;
+  }
+
+  .item-text,
+  .item-link {
+    color: inherit;
+  }
+
+  .item-link {
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+
+  .item-link:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+  }
+
+  /* Dividers */
+  .ticker-divider {
+    opacity: 0.5;
+    margin: 0 0.5rem;
+  }
+
+  .ticker-divider--line {
+    width: 1px;
+    height: 1em;
+    background: currentColor;
+    opacity: 0.3;
+  }
+
+  .ticker-divider--stock {
+    width: 1px;
+    height: 1.5em;
+    background: currentColor;
+    opacity: 0.2;
+    margin: 0 1.5rem;
+  }
+
+  .ticker-divider--social {
+    width: 1px;
+    height: 2em;
+    background: currentColor;
+    opacity: 0.2;
+    margin: 0 1rem;
+  }
+
+  /* Fade overlays */
+  .ticker-fade {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 4rem;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  .ticker-fade--left {
+    left: 0;
+    background: linear-gradient(to right, var(--fade-color, rgba(0,0,0,0.9)), transparent);
+  }
+
+  .ticker-fade--right {
+    right: 0;
+    background: linear-gradient(to left, var(--fade-color, rgba(0,0,0,0.9)), transparent);
+  }
+
+  .news-ticker--dark .ticker-fade--left {
+    --fade-color: var(--color-background-inverse);
+  }
+
+  .news-ticker--dark .ticker-fade--right {
+    --fade-color: var(--color-background-inverse);
+  }
+
+  .news-ticker--light .ticker-fade--left,
+  .news-ticker--light .ticker-fade--right {
+    --fade-color: var(--color-background-subtle);
+  }
+
+  .news-ticker--primary .ticker-fade--left,
+  .news-ticker--primary .ticker-fade--right {
+    --fade-color: var(--color-primary);
+  }
+
+  .news-ticker--gradient .ticker-fade--left {
+    --fade-color: var(--color-primary);
+  }
+
+  .news-ticker--gradient .ticker-fade--right {
+    --fade-color: var(--color-primary-dark);
+  }
+
+  .news-ticker--transparent .ticker-fade--left,
+  .news-ticker--transparent .ticker-fade--right {
+    display: none;
+  }
+
+  /* News variant */
+  .ticker-item--news {
+    gap: 0.75rem;
+  }
+
+  .news-category {
+    padding: 0.125rem 0.5rem;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-full);
+    font-size: 0.75em;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .news-ticker--light .news-category {
+    background: var(--color-primary);
+    color: white;
+  }
+
+  .news-headline {
+    font-weight: 500;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  a.news-headline:hover {
+    text-decoration: underline;
+  }
+
+  .news-time {
+    opacity: 0.6;
+    font-size: 0.875em;
+  }
+
+  /* Stocks variant */
+  .ticker-item--stock {
+    gap: 0.75rem;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+  }
+
+  .stock-symbol {
+    font-weight: 700;
+    color: inherit;
+  }
+
+  .stock-price {
+    font-weight: 500;
+  }
+
+  .stock-change {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.875em;
+    padding: 0.125rem 0.5rem;
+    border-radius: var(--radius-full);
+  }
+
+  .stock-change--up {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+  }
+
+  .stock-change--down {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+  }
+
+  .news-ticker--light .stock-change--up {
+    background: rgba(34, 197, 94, 0.1);
+  }
+
+  .news-ticker--light .stock-change--down {
+    background: rgba(239, 68, 68, 0.1);
+  }
+
+  /* Logos variant */
+  .news-ticker--logos .ticker-wrapper {
+    padding: 1rem 0;
+  }
+
+  .ticker-item--logo {
+    padding: 0 2rem;
+  }
+
+  .logo-link,
+  .logo-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+  }
+
+  .logo-link:hover,
+  .logo-item:hover {
+    opacity: 1;
+  }
+
+  .logo-image {
+    height: 2rem;
+    width: auto;
+    max-width: 8rem;
+    object-fit: contain;
+  }
+
+  .news-ticker--sm .logo-image {
+    height: 1.5rem;
+  }
+
+  .news-ticker--lg .logo-image {
+    height: 2.5rem;
+  }
+
+  .logo-icon {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .logo-text {
+    font-weight: 600;
+    font-size: 1.125em;
+  }
+
+  /* Social variant */
+  .ticker-item--social {
+    gap: 0.75rem;
+    padding: 0.5rem 1.5rem;
+  }
+
+  .social-avatar {
+    width: 2rem;
+    height: 2rem;
+    border-radius: var(--radius-full);
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  .social-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+
+  .social-author {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-weight: 600;
+    font-size: 0.875em;
+  }
+
+  .social-platform {
+    width: 1em;
+    height: 1em;
+    opacity: 0.7;
+  }
+
+  .social-text {
+    font-size: 0.875em;
+    opacity: 0.9;
+    max-width: 20rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Announcement variant */
+  .news-ticker--announcement {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .news-ticker--announcement.news-ticker--sm {
+    padding: 0.5rem 1rem;
+  }
+
+  .news-ticker--announcement.news-ticker--md {
+    padding: 0.75rem 1rem;
+  }
+
+  .news-ticker--announcement.news-ticker--lg {
+    padding: 1rem 1.5rem;
+  }
+
+  .announcement-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 80rem;
+    gap: 1rem;
+  }
+
+  .announcement-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    flex: 1;
+  }
+
+  .announcement-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25em;
+    height: 1.25em;
+    flex-shrink: 0;
+  }
+
+  .announcement-text {
+    font-weight: 500;
+  }
+
+  .announcement-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-weight: 600;
+    color: inherit;
+    text-decoration: none;
+    white-space: nowrap;
+    padding: 0.25rem 0.75rem;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-full);
+    transition: background 0.2s;
+  }
+
+  .announcement-cta:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  .news-ticker--light .announcement-cta {
+    background: var(--color-primary);
+    color: white;
+  }
+
+  .news-ticker--light .announcement-cta:hover {
+    background: var(--color-primary-dark);
+  }
+
+  .announcement-dismiss {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.25rem;
+    background: transparent;
+    border: none;
+    color: inherit;
+    opacity: 0.7;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    flex-shrink: 0;
+  }
+
+  .announcement-dismiss:hover {
+    opacity: 1;
+  }
+
+  /* Hidden state for dismissed ticker */
+  .news-ticker[data-dismissed="true"] {
+    display: none;
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .ticker-track {
+      animation: none;
+    }
+
+    .ticker-wrapper {
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .ticker-wrapper::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .ticker-fade {
+      width: 2rem;
+    }
+
+    .announcement-inner {
+      flex-direction: column;
+      text-align: center;
+      gap: 0.5rem;
+    }
+
+    .social-text {
+      max-width: 15rem;
+    }
+  }
+</style>
+
+<script>
+  function initNewsTickers() {
+    const tickers = document.querySelectorAll('[data-news-ticker]');
+
+    tickers.forEach((ticker) => {
+      // Dismiss functionality
+      const dismissBtn = ticker.querySelector('[data-ticker-dismiss]');
+      dismissBtn?.addEventListener('click', () => {
+        ticker.setAttribute('data-dismissed', 'true');
+        // Optional: Store in localStorage
+        const tickerId = ticker.id;
+        if (tickerId) {
+          localStorage.setItem(`ticker-dismissed-${tickerId}`, 'true');
+        }
+      });
+
+      // Check if previously dismissed
+      const tickerId = ticker.id;
+      if (tickerId && localStorage.getItem(`ticker-dismissed-${tickerId}`)) {
+        ticker.setAttribute('data-dismissed', 'true');
+      }
+
+      // Clone items for seamless loop if needed
+      const track = ticker.querySelector('[data-ticker-track]');
+      if (track && track.scrollWidth <= ticker.clientWidth * 2) {
+        const items = track.innerHTML;
+        track.innerHTML = items + items;
+      }
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initNewsTickers);
+  } else {
+    initNewsTickers();
+  }
+
+  document.addEventListener('astro:page-load', initNewsTickers);
+</script>

@@ -1,0 +1,84 @@
+---
+/**
+ * BentoGrid Component
+ *
+ * Modern asymmetric grid layout inspired by Apple's Bento design.
+ * Perfect for showcasing features, services, or products with visual hierarchy.
+ *
+ * Target: Tech companies, Product pages, Feature showcases, Modern startups
+ *
+ * Features:
+ * - Pre-defined cell sizes (1x1, 2x1, 1x2, 2x2)
+ * - Responsive grid adaptation
+ * - Hover animations
+ * - Card variants (solid, gradient, glass)
+ * - Icon and image support
+ * - Dark mode optimized
+ *
+ * @example
+ * <BentoGrid>
+ *   <BentoCard size="2x2" variant="gradient">
+ *     <h3>Main Feature</h3>
+ *   </BentoCard>
+ *   <BentoCard size="1x1">Feature 2</BentoCard>
+ *   <BentoCard size="1x2">Feature 3</BentoCard>
+ * </BentoGrid>
+ */
+
+export interface Props {
+  columns?: 2 | 3 | 4;
+  gap?: 'sm' | 'md' | 'lg';
+  class?: string;
+}
+
+const {
+  columns = 4,
+  gap = 'md',
+  class: className = '',
+} = Astro.props;
+
+// Gap classes
+const gapClasses = {
+  sm: 'gap-3',
+  md: 'gap-4',
+  lg: 'gap-6',
+};
+---
+
+<div
+  class:list={[
+    'bento-grid grid auto-rows-[minmax(180px,auto)]',
+    columns === 2 && 'grid-cols-2',
+    columns === 3 && 'grid-cols-2 lg:grid-cols-3',
+    columns === 4 && 'grid-cols-2 lg:grid-cols-4',
+    gapClasses[gap],
+    className,
+  ]}
+  data-bento-grid
+>
+  <slot />
+</div>
+
+<style>
+  /* Make grid items span correctly */
+  .bento-grid :global([data-bento-size="2x1"]) {
+    grid-column: span 2;
+  }
+
+  .bento-grid :global([data-bento-size="1x2"]) {
+    grid-row: span 2;
+  }
+
+  .bento-grid :global([data-bento-size="2x2"]) {
+    grid-column: span 2;
+    grid-row: span 2;
+  }
+
+  /* Mobile: Stack on single column for large items */
+  @media (max-width: 640px) {
+    .bento-grid :global([data-bento-size="2x1"]),
+    .bento-grid :global([data-bento-size="2x2"]) {
+      grid-column: span 2;
+    }
+  }
+</style>

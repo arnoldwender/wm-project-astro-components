@@ -1,0 +1,813 @@
+---
+/**
+ * SearchResultsSection Component
+ *
+ * Search results display with various layouts.
+ *
+ * Variants:
+ * - default: Standard list with descriptions
+ * - cards: Card-based results
+ * - compact: Compact list view
+ * - grid: Grid layout for visual content
+ * - table: Table-style results
+ * - minimal: Minimal Google-style results
+ *
+ * @example
+ * <SearchResultsSection
+ *   variant="default"
+ *   query="search term"
+ *   results={results}
+ *   totalResults={100}
+ * />
+ */
+
+import SectionWrapper from './SectionWrapper.astro';
+import PaginationSection from './PaginationSection.astro';
+
+export interface SearchResult {
+  id: string;
+  title: string;
+  url: string;
+  description?: string;
+  excerpt?: string;
+  image?: string;
+  category?: string;
+  date?: string;
+  author?: string;
+  tags?: string[];
+  meta?: Record<string, string>;
+  highlighted?: string;
+}
+
+export interface Props {
+  variant?: 'default' | 'cards' | 'compact' | 'grid' | 'table' | 'minimal';
+  query: string;
+  results: SearchResult[];
+  totalResults: number;
+  currentPage?: number;
+  resultsPerPage?: number;
+  isLoading?: boolean;
+  showFilters?: boolean;
+  showSort?: boolean;
+  sortOptions?: { value: string; label: string }[];
+  emptyTitle?: string;
+  emptyDescription?: string;
+  baseUrl?: string;
+  class?: string;
+}
+
+const {
+  variant = 'default',
+  query,
+  results,
+  totalResults,
+  currentPage = 1,
+  resultsPerPage = 10,
+  isLoading = false,
+  showFilters = false,
+  showSort = true,
+  sortOptions = [
+    { value: 'relevance', label: 'Relevance' },
+    { value: 'date', label: 'Date' },
+    { value: 'title', label: 'Title' },
+  ],
+  emptyTitle = 'No results found',
+  emptyDescription,
+  baseUrl = '/search',
+  class: className = '',
+} = Astro.props;
+
+const totalPages = Math.ceil(totalResults / resultsPerPage);
+const startResult = (currentPage - 1) * resultsPerPage + 1;
+const endResult = Math.min(currentPage * resultsPerPage, totalResults);
+const defaultEmptyDescription = `We couldn't find any results for "${query}". Try different keywords or check your spelling.`;
+---
+
+<SectionWrapper class={className} padding="md">
+  {/* Search header */}
+  <div class="search-header">
+    <div class="search-info">
+      {totalResults > 0 ? (
+        <p class="results-count">
+          Showing <strong>{startResult}-{endResult}</strong> of <strong>{totalResults.toLocaleString()}</strong> results for "<strong>{query}</strong>"
+        </p>
+      ) : (
+        <p class="results-count">
+          No results for "<strong>{query}</strong>"
+        </p>
+      )}
+    </div>
+
+    {totalResults > 0 && (showSort || showFilters) && (
+      <div class="search-controls">
+        {showFilters && (
+          <button type="button" class="filter-btn" data-search-filter>
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+            </svg>
+            Filters
+          </button>
+        )}
+
+        {showSort && (
+          <div class="sort-control">
+            <label for="sort-select" class="sr-only">Sort by</label>
+            <select id="sort-select" class="sort-select">
+              {sortOptions.map((option) => (
+                <option value={option.value}>{option.label}</option>
+              ))}
+            </select>
+          </div>
+        )}
+      </div>
+    )}
+  </div>
+
+  {/* Loading state */}
+  {isLoading && (
+    <div class="search-loading">
+      <div class="loading-spinner" />
+      <p>Searching...</p>
+    </div>
+  )}
+
+  {/* Empty state */}
+  {!isLoading && results.length === 0 && (
+    <div class="search-empty">
+      <svg class="empty-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="64" height="64">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+      </svg>
+      <h2 class="empty-title">{emptyTitle}</h2>
+      <p class="empty-description">{emptyDescription || defaultEmptyDescription}</p>
+      <div class="empty-suggestions">
+        <p>Suggestions:</p>
+        <ul>
+          <li>Check your spelling</li>
+          <li>Try more general keywords</li>
+          <li>Try different keywords</li>
+        </ul>
+      </div>
+    </div>
+  )}
+
+  {/* Results */}
+  {!isLoading && results.length > 0 && (
+    <div
+      class:list={[
+        'search-results',
+        `search-results--${variant}`,
+      ]}
+    >
+      {/* Default variant */}
+      {variant === 'default' && results.map((result) => (
+        <article class="result-item">
+          <div class="result-content">
+            {result.category && (
+              <span class="result-category">{result.category}</span>
+            )}
+            <h3 class="result-title">
+              <a href={result.url}>{result.title}</a>
+            </h3>
+            <p class="result-url">{result.url}</p>
+            {(result.excerpt || result.description) && (
+              <p class="result-excerpt" set:html={result.highlighted || result.excerpt || result.description} />
+            )}
+            {result.meta && (
+              <div class="result-meta">
+                {Object.entries(result.meta).map(([key, value]) => (
+                  <span class="meta-item">{key}: {value}</span>
+                ))}
+              </div>
+            )}
+          </div>
+        </article>
+      ))}
+
+      {/* Cards variant */}
+      {variant === 'cards' && results.map((result) => (
+        <a href={result.url} class="result-card">
+          {result.image && (
+            <img src={result.image} alt="" class="card-image" loading="lazy" />
+          )}
+          <div class="card-content">
+            {result.category && (
+              <span class="result-category">{result.category}</span>
+            )}
+            <h3 class="card-title">{result.title}</h3>
+            {(result.excerpt || result.description) && (
+              <p class="card-excerpt">{result.excerpt || result.description}</p>
+            )}
+            {(result.date || result.author) && (
+              <div class="card-footer">
+                {result.date && <span>{result.date}</span>}
+                {result.author && <span>{result.author}</span>}
+              </div>
+            )}
+          </div>
+        </a>
+      ))}
+
+      {/* Compact variant */}
+      {variant === 'compact' && results.map((result) => (
+        <a href={result.url} class="result-compact">
+          <span class="compact-title">{result.title}</span>
+          {result.category && (
+            <span class="compact-category">{result.category}</span>
+          )}
+          <svg class="compact-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </a>
+      ))}
+
+      {/* Grid variant */}
+      {variant === 'grid' && results.map((result) => (
+        <a href={result.url} class="result-grid-item">
+          {result.image ? (
+            <img src={result.image} alt="" class="grid-image" loading="lazy" />
+          ) : (
+            <div class="grid-placeholder">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="32" height="32">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+          )}
+          <div class="grid-content">
+            <h3 class="grid-title">{result.title}</h3>
+            {result.category && (
+              <span class="grid-category">{result.category}</span>
+            )}
+          </div>
+        </a>
+      ))}
+
+      {/* Table variant */}
+      {variant === 'table' && (
+        <table class="results-table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Category</th>
+              <th>Date</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {results.map((result) => (
+              <tr>
+                <td>
+                  <a href={result.url} class="table-title">{result.title}</a>
+                  {result.description && (
+                    <p class="table-description">{result.description}</p>
+                  )}
+                </td>
+                <td>
+                  {result.category && (
+                    <span class="table-category">{result.category}</span>
+                  )}
+                </td>
+                <td class="table-date">{result.date || '-'}</td>
+                <td>
+                  <a href={result.url} class="table-link">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </a>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+
+      {/* Minimal variant */}
+      {variant === 'minimal' && results.map((result) => (
+        <article class="result-minimal">
+          <h3 class="minimal-title">
+            <a href={result.url}>{result.title}</a>
+          </h3>
+          <cite class="minimal-url">{result.url}</cite>
+          {(result.excerpt || result.description) && (
+            <p class="minimal-excerpt" set:html={result.highlighted || result.excerpt || result.description} />
+          )}
+        </article>
+      ))}
+    </div>
+  )}
+
+  {/* Pagination */}
+  {!isLoading && totalPages > 1 && (
+    <div class="search-pagination">
+      <PaginationSection
+        variant="default"
+        currentPage={currentPage}
+        totalPages={totalPages}
+        baseUrl={`${baseUrl}?q=${encodeURIComponent(query)}`}
+        paramName="page"
+      />
+    </div>
+  )}
+</SectionWrapper>
+
+<style>
+  .search-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+
+  .results-count {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    margin: 0;
+  }
+
+  .search-controls {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  .filter-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-lg);
+    font-size: 0.875rem;
+    color: var(--color-text-primary);
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+  }
+
+  .filter-btn:hover {
+    background: var(--color-background-subtle);
+    border-color: var(--color-border);
+  }
+
+  .sort-select {
+    padding: 0.5rem 2rem 0.5rem 1rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-lg);
+    font-size: 0.875rem;
+    color: var(--color-text-primary);
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.5rem center;
+    background-size: 1rem;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Loading */
+  .search-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    color: var(--color-text-secondary);
+  }
+
+  .loading-spinner {
+    width: 2.5rem;
+    height: 2.5rem;
+    border: 3px solid var(--color-border-subtle);
+    border-top-color: var(--color-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 1rem;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Empty state */
+  .search-empty {
+    text-align: center;
+    padding: 4rem 2rem;
+  }
+
+  .empty-icon {
+    color: var(--color-text-tertiary);
+    margin-bottom: 1.5rem;
+  }
+
+  .empty-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem;
+    color: var(--color-text-primary);
+  }
+
+  .empty-description {
+    color: var(--color-text-secondary);
+    margin: 0 0 2rem;
+    max-width: 32rem;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .empty-suggestions {
+    text-align: left;
+    max-width: 20rem;
+    margin: 0 auto;
+    padding: 1.5rem;
+    background: var(--color-background-subtle);
+    border-radius: var(--radius-xl);
+  }
+
+  .empty-suggestions p {
+    font-weight: 600;
+    margin: 0 0 0.75rem;
+    color: var(--color-text-primary);
+  }
+
+  .empty-suggestions ul {
+    margin: 0;
+    padding-left: 1.25rem;
+    color: var(--color-text-secondary);
+  }
+
+  .empty-suggestions li {
+    margin-bottom: 0.25rem;
+  }
+
+  /* Results container */
+  .search-results {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  /* Default variant */
+  .result-item {
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+
+  .result-item:last-child {
+    border-bottom: none;
+  }
+
+  .result-category {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--color-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.25rem;
+  }
+
+  .result-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem;
+  }
+
+  .result-title a {
+    color: var(--color-primary);
+    text-decoration: none;
+  }
+
+  .result-title a:hover {
+    text-decoration: underline;
+  }
+
+  .result-url {
+    font-size: 0.75rem;
+    color: var(--color-text-tertiary);
+    margin: 0 0 0.5rem;
+  }
+
+  .result-excerpt {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  .result-excerpt :global(mark),
+  .result-excerpt :global(strong) {
+    background: var(--color-warning);
+    color: var(--color-text-primary);
+    font-weight: 600;
+    padding: 0.125rem 0.25rem;
+    border-radius: 0.125rem;
+  }
+
+  .result-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 0.75rem;
+    font-size: 0.75rem;
+    color: var(--color-text-tertiary);
+  }
+
+  /* Cards variant */
+  .search-results--cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .result-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    text-decoration: none;
+    transition: box-shadow 0.2s, border-color 0.2s;
+  }
+
+  .result-card:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-border);
+  }
+
+  .card-image {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+  }
+
+  .card-content {
+    padding: 1.25rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin: 0 0 0.5rem;
+  }
+
+  .card-excerpt {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    margin: 0;
+    flex: 1;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .card-footer {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: var(--color-text-tertiary);
+    margin-top: 1rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--color-border-subtle);
+  }
+
+  /* Compact variant */
+  .search-results--compact {
+    gap: 0;
+  }
+
+  .result-compact {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    text-decoration: none;
+    border-radius: var(--radius-lg);
+    transition: background 0.2s;
+  }
+
+  .result-compact:hover {
+    background: var(--color-background-subtle);
+  }
+
+  .compact-title {
+    flex: 1;
+    font-weight: 500;
+    color: var(--color-text-primary);
+  }
+
+  .compact-category {
+    font-size: 0.75rem;
+    color: var(--color-text-tertiary);
+    padding: 0.25rem 0.5rem;
+    background: var(--color-background-subtle);
+    border-radius: var(--radius-full);
+  }
+
+  .compact-arrow {
+    color: var(--color-text-tertiary);
+  }
+
+  /* Grid variant */
+  .search-results--grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .result-grid-item {
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-subtle);
+    transition: box-shadow 0.2s;
+  }
+
+  .result-grid-item:hover {
+    box-shadow: var(--shadow-md);
+  }
+
+  .grid-image {
+    width: 100%;
+    aspect-ratio: 4/3;
+    object-fit: cover;
+  }
+
+  .grid-placeholder {
+    width: 100%;
+    aspect-ratio: 4/3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-background-subtle);
+    color: var(--color-text-tertiary);
+  }
+
+  .grid-content {
+    padding: 1rem;
+  }
+
+  .grid-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin: 0 0 0.25rem;
+  }
+
+  .grid-category {
+    font-size: 0.75rem;
+    color: var(--color-text-tertiary);
+  }
+
+  /* Table variant */
+  .results-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  .results-table th {
+    text-align: left;
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+    color: var(--color-text-tertiary);
+    border-bottom: 2px solid var(--color-border-subtle);
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+  }
+
+  .results-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--color-border-subtle);
+    vertical-align: top;
+  }
+
+  .table-title {
+    font-weight: 600;
+    color: var(--color-primary);
+    text-decoration: none;
+  }
+
+  .table-title:hover {
+    text-decoration: underline;
+  }
+
+  .table-description {
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+    margin: 0.25rem 0 0;
+  }
+
+  .table-category {
+    display: inline-block;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    background: var(--color-background-subtle);
+    border-radius: var(--radius-full);
+    color: var(--color-text-secondary);
+  }
+
+  .table-date {
+    color: var(--color-text-tertiary);
+    white-space: nowrap;
+  }
+
+  .table-link {
+    color: var(--color-text-tertiary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    border-radius: var(--radius-lg);
+    transition: background 0.2s;
+  }
+
+  .table-link:hover {
+    background: var(--color-background-subtle);
+    color: var(--color-primary);
+  }
+
+  /* Minimal variant */
+  .result-minimal {
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+
+  .result-minimal:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+  }
+
+  .minimal-title {
+    font-size: 1.25rem;
+    font-weight: 400;
+    margin: 0 0 0.125rem;
+  }
+
+  .minimal-title a {
+    color: var(--color-primary);
+    text-decoration: none;
+  }
+
+  .minimal-title a:hover {
+    text-decoration: underline;
+  }
+
+  .minimal-url {
+    display: block;
+    font-size: 0.875rem;
+    font-style: normal;
+    color: var(--color-success);
+    margin-bottom: 0.375rem;
+  }
+
+  .minimal-excerpt {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    margin: 0;
+    line-height: 1.6;
+  }
+
+  /* Pagination */
+  .search-pagination {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--color-border-subtle);
+  }
+
+  @media (max-width: 768px) {
+    .search-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .results-table {
+      display: block;
+      overflow-x: auto;
+    }
+  }
+</style>

@@ -1,0 +1,337 @@
+---
+/**
+ * DashboardLayout Component
+ *
+ * Admin/Dashboard interface layout with sidebar navigation.
+ * Clean, functional design for data-heavy applications.
+ *
+ * Target: SaaS dashboards, Admin panels, Analytics, CRM systems
+ *
+ * Features:
+ * - Collapsible sidebar
+ * - Top navigation bar
+ * - Breadcrumb support
+ * - Responsive design
+ * - Dark mode optimized
+ * - Notification area
+ * - User menu
+ *
+ * @example
+ * <DashboardLayout>
+ *   <Fragment slot="sidebar">
+ *     <nav>...</nav>
+ *   </Fragment>
+ *   <Fragment slot="header">
+ *     <Breadcrumb />
+ *   </Fragment>
+ *   <main>Dashboard content...</main>
+ * </DashboardLayout>
+ */
+
+export interface Props {
+  sidebarWidth?: 'narrow' | 'default' | 'wide';
+  sidebarPosition?: 'left' | 'right';
+  sidebarCollapsed?: boolean;
+  showHeader?: boolean;
+  headerHeight?: 'sm' | 'md' | 'lg';
+  class?: string;
+}
+
+const {
+  sidebarWidth = 'default',
+  sidebarPosition = 'left',
+  sidebarCollapsed = false,
+  showHeader = true,
+  headerHeight = 'md',
+  class: className = '',
+} = Astro.props;
+
+// Sidebar width classes
+const sidebarWidthClasses = {
+  narrow: 'w-16',
+  default: 'w-64',
+  wide: 'w-80',
+};
+
+const sidebarCollapsedWidth = 'w-16';
+
+// Header height classes
+const headerHeightClasses = {
+  sm: 'h-12',
+  md: 'h-14',
+  lg: 'h-16',
+};
+---
+
+<div
+  class:list={[
+    'dashboard-layout min-h-screen bg-background-subtle',
+    className,
+  ]}
+  data-dashboard-layout
+  data-collapsed={sidebarCollapsed}
+>
+  <!-- Sidebar -->
+  <aside
+    class:list={[
+      'dashboard-sidebar fixed top-0 bottom-0 z-40',
+      'bg-surface border-r border-border-subtle',
+      'transition-all duration-300 ease-out',
+      sidebarPosition === 'left' ? 'left-0' : 'right-0',
+      sidebarCollapsed ? sidebarCollapsedWidth : sidebarWidthClasses[sidebarWidth],
+    ]}
+    data-dashboard-sidebar
+  >
+    <!-- Logo/Brand Area -->
+    <div class:list={[
+      'dashboard-brand flex items-center px-4 border-b border-border-subtle',
+      headerHeightClasses[headerHeight],
+    ]}>
+      <slot name="brand" />
+    </div>
+
+    <!-- Navigation -->
+    <nav class="dashboard-nav flex-1 overflow-y-auto py-4">
+      <slot name="sidebar" />
+    </nav>
+
+    <!-- Sidebar Footer -->
+    {Astro.slots.has('sidebar-footer') && (
+      <div class="dashboard-sidebar-footer border-t border-border-subtle p-4">
+        <slot name="sidebar-footer" />
+      </div>
+    )}
+
+    <!-- Collapse Toggle -->
+    <button
+      type="button"
+      class:list={[
+        'dashboard-collapse-btn absolute top-1/2 -translate-y-1/2 w-6 h-12',
+        'bg-surface border border-border-subtle rounded-full',
+        'flex items-center justify-center',
+        'text-text-tertiary hover:text-text-primary hover:bg-background-subtle',
+        'transition-colors',
+        sidebarPosition === 'left' ? '-right-3' : '-left-3',
+      ]}
+      data-collapse-sidebar
+      aria-label="Toggle sidebar"
+    >
+      <svg
+        class:list={[
+          'w-4 h-4 transition-transform',
+          sidebarCollapsed && 'rotate-180',
+        ]}
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d={sidebarPosition === 'left' ? 'M15 19l-7-7 7-7' : 'M9 5l7 7-7 7'} />
+      </svg>
+    </button>
+  </aside>
+
+  <!-- Main Wrapper -->
+  <div
+    class:list={[
+      'dashboard-main-wrapper transition-all duration-300 ease-out',
+      sidebarPosition === 'left' && !sidebarCollapsed && `ml-64`,
+      sidebarPosition === 'left' && sidebarCollapsed && 'ml-16',
+      sidebarPosition === 'right' && !sidebarCollapsed && `mr-64`,
+      sidebarPosition === 'right' && sidebarCollapsed && 'mr-16',
+    ]}
+    data-dashboard-main
+  >
+    <!-- Header -->
+    {showHeader && (
+      <header
+        class:list={[
+          'dashboard-header sticky top-0 z-30',
+          'bg-surface/80 backdrop-blur-lg border-b border-border-subtle',
+          'flex items-center justify-between px-6',
+          headerHeightClasses[headerHeight],
+        ]}
+      >
+        <div class="dashboard-header-left flex items-center gap-4">
+          <!-- Mobile menu toggle -->
+          <button
+            type="button"
+            class="lg:hidden p-2 -ml-2 text-text-tertiary hover:text-text-primary"
+            data-mobile-menu-toggle
+            aria-label="Open menu"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+
+          <slot name="header-left" />
+        </div>
+
+        <div class="dashboard-header-center flex-1 px-4">
+          <slot name="header" />
+        </div>
+
+        <div class="dashboard-header-right flex items-center gap-3">
+          <slot name="header-right" />
+        </div>
+      </header>
+    )}
+
+    <!-- Page Content -->
+    <main class="dashboard-content p-6">
+      <slot />
+    </main>
+  </div>
+
+  <!-- Mobile Sidebar Overlay -->
+  <div
+    class="dashboard-overlay fixed inset-0 z-30 bg-black/50 lg:hidden hidden"
+    data-dashboard-overlay
+    aria-hidden="true"
+  />
+</div>
+
+<style>
+  /* Sidebar navigation styling */
+  .dashboard-nav :global(a),
+  .dashboard-nav :global(button) {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.625rem 1rem;
+    margin: 0.125rem 0.5rem;
+    border-radius: var(--radius-md);
+    color: var(--color-text-secondary);
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: color var(--duration-150) var(--ease-out),
+                background-color var(--duration-150) var(--ease-out);
+  }
+
+  .dashboard-nav :global(a:hover),
+  .dashboard-nav :global(button:hover) {
+    color: var(--color-text-primary);
+    background-color: var(--color-background-subtle);
+  }
+
+  .dashboard-nav :global(a.active),
+  .dashboard-nav :global(a[aria-current="page"]) {
+    color: var(--color-primary);
+    background-color: var(--color-primary-muted);
+  }
+
+  .dashboard-nav :global(svg) {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+  }
+
+  /* Collapsed sidebar */
+  [data-collapsed="true"] .dashboard-nav :global(span:not(.sr-only)) {
+    display: none;
+  }
+
+  [data-collapsed="true"] .dashboard-nav :global(a),
+  [data-collapsed="true"] .dashboard-nav :global(button) {
+    justify-content: center;
+    padding: 0.75rem;
+    margin: 0.125rem 0.25rem;
+  }
+
+  /* Section headers */
+  .dashboard-nav :global(.nav-section) {
+    padding: 0.5rem 1rem;
+    margin-top: 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-tertiary);
+  }
+
+  [data-collapsed="true"] .dashboard-nav :global(.nav-section) {
+    display: none;
+  }
+
+  /* Mobile overlay active */
+  .dashboard-overlay.active {
+    display: block;
+  }
+
+  /* Mobile sidebar */
+  @media (max-width: 1023px) {
+    .dashboard-sidebar {
+      transform: translateX(-100%);
+    }
+
+    .dashboard-sidebar.mobile-open {
+      transform: translateX(0);
+    }
+
+    .dashboard-main-wrapper {
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+    }
+  }
+</style>
+
+<script>
+  function initDashboard() {
+    const layout = document.querySelector('[data-dashboard-layout]');
+    if (!layout) return;
+
+    const sidebar = layout.querySelector('[data-dashboard-sidebar]') as HTMLElement;
+    const mainWrapper = layout.querySelector('[data-dashboard-main]') as HTMLElement;
+    const overlay = layout.querySelector('[data-dashboard-overlay]') as HTMLElement;
+    const collapseBtn = layout.querySelector('[data-collapse-sidebar]');
+    const mobileToggle = layout.querySelector('[data-mobile-menu-toggle]');
+
+    // Collapse sidebar
+    collapseBtn?.addEventListener('click', () => {
+      const isCollapsed = layout.getAttribute('data-collapsed') === 'true';
+      layout.setAttribute('data-collapsed', (!isCollapsed).toString());
+
+      if (isCollapsed) {
+        sidebar.classList.remove('w-16');
+        sidebar.classList.add('w-64');
+        mainWrapper.classList.remove('ml-16', 'mr-16');
+        mainWrapper.classList.add('ml-64', 'mr-64');
+      } else {
+        sidebar.classList.remove('w-64', 'w-80');
+        sidebar.classList.add('w-16');
+        mainWrapper.classList.remove('ml-64', 'mr-64', 'ml-80', 'mr-80');
+        mainWrapper.classList.add('ml-16', 'mr-16');
+      }
+
+      // Save preference
+      localStorage.setItem('dashboard-collapsed', (!isCollapsed).toString());
+    });
+
+    // Mobile menu
+    mobileToggle?.addEventListener('click', () => {
+      sidebar.classList.toggle('mobile-open');
+      overlay.classList.toggle('active');
+    });
+
+    overlay?.addEventListener('click', () => {
+      sidebar.classList.remove('mobile-open');
+      overlay.classList.remove('active');
+    });
+
+    // Restore collapsed state
+    const savedCollapsed = localStorage.getItem('dashboard-collapsed');
+    if (savedCollapsed === 'true') {
+      layout.setAttribute('data-collapsed', 'true');
+      sidebar.classList.remove('w-64');
+      sidebar.classList.add('w-16');
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initDashboard);
+  } else {
+    initDashboard();
+  }
+
+  document.addEventListener('astro:page-load', initDashboard);
+</script>

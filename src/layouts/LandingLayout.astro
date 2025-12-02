@@ -1,0 +1,65 @@
+---
+/**
+ * LandingLayout Component
+ *
+ * Full landing page structure with common section patterns.
+ * Modular sections for building conversion-focused pages.
+ *
+ * Target: SaaS, Startups, Product launches, Marketing campaigns
+ *
+ * Features:
+ * - Pre-built section patterns
+ * - Scroll-triggered animations
+ * - Sticky navigation support
+ * - Social proof sections
+ * - CTA optimization patterns
+ * - A/B testing friendly
+ *
+ * @example
+ * <LandingLayout>
+ *   <LandingSection variant="hero">...</LandingSection>
+ *   <LandingSection variant="features">...</LandingSection>
+ *   <LandingSection variant="testimonials">...</LandingSection>
+ *   <LandingSection variant="pricing">...</LandingSection>
+ *   <LandingSection variant="cta">...</LandingSection>
+ * </LandingLayout>
+ */
+
+export interface Props {
+  class?: string;
+}
+
+const { class: className = '' } = Astro.props;
+---
+
+<div
+  class:list={['landing-layout', className]}
+  data-landing-layout
+>
+  <!-- Navigation Slot -->
+  {Astro.slots.has('nav') && (
+    <slot name="nav" />
+  )}
+
+  <!-- Main Content -->
+  <main class="landing-main">
+    <slot />
+  </main>
+
+  <!-- Footer Slot -->
+  {Astro.slots.has('footer') && (
+    <slot name="footer" />
+  )}
+</div>
+
+<style>
+  .landing-layout {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .landing-main {
+    flex: 1;
+  }
+</style>

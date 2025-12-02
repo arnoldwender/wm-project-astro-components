@@ -1,0 +1,565 @@
+---
+/**
+ * FooterSection Component
+ *
+ * Website footer with various layouts.
+ *
+ * Variants:
+ * - default: Standard multi-column footer
+ * - simple: Simple centered footer
+ * - minimal: Minimal single line footer
+ * - mega: Large footer with multiple sections
+ * - centered: Centered content footer
+ * - dark: Dark background variant
+ *
+ * @example
+ * <FooterSection variant="default" logo="/logo.svg">
+ *   <FooterColumn title="Product" slot="columns">...</FooterColumn>
+ * </FooterSection>
+ */
+
+export interface SocialLink {
+  platform: string;
+  href: string;
+  icon: string;
+}
+
+export interface FooterLink {
+  label: string;
+  href: string;
+}
+
+export interface Props {
+  variant?: 'default' | 'simple' | 'minimal' | 'mega' | 'centered' | 'dark';
+  logo?: string;
+  logoAlt?: string;
+  companyName?: string;
+  tagline?: string;
+  copyright?: string;
+  socials?: SocialLink[];
+  bottomLinks?: FooterLink[];
+  showNewsletter?: boolean;
+  newsletterTitle?: string;
+  newsletterDescription?: string;
+  class?: string;
+}
+
+const {
+  variant = 'default',
+  logo,
+  logoAlt = 'Logo',
+  companyName,
+  tagline,
+  copyright,
+  socials = [],
+  bottomLinks = [],
+  showNewsletter = false,
+  newsletterTitle = 'Newsletter abonnieren',
+  newsletterDescription = 'Erhalten Sie die neuesten Updates.',
+  class: className = '',
+} = Astro.props;
+
+const currentYear = new Date().getFullYear();
+const copyrightText = copyright || `© ${currentYear} ${companyName || 'Company'}. Alle Rechte vorbehalten.`;
+---
+
+<footer
+  class:list={[
+    'footer',
+    `footer--${variant}`,
+    className,
+  ]}
+>
+  {/* Mega variant top section */}
+  {variant === 'mega' && showNewsletter && (
+    <div class="footer-newsletter">
+      <div class="footer-container">
+        <div class="newsletter-content">
+          <h3 class="newsletter-title">{newsletterTitle}</h3>
+          <p class="newsletter-description">{newsletterDescription}</p>
+        </div>
+        <form class="newsletter-form">
+          <input
+            type="email"
+            placeholder="Ihre E-Mail-Adresse"
+            class="newsletter-input"
+            required
+          />
+          <button type="submit" class="newsletter-button">
+            Abonnieren
+          </button>
+        </form>
+      </div>
+    </div>
+  )}
+
+  <div class="footer-main">
+    <div class="footer-container">
+      {/* Default/Mega layout */}
+      {(variant === 'default' || variant === 'mega' || variant === 'dark') && (
+        <div class="footer-grid">
+          {/* Brand column */}
+          <div class="footer-brand">
+            {logo ? (
+              <img src={logo} alt={logoAlt} class="footer-logo" />
+            ) : companyName ? (
+              <span class="footer-company">{companyName}</span>
+            ) : (
+              <slot name="logo" />
+            )}
+            {tagline && <p class="footer-tagline">{tagline}</p>}
+            {socials.length > 0 && (
+              <div class="footer-socials">
+                {socials.map((social) => (
+                  <a
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="social-link"
+                    aria-label={social.platform}
+                  >
+                    <span set:html={social.icon} />
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Link columns */}
+          <div class="footer-columns">
+            <slot name="columns" />
+          </div>
+        </div>
+      )}
+
+      {/* Simple layout */}
+      {variant === 'simple' && (
+        <div class="footer-simple">
+          <div class="footer-simple-brand">
+            {logo ? (
+              <img src={logo} alt={logoAlt} class="footer-logo" />
+            ) : companyName && (
+              <span class="footer-company">{companyName}</span>
+            )}
+          </div>
+          <nav class="footer-simple-nav">
+            <slot name="links" />
+          </nav>
+          {socials.length > 0 && (
+            <div class="footer-socials">
+              {socials.map((social) => (
+                <a
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="social-link"
+                  aria-label={social.platform}
+                >
+                  <span set:html={social.icon} />
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Centered layout */}
+      {variant === 'centered' && (
+        <div class="footer-centered">
+          {logo ? (
+            <img src={logo} alt={logoAlt} class="footer-logo footer-logo--centered" />
+          ) : companyName && (
+            <span class="footer-company footer-company--centered">{companyName}</span>
+          )}
+          {tagline && <p class="footer-tagline footer-tagline--centered">{tagline}</p>}
+          <nav class="footer-centered-nav">
+            <slot name="links" />
+          </nav>
+          {socials.length > 0 && (
+            <div class="footer-socials footer-socials--centered">
+              {socials.map((social) => (
+                <a
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="social-link"
+                  aria-label={social.platform}
+                >
+                  <span set:html={social.icon} />
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Minimal layout */}
+      {variant === 'minimal' && (
+        <div class="footer-minimal">
+          <span class="footer-copyright">{copyrightText}</span>
+          {bottomLinks.length > 0 && (
+            <nav class="footer-minimal-nav">
+              {bottomLinks.map((link) => (
+                <a href={link.href} class="footer-link">
+                  {link.label}
+                </a>
+              ))}
+            </nav>
+          )}
+        </div>
+      )}
+    </div>
+  </div>
+
+  {/* Bottom bar */}
+  {variant !== 'minimal' && (
+    <div class="footer-bottom">
+      <div class="footer-container footer-bottom-content">
+        <span class="footer-copyright">{copyrightText}</span>
+        {bottomLinks.length > 0 && (
+          <nav class="footer-bottom-nav">
+            {bottomLinks.map((link) => (
+              <a href={link.href} class="footer-link">
+                {link.label}
+              </a>
+            ))}
+          </nav>
+        )}
+      </div>
+    </div>
+  )}
+</footer>
+
+<style>
+  .footer {
+    background: var(--color-background-subtle);
+  }
+
+  .footer--dark {
+    background: var(--color-background-inverse);
+    color: white;
+  }
+
+  .footer-container {
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  @media (min-width: 1024px) {
+    .footer-container {
+      padding: 0 2rem;
+    }
+  }
+
+  /* Newsletter section */
+  .footer-newsletter {
+    padding: 3rem 0;
+    background: var(--color-primary);
+    color: white;
+  }
+
+  .footer-newsletter .footer-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  @media (min-width: 768px) {
+    .footer-newsletter .footer-container {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+
+  .newsletter-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 0.25rem;
+  }
+
+  .newsletter-description {
+    margin: 0;
+    opacity: 0.9;
+  }
+
+  .newsletter-form {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .newsletter-input {
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: var(--radius-lg);
+    min-width: 16rem;
+    font-size: 0.875rem;
+  }
+
+  .newsletter-button {
+    padding: 0.75rem 1.5rem;
+    background: white;
+    color: var(--color-primary);
+    font-weight: 600;
+    border: none;
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .newsletter-button:hover {
+    opacity: 0.9;
+  }
+
+  /* Main footer */
+  .footer-main {
+    padding: 3rem 0;
+  }
+
+  .footer--mega .footer-main {
+    padding: 4rem 0;
+  }
+
+  /* Grid layout */
+  .footer-grid {
+    display: grid;
+    gap: 3rem;
+  }
+
+  @media (min-width: 768px) {
+    .footer-grid {
+      grid-template-columns: 1fr 2fr;
+      gap: 4rem;
+    }
+  }
+
+  /* Brand */
+  .footer-brand {
+    max-width: 20rem;
+  }
+
+  .footer-logo {
+    height: 2rem;
+    width: auto;
+    margin-bottom: 1rem;
+  }
+
+  .footer-company {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+
+  .footer--dark .footer-company {
+    color: white;
+  }
+
+  .footer-tagline {
+    color: var(--color-text-secondary);
+    margin: 0 0 1.5rem;
+    font-size: 0.875rem;
+    line-height: 1.6;
+  }
+
+  .footer--dark .footer-tagline {
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  /* Columns */
+  .footer-columns {
+    display: grid;
+    gap: 2rem;
+  }
+
+  @media (min-width: 640px) {
+    .footer-columns {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .footer-columns {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  /* Socials */
+  .footer-socials {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  .footer-socials--centered {
+    justify-content: center;
+  }
+
+  .social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: var(--radius-lg);
+    background: var(--color-background-muted);
+    color: var(--color-text-secondary);
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .social-link:hover {
+    background: var(--color-primary);
+    color: white;
+  }
+
+  .footer--dark .social-link {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+  }
+
+  .footer--dark .social-link:hover {
+    background: white;
+    color: var(--color-primary);
+  }
+
+  .social-link :global(svg) {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  /* Simple layout */
+  .footer-simple {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    text-align: center;
+  }
+
+  .footer-simple-nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
+  }
+
+  .footer-simple-nav :global(a) {
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    font-size: 0.875rem;
+  }
+
+  .footer-simple-nav :global(a:hover) {
+    color: var(--color-primary);
+  }
+
+  /* Centered layout */
+  .footer-centered {
+    text-align: center;
+  }
+
+  .footer-logo--centered,
+  .footer-company--centered {
+    margin: 0 auto 1rem;
+  }
+
+  .footer-tagline--centered {
+    max-width: 32rem;
+    margin: 0 auto 1.5rem;
+  }
+
+  .footer-centered-nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .footer-centered-nav :global(a) {
+    color: var(--color-text-secondary);
+    text-decoration: none;
+    font-size: 0.875rem;
+  }
+
+  .footer-centered-nav :global(a:hover) {
+    color: var(--color-primary);
+  }
+
+  /* Minimal layout */
+  .footer-minimal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem 0;
+  }
+
+  @media (min-width: 640px) {
+    .footer-minimal {
+      flex-direction: row;
+      justify-content: space-between;
+    }
+  }
+
+  .footer-minimal-nav {
+    display: flex;
+    gap: 1.5rem;
+  }
+
+  /* Bottom bar */
+  .footer-bottom {
+    padding: 1.5rem 0;
+    border-top: 1px solid var(--color-border-subtle);
+  }
+
+  .footer--dark .footer-bottom {
+    border-top-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .footer-bottom-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .footer-bottom-content {
+      flex-direction: row;
+      justify-content: space-between;
+    }
+  }
+
+  .footer-copyright {
+    font-size: 0.875rem;
+    color: var(--color-text-tertiary);
+  }
+
+  .footer--dark .footer-copyright {
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  .footer-bottom-nav {
+    display: flex;
+    gap: 1.5rem;
+  }
+
+  .footer-link {
+    font-size: 0.875rem;
+    color: var(--color-text-tertiary);
+    text-decoration: none;
+  }
+
+  .footer-link:hover {
+    color: var(--color-text-primary);
+  }
+
+  .footer--dark .footer-link {
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  .footer--dark .footer-link:hover {
+    color: white;
+  }
+</style>

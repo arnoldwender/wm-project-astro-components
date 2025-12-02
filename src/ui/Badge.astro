@@ -1,0 +1,159 @@
+---
+/**
+ * Badge Component
+ *
+ * Small status indicator or label for categorization.
+ *
+ * Features:
+ * - Multiple variants (solid, soft, outline)
+ * - Semantic colors
+ * - Icon support
+ * - Dot indicator
+ * - Removable option
+ * - Pill shape option
+ *
+ * @example
+ * <Badge>Default</Badge>
+ * <Badge variant="soft" color="success">Active</Badge>
+ * <Badge dot color="warning">Pending</Badge>
+ */
+
+export interface Props {
+  variant?: 'solid' | 'soft' | 'outline';
+  color?: 'default' | 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'info';
+  size?: 'sm' | 'md' | 'lg';
+  dot?: boolean;
+  pill?: boolean;
+  removable?: boolean;
+  class?: string;
+}
+
+const {
+  variant = 'soft',
+  color = 'default',
+  size = 'md',
+  dot = false,
+  pill = false,
+  removable = false,
+  class: className = '',
+} = Astro.props;
+
+// Size classes
+const sizeClasses = {
+  sm: 'px-1.5 py-0.5 text-xs',
+  md: 'px-2 py-0.5 text-sm',
+  lg: 'px-2.5 py-1 text-sm',
+};
+
+// Color/variant combinations
+const variantColorClasses = {
+  solid: {
+    default: 'bg-text-secondary text-white',
+    primary: 'bg-primary text-primary-text',
+    secondary: 'bg-secondary text-secondary-text',
+    success: 'bg-success text-white',
+    warning: 'bg-warning text-warning-text',
+    error: 'bg-error text-white',
+    info: 'bg-info text-white',
+  },
+  soft: {
+    default: 'bg-background-muted text-text-secondary',
+    primary: 'bg-primary-muted text-primary',
+    secondary: 'bg-secondary-muted text-secondary',
+    success: 'bg-success-muted text-success-dark',
+    warning: 'bg-warning-muted text-warning-dark',
+    error: 'bg-error-muted text-error-dark',
+    info: 'bg-info-muted text-info-dark',
+  },
+  outline: {
+    default: 'border border-border-default text-text-secondary',
+    primary: 'border border-primary text-primary',
+    secondary: 'border border-secondary text-secondary',
+    success: 'border border-success text-success',
+    warning: 'border border-warning text-warning',
+    error: 'border border-error text-error',
+    info: 'border border-info text-info',
+  },
+};
+
+const dotColorClasses = {
+  default: 'bg-text-tertiary',
+  primary: 'bg-primary',
+  secondary: 'bg-secondary',
+  success: 'bg-success',
+  warning: 'bg-warning',
+  error: 'bg-error',
+  info: 'bg-info',
+};
+---
+
+<span
+  class:list={[
+    'badge inline-flex items-center gap-1.5 font-medium',
+    sizeClasses[size],
+    variantColorClasses[variant][color],
+    pill ? 'rounded-full' : 'rounded-md',
+    className,
+  ]}
+  data-badge
+>
+  {dot && (
+    <span
+      class:list={[
+        'badge-dot w-1.5 h-1.5 rounded-full flex-shrink-0',
+        dotColorClasses[color],
+      ]}
+      aria-hidden="true"
+    />
+  )}
+
+  <span class="badge-content">
+    <slot />
+  </span>
+
+  {removable && (
+    <button
+      type="button"
+      class="badge-remove -mr-0.5 p-0.5 rounded hover:bg-black/10 dark:hover:bg-white/10 focus:outline-none focus-visible:ring-1 focus-visible:ring-current"
+      aria-label="Remove"
+      data-badge-remove
+    >
+      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  )}
+</span>
+
+<style>
+  .badge {
+    white-space: nowrap;
+  }
+
+  .badge-remove {
+    cursor: pointer;
+    transition: background-color var(--duration-100) var(--ease-out);
+  }
+</style>
+
+<script>
+  function initBadges() {
+    document.querySelectorAll('[data-badge-remove]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const badge = btn.closest('[data-badge]');
+        if (badge) {
+          badge.dispatchEvent(new CustomEvent('badge:remove', { bubbles: true }));
+          badge.remove();
+        }
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initBadges);
+  } else {
+    initBadges();
+  }
+
+  document.addEventListener('astro:page-load', initBadges);
+</script>

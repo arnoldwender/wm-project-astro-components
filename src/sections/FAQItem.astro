@@ -1,0 +1,143 @@
+---
+/**
+ * FAQItem Component
+ *
+ * Individual FAQ accordion item.
+ *
+ * @example
+ * <FAQItem
+ *   question="What is your refund policy?"
+ *   answer="We offer a 30-day money-back guarantee..."
+ * />
+ */
+
+export interface Props {
+  question: string;
+  answer: string;
+  defaultOpen?: boolean;
+  variant?: 'default' | 'bordered' | 'card' | 'minimal';
+  class?: string;
+}
+
+const {
+  question,
+  answer,
+  defaultOpen = false,
+  variant = 'default',
+  class: className = '',
+} = Astro.props;
+
+const uniqueId = `faq-${Math.random().toString(36).slice(2, 9)}`;
+---
+
+<div
+  class:list={[
+    'faq-item',
+    variant === 'bordered' && 'border border-border-subtle rounded-xl',
+    variant === 'card' && 'bg-surface border border-border-subtle rounded-xl shadow-sm',
+    variant === 'minimal' && 'border-b border-border-subtle last:border-b-0',
+    variant === 'default' && 'border-b border-border-subtle last:border-b-0',
+    className,
+  ]}
+  data-faq-item
+>
+  <button
+    type="button"
+    class:list={[
+      'faq-trigger w-full flex items-center justify-between gap-4 text-left',
+      variant === 'bordered' && 'p-5',
+      variant === 'card' && 'p-5',
+      variant === 'minimal' && 'py-4',
+      variant === 'default' && 'py-5',
+    ]}
+    aria-expanded={defaultOpen ? 'true' : 'false'}
+    aria-controls={uniqueId}
+    data-faq-trigger
+  >
+    <span class="faq-question font-medium text-text-primary pr-4">
+      {question}
+    </span>
+    <span class:list={[
+      'faq-icon flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center transition-transform duration-200',
+      (variant === 'card' || variant === 'bordered') && 'bg-background-subtle',
+    ]}>
+      <svg
+        class="w-4 h-4 text-text-tertiary transition-transform duration-200"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+      </svg>
+    </span>
+  </button>
+
+  <div
+    id={uniqueId}
+    class:list={[
+      'faq-content overflow-hidden transition-all duration-200',
+      !defaultOpen && 'hidden',
+    ]}
+    data-faq-content
+    aria-hidden={!defaultOpen}
+  >
+    <div class:list={[
+      'faq-answer text-text-secondary',
+      variant === 'bordered' && 'px-5 pb-5',
+      variant === 'card' && 'px-5 pb-5',
+      variant === 'minimal' && 'pb-4',
+      variant === 'default' && 'pb-5',
+    ]}>
+      <Fragment set:html={answer} />
+    </div>
+  </div>
+</div>
+
+<style>
+  [aria-expanded="true"] .faq-icon svg {
+    transform: rotate(180deg);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .faq-icon svg,
+    .faq-content {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  function initFAQItems() {
+    const items = document.querySelectorAll('[data-faq-item]');
+
+    items.forEach((item) => {
+      const trigger = item.querySelector('[data-faq-trigger]');
+      const content = item.querySelector('[data-faq-content]');
+
+      if (!trigger || !content) return;
+
+      trigger.addEventListener('click', () => {
+        const isExpanded = trigger.getAttribute('aria-expanded') === 'true';
+
+        // Toggle current item
+        trigger.setAttribute('aria-expanded', (!isExpanded).toString());
+        content.setAttribute('aria-hidden', isExpanded.toString());
+
+        if (isExpanded) {
+          content.classList.add('hidden');
+        } else {
+          content.classList.remove('hidden');
+        }
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initFAQItems);
+  } else {
+    initFAQItems();
+  }
+
+  document.addEventListener('astro:page-load', initFAQItems);
+</script>

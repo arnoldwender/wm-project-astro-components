@@ -1,0 +1,1336 @@
+---
+/**
+ * ProductSection Component
+ *
+ * E-commerce product display sections.
+ *
+ * Variants:
+ * - grid: Product grid layout
+ * - carousel: Horizontal scrolling products
+ * - featured: Single featured product
+ * - comparison: Product comparison
+ * - detail: Full product detail page
+ * - quick-view: Quick view modal style
+ *
+ * @example
+ * <ProductSection variant="grid" title="Featured Products">
+ *   <ProductCard ... />
+ * </ProductSection>
+ */
+
+import SectionWrapper from './SectionWrapper.astro';
+import SectionHeader from './SectionHeader.astro';
+
+export interface Product {
+  id: string;
+  name: string;
+  slug: string;
+  price: number;
+  originalPrice?: number;
+  currency?: string;
+  image: string;
+  images?: string[];
+  description?: string;
+  shortDescription?: string;
+  category?: string;
+  rating?: number;
+  reviewCount?: number;
+  badge?: string;
+  inStock?: boolean;
+  variants?: { name: string; options: string[] }[];
+  features?: string[];
+}
+
+export interface Props {
+  variant?: 'grid' | 'carousel' | 'featured' | 'comparison' | 'detail' | 'quick-view';
+  products?: Product[];
+  product?: Product;
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+  columns?: 2 | 3 | 4;
+  showFilters?: boolean;
+  showSort?: boolean;
+  showAddToCart?: boolean;
+  ctaLabel?: string;
+  background?: 'transparent' | 'subtle' | 'muted';
+  class?: string;
+}
+
+const {
+  variant = 'grid',
+  products = [],
+  product,
+  eyebrow,
+  title,
+  description,
+  columns = 4,
+  showFilters = false,
+  showSort = false,
+  showAddToCart = true,
+  ctaLabel = 'Add to Cart',
+  background = 'transparent',
+  class: className = '',
+} = Astro.props;
+
+function formatPrice(price: number, currency: string = 'EUR'): string {
+  return new Intl.NumberFormat('de-DE', {
+    style: 'currency',
+    currency,
+  }).format(price);
+}
+
+function getDiscount(original: number, current: number): number {
+  return Math.round(((original - current) / original) * 100);
+}
+---
+
+<SectionWrapper background={background} class={className}>
+  {(eyebrow || title || description) && (
+    <SectionHeader
+      eyebrow={eyebrow}
+      title={title || ''}
+      description={description}
+    />
+  )}
+
+  {/* Controls */}
+  {(showFilters || showSort) && variant === 'grid' && (
+    <div class="product-controls">
+      {showFilters && (
+        <button type="button" class="filter-btn" data-product-filter>
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+          </svg>
+          Filters
+        </button>
+      )}
+      {showSort && (
+        <select class="sort-select">
+          <option value="featured">Featured</option>
+          <option value="price-asc">Price: Low to High</option>
+          <option value="price-desc">Price: High to Low</option>
+          <option value="newest">Newest</option>
+          <option value="rating">Best Rating</option>
+        </select>
+      )}
+    </div>
+  )}
+
+  {/* Grid variant */}
+  {variant === 'grid' && (
+    <div
+      class:list={[
+        'product-grid',
+        `product-grid--${columns}-cols`,
+      ]}
+    >
+      {products.map((item) => (
+        <article class="product-card">
+          <a href={`/products/${item.slug}`} class="product-link">
+            <div class="product-image-wrapper">
+              <img src={item.image} alt={item.name} class="product-image" loading="lazy" />
+              {item.badge && (
+                <span class="product-badge">{item.badge}</span>
+              )}
+              {item.originalPrice && (
+                <span class="product-discount">
+                  -{getDiscount(item.originalPrice, item.price)}%
+                </span>
+              )}
+            </div>
+            <div class="product-info">
+              {item.category && (
+                <span class="product-category">{item.category}</span>
+              )}
+              <h3 class="product-name">{item.name}</h3>
+              {item.rating !== undefined && (
+                <div class="product-rating">
+                  <div class="stars" style={`--rating: ${item.rating}`}>
+                    {Array.from({ length: 5 }).map(() => (
+                      <svg fill="currentColor" viewBox="0 0 20 20" width="16" height="16">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                    ))}
+                  </div>
+                  {item.reviewCount !== undefined && (
+                    <span class="review-count">({item.reviewCount})</span>
+                  )}
+                </div>
+              )}
+              <div class="product-price">
+                <span class="current-price">{formatPrice(item.price, item.currency)}</span>
+                {item.originalPrice && (
+                  <span class="original-price">{formatPrice(item.originalPrice, item.currency)}</span>
+                )}
+              </div>
+            </div>
+          </a>
+          {showAddToCart && (
+            <button type="button" class="add-to-cart" data-product-id={item.id}>
+              {ctaLabel}
+            </button>
+          )}
+        </article>
+      ))}
+      <slot />
+    </div>
+  )}
+
+  {/* Carousel variant */}
+  {variant === 'carousel' && (
+    <div class="product-carousel" data-product-carousel>
+      <button type="button" class="carousel-btn carousel-btn--prev" data-carousel-prev aria-label="Previous">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+
+      <div class="carousel-track-wrapper">
+        <div class="carousel-track">
+          {products.map((item) => (
+            <article class="product-card product-card--carousel">
+              <a href={`/products/${item.slug}`} class="product-link">
+                <div class="product-image-wrapper">
+                  <img src={item.image} alt={item.name} class="product-image" loading="lazy" />
+                  {item.badge && (
+                    <span class="product-badge">{item.badge}</span>
+                  )}
+                </div>
+                <div class="product-info">
+                  <h3 class="product-name">{item.name}</h3>
+                  <div class="product-price">
+                    <span class="current-price">{formatPrice(item.price, item.currency)}</span>
+                  </div>
+                </div>
+              </a>
+            </article>
+          ))}
+        </div>
+      </div>
+
+      <button type="button" class="carousel-btn carousel-btn--next" data-carousel-next aria-label="Next">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+    </div>
+  )}
+
+  {/* Featured variant */}
+  {variant === 'featured' && product && (
+    <div class="product-featured">
+      <div class="featured-gallery">
+        <div class="main-image">
+          <img src={product.image} alt={product.name} />
+        </div>
+        {product.images && product.images.length > 0 && (
+          <div class="thumbnail-grid">
+            <button type="button" class="thumbnail active">
+              <img src={product.image} alt="" />
+            </button>
+            {product.images.map((img, index) => (
+              <button type="button" class="thumbnail" data-image={img}>
+                <img src={img} alt="" />
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div class="featured-info">
+        {product.category && (
+          <span class="product-category">{product.category}</span>
+        )}
+        <h2 class="featured-name">{product.name}</h2>
+
+        {product.rating !== undefined && (
+          <div class="product-rating product-rating--lg">
+            <div class="stars" style={`--rating: ${product.rating}`}>
+              {Array.from({ length: 5 }).map(() => (
+                <svg fill="currentColor" viewBox="0 0 20 20" width="20" height="20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+              ))}
+            </div>
+            <span class="rating-text">{product.rating} ({product.reviewCount} reviews)</span>
+          </div>
+        )}
+
+        <div class="featured-price">
+          <span class="current-price">{formatPrice(product.price, product.currency)}</span>
+          {product.originalPrice && (
+            <>
+              <span class="original-price">{formatPrice(product.originalPrice, product.currency)}</span>
+              <span class="discount-badge">Save {getDiscount(product.originalPrice, product.price)}%</span>
+            </>
+          )}
+        </div>
+
+        {product.shortDescription && (
+          <p class="featured-description">{product.shortDescription}</p>
+        )}
+
+        {product.variants && product.variants.length > 0 && (
+          <div class="product-variants">
+            {product.variants.map((variant) => (
+              <div class="variant-group">
+                <label class="variant-label">{variant.name}</label>
+                <div class="variant-options">
+                  {variant.options.map((option, i) => (
+                    <button type="button" class:list={['variant-btn', i === 0 && 'active']}>
+                      {option}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div class="quantity-selector">
+          <label class="quantity-label">Quantity</label>
+          <div class="quantity-controls">
+            <button type="button" class="quantity-btn" data-quantity-dec>-</button>
+            <input type="number" value="1" min="1" class="quantity-input" />
+            <button type="button" class="quantity-btn" data-quantity-inc>+</button>
+          </div>
+        </div>
+
+        <div class="featured-actions">
+          <button type="button" class="btn btn--primary btn--lg">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            {ctaLabel}
+          </button>
+          <button type="button" class="btn btn--secondary btn--icon" aria-label="Add to wishlist">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+          </button>
+        </div>
+
+        {product.features && product.features.length > 0 && (
+          <ul class="product-features">
+            {product.features.map((feature) => (
+              <li>
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                {feature}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </div>
+  )}
+
+  {/* Comparison variant */}
+  {variant === 'comparison' && products.length > 0 && (
+    <div class="product-comparison">
+      <div class="comparison-header">
+        {products.map((item) => (
+          <div class="comparison-product">
+            <img src={item.image} alt={item.name} class="comparison-image" />
+            <h3 class="comparison-name">{item.name}</h3>
+            <div class="comparison-price">{formatPrice(item.price, item.currency)}</div>
+            {showAddToCart && (
+              <button type="button" class="btn btn--primary btn--sm">
+                {ctaLabel}
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+      <div class="comparison-features">
+        <slot />
+      </div>
+    </div>
+  )}
+
+  {/* Detail variant */}
+  {variant === 'detail' && product && (
+    <div class="product-detail">
+      <div class="detail-gallery">
+        <div class="main-image-container">
+          <img src={product.image} alt={product.name} id="mainImage" />
+          <button type="button" class="zoom-btn" aria-label="Zoom">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+            </svg>
+          </button>
+        </div>
+        {product.images && (
+          <div class="thumbnail-strip">
+            <button type="button" class="thumbnail active">
+              <img src={product.image} alt="" />
+            </button>
+            {product.images.map((img) => (
+              <button type="button" class="thumbnail" data-image={img}>
+                <img src={img} alt="" />
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div class="detail-content">
+        <nav class="breadcrumb-mini">
+          <a href="/">Home</a> / <a href="/products">Products</a> / {product.name}
+        </nav>
+
+        <h1 class="detail-name">{product.name}</h1>
+
+        {product.rating !== undefined && (
+          <div class="product-rating product-rating--lg">
+            <div class="stars" style={`--rating: ${product.rating}`}>
+              {Array.from({ length: 5 }).map(() => (
+                <svg fill="currentColor" viewBox="0 0 20 20" width="20" height="20">
+                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                </svg>
+              ))}
+            </div>
+            <a href="#reviews" class="rating-link">{product.reviewCount} reviews</a>
+          </div>
+        )}
+
+        <div class="detail-price">
+          <span class="current-price">{formatPrice(product.price, product.currency)}</span>
+          {product.originalPrice && (
+            <span class="original-price">{formatPrice(product.originalPrice, product.currency)}</span>
+          )}
+        </div>
+
+        {product.description && (
+          <div class="detail-description">
+            <p>{product.description}</p>
+          </div>
+        )}
+
+        <div class="stock-status">
+          {product.inStock !== false ? (
+            <span class="in-stock">
+              <svg fill="currentColor" viewBox="0 0 20 20" width="16" height="16">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+              </svg>
+              In Stock
+            </span>
+          ) : (
+            <span class="out-of-stock">Out of Stock</span>
+          )}
+        </div>
+
+        <div class="detail-actions">
+          <div class="quantity-selector">
+            <button type="button" class="quantity-btn" data-quantity-dec>-</button>
+            <input type="number" value="1" min="1" class="quantity-input" />
+            <button type="button" class="quantity-btn" data-quantity-inc>+</button>
+          </div>
+          <button type="button" class="btn btn--primary btn--lg flex-1">
+            {ctaLabel}
+          </button>
+          <button type="button" class="btn btn--secondary btn--icon" aria-label="Add to wishlist">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+          </button>
+        </div>
+
+        <slot />
+      </div>
+    </div>
+  )}
+
+  {/* Quick view variant */}
+  {variant === 'quick-view' && product && (
+    <div class="quick-view">
+      <div class="quick-view-image">
+        <img src={product.image} alt={product.name} />
+      </div>
+      <div class="quick-view-content">
+        {product.category && (
+          <span class="product-category">{product.category}</span>
+        )}
+        <h2 class="quick-view-name">{product.name}</h2>
+        <div class="quick-view-price">
+          <span class="current-price">{formatPrice(product.price, product.currency)}</span>
+          {product.originalPrice && (
+            <span class="original-price">{formatPrice(product.originalPrice, product.currency)}</span>
+          )}
+        </div>
+        {product.shortDescription && (
+          <p class="quick-view-description">{product.shortDescription}</p>
+        )}
+        <div class="quick-view-actions">
+          <button type="button" class="btn btn--primary">
+            {ctaLabel}
+          </button>
+          <a href={`/products/${product.slug}`} class="btn btn--secondary">
+            View Details
+          </a>
+        </div>
+      </div>
+    </div>
+  )}
+</SectionWrapper>
+
+<style>
+  /* Controls */
+  .product-controls {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .filter-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-lg);
+    font-size: 0.875rem;
+    cursor: pointer;
+  }
+
+  .sort-select {
+    padding: 0.625rem 2rem 0.625rem 1rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-lg);
+    font-size: 0.875rem;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.5rem center;
+    background-size: 1rem;
+  }
+
+  /* Grid */
+  .product-grid {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .product-grid--2-cols { grid-template-columns: repeat(2, 1fr); }
+  .product-grid--3-cols { grid-template-columns: repeat(3, 1fr); }
+  .product-grid--4-cols { grid-template-columns: repeat(4, 1fr); }
+
+  @media (max-width: 1024px) {
+    .product-grid--4-cols { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  @media (max-width: 768px) {
+    .product-grid--3-cols,
+    .product-grid--4-cols { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 480px) {
+    .product-grid { grid-template-columns: 1fr; }
+  }
+
+  /* Product card */
+  .product-card {
+    background: var(--color-surface);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+  }
+
+  .product-card:hover {
+    box-shadow: var(--shadow-lg);
+  }
+
+  .product-link {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .product-image-wrapper {
+    position: relative;
+    aspect-ratio: 1;
+    overflow: hidden;
+    background: var(--color-background-subtle);
+  }
+
+  .product-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+  }
+
+  .product-card:hover .product-image {
+    transform: scale(1.05);
+  }
+
+  .product-badge {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    padding: 0.25rem 0.625rem;
+    background: var(--color-primary);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: var(--radius-full);
+  }
+
+  .product-discount {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    padding: 0.25rem 0.625rem;
+    background: var(--color-error);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: var(--radius-full);
+  }
+
+  .product-info {
+    padding: 1rem;
+  }
+
+  .product-category {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--color-text-tertiary);
+    margin-bottom: 0.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .product-name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem;
+    color: var(--color-text-primary);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .product-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .stars {
+    display: flex;
+    gap: 0.125rem;
+    color: #fbbf24;
+  }
+
+  .review-count {
+    font-size: 0.75rem;
+    color: var(--color-text-tertiary);
+  }
+
+  .product-price {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .current-price {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+  }
+
+  .original-price {
+    font-size: 0.875rem;
+    color: var(--color-text-tertiary);
+    text-decoration: line-through;
+  }
+
+  .add-to-cart {
+    width: 100%;
+    padding: 0.75rem;
+    background: var(--color-primary);
+    color: white;
+    font-weight: 600;
+    font-size: 0.875rem;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .add-to-cart:hover {
+    background: var(--color-primary-dark);
+  }
+
+  /* Carousel */
+  .product-carousel {
+    position: relative;
+    padding: 0 3rem;
+  }
+
+  .carousel-track-wrapper {
+    overflow: hidden;
+  }
+
+  .carousel-track {
+    display: flex;
+    gap: 1.5rem;
+    transition: transform 0.3s ease;
+  }
+
+  .product-card--carousel {
+    flex: 0 0 calc(25% - 1.125rem);
+  }
+
+  .carousel-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 2.5rem;
+    height: 2.5rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-full);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    transition: background 0.2s;
+  }
+
+  .carousel-btn:hover {
+    background: var(--color-background-subtle);
+  }
+
+  .carousel-btn--prev { left: 0; }
+  .carousel-btn--next { right: 0; }
+
+  /* Featured */
+  .product-featured {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: start;
+  }
+
+  .featured-gallery {
+    position: sticky;
+    top: 2rem;
+  }
+
+  .main-image {
+    aspect-ratio: 1;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    background: var(--color-background-subtle);
+    margin-bottom: 1rem;
+  }
+
+  .main-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .thumbnail-grid {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  .thumbnail {
+    width: 5rem;
+    height: 5rem;
+    padding: 0;
+    background: var(--color-background-subtle);
+    border: 2px solid transparent;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+
+  .thumbnail.active,
+  .thumbnail:hover {
+    border-color: var(--color-primary);
+  }
+
+  .thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .featured-name {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0 0 1rem;
+    color: var(--color-text-primary);
+  }
+
+  .product-rating--lg .stars svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .rating-text,
+  .rating-link {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+  }
+
+  .rating-link:hover {
+    color: var(--color-primary);
+  }
+
+  .featured-price {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 1rem 0;
+  }
+
+  .featured-price .current-price {
+    font-size: 1.5rem;
+  }
+
+  .discount-badge {
+    padding: 0.25rem 0.5rem;
+    background: var(--color-error);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: var(--radius-full);
+  }
+
+  .featured-description {
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+  }
+
+  .product-variants {
+    margin-bottom: 1.5rem;
+  }
+
+  .variant-group {
+    margin-bottom: 1rem;
+  }
+
+  .variant-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .variant-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .variant-btn {
+    padding: 0.5rem 1rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-lg);
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .variant-btn:hover {
+    border-color: var(--color-border);
+  }
+
+  .variant-btn.active {
+    border-color: var(--color-primary);
+    background: var(--color-primary-alpha);
+  }
+
+  .quantity-selector {
+    margin-bottom: 1.5rem;
+  }
+
+  .quantity-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .quantity-controls {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-lg);
+  }
+
+  .quantity-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+    background: transparent;
+    border: none;
+    font-size: 1.25rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .quantity-input {
+    width: 3rem;
+    height: 2.5rem;
+    text-align: center;
+    border: none;
+    border-left: 1px solid var(--color-border-subtle);
+    border-right: 1px solid var(--color-border-subtle);
+    font-size: 0.875rem;
+    -moz-appearance: textfield;
+  }
+
+  .quantity-input::-webkit-inner-spin-button,
+  .quantity-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  .featured-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: background 0.2s;
+    border: none;
+    text-decoration: none;
+  }
+
+  .btn--primary {
+    background: var(--color-primary);
+    color: white;
+  }
+
+  .btn--primary:hover {
+    background: var(--color-primary-dark);
+  }
+
+  .btn--secondary {
+    background: var(--color-background-subtle);
+    color: var(--color-text-primary);
+  }
+
+  .btn--secondary:hover {
+    background: var(--color-background-muted);
+  }
+
+  .btn--lg {
+    padding: 1rem 2rem;
+    font-size: 1rem;
+  }
+
+  .btn--sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.75rem;
+  }
+
+  .btn--icon {
+    width: 3rem;
+    height: 3rem;
+    padding: 0;
+  }
+
+  .btn--lg.btn--icon {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+
+  .flex-1 {
+    flex: 1;
+  }
+
+  .product-features {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .product-features li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    margin-bottom: 0.5rem;
+  }
+
+  .product-features svg {
+    color: var(--color-success);
+  }
+
+  /* Comparison */
+  .product-comparison {
+    overflow-x: auto;
+  }
+
+  .comparison-header {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--color-border-subtle);
+    margin-bottom: 1.5rem;
+  }
+
+  .comparison-product {
+    text-align: center;
+  }
+
+  .comparison-image {
+    width: 100%;
+    max-width: 150px;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: var(--radius-lg);
+    margin-bottom: 1rem;
+  }
+
+  .comparison-name {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem;
+  }
+
+  .comparison-price {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin-bottom: 1rem;
+  }
+
+  /* Detail */
+  .product-detail {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: start;
+  }
+
+  .detail-gallery {
+    position: sticky;
+    top: 2rem;
+  }
+
+  .main-image-container {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    background: var(--color-background-subtle);
+    margin-bottom: 1rem;
+  }
+
+  .main-image-container img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .zoom-btn {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    background: var(--color-surface);
+    border: none;
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .thumbnail-strip {
+    display: flex;
+    gap: 0.75rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+  }
+
+  .breadcrumb-mini {
+    font-size: 0.875rem;
+    color: var(--color-text-tertiary);
+    margin-bottom: 1rem;
+  }
+
+  .breadcrumb-mini a {
+    color: var(--color-text-tertiary);
+    text-decoration: none;
+  }
+
+  .breadcrumb-mini a:hover {
+    color: var(--color-primary);
+  }
+
+  .detail-name {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0 0 1rem;
+  }
+
+  .detail-price {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .detail-price .current-price {
+    font-size: 1.75rem;
+  }
+
+  .detail-description {
+    margin-bottom: 1.5rem;
+  }
+
+  .detail-description p {
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+  }
+
+  .stock-status {
+    margin-bottom: 1.5rem;
+  }
+
+  .in-stock {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    color: var(--color-success);
+    font-weight: 500;
+  }
+
+  .out-of-stock {
+    color: var(--color-error);
+    font-weight: 500;
+  }
+
+  .detail-actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+
+  .detail-actions .quantity-selector {
+    margin-bottom: 0;
+  }
+
+  /* Quick view */
+  .quick-view {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    padding: 2rem;
+    background: var(--color-surface);
+    border-radius: var(--radius-2xl);
+  }
+
+  .quick-view-image {
+    aspect-ratio: 1;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    background: var(--color-background-subtle);
+  }
+
+  .quick-view-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .quick-view-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .quick-view-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0.5rem 0 1rem;
+  }
+
+  .quick-view-price {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .quick-view-description {
+    color: var(--color-text-secondary);
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+  }
+
+  .quick-view-actions {
+    display: flex;
+    gap: 0.75rem;
+  }
+
+  @media (max-width: 1024px) {
+    .product-featured,
+    .product-detail,
+    .quick-view {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    .featured-gallery,
+    .detail-gallery {
+      position: static;
+    }
+
+    .carousel-track {
+      padding: 0 1rem;
+    }
+
+    .product-card--carousel {
+      flex: 0 0 calc(50% - 0.75rem);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .product-carousel {
+      padding: 0;
+    }
+
+    .carousel-btn {
+      display: none;
+    }
+
+    .product-card--carousel {
+      flex: 0 0 calc(80% - 0.75rem);
+    }
+
+    .featured-name,
+    .detail-name {
+      font-size: 1.5rem;
+    }
+
+    .featured-actions,
+    .detail-actions {
+      flex-direction: column;
+    }
+
+    .featured-actions .btn,
+    .detail-actions .btn {
+      width: 100%;
+    }
+  }
+</style>
+
+<script>
+  function initProductSections() {
+    // Quantity controls
+    const quantityControls = document.querySelectorAll('.quantity-controls');
+    quantityControls.forEach((control) => {
+      const input = control.querySelector('.quantity-input') as HTMLInputElement;
+      const decBtn = control.querySelector('[data-quantity-dec]');
+      const incBtn = control.querySelector('[data-quantity-inc]');
+
+      decBtn?.addEventListener('click', () => {
+        const value = parseInt(input.value) || 1;
+        if (value > 1) input.value = String(value - 1);
+      });
+
+      incBtn?.addEventListener('click', () => {
+        const value = parseInt(input.value) || 1;
+        input.value = String(value + 1);
+      });
+    });
+
+    // Thumbnail gallery
+    const thumbnails = document.querySelectorAll('.thumbnail[data-image]');
+    thumbnails.forEach((thumb) => {
+      thumb.addEventListener('click', () => {
+        const imageUrl = thumb.getAttribute('data-image');
+        const mainImage = thumb.closest('.featured-gallery, .detail-gallery')?.querySelector('.main-image img, .main-image-container img') as HTMLImageElement;
+
+        if (mainImage && imageUrl) {
+          mainImage.src = imageUrl;
+
+          // Update active state
+          thumb.closest('.thumbnail-grid, .thumbnail-strip')?.querySelectorAll('.thumbnail').forEach((t) => {
+            t.classList.remove('active');
+          });
+          thumb.classList.add('active');
+        }
+      });
+    });
+
+    // Variant buttons
+    const variantBtns = document.querySelectorAll('.variant-btn');
+    variantBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        btn.closest('.variant-options')?.querySelectorAll('.variant-btn').forEach((b) => {
+          b.classList.remove('active');
+        });
+        btn.classList.add('active');
+      });
+    });
+
+    // Carousel
+    const carousels = document.querySelectorAll('[data-product-carousel]');
+    carousels.forEach((carousel) => {
+      const track = carousel.querySelector('.carousel-track') as HTMLElement;
+      const prevBtn = carousel.querySelector('[data-carousel-prev]');
+      const nextBtn = carousel.querySelector('[data-carousel-next]');
+
+      let position = 0;
+      const cardWidth = track?.querySelector('.product-card')?.clientWidth || 0;
+      const gap = 24; // 1.5rem
+      const visibleCards = Math.floor(track?.parentElement?.clientWidth || 0 / (cardWidth + gap)) || 4;
+      const totalCards = track?.children.length || 0;
+      const maxPosition = (totalCards - visibleCards) * (cardWidth + gap);
+
+      prevBtn?.addEventListener('click', () => {
+        position = Math.max(0, position - (cardWidth + gap));
+        if (track) track.style.transform = `translateX(-${position}px)`;
+      });
+
+      nextBtn?.addEventListener('click', () => {
+        position = Math.min(maxPosition, position + (cardWidth + gap));
+        if (track) track.style.transform = `translateX(-${position}px)`;
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initProductSections);
+  } else {
+    initProductSections();
+  }
+
+  document.addEventListener('astro:page-load', initProductSections);
+</script>

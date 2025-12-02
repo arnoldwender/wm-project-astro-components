@@ -1,0 +1,159 @@
+---
+/**
+ * PortfolioItem Component
+ *
+ * Individual portfolio/gallery item with hover effects.
+ *
+ * @example
+ * <PortfolioItem
+ *   title="Project Name"
+ *   image="/project.jpg"
+ *   category="branding"
+ *   href="/projects/name"
+ * />
+ */
+
+export interface Props {
+  title: string;
+  image: string;
+  imageAlt?: string;
+  href?: string;
+  category?: string;
+  description?: string;
+  aspectRatio?: 'square' | 'video' | 'portrait' | 'landscape' | 'auto';
+  enableLightbox?: boolean;
+  class?: string;
+}
+
+const {
+  title,
+  image,
+  imageAlt = title,
+  href,
+  category,
+  description,
+  aspectRatio = 'square',
+  enableLightbox = false,
+  class: className = '',
+} = Astro.props;
+
+// Aspect ratio classes
+const aspectClasses = {
+  square: 'aspect-square',
+  video: 'aspect-video',
+  portrait: 'aspect-[3/4]',
+  landscape: 'aspect-[4/3]',
+  auto: '',
+};
+
+const Tag = href && !enableLightbox ? 'a' : 'div';
+---
+
+<article
+  class:list={[
+    'portfolio-item group relative overflow-hidden rounded-lg bg-background-muted',
+    aspectClasses[aspectRatio],
+    className,
+  ]}
+  data-category={category?.toLowerCase().replace(/\s+/g, '-')}
+  data-lightbox-src={enableLightbox ? image : undefined}
+  data-lightbox-caption={enableLightbox ? title : undefined}
+>
+  {Tag === 'a' ? (
+    <a href={href} class="absolute inset-0 z-10">
+      <span class="sr-only">{title}</span>
+    </a>
+  ) : enableLightbox ? (
+    <button
+      type="button"
+      class="absolute inset-0 z-10 cursor-zoom-in"
+      aria-label={`View ${title}`}
+    >
+      <span class="sr-only">{title}</span>
+    </button>
+  ) : null}
+
+  <!-- Image -->
+  <img
+    src={image}
+    alt={imageAlt}
+    class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+    loading="lazy"
+  />
+
+  <!-- Overlay -->
+  <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+  <!-- Content -->
+  <div class="absolute inset-0 flex flex-col justify-end p-4 lg:p-6 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 translate-y-4 group-hover:translate-y-0">
+    {category && (
+      <span class="text-xs font-medium uppercase tracking-wider text-white/70 mb-2">
+        {category}
+      </span>
+    )}
+    <h3 class="text-lg lg:text-xl font-semibold">
+      {title}
+    </h3>
+    {description && (
+      <p class="text-sm text-white/80 mt-1 line-clamp-2">
+        {description}
+      </p>
+    )}
+
+    {href && !enableLightbox && (
+      <span class="inline-flex items-center gap-1 text-sm font-medium mt-3 text-white/90">
+        Projekt ansehen
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+        </svg>
+      </span>
+    )}
+
+    {enableLightbox && (
+      <span class="inline-flex items-center gap-1 text-sm font-medium mt-3 text-white/90">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+        </svg>
+        Vergrößern
+      </span>
+    )}
+  </div>
+
+  <!-- Corner Icon (zoom or link) -->
+  <div class="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+    {enableLightbox ? (
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+      </svg>
+    ) : (
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+      </svg>
+    )}
+  </div>
+</article>
+
+<style>
+  .portfolio-item {
+    transition: transform var(--duration-300) var(--ease-out),
+                box-shadow var(--duration-300) var(--ease-out);
+  }
+
+  .portfolio-item:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-xl);
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .portfolio-item,
+    .portfolio-item img,
+    .portfolio-item > div {
+      transition: none;
+    }
+
+    .portfolio-item:hover img {
+      transform: none;
+    }
+  }
+</style>
