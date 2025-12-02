@@ -1,0 +1,265 @@
+---
+/**
+ * LocationsSection Component
+ *
+ * Display office locations, stores, or service areas.
+ *
+ * Variants:
+ * - grid: Standard location grid
+ * - map: Interactive map with location list
+ * - list: Vertical list layout
+ * - cards: Visual card layout
+ * - split: Map on one side, locations on other
+ * - tabs: Tabbed by region/country
+ *
+ * @example
+ * <LocationsSection variant="grid" title="Our Offices">
+ *   <LocationCard name="Berlin" address="..." />
+ * </LocationsSection>
+ */
+
+import SectionWrapper from './SectionWrapper.astro';
+import SectionHeader from './SectionHeader.astro';
+
+export interface Region {
+  id: string;
+  name: string;
+}
+
+export interface Props {
+  variant?: 'grid' | 'map' | 'list' | 'cards' | 'split' | 'tabs';
+  columns?: 2 | 3 | 4;
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+  mapEmbed?: string;
+  regions?: Region[];
+  defaultRegion?: string;
+  background?: 'transparent' | 'subtle' | 'muted';
+  class?: string;
+}
+
+const {
+  variant = 'grid',
+  columns = 3,
+  eyebrow,
+  title,
+  description,
+  mapEmbed,
+  regions = [],
+  defaultRegion,
+  background = 'transparent',
+  class: className = '',
+} = Astro.props;
+
+const columnClasses = {
+  2: 'md:grid-cols-2',
+  3: 'md:grid-cols-2 lg:grid-cols-3',
+  4: 'sm:grid-cols-2 lg:grid-cols-4',
+};
+---
+
+<SectionWrapper background={background} class={className}>
+  {(eyebrow || title || description) && (
+    <SectionHeader
+      eyebrow={eyebrow}
+      title={title || ''}
+      description={description}
+    />
+  )}
+
+  {/* Grid Variant */}
+  {variant === 'grid' && (
+    <div class:list={['locations-grid grid gap-6', columnClasses[columns]]}>
+      <slot />
+    </div>
+  )}
+
+  {/* Map Variant */}
+  {variant === 'map' && (
+    <div class="locations-map">
+      {mapEmbed && (
+        <div class="map-container rounded-2xl overflow-hidden mb-8 aspect-[21/9]">
+          <iframe
+            src={mapEmbed}
+            class="w-full h-full border-0"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            title="Standortkarte"
+          />
+        </div>
+      )}
+      <div class:list={['grid gap-4', columnClasses[columns]]}>
+        <slot />
+      </div>
+    </div>
+  )}
+
+  {/* List Variant */}
+  {variant === 'list' && (
+    <div class="locations-list max-w-3xl mx-auto space-y-4">
+      <slot />
+    </div>
+  )}
+
+  {/* Cards Variant */}
+  {variant === 'cards' && (
+    <div class:list={['locations-cards grid gap-6', columnClasses[columns]]}>
+      <slot />
+    </div>
+  )}
+
+  {/* Split Variant */}
+  {variant === 'split' && (
+    <div class="locations-split grid lg:grid-cols-2 gap-8">
+      {/* Map */}
+      <div class="map-container rounded-2xl overflow-hidden min-h-[400px] lg:min-h-0">
+        {mapEmbed ? (
+          <iframe
+            src={mapEmbed}
+            class="w-full h-full border-0"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            title="Standortkarte"
+          />
+        ) : (
+          <div class="w-full h-full bg-background-muted flex items-center justify-center text-text-tertiary">
+            Karte nicht verfügbar
+          </div>
+        )}
+      </div>
+
+      {/* Locations list */}
+      <div class="space-y-4 max-h-[600px] overflow-y-auto pr-2">
+        <slot />
+      </div>
+    </div>
+  )}
+
+  {/* Tabs Variant */}
+  {variant === 'tabs' && regions.length > 0 && (
+    <div class="locations-tabs" data-locations-tabs>
+      {/* Region tabs */}
+      <div class="tabs-nav flex flex-wrap justify-center gap-2 mb-8" role="tablist">
+        {regions.map((region, index) => (
+          <button
+            type="button"
+            role="tab"
+            class:list={[
+              'tab-btn px-5 py-2.5 rounded-lg text-sm font-medium transition-colors',
+              (defaultRegion === region.id || (!defaultRegion && index === 0))
+                ? 'bg-primary text-white'
+                : 'bg-background-subtle text-text-secondary hover:bg-background-muted',
+            ]}
+            data-tab={region.id}
+            aria-selected={(defaultRegion === region.id || (!defaultRegion && index === 0)).toString()}
+            aria-controls={`tab-panel-${region.id}`}
+          >
+            {region.name}
+          </button>
+        ))}
+      </div>
+
+      {/* Tab panels */}
+      <div class="tabs-content">
+        <slot />
+      </div>
+    </div>
+  )}
+</SectionWrapper>
+
+<style>
+  /* Split variant scrollbar */
+  .locations-split > div:last-child {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border-subtle) transparent;
+  }
+
+  .locations-split > div:last-child::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .locations-split > div:last-child::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .locations-split > div:last-child::-webkit-scrollbar-thumb {
+    background-color: var(--color-border-subtle);
+    border-radius: 3px;
+  }
+
+  /* Tab panel visibility */
+  .tabs-content :global([data-region]) {
+    display: none;
+  }
+
+  .tabs-content :global([data-region].active) {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  @media (min-width: 768px) {
+    .tabs-content :global([data-region].active) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .tabs-content :global([data-region].active) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>
+
+<script>
+  function initLocationsTabs() {
+    const containers = document.querySelectorAll('[data-locations-tabs]');
+
+    containers.forEach((container) => {
+      const tabs = container.querySelectorAll('[data-tab]');
+      const panels = container.querySelectorAll('[data-region]');
+
+      // Initialize first panel as active
+      const firstActiveTab = container.querySelector('[aria-selected="true"]');
+      const firstRegion = firstActiveTab?.getAttribute('data-tab');
+      panels.forEach((panel) => {
+        if (panel.getAttribute('data-region') === firstRegion) {
+          panel.classList.add('active');
+        }
+      });
+
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          const region = tab.getAttribute('data-tab');
+
+          // Update tab states
+          tabs.forEach((t) => {
+            t.setAttribute('aria-selected', 'false');
+            t.classList.remove('bg-primary', 'text-white');
+            t.classList.add('bg-background-subtle', 'text-text-secondary');
+          });
+          tab.setAttribute('aria-selected', 'true');
+          tab.classList.add('bg-primary', 'text-white');
+          tab.classList.remove('bg-background-subtle', 'text-text-secondary');
+
+          // Show corresponding panel
+          panels.forEach((panel) => {
+            if (panel.getAttribute('data-region') === region) {
+              panel.classList.add('active');
+            } else {
+              panel.classList.remove('active');
+            }
+          });
+        });
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initLocationsTabs);
+  } else {
+    initLocationsTabs();
+  }
+
+  document.addEventListener('astro:page-load', initLocationsTabs);
+</script>

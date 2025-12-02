@@ -1,0 +1,172 @@
+---
+/**
+ * BentoCard Component
+ *
+ * Individual card for the Bento Grid layout.
+ *
+ * @example
+ * <BentoCard size="2x2" variant="gradient" href="/features/main">
+ *   <svg slot="icon">...</svg>
+ *   <h3 slot="title">Feature Title</h3>
+ *   <p slot="description">Feature description...</p>
+ * </BentoCard>
+ */
+
+export interface Props {
+  size?: '1x1' | '2x1' | '1x2' | '2x2';
+  variant?: 'solid' | 'gradient' | 'glass' | 'outline' | 'image';
+  color?: 'default' | 'primary' | 'secondary' | 'accent';
+  href?: string;
+  backgroundImage?: string;
+  class?: string;
+}
+
+const {
+  size = '1x1',
+  variant = 'solid',
+  color = 'default',
+  href,
+  backgroundImage,
+  class: className = '',
+} = Astro.props;
+
+// Variant classes
+const variantClasses = {
+  solid: 'bg-surface',
+  gradient: '',
+  glass: 'bg-white/10 backdrop-blur-xl border border-white/20',
+  outline: 'bg-transparent border-2 border-border-default',
+  image: 'bg-cover bg-center',
+};
+
+// Color gradient classes
+const gradientClasses = {
+  default: 'bg-gradient-to-br from-background-subtle to-background-muted',
+  primary: 'bg-gradient-to-br from-primary/20 to-primary/5',
+  secondary: 'bg-gradient-to-br from-secondary/20 to-secondary/5',
+  accent: 'bg-gradient-to-br from-purple-500/20 via-pink-500/10 to-orange-500/5',
+};
+
+const Tag = href ? 'a' : 'div';
+---
+
+<Tag
+  href={href}
+  class:list={[
+    'bento-card group relative overflow-hidden rounded-2xl p-6',
+    'transition-all duration-300 ease-out',
+    variant === 'solid' && variantClasses.solid,
+    variant === 'gradient' && gradientClasses[color],
+    variant === 'glass' && variantClasses.glass,
+    variant === 'outline' && variantClasses.outline,
+    variant === 'image' && variantClasses.image,
+    href && 'cursor-pointer hover:scale-[1.02] hover:shadow-xl',
+    className,
+  ]}
+  style={backgroundImage ? `background-image: url('${backgroundImage}')` : undefined}
+  data-bento-size={size}
+>
+  {/* Background overlay for image variant */}
+  {variant === 'image' && (
+    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+  )}
+
+  {/* Hover gradient effect */}
+  {(variant === 'solid' || variant === 'gradient') && (
+    <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none" />
+  )}
+
+  {/* Content */}
+  <div class:list={[
+    'bento-card-content relative z-10 h-full flex flex-col',
+    variant === 'image' && 'text-white justify-end',
+  ]}>
+    {/* Icon */}
+    {Astro.slots.has('icon') && (
+      <div class:list={[
+        'bento-icon mb-4 w-12 h-12 rounded-xl flex items-center justify-center',
+        variant !== 'image' && 'bg-primary/10 text-primary',
+        variant === 'image' && 'bg-white/20 text-white',
+      ]}>
+        <slot name="icon" />
+      </div>
+    )}
+
+    {/* Title */}
+    {Astro.slots.has('title') && (
+      <h3 class:list={[
+        'bento-title font-semibold mb-2',
+        size === '1x1' && 'text-lg',
+        size === '2x1' && 'text-xl',
+        size === '1x2' && 'text-xl',
+        size === '2x2' && 'text-2xl lg:text-3xl',
+        variant !== 'image' && 'text-text-primary',
+      ]}>
+        <slot name="title" />
+      </h3>
+    )}
+
+    {/* Description */}
+    {Astro.slots.has('description') && (
+      <p class:list={[
+        'bento-description',
+        size === '2x2' && 'text-lg',
+        variant !== 'image' && 'text-text-secondary',
+        variant === 'image' && 'text-white/80',
+      ]}>
+        <slot name="description" />
+      </p>
+    )}
+
+    {/* Additional content */}
+    <div class="bento-body flex-1 mt-4">
+      <slot />
+    </div>
+
+    {/* Link indicator */}
+    {href && (
+      <div class:list={[
+        'bento-link-indicator mt-4 flex items-center gap-2 text-sm font-medium',
+        variant !== 'image' && 'text-primary',
+        variant === 'image' && 'text-white',
+      ]}>
+        <span>Mehr erfahren</span>
+        <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+        </svg>
+      </div>
+    )}
+  </div>
+
+  {/* Decorative elements */}
+  {size === '2x2' && variant !== 'image' && (
+    <div class="absolute -bottom-20 -right-20 w-64 h-64 rounded-full bg-primary/5 blur-3xl pointer-events-none" />
+  )}
+</Tag>
+
+<style>
+  .bento-card {
+    border: 1px solid var(--color-border-subtle);
+  }
+
+  .bento-card[data-bento-size="2x2"] {
+    min-height: 400px;
+  }
+
+  /* Icon slot styling */
+  .bento-icon :global(svg) {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .bento-card {
+      transition: none;
+    }
+
+    .bento-card:hover {
+      transform: none;
+    }
+  }
+</style>

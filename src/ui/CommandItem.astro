@@ -1,0 +1,108 @@
+---
+/**
+ * CommandItem Component
+ *
+ * Individual command/action item for the Command Palette.
+ *
+ * @example
+ * <CommandItem value="home" href="/" icon="🏠">Home</CommandItem>
+ * <CommandItem value="theme" action="toggleTheme" shortcut="⌘T">Toggle Theme</CommandItem>
+ */
+
+export interface Props {
+  value: string;
+  href?: string;
+  action?: string;
+  icon?: string;
+  shortcut?: string;
+  keywords?: string;
+  disabled?: boolean;
+  class?: string;
+}
+
+const {
+  value,
+  href,
+  action,
+  icon,
+  shortcut,
+  keywords = '',
+  disabled = false,
+  class: className = '',
+} = Astro.props;
+---
+
+<div
+  class:list={['command-item', className]}
+  data-command-item
+  data-value={value}
+  data-href={href}
+  data-action={action}
+  data-keywords={keywords}
+  role="option"
+  aria-disabled={disabled ? 'true' : undefined}
+>
+  {icon && (
+    <span class="command-item-icon w-5 h-5 flex items-center justify-center text-text-tertiary">
+      {icon.startsWith('<') ? (
+        <Fragment set:html={icon} />
+      ) : (
+        <span>{icon}</span>
+      )}
+    </span>
+  )}
+
+  <span class="command-item-label flex-1 text-text-primary" data-command-label>
+    <slot />
+  </span>
+
+  {shortcut && (
+    <span class="command-item-shortcut" data-command-shortcut>
+      {shortcut}
+    </span>
+  )}
+</div>
+
+<style>
+  .command-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: background-color var(--duration-100) var(--ease-out);
+  }
+
+  .command-item:hover,
+  .command-item[aria-selected="true"] {
+    background-color: var(--color-background-subtle);
+  }
+
+  .command-item[aria-selected="true"] {
+    background-color: var(--color-primary-muted);
+  }
+
+  .command-item[aria-disabled="true"] {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .command-item[hidden] {
+    display: none;
+  }
+
+  .command-item-icon {
+    flex-shrink: 0;
+  }
+
+  .command-item-shortcut {
+    margin-left: auto;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    color: var(--color-text-tertiary);
+    background-color: var(--color-background-subtle);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border-subtle);
+    font-family: var(--font-mono);
+  }
+</style>

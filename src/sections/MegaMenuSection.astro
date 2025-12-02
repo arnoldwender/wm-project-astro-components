@@ -1,0 +1,796 @@
+---
+/**
+ * MegaMenuSection Component
+ *
+ * Advanced mega menu navigation with rich content support.
+ *
+ * Variants:
+ * - default: Standard grid mega menu
+ * - featured: With featured content area
+ * - tabs: Tab-based navigation
+ * - columns: Multi-column layout
+ * - cards: Card-based menu items
+ * - full: Full-width mega menu
+ *
+ * @example
+ * <MegaMenuSection variant="default" trigger="Products">
+ *   <MegaMenuItem href="/feature-1">Feature 1</MegaMenuItem>
+ * </MegaMenuSection>
+ */
+
+export interface MenuColumn {
+  title?: string;
+  items: {
+    label: string;
+    href: string;
+    description?: string;
+    icon?: string;
+    badge?: string;
+  }[];
+}
+
+export interface Props {
+  variant?: 'default' | 'featured' | 'tabs' | 'columns' | 'cards' | 'full';
+  trigger: string;
+  columns?: MenuColumn[];
+  featuredTitle?: string;
+  featuredDescription?: string;
+  featuredImage?: string;
+  featuredLink?: string;
+  featuredLinkText?: string;
+  align?: 'left' | 'center' | 'right';
+  width?: 'auto' | 'full';
+  class?: string;
+}
+
+const {
+  variant = 'default',
+  trigger,
+  columns = [],
+  featuredTitle,
+  featuredDescription,
+  featuredImage,
+  featuredLink,
+  featuredLinkText = 'Learn more',
+  align = 'left',
+  width = 'auto',
+  class: className = '',
+} = Astro.props;
+
+const menuId = `mega-menu-${Math.random().toString(36).slice(2, 9)}`;
+---
+
+<div
+  class:list={[
+    'mega-menu-wrapper',
+    `mega-menu--${variant}`,
+    `mega-menu--align-${align}`,
+    `mega-menu--width-${width}`,
+    className,
+  ]}
+  data-mega-menu
+>
+  {/* Trigger button */}
+  <button
+    type="button"
+    class="mega-menu-trigger"
+    aria-expanded="false"
+    aria-controls={menuId}
+    data-mega-trigger
+  >
+    <span>{trigger}</span>
+    <svg class="trigger-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+    </svg>
+  </button>
+
+  {/* Mega menu panel */}
+  <div
+    id={menuId}
+    class="mega-menu-panel"
+    data-mega-panel
+    role="menu"
+  >
+    <div class="mega-menu-content">
+      {/* Default/Columns variant */}
+      {(variant === 'default' || variant === 'columns') && (
+        <div class="mega-menu-grid">
+          {columns.map((column) => (
+            <div class="mega-menu-column">
+              {column.title && (
+                <h3 class="column-title">{column.title}</h3>
+              )}
+              <ul class="column-items">
+                {column.items.map((item) => (
+                  <li>
+                    <a href={item.href} class="menu-item" role="menuitem">
+                      {item.icon && (
+                        <span class="item-icon" set:html={item.icon} />
+                      )}
+                      <div class="item-content">
+                        <span class="item-label">
+                          {item.label}
+                          {item.badge && (
+                            <span class="item-badge">{item.badge}</span>
+                          )}
+                        </span>
+                        {item.description && (
+                          <span class="item-description">{item.description}</span>
+                        )}
+                      </div>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Featured variant */}
+      {variant === 'featured' && (
+        <div class="mega-menu-featured">
+          <div class="mega-menu-grid">
+            {columns.map((column) => (
+              <div class="mega-menu-column">
+                {column.title && (
+                  <h3 class="column-title">{column.title}</h3>
+                )}
+                <ul class="column-items">
+                  {column.items.map((item) => (
+                    <li>
+                      <a href={item.href} class="menu-item" role="menuitem">
+                        {item.icon && (
+                          <span class="item-icon" set:html={item.icon} />
+                        )}
+                        <div class="item-content">
+                          <span class="item-label">{item.label}</span>
+                          {item.description && (
+                            <span class="item-description">{item.description}</span>
+                          )}
+                        </div>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+
+          {/* Featured section */}
+          <div class="featured-section">
+            {featuredImage && (
+              <img src={featuredImage} alt="" class="featured-image" />
+            )}
+            <div class="featured-content">
+              {featuredTitle && (
+                <h3 class="featured-title">{featuredTitle}</h3>
+              )}
+              {featuredDescription && (
+                <p class="featured-description">{featuredDescription}</p>
+              )}
+              {featuredLink && (
+                <a href={featuredLink} class="featured-link">
+                  {featuredLinkText}
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Cards variant */}
+      {variant === 'cards' && (
+        <div class="mega-menu-cards">
+          {columns.flatMap((column) => column.items).map((item) => (
+            <a href={item.href} class="menu-card" role="menuitem">
+              {item.icon && (
+                <span class="card-icon" set:html={item.icon} />
+              )}
+              <div class="card-content">
+                <span class="card-label">
+                  {item.label}
+                  {item.badge && (
+                    <span class="item-badge">{item.badge}</span>
+                  )}
+                </span>
+                {item.description && (
+                  <span class="card-description">{item.description}</span>
+                )}
+              </div>
+            </a>
+          ))}
+        </div>
+      )}
+
+      {/* Tabs variant */}
+      {variant === 'tabs' && (
+        <div class="mega-menu-tabs">
+          <nav class="tabs-nav" role="tablist">
+            {columns.map((column, index) => (
+              <button
+                type="button"
+                role="tab"
+                class:list={['tab-trigger', index === 0 && 'active']}
+                aria-selected={index === 0 ? 'true' : 'false'}
+                data-tab-index={index}
+              >
+                {column.title}
+              </button>
+            ))}
+          </nav>
+          <div class="tabs-content">
+            {columns.map((column, index) => (
+              <div
+                class:list={['tab-panel', index === 0 && 'active']}
+                role="tabpanel"
+                data-panel-index={index}
+              >
+                <ul class="column-items">
+                  {column.items.map((item) => (
+                    <li>
+                      <a href={item.href} class="menu-item menu-item--large" role="menuitem">
+                        {item.icon && (
+                          <span class="item-icon item-icon--large" set:html={item.icon} />
+                        )}
+                        <div class="item-content">
+                          <span class="item-label">{item.label}</span>
+                          {item.description && (
+                            <span class="item-description">{item.description}</span>
+                          )}
+                        </div>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Full width variant */}
+      {variant === 'full' && (
+        <div class="mega-menu-full">
+          <div class="full-grid">
+            {columns.map((column) => (
+              <div class="mega-menu-column">
+                {column.title && (
+                  <h3 class="column-title">{column.title}</h3>
+                )}
+                <ul class="column-items">
+                  {column.items.map((item) => (
+                    <li>
+                      <a href={item.href} class="menu-item" role="menuitem">
+                        {item.icon && (
+                          <span class="item-icon" set:html={item.icon} />
+                        )}
+                        <div class="item-content">
+                          <span class="item-label">{item.label}</span>
+                          {item.description && (
+                            <span class="item-description">{item.description}</span>
+                          )}
+                        </div>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+
+          {/* Optional slot for additional content */}
+          <slot name="footer" />
+        </div>
+      )}
+
+      {/* Slot for custom content */}
+      <slot />
+    </div>
+  </div>
+</div>
+
+<style>
+  .mega-menu-wrapper {
+    position: relative;
+  }
+
+  .mega-menu-trigger {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-text-primary);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+
+  .mega-menu-trigger:hover {
+    color: var(--color-primary);
+  }
+
+  .trigger-icon {
+    transition: transform 0.2s;
+  }
+
+  .mega-menu-wrapper[data-open="true"] .trigger-icon {
+    transform: rotate(180deg);
+  }
+
+  .mega-menu-panel {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 50;
+    min-width: 600px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xl);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(8px);
+    transition: opacity 0.2s, visibility 0.2s, transform 0.2s;
+  }
+
+  .mega-menu-wrapper[data-open="true"] .mega-menu-panel {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .mega-menu--align-center .mega-menu-panel {
+    left: 50%;
+    transform: translateX(-50%) translateY(8px);
+  }
+
+  .mega-menu--align-center[data-open="true"] .mega-menu-panel {
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .mega-menu--align-right .mega-menu-panel {
+    left: auto;
+    right: 0;
+  }
+
+  .mega-menu--width-full .mega-menu-panel {
+    position: fixed;
+    left: 0;
+    right: 0;
+    min-width: 100%;
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+
+  .mega-menu-content {
+    padding: 1.5rem;
+  }
+
+  /* Grid layout */
+  .mega-menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+  }
+
+  .mega-menu-column {
+    min-width: 180px;
+  }
+
+  .column-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-tertiary);
+    margin: 0 0 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+
+  .column-items {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .menu-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+
+  .menu-item:hover {
+    background: var(--color-background-subtle);
+  }
+
+  .menu-item--large {
+    padding: 0.75rem 1rem;
+  }
+
+  .item-icon {
+    flex-shrink: 0;
+    width: 1.25rem;
+    height: 1.25rem;
+    color: var(--color-text-secondary);
+  }
+
+  .item-icon--large {
+    width: 2rem;
+    height: 2rem;
+    padding: 0.25rem;
+    background: var(--color-background-subtle);
+    border-radius: var(--radius-lg);
+    color: var(--color-primary);
+  }
+
+  .item-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+
+  .item-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .item-badge {
+    font-size: 0.625rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    padding: 0.125rem 0.375rem;
+    background: var(--color-primary);
+    color: white;
+    border-radius: var(--radius-full);
+  }
+
+  .item-description {
+    font-size: 0.75rem;
+    color: var(--color-text-tertiary);
+    line-height: 1.4;
+  }
+
+  /* Featured variant */
+  .mega-menu-featured {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+  }
+
+  .featured-section {
+    background: var(--color-background-subtle);
+    border-radius: var(--radius-xl);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .featured-image {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: var(--radius-lg);
+  }
+
+  .featured-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--color-text-primary);
+  }
+
+  .featured-description {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  .featured-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-primary);
+    text-decoration: none;
+    margin-top: auto;
+  }
+
+  .featured-link:hover {
+    text-decoration: underline;
+  }
+
+  /* Cards variant */
+  .mega-menu-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+  }
+
+  .menu-card {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--color-background-subtle);
+    border-radius: var(--radius-xl);
+    text-decoration: none;
+    transition: background 0.2s, box-shadow 0.2s;
+  }
+
+  .menu-card:hover {
+    background: var(--color-surface);
+    box-shadow: var(--shadow-md);
+  }
+
+  .card-icon {
+    flex-shrink: 0;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0.5rem;
+    background: var(--color-primary);
+    color: white;
+    border-radius: var(--radius-lg);
+  }
+
+  .card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .card-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .card-description {
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+    line-height: 1.4;
+  }
+
+  /* Tabs variant */
+  .mega-menu-tabs {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 1.5rem;
+    min-height: 300px;
+  }
+
+  .tabs-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    border-right: 1px solid var(--color-border-subtle);
+    padding-right: 1.5rem;
+  }
+
+  .tab-trigger {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .tab-trigger:hover {
+    background: var(--color-background-subtle);
+  }
+
+  .tab-trigger.active {
+    background: var(--color-primary);
+    color: white;
+  }
+
+  .tabs-content {
+    padding: 0.5rem 0;
+  }
+
+  .tab-panel {
+    display: none;
+  }
+
+  .tab-panel.active {
+    display: block;
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  /* Full variant */
+  .mega-menu--full .mega-menu-content {
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  .full-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mega-menu-panel,
+    .tab-panel.active {
+      transition: none;
+      animation: none;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .mega-menu-panel {
+      position: fixed;
+      top: auto;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      min-width: 100%;
+      max-height: 80vh;
+      overflow-y: auto;
+      border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+      transform: translateY(100%);
+    }
+
+    .mega-menu-wrapper[data-open="true"] .mega-menu-panel {
+      transform: translateY(0);
+    }
+
+    .mega-menu-grid,
+    .mega-menu-cards,
+    .full-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .mega-menu-featured {
+      grid-template-columns: 1fr;
+    }
+
+    .mega-menu-tabs {
+      grid-template-columns: 1fr;
+    }
+
+    .tabs-nav {
+      flex-direction: row;
+      overflow-x: auto;
+      border-right: none;
+      border-bottom: 1px solid var(--color-border-subtle);
+      padding-right: 0;
+      padding-bottom: 0.5rem;
+    }
+
+    .tab-trigger {
+      white-space: nowrap;
+    }
+  }
+</style>
+
+<script>
+  function initMegaMenus() {
+    const menus = document.querySelectorAll('[data-mega-menu]');
+
+    menus.forEach((menu) => {
+      const trigger = menu.querySelector('[data-mega-trigger]');
+      const panel = menu.querySelector('[data-mega-panel]');
+      const tabTriggers = menu.querySelectorAll('.tab-trigger');
+      const tabPanels = menu.querySelectorAll('.tab-panel');
+
+      let isOpen = false;
+
+      function openMenu() {
+        isOpen = true;
+        menu.setAttribute('data-open', 'true');
+        trigger?.setAttribute('aria-expanded', 'true');
+      }
+
+      function closeMenu() {
+        isOpen = false;
+        menu.setAttribute('data-open', 'false');
+        trigger?.setAttribute('aria-expanded', 'false');
+      }
+
+      // Toggle on click
+      trigger?.addEventListener('click', () => {
+        if (isOpen) {
+          closeMenu();
+        } else {
+          openMenu();
+        }
+      });
+
+      // Close on click outside
+      document.addEventListener('click', (e) => {
+        if (isOpen && !menu.contains(e.target as Node)) {
+          closeMenu();
+        }
+      });
+
+      // Close on escape
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && isOpen) {
+          closeMenu();
+          trigger?.focus();
+        }
+      });
+
+      // Hover behavior for desktop
+      let hoverTimeout: ReturnType<typeof setTimeout>;
+
+      menu.addEventListener('mouseenter', () => {
+        if (window.innerWidth >= 768) {
+          clearTimeout(hoverTimeout);
+          openMenu();
+        }
+      });
+
+      menu.addEventListener('mouseleave', () => {
+        if (window.innerWidth >= 768) {
+          hoverTimeout = setTimeout(closeMenu, 150);
+        }
+      });
+
+      // Tab navigation
+      tabTriggers.forEach((tabTrigger, index) => {
+        tabTrigger.addEventListener('click', () => {
+          tabTriggers.forEach((t) => {
+            t.classList.remove('active');
+            t.setAttribute('aria-selected', 'false');
+          });
+          tabPanels.forEach((p) => p.classList.remove('active'));
+
+          tabTrigger.classList.add('active');
+          tabTrigger.setAttribute('aria-selected', 'true');
+          tabPanels[index]?.classList.add('active');
+        });
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMegaMenus);
+  } else {
+    initMegaMenus();
+  }
+
+  document.addEventListener('astro:page-load', initMegaMenus);
+</script>

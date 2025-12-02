@@ -1,0 +1,53 @@
+---
+/**
+ * ThemeScript Component - WenderMedia Astro Components
+ *
+ * Inline script to prevent Flash of Unstyled Content (FOUC) on theme change.
+ * Place this component in your <head> BEFORE any stylesheets.
+ *
+ * This script runs synchronously before the page renders, ensuring
+ * the correct theme class is applied immediately.
+ *
+ * @example
+ * <head>
+ *   <ThemeScript />
+ *   <link rel="stylesheet" href="/styles/global.css" />
+ * </head>
+ */
+---
+
+<script is:inline>
+  // Theme initialization - runs immediately, blocking render
+  (function() {
+    const storageKey = 'theme';
+
+    function getThemePreference() {
+      // Check localStorage first
+      if (typeof localStorage !== 'undefined') {
+        const stored = localStorage.getItem(storageKey);
+        if (stored === 'light' || stored === 'dark') {
+          return stored;
+        }
+      }
+      // Fall back to system preference
+      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        return 'dark';
+      }
+      return 'light';
+    }
+
+    const theme = getThemePreference();
+
+    // Apply theme class immediately
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+
+    // Store the theme for consistency
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(storageKey, theme);
+    }
+  })();
+</script>

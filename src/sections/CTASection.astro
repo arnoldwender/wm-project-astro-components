@@ -1,0 +1,193 @@
+---
+/**
+ * CTASection Component
+ *
+ * Call-to-action section with multiple layout options.
+ *
+ * Variants:
+ * - centered: Classic centered CTA
+ * - split: Text left, form/buttons right
+ * - banner: Full-width banner style
+ * - card: Floating card style
+ * - gradient: Gradient background
+ * - image: Background image
+ *
+ * @example
+ * <CTASection variant="centered" background="primary">
+ *   <Fragment slot="title">Ready to get started?</Fragment>
+ *   <Fragment slot="description">Join thousands of happy customers.</Fragment>
+ *   <Fragment slot="cta">
+ *     <Button>Start Free Trial</Button>
+ *   </Fragment>
+ * </CTASection>
+ */
+
+import SectionWrapper from './SectionWrapper.astro';
+
+export interface Props {
+  variant?: 'centered' | 'split' | 'banner' | 'card' | 'gradient' | 'image';
+  background?: 'primary' | 'dark' | 'gradient' | 'transparent';
+  backgroundImage?: string;
+  class?: string;
+}
+
+const {
+  variant = 'centered',
+  background = 'primary',
+  backgroundImage,
+  class: className = '',
+} = Astro.props;
+
+// Background classes
+const bgClasses = {
+  primary: 'bg-primary text-primary-text',
+  dark: 'bg-surface-inverse text-text-inverse',
+  gradient: 'bg-gradient-to-r from-primary via-secondary to-primary text-white',
+  transparent: 'bg-transparent',
+};
+---
+
+{variant === 'card' ? (
+  <SectionWrapper background="transparent" class={className}>
+    <div class:list={[
+      'cta-card rounded-2xl p-8 lg:p-12',
+      bgClasses[background],
+    ]}>
+      <div class="text-center max-w-3xl mx-auto">
+        {Astro.slots.has('eyebrow') && (
+          <div class="cta-eyebrow text-sm font-semibold uppercase tracking-wider opacity-80 mb-4">
+            <slot name="eyebrow" />
+          </div>
+        )}
+        <h2 class="cta-title text-3xl lg:text-4xl font-bold mb-4">
+          <slot name="title" />
+        </h2>
+        {Astro.slots.has('description') && (
+          <p class="cta-description text-lg opacity-90 mb-8">
+            <slot name="description" />
+          </p>
+        )}
+        <div class="cta-actions flex flex-wrap justify-center gap-4">
+          <slot name="cta" />
+        </div>
+      </div>
+    </div>
+  </SectionWrapper>
+) : variant === 'banner' ? (
+  <div
+    class:list={[
+      'cta-banner py-6 lg:py-8',
+      bgClasses[background],
+      className,
+    ]}
+  >
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="text-center md:text-left">
+          <h2 class="text-xl lg:text-2xl font-bold">
+            <slot name="title" />
+          </h2>
+          {Astro.slots.has('description') && (
+            <p class="text-sm opacity-80 mt-1">
+              <slot name="description" />
+            </p>
+          )}
+        </div>
+        <div class="cta-actions flex flex-wrap gap-3">
+          <slot name="cta" />
+        </div>
+      </div>
+    </div>
+  </div>
+) : variant === 'split' ? (
+  <SectionWrapper
+    background={background === 'transparent' ? 'subtle' : background}
+    class={className}
+  >
+    <div class="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+      <div class="cta-content">
+        {Astro.slots.has('eyebrow') && (
+          <div class="cta-eyebrow text-sm font-semibold uppercase tracking-wider text-primary mb-4">
+            <slot name="eyebrow" />
+          </div>
+        )}
+        <h2 class="cta-title text-3xl lg:text-4xl font-bold text-text-primary mb-4">
+          <slot name="title" />
+        </h2>
+        {Astro.slots.has('description') && (
+          <p class="cta-description text-lg text-text-secondary">
+            <slot name="description" />
+          </p>
+        )}
+      </div>
+      <div class="cta-actions">
+        <slot name="cta" />
+      </div>
+    </div>
+  </SectionWrapper>
+) : variant === 'image' ? (
+  <div
+    class:list={[
+      'cta-image relative py-20 lg:py-32 bg-cover bg-center',
+      className,
+    ]}
+    style={backgroundImage ? `background-image: url('${backgroundImage}')` : undefined}
+  >
+    <div class="absolute inset-0 bg-black/60" />
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center text-white max-w-3xl mx-auto">
+        {Astro.slots.has('eyebrow') && (
+          <div class="cta-eyebrow text-sm font-semibold uppercase tracking-wider opacity-80 mb-4">
+            <slot name="eyebrow" />
+          </div>
+        )}
+        <h2 class="cta-title text-3xl lg:text-5xl font-bold mb-4">
+          <slot name="title" />
+        </h2>
+        {Astro.slots.has('description') && (
+          <p class="cta-description text-lg lg:text-xl opacity-90 mb-8">
+            <slot name="description" />
+          </p>
+        )}
+        <div class="cta-actions flex flex-wrap justify-center gap-4">
+          <slot name="cta" />
+        </div>
+      </div>
+    </div>
+  </div>
+) : (
+  /* Centered / Gradient variants */
+  <div
+    class:list={[
+      'cta-section py-16 lg:py-24',
+      variant === 'gradient' ? bgClasses.gradient : bgClasses[background],
+      className,
+    ]}
+  >
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-3xl mx-auto">
+        {Astro.slots.has('eyebrow') && (
+          <div class="cta-eyebrow text-sm font-semibold uppercase tracking-wider opacity-80 mb-4">
+            <slot name="eyebrow" />
+          </div>
+        )}
+        <h2 class="cta-title text-3xl lg:text-4xl xl:text-5xl font-bold mb-4">
+          <slot name="title" />
+        </h2>
+        {Astro.slots.has('description') && (
+          <p class="cta-description text-lg lg:text-xl opacity-90 mb-8">
+            <slot name="description" />
+          </p>
+        )}
+        <div class="cta-actions flex flex-wrap justify-center gap-4">
+          <slot name="cta" />
+        </div>
+        {Astro.slots.has('extra') && (
+          <div class="cta-extra mt-8 opacity-80">
+            <slot name="extra" />
+          </div>
+        )}
+      </div>
+    </div>
+  </div>
+)}

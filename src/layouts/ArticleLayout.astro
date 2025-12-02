@@ -1,0 +1,390 @@
+---
+/**
+ * ArticleLayout Component
+ *
+ * Clean, readable article/blog post layout optimized for long-form content.
+ * Focus on typography and reading experience.
+ *
+ * Target: Blogs, News sites, Personal websites, Content creators
+ *
+ * Features:
+ * - Optimal reading width (65-75 characters)
+ * - Typography-first design
+ * - Table of contents support
+ * - Author info section
+ * - Related articles slot
+ * - Progress indicator
+ * - Share buttons slot
+ * - Comments section slot
+ *
+ * @example
+ * <ArticleLayout
+ *   title="Article Title"
+ *   author={{ name: "John Doe", avatar: "/avatar.jpg" }}
+ *   publishDate={new Date()}
+ *   readingTime="5 min read"
+ * >
+ *   <p>Article content...</p>
+ * </ArticleLayout>
+ */
+
+export interface Author {
+  name: string;
+  avatar?: string;
+  role?: string;
+  href?: string;
+}
+
+export interface Props {
+  title: string;
+  subtitle?: string;
+  author?: Author;
+  publishDate?: Date;
+  updatedDate?: Date;
+  readingTime?: string;
+  category?: string;
+  categoryHref?: string;
+  featuredImage?: string;
+  featuredImageAlt?: string;
+  showToc?: boolean;
+  showProgress?: boolean;
+  showShareButtons?: boolean;
+  layout?: 'default' | 'wide' | 'full-width-header';
+  class?: string;
+}
+
+const {
+  title,
+  subtitle,
+  author,
+  publishDate,
+  updatedDate,
+  readingTime,
+  category,
+  categoryHref,
+  featuredImage,
+  featuredImageAlt = '',
+  showToc = false,
+  showProgress = true,
+  showShareButtons = true,
+  layout = 'default',
+  class: className = '',
+} = Astro.props;
+
+const formatDate = (date: Date) => {
+  return date.toLocaleDateString('de-DE', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+};
+---
+
+<article
+  class:list={[
+    'article-layout',
+    className,
+  ]}
+  data-article-layout
+>
+  <!-- Reading Progress Bar -->
+  {showProgress && (
+    <div
+      class="article-progress fixed top-0 left-0 h-1 bg-primary z-50 transition-all duration-100"
+      style="width: 0%"
+      data-article-progress
+      aria-hidden="true"
+    />
+  )}
+
+  <!-- Header -->
+  <header class:list={[
+    'article-header',
+    layout === 'full-width-header' && 'relative',
+  ]}>
+    {/* Full-width featured image */}
+    {layout === 'full-width-header' && featuredImage && (
+      <div class="article-hero relative h-[50vh] min-h-[400px] -mx-4 sm:-mx-6 lg:-mx-8 mb-8">
+        <img
+          src={featuredImage}
+          alt={featuredImageAlt}
+          class="w-full h-full object-cover"
+          loading="eager"
+        />
+        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+        <div class="absolute bottom-0 left-0 right-0 p-6 lg:p-12 text-white">
+          {category && (
+            <a
+              href={categoryHref || '#'}
+              class="inline-block px-3 py-1 text-sm font-medium bg-primary text-primary-text rounded-full mb-4 hover:bg-primary-hover transition-colors"
+            >
+              {category}
+            </a>
+          )}
+          <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">
+            {title}
+          </h1>
+          {subtitle && (
+            <p class="text-xl opacity-90 max-w-3xl">
+              {subtitle}
+            </p>
+          )}
+        </div>
+      </div>
+    )}
+
+    {/* Standard header */}
+    {layout !== 'full-width-header' && (
+      <div class="max-w-3xl mx-auto px-4 pt-12 pb-8">
+        {category && (
+          <a
+            href={categoryHref || '#'}
+            class="inline-block px-3 py-1 text-sm font-medium bg-primary-muted text-primary rounded-full mb-4 hover:bg-primary hover:text-primary-text transition-colors"
+          >
+            {category}
+          </a>
+        )}
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold text-text-primary mb-4">
+          {title}
+        </h1>
+        {subtitle && (
+          <p class="text-xl text-text-secondary">
+            {subtitle}
+          </p>
+        )}
+      </div>
+    )}
+
+    <!-- Meta Information -->
+    <div class="max-w-3xl mx-auto px-4 pb-8 flex flex-wrap items-center gap-4 text-sm text-text-tertiary border-b border-border-subtle">
+      {author && (
+        <div class="flex items-center gap-3">
+          {author.avatar && (
+            <img
+              src={author.avatar}
+              alt={author.name}
+              class="w-10 h-10 rounded-full object-cover"
+              loading="lazy"
+            />
+          )}
+          <div>
+            {author.href ? (
+              <a href={author.href} class="font-medium text-text-primary hover:text-primary transition-colors">
+                {author.name}
+              </a>
+            ) : (
+              <span class="font-medium text-text-primary">{author.name}</span>
+            )}
+            {author.role && (
+              <p class="text-text-tertiary text-xs">{author.role}</p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {(publishDate || readingTime) && (
+        <div class="flex items-center gap-3 text-text-tertiary">
+          {publishDate && (
+            <time datetime={publishDate.toISOString()}>
+              {formatDate(publishDate)}
+            </time>
+          )}
+          {publishDate && readingTime && <span>·</span>}
+          {readingTime && <span>{readingTime}</span>}
+        </div>
+      )}
+
+      {showShareButtons && (
+        <div class="ml-auto">
+          <slot name="share-buttons" />
+        </div>
+      )}
+    </div>
+
+    {/* Featured image (non-full-width) */}
+    {layout !== 'full-width-header' && featuredImage && (
+      <div class:list={[
+        'article-featured-image mx-auto px-4 py-8',
+        layout === 'wide' ? 'max-w-5xl' : 'max-w-3xl',
+      ]}>
+        <img
+          src={featuredImage}
+          alt={featuredImageAlt}
+          class="w-full rounded-lg shadow-lg"
+          loading="eager"
+        />
+      </div>
+    )}
+  </header>
+
+  <!-- Main Content Area -->
+  <div class:list={[
+    'article-body-wrapper',
+    showToc && 'lg:grid lg:grid-cols-[1fr_250px] lg:gap-8 max-w-6xl mx-auto',
+  ]}>
+    <!-- Article Body -->
+    <div class:list={[
+      'article-body prose prose-lg max-w-3xl mx-auto px-4 py-8',
+      'prose-headings:scroll-mt-24',
+      'prose-a:text-primary prose-a:no-underline hover:prose-a:underline',
+      'prose-img:rounded-lg prose-img:shadow-md',
+      'prose-blockquote:border-l-primary prose-blockquote:bg-background-subtle prose-blockquote:py-1 prose-blockquote:px-4 prose-blockquote:rounded-r-lg',
+      'prose-code:bg-background-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:before:content-none prose-code:after:content-none',
+      'prose-pre:bg-surface-inverse prose-pre:text-text-inverse',
+    ]}>
+      <slot />
+    </div>
+
+    <!-- Table of Contents (Sidebar) -->
+    {showToc && (
+      <aside class="article-toc hidden lg:block sticky top-24 h-fit py-8">
+        <nav class="text-sm">
+          <h2 class="font-semibold text-text-primary mb-4">Inhaltsverzeichnis</h2>
+          <slot name="toc" />
+        </nav>
+      </aside>
+    )}
+  </div>
+
+  <!-- Footer -->
+  <footer class="article-footer max-w-3xl mx-auto px-4 py-12 border-t border-border-subtle">
+    {/* Updated date */}
+    {updatedDate && (
+      <p class="text-sm text-text-tertiary mb-8">
+        Zuletzt aktualisiert: <time datetime={updatedDate.toISOString()}>{formatDate(updatedDate)}</time>
+      </p>
+    )}
+
+    {/* Tags */}
+    {Astro.slots.has('tags') && (
+      <div class="article-tags mb-8">
+        <slot name="tags" />
+      </div>
+    )}
+
+    {/* Author Bio */}
+    {Astro.slots.has('author-bio') && (
+      <div class="article-author-bio bg-background-subtle rounded-xl p-6 mb-8">
+        <slot name="author-bio" />
+      </div>
+    )}
+
+    {/* Related Articles */}
+    {Astro.slots.has('related') && (
+      <div class="article-related mt-12">
+        <h2 class="text-xl font-semibold text-text-primary mb-6">Ähnliche Artikel</h2>
+        <slot name="related" />
+      </div>
+    )}
+
+    {/* Comments */}
+    {Astro.slots.has('comments') && (
+      <div class="article-comments mt-12 pt-12 border-t border-border-subtle">
+        <slot name="comments" />
+      </div>
+    )}
+  </footer>
+</article>
+
+<style>
+  /* Prose overrides for dark mode */
+  :global(.dark) .article-body {
+    --tw-prose-body: var(--color-text-secondary);
+    --tw-prose-headings: var(--color-text-primary);
+    --tw-prose-lead: var(--color-text-secondary);
+    --tw-prose-links: var(--color-primary);
+    --tw-prose-bold: var(--color-text-primary);
+    --tw-prose-counters: var(--color-text-tertiary);
+    --tw-prose-bullets: var(--color-text-tertiary);
+    --tw-prose-hr: var(--color-border-subtle);
+    --tw-prose-quotes: var(--color-text-primary);
+    --tw-prose-quote-borders: var(--color-primary);
+    --tw-prose-captions: var(--color-text-tertiary);
+    --tw-prose-code: var(--color-text-primary);
+    --tw-prose-pre-code: var(--color-text-inverse);
+    --tw-prose-pre-bg: var(--color-surface-inverse);
+    --tw-prose-th-borders: var(--color-border-default);
+    --tw-prose-td-borders: var(--color-border-subtle);
+  }
+
+  /* TOC link styling */
+  .article-toc :global(a) {
+    display: block;
+    padding: 0.375rem 0;
+    color: var(--color-text-tertiary);
+    transition: color var(--duration-150) var(--ease-out);
+    border-left: 2px solid transparent;
+    padding-left: 1rem;
+    margin-left: -1rem;
+  }
+
+  .article-toc :global(a:hover),
+  .article-toc :global(a.active) {
+    color: var(--color-text-primary);
+    border-left-color: var(--color-primary);
+  }
+
+  .article-toc :global(ul) {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .article-toc :global(ul ul) {
+    padding-left: 1rem;
+  }
+</style>
+
+<script>
+  function initArticle() {
+    const article = document.querySelector('[data-article-layout]');
+    const progressBar = document.querySelector('[data-article-progress]') as HTMLElement;
+
+    if (!article) return;
+
+    // Reading progress
+    if (progressBar) {
+      const updateProgress = () => {
+        const scrollTop = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const progress = (scrollTop / docHeight) * 100;
+        progressBar.style.width = `${Math.min(progress, 100)}%`;
+      };
+
+      window.addEventListener('scroll', updateProgress, { passive: true });
+      updateProgress();
+    }
+
+    // TOC active state
+    const tocLinks = article.querySelectorAll('.article-toc a');
+    const headings = article.querySelectorAll('.article-body h2, .article-body h3');
+
+    if (tocLinks.length && headings.length) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const id = entry.target.id;
+              tocLinks.forEach((link) => {
+                link.classList.toggle('active', link.getAttribute('href') === `#${id}`);
+              });
+            }
+          });
+        },
+        { rootMargin: '-100px 0px -66% 0px' }
+      );
+
+      headings.forEach((heading) => {
+        if (heading.id) observer.observe(heading);
+      });
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initArticle);
+  } else {
+    initArticle();
+  }
+
+  document.addEventListener('astro:page-load', initArticle);
+</script>

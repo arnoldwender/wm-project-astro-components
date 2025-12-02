@@ -1,0 +1,310 @@
+---
+/**
+ * HeroSection Component
+ *
+ * Multiple hero variants for landing pages and key pages.
+ *
+ * Variants:
+ * - centered: Classic centered hero
+ * - split: Content left, media right
+ * - background: Full background image/video
+ * - gradient: Gradient background with floating elements
+ * - minimal: Clean, text-focused
+ * - product: Product showcase with 3D-like presentation
+ *
+ * @example
+ * <HeroSection variant="centered">
+ *   <Fragment slot="eyebrow">New Release</Fragment>
+ *   <Fragment slot="title">Build faster, ship sooner</Fragment>
+ *   <Fragment slot="description">The modern way to build websites.</Fragment>
+ *   <Fragment slot="cta">
+ *     <Button>Get Started</Button>
+ *   </Fragment>
+ * </HeroSection>
+ */
+
+import SectionWrapper from './SectionWrapper.astro';
+
+export interface Props {
+  variant?: 'centered' | 'split' | 'background' | 'gradient' | 'minimal' | 'product';
+  size?: 'sm' | 'md' | 'lg' | 'full';
+  backgroundImage?: string;
+  backgroundVideo?: string;
+  overlay?: boolean;
+  overlayOpacity?: number;
+  reverse?: boolean;
+  class?: string;
+}
+
+const {
+  variant = 'centered',
+  size = 'lg',
+  backgroundImage,
+  backgroundVideo,
+  overlay = true,
+  overlayOpacity = 50,
+  reverse = false,
+  class: className = '',
+} = Astro.props;
+
+// Size classes
+const sizeClasses = {
+  sm: 'min-h-[50vh]',
+  md: 'min-h-[70vh]',
+  lg: 'min-h-[85vh]',
+  full: 'min-h-screen',
+};
+---
+
+<SectionWrapper
+  background={variant === 'gradient' ? 'gradient' : 'transparent'}
+  padding="none"
+  container="none"
+  class={className}
+>
+  <div
+    class:list={[
+      'hero-section relative flex items-center',
+      sizeClasses[size],
+      variant === 'background' && 'bg-cover bg-center bg-no-repeat',
+    ]}
+    style={backgroundImage && variant === 'background' ? `background-image: url('${backgroundImage}')` : undefined}
+  >
+    {/* Background Video */}
+    {backgroundVideo && variant === 'background' && (
+      <video
+        class="absolute inset-0 w-full h-full object-cover"
+        src={backgroundVideo}
+        autoplay
+        muted
+        loop
+        playsinline
+        aria-hidden="true"
+      />
+    )}
+
+    {/* Overlay */}
+    {overlay && variant === 'background' && (
+      <div
+        class="absolute inset-0 bg-black"
+        style={`opacity: ${overlayOpacity / 100}`}
+        aria-hidden="true"
+      />
+    )}
+
+    {/* Gradient decorations */}
+    {variant === 'gradient' && (
+      <>
+        <div class="absolute top-0 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl" aria-hidden="true" />
+        <div class="absolute bottom-0 right-1/4 w-96 h-96 bg-secondary/20 rounded-full blur-3xl" aria-hidden="true" />
+      </>
+    )}
+
+    {/* Content Container */}
+    <div class="relative z-10 w-full px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
+      <div class="max-w-7xl mx-auto">
+
+        {/* Centered Variant */}
+        {variant === 'centered' && (
+          <div class="text-center max-w-4xl mx-auto">
+            {Astro.slots.has('eyebrow') && (
+              <div class="hero-eyebrow text-sm font-semibold uppercase tracking-wider text-primary mb-4">
+                <slot name="eyebrow" />
+              </div>
+            )}
+            <h1 class="hero-title text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-text-primary mb-6 leading-tight">
+              <slot name="title" />
+            </h1>
+            {Astro.slots.has('description') && (
+              <p class="hero-description text-lg sm:text-xl lg:text-2xl text-text-secondary mb-8 max-w-2xl mx-auto">
+                <slot name="description" />
+              </p>
+            )}
+            {Astro.slots.has('cta') && (
+              <div class="hero-cta flex flex-wrap justify-center gap-4">
+                <slot name="cta" />
+              </div>
+            )}
+            {Astro.slots.has('media') && (
+              <div class="hero-media mt-12 lg:mt-16">
+                <slot name="media" />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Split Variant */}
+        {variant === 'split' && (
+          <div class:list={[
+            'grid lg:grid-cols-2 gap-12 lg:gap-16 items-center',
+            reverse && 'lg:[&>*:first-child]:order-2',
+          ]}>
+            <div class="hero-content">
+              {Astro.slots.has('eyebrow') && (
+                <div class="hero-eyebrow text-sm font-semibold uppercase tracking-wider text-primary mb-4">
+                  <slot name="eyebrow" />
+                </div>
+              )}
+              <h1 class="hero-title text-4xl sm:text-5xl lg:text-6xl font-bold text-text-primary mb-6 leading-tight">
+                <slot name="title" />
+              </h1>
+              {Astro.slots.has('description') && (
+                <p class="hero-description text-lg lg:text-xl text-text-secondary mb-8">
+                  <slot name="description" />
+                </p>
+              )}
+              {Astro.slots.has('cta') && (
+                <div class="hero-cta flex flex-wrap gap-4">
+                  <slot name="cta" />
+                </div>
+              )}
+              {Astro.slots.has('extra') && (
+                <div class="hero-extra mt-8">
+                  <slot name="extra" />
+                </div>
+              )}
+            </div>
+            <div class="hero-media">
+              <slot name="media" />
+            </div>
+          </div>
+        )}
+
+        {/* Background Variant */}
+        {variant === 'background' && (
+          <div class="text-center max-w-4xl mx-auto text-white">
+            {Astro.slots.has('eyebrow') && (
+              <div class="hero-eyebrow text-sm font-semibold uppercase tracking-wider text-white/80 mb-4">
+                <slot name="eyebrow" />
+              </div>
+            )}
+            <h1 class="hero-title text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold mb-6 leading-tight">
+              <slot name="title" />
+            </h1>
+            {Astro.slots.has('description') && (
+              <p class="hero-description text-lg sm:text-xl lg:text-2xl text-white/90 mb-8 max-w-2xl mx-auto">
+                <slot name="description" />
+              </p>
+            )}
+            {Astro.slots.has('cta') && (
+              <div class="hero-cta flex flex-wrap justify-center gap-4">
+                <slot name="cta" />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Minimal Variant */}
+        {variant === 'minimal' && (
+          <div class="max-w-3xl">
+            {Astro.slots.has('eyebrow') && (
+              <div class="hero-eyebrow text-sm font-semibold uppercase tracking-wider text-primary mb-4">
+                <slot name="eyebrow" />
+              </div>
+            )}
+            <h1 class="hero-title text-4xl sm:text-5xl lg:text-6xl font-bold text-text-primary mb-6 leading-tight">
+              <slot name="title" />
+            </h1>
+            {Astro.slots.has('description') && (
+              <p class="hero-description text-lg lg:text-xl text-text-secondary mb-8">
+                <slot name="description" />
+              </p>
+            )}
+            {Astro.slots.has('cta') && (
+              <div class="hero-cta flex flex-wrap gap-4">
+                <slot name="cta" />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Product Variant */}
+        {variant === 'product' && (
+          <div class="text-center">
+            {Astro.slots.has('eyebrow') && (
+              <div class="hero-eyebrow text-sm font-semibold uppercase tracking-wider text-primary mb-4">
+                <slot name="eyebrow" />
+              </div>
+            )}
+            <h1 class="hero-title text-4xl sm:text-5xl lg:text-6xl font-bold text-text-primary mb-6 leading-tight max-w-4xl mx-auto">
+              <slot name="title" />
+            </h1>
+            {Astro.slots.has('description') && (
+              <p class="hero-description text-lg lg:text-xl text-text-secondary mb-8 max-w-2xl mx-auto">
+                <slot name="description" />
+              </p>
+            )}
+            {Astro.slots.has('cta') && (
+              <div class="hero-cta flex flex-wrap justify-center gap-4 mb-12">
+                <slot name="cta" />
+              </div>
+            )}
+            {Astro.slots.has('media') && (
+              <div class="hero-media relative perspective-1000">
+                <div class="hero-product-showcase transform-gpu hover:scale-105 transition-transform duration-500">
+                  <slot name="media" />
+                </div>
+                {/* Reflection effect */}
+                <div class="absolute inset-x-0 -bottom-20 h-20 bg-gradient-to-t from-background to-transparent" aria-hidden="true" />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Gradient Variant (same as centered but with gradient bg handled above) */}
+        {variant === 'gradient' && (
+          <div class="text-center max-w-4xl mx-auto relative">
+            {Astro.slots.has('eyebrow') && (
+              <div class="hero-eyebrow text-sm font-semibold uppercase tracking-wider text-primary mb-4">
+                <slot name="eyebrow" />
+              </div>
+            )}
+            <h1 class="hero-title text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-text-primary mb-6 leading-tight">
+              <slot name="title" />
+            </h1>
+            {Astro.slots.has('description') && (
+              <p class="hero-description text-lg sm:text-xl lg:text-2xl text-text-secondary mb-8 max-w-2xl mx-auto">
+                <slot name="description" />
+              </p>
+            )}
+            {Astro.slots.has('cta') && (
+              <div class="hero-cta flex flex-wrap justify-center gap-4">
+                <slot name="cta" />
+              </div>
+            )}
+            {Astro.slots.has('media') && (
+              <div class="hero-media mt-12 lg:mt-16">
+                <slot name="media" />
+              </div>
+            )}
+          </div>
+        )}
+
+      </div>
+    </div>
+  </div>
+</SectionWrapper>
+
+<style>
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  /* Hero media styling */
+  .hero-media :global(img),
+  .hero-media :global(video) {
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-2xl);
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .hero-product-showcase {
+      transition: none;
+    }
+
+    .hero-product-showcase:hover {
+      transform: none;
+    }
+  }
+</style>

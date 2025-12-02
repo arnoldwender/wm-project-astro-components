@@ -1,0 +1,331 @@
+---
+/**
+ * SidebarLayout Component
+ *
+ * Layout with sidebar and main content area.
+ *
+ * @example
+ * <SidebarLayout sidebarPosition="left" sidebarWidth="280px">
+ *   <nav slot="sidebar">Navigation</nav>
+ *   <main>Content</main>
+ * </SidebarLayout>
+ */
+
+export interface Props {
+  sidebarPosition?: 'left' | 'right';
+  sidebarWidth?: string;
+  stickyHeader?: boolean;
+  stickySidebar?: boolean;
+  sidebarCollapsible?: boolean;
+  mobileBreakpoint?: 'sm' | 'md' | 'lg';
+  gap?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
+  class?: string;
+}
+
+const {
+  sidebarPosition = 'left',
+  sidebarWidth = '280px',
+  stickyHeader = false,
+  stickySidebar = true,
+  sidebarCollapsible = true,
+  mobileBreakpoint = 'lg',
+  gap = 'lg',
+  class: className = '',
+} = Astro.props;
+
+const gapSizes = {
+  none: '0',
+  sm: '1rem',
+  md: '1.5rem',
+  lg: '2rem',
+  xl: '3rem',
+};
+
+const breakpoints = {
+  sm: '640px',
+  md: '768px',
+  lg: '1024px',
+};
+---
+
+<div
+  class:list={[
+    'sidebar-layout',
+    `sidebar-${sidebarPosition}`,
+    `breakpoint-${mobileBreakpoint}`,
+    sidebarCollapsible && 'collapsible',
+    className,
+  ]}
+  style={`--sidebar-width: ${sidebarWidth}; --layout-gap: ${gapSizes[gap]}; --mobile-breakpoint: ${breakpoints[mobileBreakpoint]};`}
+  data-sidebar-layout
+>
+  {/* Mobile toggle */}
+  {sidebarCollapsible && (
+    <button
+      type="button"
+      class="sidebar-toggle"
+      data-sidebar-toggle
+      aria-label="Toggle sidebar"
+      aria-expanded="false"
+    >
+      <svg class="toggle-open w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+      <svg class="toggle-close w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  )}
+
+  {/* Sidebar */}
+  <aside
+    class:list={[
+      'sidebar',
+      stickySidebar && 'sticky',
+    ]}
+    data-sidebar
+  >
+    {/* Header slot */}
+    {Astro.slots.has('sidebar-header') && (
+      <div class:list={['sidebar-header', stickyHeader && 'sticky']}>
+        <slot name="sidebar-header" />
+      </div>
+    )}
+
+    {/* Sidebar content */}
+    <div class="sidebar-content">
+      <slot name="sidebar" />
+    </div>
+
+    {/* Footer slot */}
+    {Astro.slots.has('sidebar-footer') && (
+      <div class="sidebar-footer">
+        <slot name="sidebar-footer" />
+      </div>
+    )}
+  </aside>
+
+  {/* Overlay for mobile */}
+  {sidebarCollapsible && (
+    <div class="sidebar-overlay" data-sidebar-overlay />
+  )}
+
+  {/* Main content */}
+  <main class="main-content">
+    <slot />
+  </main>
+</div>
+
+<style>
+  .sidebar-layout {
+    display: grid;
+    min-height: 100vh;
+    grid-template-columns: var(--sidebar-width) 1fr;
+    gap: var(--layout-gap);
+  }
+
+  .sidebar-layout.sidebar-right {
+    grid-template-columns: 1fr var(--sidebar-width);
+  }
+
+  .sidebar-layout.sidebar-right .sidebar {
+    order: 2;
+  }
+
+  .sidebar-layout.sidebar-right .main-content {
+    order: 1;
+  }
+
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    background: var(--color-surface);
+    border-right: 1px solid var(--color-border-subtle);
+    max-height: 100vh;
+    overflow-y: auto;
+  }
+
+  .sidebar-layout.sidebar-right .sidebar {
+    border-right: none;
+    border-left: 1px solid var(--color-border-subtle);
+  }
+
+  .sidebar.sticky {
+    position: sticky;
+    top: 0;
+  }
+
+  .sidebar-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+
+  .sidebar-header.sticky {
+    position: sticky;
+    top: 0;
+    background: var(--color-surface);
+    z-index: 10;
+  }
+
+  .sidebar-content {
+    flex: 1;
+    padding: 1.5rem;
+    overflow-y: auto;
+  }
+
+  .sidebar-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--color-border-subtle);
+    margin-top: auto;
+  }
+
+  .main-content {
+    padding: 2rem;
+    min-width: 0;
+  }
+
+  .sidebar-toggle {
+    display: none;
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 50;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: white;
+    border: none;
+    box-shadow: var(--shadow-lg);
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 40;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+  }
+
+  /* Mobile styles */
+  @media (max-width: 1024px) {
+    .sidebar-layout.collapsible.breakpoint-lg {
+      grid-template-columns: 1fr;
+    }
+
+    .sidebar-layout.collapsible.breakpoint-lg .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: var(--sidebar-width);
+      z-index: 50;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+      border-right: 1px solid var(--color-border-subtle);
+    }
+
+    .sidebar-layout.collapsible.breakpoint-lg.sidebar-right .sidebar {
+      left: auto;
+      right: 0;
+      transform: translateX(100%);
+      border-left: 1px solid var(--color-border-subtle);
+      border-right: none;
+    }
+
+    .sidebar-layout.collapsible.breakpoint-lg .sidebar-toggle {
+      display: flex;
+    }
+
+    .sidebar-layout.collapsible.breakpoint-lg .sidebar-overlay {
+      display: block;
+    }
+
+    .sidebar-layout.collapsible.breakpoint-lg.sidebar-open .sidebar {
+      transform: translateX(0);
+    }
+
+    .sidebar-layout.collapsible.breakpoint-lg.sidebar-open .sidebar-overlay {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .sidebar-layout.collapsible.breakpoint-lg.sidebar-open .toggle-open {
+      display: none;
+    }
+
+    .sidebar-layout.collapsible.breakpoint-lg.sidebar-open .toggle-close {
+      display: block;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .sidebar-layout.collapsible.breakpoint-md {
+      grid-template-columns: 1fr;
+    }
+
+    .sidebar-layout.collapsible.breakpoint-md .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: var(--sidebar-width);
+      z-index: 50;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+    }
+
+    .sidebar-layout.collapsible.breakpoint-md .sidebar-toggle {
+      display: flex;
+    }
+
+    .sidebar-layout.collapsible.breakpoint-md .sidebar-overlay {
+      display: block;
+    }
+
+    .sidebar-layout.collapsible.breakpoint-md.sidebar-open .sidebar {
+      transform: translateX(0);
+    }
+
+    .sidebar-layout.collapsible.breakpoint-md.sidebar-open .sidebar-overlay {
+      opacity: 1;
+      visibility: visible;
+    }
+  }
+</style>
+
+<script>
+  function initSidebarLayout() {
+    const layouts = document.querySelectorAll('[data-sidebar-layout]');
+
+    layouts.forEach((layout) => {
+      const toggle = layout.querySelector('[data-sidebar-toggle]');
+      const overlay = layout.querySelector('[data-sidebar-overlay]');
+
+      toggle?.addEventListener('click', () => {
+        layout.classList.toggle('sidebar-open');
+        const isOpen = layout.classList.contains('sidebar-open');
+        toggle.setAttribute('aria-expanded', isOpen.toString());
+      });
+
+      overlay?.addEventListener('click', () => {
+        layout.classList.remove('sidebar-open');
+        toggle?.setAttribute('aria-expanded', 'false');
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSidebarLayout);
+  } else {
+    initSidebarLayout();
+  }
+
+  document.addEventListener('astro:page-load', initSidebarLayout);
+</script>

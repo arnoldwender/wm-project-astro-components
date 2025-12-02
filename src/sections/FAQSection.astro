@@ -1,0 +1,227 @@
+---
+/**
+ * FAQSection Component
+ *
+ * Frequently asked questions with accordion functionality.
+ *
+ * Variants:
+ * - simple: Clean accordion list
+ * - cards: Each FAQ in a card
+ * - columns: Two-column layout
+ * - categorized: Grouped by category
+ * - sidebar: FAQ with sidebar navigation
+ *
+ * @example
+ * <FAQSection variant="simple">
+ *   <FAQItem question="What is...?" answer="..." />
+ *   <FAQItem question="How do I...?" answer="..." />
+ * </FAQSection>
+ */
+
+import SectionWrapper from './SectionWrapper.astro';
+import SectionHeader from './SectionHeader.astro';
+
+export interface Category {
+  id: string;
+  label: string;
+}
+
+export interface Props {
+  variant?: 'simple' | 'cards' | 'columns' | 'categorized' | 'sidebar';
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+  categories?: Category[];
+  singleOpen?: boolean;
+  background?: 'transparent' | 'subtle' | 'muted';
+  class?: string;
+}
+
+const {
+  variant = 'simple',
+  eyebrow,
+  title,
+  description,
+  categories = [],
+  singleOpen = false,
+  background = 'transparent',
+  class: className = '',
+} = Astro.props;
+---
+
+<SectionWrapper background={background} class={className}>
+  {variant === 'sidebar' ? (
+    <div class="faq-sidebar grid lg:grid-cols-[280px_1fr] gap-8 lg:gap-12">
+      {/* Sidebar Navigation */}
+      <nav class="faq-nav sticky top-24 self-start hidden lg:block">
+        {(eyebrow || title || description) && (
+          <div class="mb-6">
+            {eyebrow && (
+              <span class="text-sm font-semibold text-primary uppercase tracking-wider mb-2 block">
+                {eyebrow}
+              </span>
+            )}
+            {title && (
+              <h2 class="text-2xl font-bold text-text-primary mb-2">{title}</h2>
+            )}
+            {description && (
+              <p class="text-text-secondary text-sm">{description}</p>
+            )}
+          </div>
+        )}
+        {categories.length > 0 && (
+          <ul class="space-y-1" data-faq-nav>
+            {categories.map((category) => (
+              <li>
+                <a
+                  href={`#faq-${category.id}`}
+                  class="block px-4 py-2 rounded-lg text-text-secondary hover:text-text-primary hover:bg-background-subtle transition-colors"
+                  data-faq-nav-link={category.id}
+                >
+                  {category.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )}
+      </nav>
+
+      {/* FAQ Content */}
+      <div class="faq-content" data-faq-container={singleOpen ? 'single' : undefined}>
+        <div class="lg:hidden mb-8">
+          {(eyebrow || title || description) && (
+            <SectionHeader
+              eyebrow={eyebrow}
+              title={title || ''}
+              description={description}
+              align="left"
+            />
+          )}
+        </div>
+        <slot />
+      </div>
+    </div>
+  ) : variant === 'columns' ? (
+    <>
+      {(eyebrow || title || description) && (
+        <SectionHeader
+          eyebrow={eyebrow}
+          title={title || ''}
+          description={description}
+        />
+      )}
+      <div class="faq-columns grid md:grid-cols-2 gap-x-12 gap-y-0" data-faq-container={singleOpen ? 'single' : undefined}>
+        <slot />
+      </div>
+    </>
+  ) : variant === 'categorized' ? (
+    <>
+      {(eyebrow || title || description) && (
+        <SectionHeader
+          eyebrow={eyebrow}
+          title={title || ''}
+          description={description}
+        />
+      )}
+      <div class="faq-categorized space-y-12" data-faq-container={singleOpen ? 'single' : undefined}>
+        <slot />
+      </div>
+    </>
+  ) : variant === 'cards' ? (
+    <>
+      {(eyebrow || title || description) && (
+        <SectionHeader
+          eyebrow={eyebrow}
+          title={title || ''}
+          description={description}
+        />
+      )}
+      <div class="faq-cards max-w-3xl mx-auto space-y-4" data-faq-container={singleOpen ? 'single' : undefined}>
+        <slot />
+      </div>
+    </>
+  ) : (
+    <>
+      {(eyebrow || title || description) && (
+        <SectionHeader
+          eyebrow={eyebrow}
+          title={title || ''}
+          description={description}
+        />
+      )}
+      <div class="faq-simple max-w-3xl mx-auto" data-faq-container={singleOpen ? 'single' : undefined}>
+        <slot />
+      </div>
+    </>
+  )}
+</SectionWrapper>
+
+<style>
+  /* Active nav link */
+  [data-faq-nav-link].active {
+    background-color: var(--color-background-subtle);
+    color: var(--color-text-primary);
+    font-weight: 500;
+  }
+</style>
+
+<script>
+  function initFAQSection() {
+    // Single open accordion behavior
+    const containers = document.querySelectorAll('[data-faq-container="single"]');
+
+    containers.forEach((container) => {
+      const triggers = container.querySelectorAll('[data-faq-trigger]');
+
+      triggers.forEach((trigger) => {
+        trigger.addEventListener('click', () => {
+          const isExpanding = trigger.getAttribute('aria-expanded') !== 'true';
+
+          if (isExpanding) {
+            // Close all other items in this container
+            triggers.forEach((otherTrigger) => {
+              if (otherTrigger !== trigger && otherTrigger.getAttribute('aria-expanded') === 'true') {
+                otherTrigger.setAttribute('aria-expanded', 'false');
+                const content = otherTrigger.closest('[data-faq-item]')?.querySelector('[data-faq-content]');
+                if (content) {
+                  content.setAttribute('aria-hidden', 'true');
+                  content.classList.add('hidden');
+                }
+              }
+            });
+          }
+        });
+      });
+    });
+
+    // Sidebar navigation highlighting
+    const navLinks = document.querySelectorAll('[data-faq-nav-link]');
+    if (navLinks.length > 0) {
+      const sections = document.querySelectorAll('[id^="faq-"]');
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const id = entry.target.id.replace('faq-', '');
+              navLinks.forEach((link) => {
+                link.classList.toggle('active', link.getAttribute('data-faq-nav-link') === id);
+              });
+            }
+          });
+        },
+        { rootMargin: '-20% 0px -80% 0px' }
+      );
+
+      sections.forEach((section) => observer.observe(section));
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initFAQSection);
+  } else {
+    initFAQSection();
+  }
+
+  document.addEventListener('astro:page-load', initFAQSection);
+</script>

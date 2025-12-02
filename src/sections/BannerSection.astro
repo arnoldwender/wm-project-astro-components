@@ -1,0 +1,440 @@
+---
+/**
+ * BannerSection Component
+ *
+ * Announcement banners, notifications, and promotional bars.
+ *
+ * Variants:
+ * - top: Fixed top announcement bar
+ * - inline: Inline banner within content
+ * - floating: Floating notification banner
+ * - promo: Promotional banner with image
+ * - countdown: Banner with countdown timer
+ * - cookie: Cookie consent banner
+ *
+ * @example
+ * <BannerSection
+ *   variant="top"
+ *   message="Free shipping on orders over €50!"
+ *   href="/shop"
+ *   dismissible
+ * />
+ */
+
+export interface Props {
+  variant?: 'top' | 'inline' | 'floating' | 'promo' | 'countdown' | 'cookie';
+  message: string;
+  description?: string;
+  href?: string;
+  linkText?: string;
+  icon?: string;
+  image?: string;
+  dismissible?: boolean;
+  countdownDate?: string;
+  theme?: 'primary' | 'success' | 'warning' | 'danger' | 'info' | 'dark';
+  position?: 'top' | 'bottom';
+  class?: string;
+}
+
+const {
+  variant = 'inline',
+  message,
+  description,
+  href,
+  linkText = 'Mehr erfahren',
+  icon,
+  image,
+  dismissible = false,
+  countdownDate,
+  theme = 'primary',
+  position = 'bottom',
+  class: className = '',
+} = Astro.props;
+
+// Theme colors
+const themeClasses = {
+  primary: 'bg-primary text-white',
+  success: 'bg-green-600 text-white',
+  warning: 'bg-amber-500 text-amber-950',
+  danger: 'bg-red-600 text-white',
+  info: 'bg-blue-600 text-white',
+  dark: 'bg-gray-900 text-white',
+};
+
+// Inline theme variants
+const inlineThemeClasses = {
+  primary: 'bg-primary/10 border-primary/20 text-primary',
+  success: 'bg-green-50 border-green-200 text-green-800 dark:bg-green-900/20 dark:border-green-800 dark:text-green-300',
+  warning: 'bg-amber-50 border-amber-200 text-amber-800 dark:bg-amber-900/20 dark:border-amber-800 dark:text-amber-300',
+  danger: 'bg-red-50 border-red-200 text-red-800 dark:bg-red-900/20 dark:border-red-800 dark:text-red-300',
+  info: 'bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-300',
+  dark: 'bg-gray-100 border-gray-200 text-gray-800 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200',
+};
+
+const bannerId = `banner-${Math.random().toString(36).slice(2, 9)}`;
+---
+
+{variant === 'top' ? (
+  <div
+    class:list={[
+      'banner-top sticky top-0 z-40 py-2.5 px-4',
+      themeClasses[theme],
+      className,
+    ]}
+    data-banner={bannerId}
+    role="banner"
+  >
+    <div class="max-w-7xl mx-auto flex items-center justify-center gap-4 text-sm">
+      {icon && (
+        <span class="flex-shrink-0" set:html={icon} />
+      )}
+      <p class="font-medium">
+        {message}
+        {href && (
+          <a href={href} class="underline underline-offset-2 hover:no-underline ml-2">
+            {linkText} →
+          </a>
+        )}
+      </p>
+      {dismissible && (
+        <button
+          type="button"
+          class="absolute right-4 p-1 hover:opacity-70 transition-opacity"
+          data-banner-dismiss
+          aria-label="Schließen"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      )}
+    </div>
+  </div>
+) : variant === 'floating' ? (
+  <div
+    class:list={[
+      'banner-floating fixed z-50 left-4 right-4 md:left-auto md:right-6 md:max-w-md rounded-xl shadow-2xl p-4',
+      position === 'top' ? 'top-4' : 'bottom-4',
+      themeClasses[theme],
+      className,
+    ]}
+    data-banner={bannerId}
+    role="alert"
+  >
+    <div class="flex items-start gap-3">
+      {icon && (
+        <span class="flex-shrink-0 w-6 h-6" set:html={icon} />
+      )}
+      <div class="flex-1 min-w-0">
+        <p class="font-semibold">{message}</p>
+        {description && (
+          <p class="text-sm opacity-90 mt-1">{description}</p>
+        )}
+        {href && (
+          <a
+            href={href}
+            class="inline-flex items-center gap-1 text-sm font-medium mt-2 underline underline-offset-2 hover:no-underline"
+          >
+            {linkText}
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </a>
+        )}
+      </div>
+      {dismissible && (
+        <button
+          type="button"
+          class="flex-shrink-0 p-1 hover:opacity-70 transition-opacity"
+          data-banner-dismiss
+          aria-label="Schließen"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      )}
+    </div>
+  </div>
+) : variant === 'promo' ? (
+  <div
+    class:list={[
+      'banner-promo relative overflow-hidden rounded-2xl',
+      themeClasses[theme],
+      className,
+    ]}
+    data-banner={bannerId}
+  >
+    {image && (
+      <img
+        src={image}
+        alt=""
+        class="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-30"
+        loading="lazy"
+      />
+    )}
+    <div class="relative z-10 px-6 py-8 md:px-12 md:py-12 flex flex-col md:flex-row items-center justify-between gap-6">
+      <div class="text-center md:text-left">
+        {icon && (
+          <span class="inline-block mb-2" set:html={icon} />
+        )}
+        <h3 class="text-2xl md:text-3xl font-bold">{message}</h3>
+        {description && (
+          <p class="opacity-90 mt-2 max-w-lg">{description}</p>
+        )}
+      </div>
+      {href && (
+        <a
+          href={href}
+          class="inline-flex items-center gap-2 px-6 py-3 bg-white text-gray-900 font-semibold rounded-lg hover:bg-opacity-90 transition-colors flex-shrink-0"
+        >
+          {linkText}
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          </svg>
+        </a>
+      )}
+    </div>
+    {dismissible && (
+      <button
+        type="button"
+        class="absolute top-4 right-4 p-2 hover:opacity-70 transition-opacity"
+        data-banner-dismiss
+        aria-label="Schließen"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    )}
+  </div>
+) : variant === 'countdown' ? (
+  <div
+    class:list={[
+      'banner-countdown rounded-2xl px-6 py-8 text-center',
+      themeClasses[theme],
+      className,
+    ]}
+    data-banner={bannerId}
+    data-countdown={countdownDate}
+  >
+    <p class="text-sm font-medium opacity-80 mb-2">{message}</p>
+    <div class="countdown-timer flex justify-center gap-4 mb-4" data-countdown-display>
+      <div class="countdown-unit">
+        <span class="block text-3xl md:text-4xl font-bold" data-days>00</span>
+        <span class="text-xs opacity-70">Tage</span>
+      </div>
+      <span class="text-3xl font-bold opacity-50">:</span>
+      <div class="countdown-unit">
+        <span class="block text-3xl md:text-4xl font-bold" data-hours>00</span>
+        <span class="text-xs opacity-70">Stunden</span>
+      </div>
+      <span class="text-3xl font-bold opacity-50">:</span>
+      <div class="countdown-unit">
+        <span class="block text-3xl md:text-4xl font-bold" data-minutes>00</span>
+        <span class="text-xs opacity-70">Minuten</span>
+      </div>
+      <span class="text-3xl font-bold opacity-50">:</span>
+      <div class="countdown-unit">
+        <span class="block text-3xl md:text-4xl font-bold" data-seconds>00</span>
+        <span class="text-xs opacity-70">Sekunden</span>
+      </div>
+    </div>
+    {description && (
+      <p class="opacity-90 mb-4">{description}</p>
+    )}
+    {href && (
+      <a
+        href={href}
+        class="inline-flex items-center gap-2 px-6 py-3 bg-white text-gray-900 font-semibold rounded-lg hover:bg-opacity-90 transition-colors"
+      >
+        {linkText}
+      </a>
+    )}
+  </div>
+) : variant === 'cookie' ? (
+  <div
+    class:list={[
+      'banner-cookie fixed bottom-0 left-0 right-0 z-50 p-4 md:p-6 bg-surface border-t border-border-subtle shadow-lg',
+      className,
+    ]}
+    data-banner={bannerId}
+    role="dialog"
+    aria-label="Cookie-Hinweis"
+  >
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex-1">
+        <p class="text-text-primary font-medium">{message}</p>
+        {description && (
+          <p class="text-sm text-text-secondary mt-1">{description}</p>
+        )}
+      </div>
+      <div class="flex items-center gap-3">
+        {href && (
+          <a href={href} class="text-sm text-primary hover:underline">
+            {linkText}
+          </a>
+        )}
+        <button
+          type="button"
+          class="px-4 py-2 text-sm font-medium text-text-secondary bg-background-subtle rounded-lg hover:bg-background-muted transition-colors"
+          data-cookie-reject
+        >
+          Ablehnen
+        </button>
+        <button
+          type="button"
+          class="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-primary-600 transition-colors"
+          data-cookie-accept
+        >
+          Akzeptieren
+        </button>
+      </div>
+    </div>
+  </div>
+) : (
+  <div
+    class:list={[
+      'banner-inline border rounded-xl p-4 md:p-5',
+      inlineThemeClasses[theme],
+      className,
+    ]}
+    data-banner={bannerId}
+    role="alert"
+  >
+    <div class="flex items-start gap-3">
+      {icon && (
+        <span class="flex-shrink-0 w-5 h-5" set:html={icon} />
+      )}
+      <div class="flex-1 min-w-0">
+        <p class="font-medium">{message}</p>
+        {description && (
+          <p class="text-sm opacity-80 mt-1">{description}</p>
+        )}
+        {href && (
+          <a href={href} class="inline-flex items-center gap-1 text-sm font-medium mt-2 hover:underline">
+            {linkText}
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </a>
+        )}
+      </div>
+      {dismissible && (
+        <button
+          type="button"
+          class="flex-shrink-0 p-1 hover:opacity-70 transition-opacity"
+          data-banner-dismiss
+          aria-label="Schließen"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      )}
+    </div>
+  </div>
+)}
+
+<script>
+  function initBanners() {
+    // Dismissible banners
+    const dismissBtns = document.querySelectorAll('[data-banner-dismiss]');
+    dismissBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const banner = btn.closest('[data-banner]');
+        if (banner) {
+          const bannerId = banner.getAttribute('data-banner');
+          banner.remove();
+          if (bannerId) {
+            localStorage.setItem(`banner-dismissed-${bannerId}`, 'true');
+          }
+        }
+      });
+    });
+
+    // Cookie banner
+    const cookieAccept = document.querySelectorAll('[data-cookie-accept]');
+    const cookieReject = document.querySelectorAll('[data-cookie-reject]');
+
+    cookieAccept.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const banner = btn.closest('[data-banner]');
+        if (banner) {
+          banner.remove();
+          localStorage.setItem('cookie-consent', 'accepted');
+          document.dispatchEvent(new CustomEvent('cookie:accepted'));
+        }
+      });
+    });
+
+    cookieReject.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const banner = btn.closest('[data-banner]');
+        if (banner) {
+          banner.remove();
+          localStorage.setItem('cookie-consent', 'rejected');
+          document.dispatchEvent(new CustomEvent('cookie:rejected'));
+        }
+      });
+    });
+
+    // Countdown timer
+    const countdownBanners = document.querySelectorAll('[data-countdown]');
+    countdownBanners.forEach((banner) => {
+      const endDate = new Date(banner.getAttribute('data-countdown') || '').getTime();
+      const display = banner.querySelector('[data-countdown-display]');
+
+      if (!display || isNaN(endDate)) return;
+
+      const days = display.querySelector('[data-days]');
+      const hours = display.querySelector('[data-hours]');
+      const minutes = display.querySelector('[data-minutes]');
+      const seconds = display.querySelector('[data-seconds]');
+
+      const updateCountdown = () => {
+        const now = Date.now();
+        const diff = Math.max(0, endDate - now);
+
+        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const s = Math.floor((diff % (1000 * 60)) / 1000);
+
+        if (days) days.textContent = d.toString().padStart(2, '0');
+        if (hours) hours.textContent = h.toString().padStart(2, '0');
+        if (minutes) minutes.textContent = m.toString().padStart(2, '0');
+        if (seconds) seconds.textContent = s.toString().padStart(2, '0');
+
+        if (diff <= 0) {
+          clearInterval(interval);
+        }
+      };
+
+      updateCountdown();
+      const interval = setInterval(updateCountdown, 1000);
+    });
+
+    // Hide previously dismissed banners
+    document.querySelectorAll('[data-banner]').forEach((banner) => {
+      const bannerId = banner.getAttribute('data-banner');
+      if (bannerId && localStorage.getItem(`banner-dismissed-${bannerId}`)) {
+        banner.remove();
+      }
+    });
+
+    // Hide cookie banner if consent given
+    const cookieBanner = document.querySelector('.banner-cookie');
+    if (cookieBanner && localStorage.getItem('cookie-consent')) {
+      cookieBanner.remove();
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initBanners);
+  } else {
+    initBanners();
+  }
+
+  document.addEventListener('astro:page-load', initBanners);
+</script>

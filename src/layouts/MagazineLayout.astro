@@ -1,0 +1,132 @@
+---
+/**
+ * MagazineLayout Component
+ *
+ * Editorial-style grid layout for visual storytelling.
+ * Inspired by Vogue, National Geographic, and modern digital magazines.
+ *
+ * Target: Magazines, Editorial sites, Lifestyle blogs, Photography sites
+ *
+ * Features:
+ * - Dynamic grid with featured articles
+ * - Visual hierarchy with varied card sizes
+ * - Category color coding
+ * - Hover effects with overlays
+ * - Responsive masonry-like layout
+ * - Featured/hero article support
+ *
+ * @example
+ * <MagazineLayout variant="editorial">
+ *   <MagazineCard slot="featured" size="hero" ... />
+ *   <MagazineCard size="large" ... />
+ *   <MagazineCard size="medium" ... />
+ * </MagazineLayout>
+ */
+
+export interface Props {
+  variant?: 'editorial' | 'grid' | 'masonry' | 'featured-left' | 'featured-right';
+  columns?: 2 | 3 | 4;
+  gap?: 'sm' | 'md' | 'lg';
+  showCategories?: boolean;
+  class?: string;
+}
+
+const {
+  variant = 'editorial',
+  columns = 3,
+  gap = 'md',
+  showCategories = true,
+  class: className = '',
+} = Astro.props;
+
+// Gap classes
+const gapClasses = {
+  sm: 'gap-4',
+  md: 'gap-6',
+  lg: 'gap-8',
+};
+---
+
+<section
+  class:list={[
+    'magazine-layout',
+    gapClasses[gap],
+    className,
+  ]}
+  data-magazine-layout
+  data-variant={variant}
+>
+  {variant === 'editorial' && (
+    <!-- Editorial: Hero + 2 medium + row of small -->
+    <div class="magazine-editorial grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Featured/Hero Article -->
+      <div class="magazine-featured lg:col-span-2 lg:row-span-2">
+        <slot name="featured" />
+      </div>
+
+      <!-- Secondary Articles -->
+      <div class="magazine-secondary flex flex-col gap-6">
+        <slot name="secondary" />
+      </div>
+
+      <!-- Additional Articles Row -->
+      <div class="magazine-additional lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <slot />
+      </div>
+    </div>
+  )}
+
+  {variant === 'featured-left' && (
+    <!-- Featured Left: Large left + stacked right -->
+    <div class="magazine-featured-left grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="magazine-featured">
+        <slot name="featured" />
+      </div>
+      <div class="magazine-stack grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-6">
+        <slot />
+      </div>
+    </div>
+  )}
+
+  {variant === 'featured-right' && (
+    <!-- Featured Right: Stacked left + large right -->
+    <div class="magazine-featured-right grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="magazine-stack grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-6 order-2 lg:order-1">
+        <slot />
+      </div>
+      <div class="magazine-featured order-1 lg:order-2">
+        <slot name="featured" />
+      </div>
+    </div>
+  )}
+
+  {variant === 'grid' && (
+    <!-- Standard Grid -->
+    <div class:list={[
+      'magazine-grid grid gap-6',
+      columns === 2 && 'grid-cols-1 sm:grid-cols-2',
+      columns === 3 && 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
+      columns === 4 && 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4',
+    ]}>
+      <slot />
+    </div>
+  )}
+
+  {variant === 'masonry' && (
+    <!-- CSS Masonry-like with columns -->
+    <div class:list={[
+      'magazine-masonry columns-1 sm:columns-2 lg:columns-3 gap-6',
+      columns === 4 && 'xl:columns-4',
+    ]}>
+      <slot />
+    </div>
+  )}
+</section>
+
+<style>
+  /* Masonry items */
+  .magazine-masonry :global(> *) {
+    break-inside: avoid;
+    margin-bottom: 1.5rem;
+  }
+</style>

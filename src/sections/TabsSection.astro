@@ -1,0 +1,328 @@
+---
+/**
+ * TabsSection Component
+ *
+ * Tabbed content sections for organizing information.
+ *
+ * Variants:
+ * - default: Standard horizontal tabs
+ * - pills: Pill-style tabs
+ * - underline: Underlined tabs
+ * - vertical: Vertical sidebar tabs
+ * - cards: Tab cards with icons
+ * - segmented: iOS-style segmented control
+ *
+ * @example
+ * <TabsSection variant="default">
+ *   <TabItem label="Features" id="features">
+ *     <p>Features content...</p>
+ *   </TabItem>
+ * </TabsSection>
+ */
+
+import SectionWrapper from './SectionWrapper.astro';
+import SectionHeader from './SectionHeader.astro';
+
+export interface Tab {
+  id: string;
+  label: string;
+  icon?: string;
+  badge?: string;
+  disabled?: boolean;
+}
+
+export interface Props {
+  variant?: 'default' | 'pills' | 'underline' | 'vertical' | 'cards' | 'segmented';
+  tabs: Tab[];
+  defaultTab?: string;
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+  fullWidth?: boolean;
+  background?: 'transparent' | 'subtle' | 'muted';
+  class?: string;
+}
+
+const {
+  variant = 'default',
+  tabs,
+  defaultTab,
+  eyebrow,
+  title,
+  description,
+  fullWidth = false,
+  background = 'transparent',
+  class: className = '',
+} = Astro.props;
+
+const activeTab = defaultTab || tabs[0]?.id;
+---
+
+<SectionWrapper background={background} class={className}>
+  {(eyebrow || title || description) && (
+    <SectionHeader
+      eyebrow={eyebrow}
+      title={title || ''}
+      description={description}
+    />
+  )}
+
+  <div
+    class:list={[
+      'tabs-container',
+      variant === 'vertical' && 'grid lg:grid-cols-[280px_1fr] gap-8',
+    ]}
+    data-tabs-container
+  >
+    {/* Tab Navigation */}
+    <nav
+      class:list={[
+        'tabs-nav',
+        variant === 'default' && 'flex gap-1 border-b border-border-subtle mb-8',
+        variant === 'pills' && 'flex flex-wrap gap-2 mb-8 justify-center',
+        variant === 'underline' && 'flex gap-6 border-b border-border-subtle mb-8',
+        variant === 'vertical' && 'flex flex-col gap-1 lg:border-r lg:border-border-subtle lg:pr-8',
+        variant === 'cards' && 'grid grid-cols-2 md:grid-cols-4 gap-4 mb-8',
+        variant === 'segmented' && 'inline-flex p-1 bg-background-muted rounded-lg mb-8',
+        !variant.includes('vertical') && !variant.includes('cards') && !fullWidth && 'justify-center',
+      ]}
+      role="tablist"
+      aria-label="Content tabs"
+    >
+      {tabs.map((tab) => (
+        <button
+          type="button"
+          role="tab"
+          id={`tab-${tab.id}`}
+          class:list={[
+            'tab-btn relative font-medium transition-colors',
+            tab.disabled && 'opacity-50 cursor-not-allowed',
+
+            // Default variant
+            variant === 'default' && [
+              'px-4 py-3 text-sm',
+              tab.id === activeTab
+                ? 'text-primary border-b-2 border-primary -mb-px'
+                : 'text-text-secondary hover:text-text-primary',
+            ],
+
+            // Pills variant
+            variant === 'pills' && [
+              'px-4 py-2 text-sm rounded-full',
+              tab.id === activeTab
+                ? 'bg-primary text-white'
+                : 'bg-background-subtle text-text-secondary hover:bg-background-muted',
+            ],
+
+            // Underline variant
+            variant === 'underline' && [
+              'pb-3 text-sm',
+              tab.id === activeTab
+                ? 'text-primary border-b-2 border-primary -mb-px'
+                : 'text-text-secondary hover:text-text-primary',
+            ],
+
+            // Vertical variant
+            variant === 'vertical' && [
+              'px-4 py-3 text-left rounded-lg text-sm',
+              tab.id === activeTab
+                ? 'bg-primary/10 text-primary font-semibold'
+                : 'text-text-secondary hover:bg-background-subtle',
+            ],
+
+            // Cards variant
+            variant === 'cards' && [
+              'flex flex-col items-center gap-2 p-4 rounded-xl border text-center',
+              tab.id === activeTab
+                ? 'bg-primary text-white border-primary'
+                : 'bg-surface border-border-subtle text-text-secondary hover:border-primary/50',
+            ],
+
+            // Segmented variant
+            variant === 'segmented' && [
+              'px-4 py-2 text-sm rounded-md',
+              tab.id === activeTab
+                ? 'bg-surface text-text-primary shadow-sm'
+                : 'text-text-secondary hover:text-text-primary',
+            ],
+          ]}
+          aria-selected={tab.id === activeTab}
+          aria-controls={`panel-${tab.id}`}
+          data-tab-trigger={tab.id}
+          disabled={tab.disabled}
+        >
+          {/* Icon for cards variant */}
+          {tab.icon && variant === 'cards' && (
+            <span class="w-8 h-8" set:html={tab.icon} />
+          )}
+
+          {/* Icon inline for other variants */}
+          {tab.icon && variant !== 'cards' && (
+            <span class="w-4 h-4 mr-2 inline-block align-middle" set:html={tab.icon} />
+          )}
+
+          <span>{tab.label}</span>
+
+          {/* Badge */}
+          {tab.badge && (
+            <span class:list={[
+              'ml-2 px-1.5 py-0.5 text-xs font-medium rounded-full',
+              tab.id === activeTab
+                ? variant === 'cards' || variant === 'pills'
+                  ? 'bg-white/20'
+                  : 'bg-primary/10 text-primary'
+                : 'bg-background-subtle text-text-tertiary',
+            ]}>
+              {tab.badge}
+            </span>
+          )}
+        </button>
+      ))}
+    </nav>
+
+    {/* Tab Panels */}
+    <div class="tabs-content">
+      <slot />
+    </div>
+  </div>
+</SectionWrapper>
+
+<style>
+  /* Tab panel visibility */
+  .tabs-content :global([data-tab-panel]) {
+    display: none;
+  }
+
+  .tabs-content :global([data-tab-panel].active) {
+    display: block;
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tabs-content :global([data-tab-panel].active) {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  function initTabs() {
+    const containers = document.querySelectorAll('[data-tabs-container]');
+
+    containers.forEach((container) => {
+      const triggers = container.querySelectorAll('[data-tab-trigger]');
+      const panels = container.querySelectorAll('[data-tab-panel]');
+
+      // Initialize first panel as active
+      const firstActiveTrigger = container.querySelector('[aria-selected="true"]');
+      const firstTabId = firstActiveTrigger?.getAttribute('data-tab-trigger');
+      panels.forEach((panel) => {
+        if (panel.getAttribute('data-tab-panel') === firstTabId) {
+          panel.classList.add('active');
+        }
+      });
+
+      triggers.forEach((trigger) => {
+        trigger.addEventListener('click', () => {
+          if (trigger.hasAttribute('disabled')) return;
+
+          const tabId = trigger.getAttribute('data-tab-trigger');
+
+          // Update trigger states
+          triggers.forEach((t) => {
+            const isActive = t.getAttribute('data-tab-trigger') === tabId;
+            t.setAttribute('aria-selected', isActive.toString());
+
+            // Update classes based on variant (detected from existing classes)
+            if (t.classList.contains('rounded-full')) {
+              // Pills variant
+              t.classList.toggle('bg-primary', isActive);
+              t.classList.toggle('text-white', isActive);
+              t.classList.toggle('bg-background-subtle', !isActive);
+              t.classList.toggle('text-text-secondary', !isActive);
+            } else if (t.classList.contains('rounded-xl')) {
+              // Cards variant
+              t.classList.toggle('bg-primary', isActive);
+              t.classList.toggle('text-white', isActive);
+              t.classList.toggle('border-primary', isActive);
+              t.classList.toggle('bg-surface', !isActive);
+              t.classList.toggle('border-border-subtle', !isActive);
+              t.classList.toggle('text-text-secondary', !isActive);
+            } else if (t.classList.contains('rounded-md')) {
+              // Segmented variant
+              t.classList.toggle('bg-surface', isActive);
+              t.classList.toggle('text-text-primary', isActive);
+              t.classList.toggle('shadow-sm', isActive);
+              t.classList.toggle('text-text-secondary', !isActive);
+            } else if (t.classList.contains('rounded-lg')) {
+              // Vertical variant
+              t.classList.toggle('bg-primary/10', isActive);
+              t.classList.toggle('text-primary', isActive);
+              t.classList.toggle('font-semibold', isActive);
+              t.classList.toggle('text-text-secondary', !isActive);
+            } else {
+              // Default/Underline variant
+              t.classList.toggle('text-primary', isActive);
+              t.classList.toggle('border-primary', isActive);
+              t.classList.toggle('border-b-2', isActive);
+              t.classList.toggle('-mb-px', isActive);
+              t.classList.toggle('text-text-secondary', !isActive);
+            }
+          });
+
+          // Show corresponding panel
+          panels.forEach((panel) => {
+            if (panel.getAttribute('data-tab-panel') === tabId) {
+              panel.classList.add('active');
+            } else {
+              panel.classList.remove('active');
+            }
+          });
+        });
+
+        // Keyboard navigation
+        trigger.addEventListener('keydown', (e) => {
+          const triggersArray = Array.from(triggers);
+          const currentIndex = triggersArray.indexOf(trigger);
+          let nextIndex: number | null = null;
+
+          if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+            nextIndex = (currentIndex + 1) % triggersArray.length;
+          } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+            nextIndex = (currentIndex - 1 + triggersArray.length) % triggersArray.length;
+          } else if (e.key === 'Home') {
+            nextIndex = 0;
+          } else if (e.key === 'End') {
+            nextIndex = triggersArray.length - 1;
+          }
+
+          if (nextIndex !== null) {
+            e.preventDefault();
+            const nextTrigger = triggersArray[nextIndex] as HTMLElement;
+            nextTrigger.focus();
+            nextTrigger.click();
+          }
+        });
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTabs);
+  } else {
+    initTabs();
+  }
+
+  document.addEventListener('astro:page-load', initTabs);
+</script>

@@ -1,0 +1,237 @@
+---
+/**
+ * AwardsSection Component
+ *
+ * Display awards, certifications, and achievements.
+ *
+ * Variants:
+ * - grid: Grid of award cards
+ * - carousel: Horizontal scrolling
+ * - badges: Inline badge style
+ * - timeline: Chronological display
+ * - featured: Large featured + grid
+ * - showcase: Visual showcase style
+ *
+ * @example
+ * <AwardsSection variant="grid" title="Awards & Recognition">
+ *   <AwardItem title="Best Design" year="2024" />
+ * </AwardsSection>
+ */
+
+import SectionWrapper from './SectionWrapper.astro';
+import SectionHeader from './SectionHeader.astro';
+
+export interface Props {
+  variant?: 'grid' | 'carousel' | 'badges' | 'timeline' | 'featured' | 'showcase';
+  columns?: 2 | 3 | 4 | 5;
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+  background?: 'transparent' | 'subtle' | 'muted' | 'dark';
+  class?: string;
+}
+
+const {
+  variant = 'grid',
+  columns = 4,
+  eyebrow,
+  title,
+  description,
+  background = 'transparent',
+  class: className = '',
+} = Astro.props;
+
+const columnClasses = {
+  2: 'sm:grid-cols-2',
+  3: 'sm:grid-cols-2 lg:grid-cols-3',
+  4: 'sm:grid-cols-2 lg:grid-cols-4',
+  5: 'sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5',
+};
+---
+
+<SectionWrapper background={background} class={className}>
+  {(eyebrow || title || description) && (
+    <SectionHeader
+      eyebrow={eyebrow}
+      title={title || ''}
+      description={description}
+    />
+  )}
+
+  {/* Grid Variant */}
+  {variant === 'grid' && (
+    <div class:list={['awards-grid grid gap-6', columnClasses[columns]]}>
+      <slot />
+    </div>
+  )}
+
+  {/* Carousel Variant */}
+  {variant === 'carousel' && (
+    <div class="awards-carousel relative" data-awards-carousel>
+      <div class="overflow-hidden">
+        <div class="awards-track flex gap-6 transition-transform duration-500" data-carousel-track>
+          <slot />
+        </div>
+      </div>
+
+      {/* Navigation */}
+      <button
+        type="button"
+        class="carousel-prev absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-10 h-10 rounded-full bg-surface border border-border-subtle shadow-md flex items-center justify-center text-text-primary hover:bg-background-subtle transition-colors z-10"
+        data-carousel-prev
+        aria-label="Previous"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+      <button
+        type="button"
+        class="carousel-next absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-10 h-10 rounded-full bg-surface border border-border-subtle shadow-md flex items-center justify-center text-text-primary hover:bg-background-subtle transition-colors z-10"
+        data-carousel-next
+        aria-label="Next"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+    </div>
+  )}
+
+  {/* Badges Variant */}
+  {variant === 'badges' && (
+    <div class="awards-badges flex flex-wrap justify-center gap-4">
+      <slot />
+    </div>
+  )}
+
+  {/* Timeline Variant */}
+  {variant === 'timeline' && (
+    <div class="awards-timeline max-w-2xl mx-auto relative">
+      <div class="absolute left-6 top-0 bottom-0 w-0.5 bg-border-subtle" />
+      <div class="space-y-8">
+        <slot />
+      </div>
+    </div>
+  )}
+
+  {/* Featured Variant */}
+  {variant === 'featured' && (
+    <div class="awards-featured">
+      <div class="featured-award max-w-xl mx-auto mb-12">
+        <slot name="featured" />
+      </div>
+      <div class:list={['grid gap-6', columnClasses[columns]]}>
+        <slot />
+      </div>
+    </div>
+  )}
+
+  {/* Showcase Variant */}
+  {variant === 'showcase' && (
+    <div class="awards-showcase">
+      <div class="flex flex-wrap justify-center items-center gap-8 lg:gap-12">
+        <slot />
+      </div>
+    </div>
+  )}
+</SectionWrapper>
+
+<style>
+  /* Carousel items */
+  .awards-carousel :global(.award-item) {
+    flex: 0 0 calc(25% - 1.125rem);
+    min-width: 200px;
+  }
+
+  @media (max-width: 768px) {
+    .awards-carousel :global(.award-item) {
+      flex: 0 0 calc(50% - 0.75rem);
+    }
+  }
+
+  /* Timeline styling */
+  .awards-timeline :global(.award-item) {
+    position: relative;
+    padding-left: 3rem;
+  }
+
+  .awards-timeline :global(.award-item::before) {
+    content: '';
+    position: absolute;
+    left: 0.375rem;
+    top: 0.375rem;
+    width: 0.75rem;
+    height: 0.75rem;
+    background: var(--color-primary);
+    border-radius: 50%;
+    border: 3px solid var(--color-background);
+    box-shadow: 0 0 0 2px var(--color-primary);
+  }
+
+  /* Showcase items */
+  .awards-showcase :global(.award-item) {
+    text-align: center;
+  }
+
+  .awards-showcase :global(.award-image) {
+    width: 4rem;
+    height: 4rem;
+    margin: 0 auto 0.5rem;
+    filter: grayscale(50%);
+    opacity: 0.7;
+    transition: filter var(--duration-200) var(--ease-out),
+                opacity var(--duration-200) var(--ease-out);
+  }
+
+  .awards-showcase :global(.award-item:hover .award-image) {
+    filter: grayscale(0%);
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .awards-showcase :global(.award-image) {
+      transition: none;
+      filter: none;
+      opacity: 0.9;
+    }
+  }
+</style>
+
+<script>
+  function initAwardsCarousel() {
+    const carousels = document.querySelectorAll('[data-awards-carousel]');
+
+    carousels.forEach((carousel) => {
+      const track = carousel.querySelector('[data-carousel-track]') as HTMLElement;
+      const prevBtn = carousel.querySelector('[data-carousel-prev]');
+      const nextBtn = carousel.querySelector('[data-carousel-next]');
+
+      if (!track) return;
+
+      let position = 0;
+      const itemWidth = track.children[0]?.getBoundingClientRect().width || 200;
+      const gap = 24;
+      const visibleItems = Math.floor(track.parentElement!.offsetWidth / (itemWidth + gap));
+      const maxPosition = -(track.children.length - visibleItems) * (itemWidth + gap);
+
+      prevBtn?.addEventListener('click', () => {
+        position = Math.min(position + itemWidth + gap, 0);
+        track.style.transform = `translateX(${position}px)`;
+      });
+
+      nextBtn?.addEventListener('click', () => {
+        position = Math.max(position - itemWidth - gap, maxPosition);
+        track.style.transform = `translateX(${position}px)`;
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAwardsCarousel);
+  } else {
+    initAwardsCarousel();
+  }
+
+  document.addEventListener('astro:page-load', initAwardsCarousel);
+</script>

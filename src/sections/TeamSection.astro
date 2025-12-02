@@ -1,0 +1,132 @@
+---
+/**
+ * TeamSection Component
+ *
+ * Showcase team members with various layouts.
+ *
+ * Variants:
+ * - grid: Standard grid layout
+ * - cards: Card-based with shadows
+ * - horizontal: Horizontal cards list
+ * - overlay: Image with text overlay
+ * - minimal: Compact minimal display
+ * - featured: Large featured member + grid
+ *
+ * @example
+ * <TeamSection variant="grid" columns={4}>
+ *   <TeamMember name="Jane Doe" role="CEO" image="/team/jane.jpg" />
+ *   <TeamMember name="John Smith" role="CTO" image="/team/john.jpg" />
+ * </TeamSection>
+ */
+
+import SectionWrapper from './SectionWrapper.astro';
+import SectionHeader from './SectionHeader.astro';
+
+export interface Props {
+  variant?: 'grid' | 'cards' | 'horizontal' | 'overlay' | 'minimal' | 'featured';
+  columns?: 2 | 3 | 4 | 5 | 6;
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+  background?: 'transparent' | 'subtle' | 'muted';
+  class?: string;
+}
+
+const {
+  variant = 'grid',
+  columns = 4,
+  eyebrow,
+  title,
+  description,
+  background = 'transparent',
+  class: className = '',
+} = Astro.props;
+
+// Column classes
+const columnClasses = {
+  2: 'sm:grid-cols-2',
+  3: 'sm:grid-cols-2 lg:grid-cols-3',
+  4: 'sm:grid-cols-2 lg:grid-cols-4',
+  5: 'sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5',
+  6: 'sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6',
+};
+---
+
+<SectionWrapper background={background} class={className}>
+  {(eyebrow || title || description) && (
+    <SectionHeader
+      eyebrow={eyebrow}
+      title={title || ''}
+      description={description}
+    />
+  )}
+
+  {/* Grid Variant */}
+  {variant === 'grid' && (
+    <div class:list={['team-grid grid gap-8 lg:gap-12', columnClasses[columns]]}>
+      <slot />
+    </div>
+  )}
+
+  {/* Cards Variant */}
+  {variant === 'cards' && (
+    <div class:list={['team-cards grid gap-6', columnClasses[columns]]}>
+      <slot />
+    </div>
+  )}
+
+  {/* Horizontal Variant */}
+  {variant === 'horizontal' && (
+    <div class="team-horizontal grid gap-6 md:grid-cols-2">
+      <slot />
+    </div>
+  )}
+
+  {/* Overlay Variant */}
+  {variant === 'overlay' && (
+    <div class:list={['team-overlay grid gap-6', columnClasses[columns]]}>
+      <slot />
+    </div>
+  )}
+
+  {/* Minimal Variant */}
+  {variant === 'minimal' && (
+    <div class:list={['team-minimal grid gap-8', columnClasses[columns > 4 ? columns : 4]]}>
+      <slot />
+    </div>
+  )}
+
+  {/* Featured Variant */}
+  {variant === 'featured' && (
+    <div class="team-featured">
+      <div class="featured-member mb-12">
+        <slot name="featured" />
+      </div>
+      <div class:list={['team-grid grid gap-8', columnClasses[columns]]}>
+        <slot />
+      </div>
+    </div>
+  )}
+</SectionWrapper>
+
+<style>
+  /* Featured variant styling */
+  .featured-member :global(> *) {
+    max-width: 42rem;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .featured-member :global(img) {
+    width: 12rem;
+    height: 12rem;
+  }
+
+  .featured-member :global(h3) {
+    font-size: 1.5rem;
+  }
+
+  .featured-member :global(p) {
+    max-width: 32rem;
+  }
+</style>

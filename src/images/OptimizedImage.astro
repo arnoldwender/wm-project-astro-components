@@ -2,8 +2,35 @@
 /**
  * OptimizedImage Component - WenderMedia Astro Components
  *
- * Responsive image with srcset and sizes
- * Features: lazy loading, priority loading option, responsive breakpoints
+ * Premium responsive image with modern format support.
+ *
+ * Features:
+ * - Automatic WebP/AVIF format detection via <picture>
+ * - Responsive srcset with customizable breakpoints
+ * - Lazy loading with native browser support
+ * - Priority loading for LCP images
+ * - Blur-up placeholder option
+ * - Aspect ratio preservation
+ * - Art direction support
+ * - Reduced motion support for animations
+ *
+ * @example
+ * <OptimizedImage
+ *   src="/images/hero.jpg"
+ *   alt="Hero image"
+ *   width={1200}
+ *   height={630}
+ *   priority
+ * />
+ *
+ * @example
+ * <OptimizedImage
+ *   src="/images/product.jpg"
+ *   webpSrc="/images/product.webp"
+ *   avifSrc="/images/product.avif"
+ *   alt="Product"
+ *   aspectRatio="4/3"
+ * />
  */
 
 export interface Props {
@@ -15,36 +42,179 @@ export interface Props {
   priority?: boolean;
   sizes?: string;
   breakpoints?: number[];
+  // Modern format sources
+  webpSrc?: string;
+  avifSrc?: string;
+  // Placeholder
+  placeholder?: 'blur' | 'none';
+  blurDataURL?: string;
+  // Layout
+  aspectRatio?: string;
+  objectFit?: 'contain' | 'cover' | 'fill' | 'none' | 'scale-down';
+  objectPosition?: string;
+  // Styling
   class?: string;
+  imgClass?: string;
 }
 
 const {
   src,
   alt,
-  width = 800,
-  height = 600,
+  width,
+  height,
   loading = 'lazy',
   priority = false,
   sizes = '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw',
-  breakpoints = [400, 600, 800, 1200],
+  breakpoints = [400, 600, 800, 1200, 1600],
+  webpSrc,
+  avifSrc,
+  placeholder = 'none',
+  blurDataURL,
+  aspectRatio,
+  objectFit = 'cover',
+  objectPosition = 'center',
   class: className = '',
+  imgClass = '',
 } = Astro.props;
 
-// Generate srcset from breakpoints
-const srcset = breakpoints
-  .map((size) => `${src} ${size}w`)
-  .join(', ');
+// Helper to generate srcset for a given source
+const generateSrcset = (baseSrc: string): string => {
+  // If the src contains query params or is external, don't generate srcset
+  if (baseSrc.includes('?') || baseSrc.startsWith('http')) {
+    return baseSrc;
+  }
+  return breakpoints.map((size: number) => `${baseSrc} ${size}w`).join(', ');
+};
+
+// Auto-detect WebP/AVIF sources if not provided
+const getModernSrc = (originalSrc: string, format: 'webp' | 'avif'): string | undefined => {
+  if (format === 'webp' && webpSrc) return webpSrc;
+  if (format === 'avif' && avifSrc) return avifSrc;
+
+  // Auto-generate path by replacing extension
+  const extMatch = originalSrc.match(/\.(jpe?g|png|gif)$/i);
+  if (extMatch) {
+    return originalSrc.replace(extMatch[0], `.${format}`);
+  }
+  return undefined;
+};
+
+const avifSource = getModernSrc(src, 'avif');
+const webpSource = getModernSrc(src, 'webp');
+
+// Generate srcsets
+const fallbackSrcset = generateSrcset(src);
+const avifSrcset = avifSource ? generateSrcset(avifSource) : undefined;
+const webpSrcset = webpSource ? generateSrcset(webpSource) : undefined;
+
+// Blur placeholder styling
+const blurStyle = placeholder === 'blur' && blurDataURL
+  ? `background-image: url(${blurDataURL}); background-size: cover;`
+  : '';
+
+// Aspect ratio styling
+const aspectStyle = aspectRatio ? `aspect-ratio: ${aspectRatio};` : '';
+const containerStyle = [blurStyle, aspectStyle].filter(Boolean).join(' ');
 ---
 
-<img
-  src={src}
-  srcset={srcset}
-  sizes={sizes}
-  alt={alt}
-  width={width}
-  height={height}
-  loading={priority ? 'eager' : loading}
-  decoding={priority ? 'sync' : 'async'}
-  fetchpriority={priority ? 'high' : 'auto'}
-  class={className}
-/>
+<picture
+  class:list={[
+    'optimized-image',
+    placeholder === 'blur' && 'has-placeholder',
+    className,
+  ]}
+  style={containerStyle || undefined}
+  data-optimized-image
+>
+  {/* AVIF source - best compression, newest format */}
+  {avifSrcset && (
+    <source
+      type="image/avif"
+      srcset={avifSrcset}
+      sizes={sizes}
+    />
+  )}
+
+  {/* WebP source - good compression, wide support */}
+  {webpSrcset && (
+    <source
+      type="image/webp"
+      srcset={webpSrcset}
+      sizes={sizes}
+    />
+  )}
+
+  {/* Fallback image */}
+  <img
+    src={src}
+    srcset={fallbackSrcset}
+    sizes={sizes}
+    alt={alt}
+    width={width}
+    height={height}
+    loading={priority ? 'eager' : loading}
+    decoding={priority ? 'sync' : 'async'}
+    class:list={[
+      'optimized-image-img',
+      imgClass,
+    ]}
+    style={`object-fit: ${objectFit}; object-position: ${objectPosition};`}
+    data-placeholder={placeholder}
+    data-priority={priority ? 'high' : undefined}
+    onload={placeholder === 'blur' ? "this.parentElement.classList.add('loaded')" : undefined}
+  />
+</picture>
+
+<style>
+  .optimized-image {
+    display: block;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .optimized-image-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Blur placeholder animation */
+  .optimized-image.has-placeholder .optimized-image-img {
+    opacity: 0;
+    transition: opacity var(--duration-300, 300ms) var(--ease-out, ease-out);
+  }
+
+  .optimized-image.has-placeholder.loaded .optimized-image-img {
+    opacity: 1;
+  }
+
+  .optimized-image.has-placeholder::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: inherit;
+    filter: blur(20px);
+    transform: scale(1.1);
+    transition: opacity var(--duration-300, 300ms) var(--ease-out, ease-out);
+  }
+
+  .optimized-image.has-placeholder.loaded::before {
+    opacity: 0;
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .optimized-image.has-placeholder .optimized-image-img,
+    .optimized-image.has-placeholder::before {
+      transition: none;
+    }
+
+    .optimized-image.has-placeholder .optimized-image-img {
+      opacity: 1;
+    }
+
+    .optimized-image.has-placeholder::before {
+      display: none;
+    }
+  }
+</style>

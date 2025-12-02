@@ -1,0 +1,192 @@
+---
+/**
+ * PricingCard Component
+ *
+ * Individual pricing plan card.
+ *
+ * @example
+ * <PricingCard
+ *   name="Pro"
+ *   description="For growing businesses"
+ *   price={29}
+ *   yearlyPrice={290}
+ *   currency="€"
+ *   period="month"
+ *   features={['Feature 1', 'Feature 2']}
+ *   featured
+ *   ctaText="Get Started"
+ *   ctaHref="/signup"
+ * />
+ */
+
+export interface Props {
+  name: string;
+  description?: string;
+  price: number | string;
+  yearlyPrice?: number | string;
+  currency?: string;
+  period?: string;
+  features?: Array<string | { text: string; included: boolean }>;
+  featured?: boolean;
+  badge?: string;
+  ctaText?: string;
+  ctaHref?: string;
+  ctaVariant?: 'primary' | 'secondary' | 'outline';
+  class?: string;
+}
+
+const {
+  name,
+  description,
+  price,
+  yearlyPrice,
+  currency = '€',
+  period = 'Monat',
+  features = [],
+  featured = false,
+  badge,
+  ctaText = 'Auswählen',
+  ctaHref = '#',
+  ctaVariant = featured ? 'primary' : 'outline',
+  class: className = '',
+} = Astro.props;
+
+// CTA variant classes
+const ctaClasses = {
+  primary: 'bg-primary text-primary-text hover:bg-primary-hover',
+  secondary: 'bg-secondary text-secondary-text hover:bg-secondary-hover',
+  outline: 'border-2 border-border-default text-text-primary hover:border-primary hover:text-primary',
+};
+---
+
+<div
+  class:list={[
+    'pricing-card relative rounded-2xl p-6 lg:p-8',
+    featured
+      ? 'bg-surface border-2 border-primary shadow-xl scale-105 z-10'
+      : 'bg-surface border border-border-subtle',
+    className,
+  ]}
+  data-pricing-card
+>
+  {/* Badge */}
+  {(badge || featured) && (
+    <div class="absolute -top-3 left-1/2 -translate-x-1/2">
+      <span class="inline-block px-4 py-1 text-xs font-semibold uppercase tracking-wider bg-primary text-primary-text rounded-full">
+        {badge || 'Beliebt'}
+      </span>
+    </div>
+  )}
+
+  {/* Header */}
+  <div class="pricing-header mb-6">
+    <h3 class="text-xl font-bold text-text-primary mb-2">{name}</h3>
+    {description && (
+      <p class="text-sm text-text-tertiary">{description}</p>
+    )}
+  </div>
+
+  {/* Price */}
+  <div class="pricing-price mb-6">
+    <div class="flex items-baseline gap-1">
+      <span class="text-4xl lg:text-5xl font-bold text-text-primary" data-price-monthly>
+        {currency}{price}
+      </span>
+      {yearlyPrice && (
+        <span class="text-4xl lg:text-5xl font-bold text-text-primary hidden" data-price-yearly>
+          {currency}{yearlyPrice}
+        </span>
+      )}
+      <span class="text-text-tertiary">/{period}</span>
+    </div>
+    {yearlyPrice && (
+      <p class="text-sm text-text-tertiary mt-1 hidden" data-yearly-savings>
+        {currency}{(Number(price) * 12 - Number(yearlyPrice)).toFixed(0)} gespart pro Jahr
+      </p>
+    )}
+  </div>
+
+  {/* Features */}
+  {features.length > 0 && (
+    <ul class="pricing-features space-y-3 mb-8">
+      {features.map((feature) => {
+        const text = typeof feature === 'string' ? feature : feature.text;
+        const included = typeof feature === 'string' ? true : feature.included;
+        return (
+          <li class:list={[
+            'flex items-start gap-3',
+            !included && 'opacity-50',
+          ]}>
+            <svg
+              class:list={[
+                'w-5 h-5 flex-shrink-0 mt-0.5',
+                included ? 'text-success' : 'text-text-tertiary',
+              ]}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              {included ? (
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              ) : (
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              )}
+            </svg>
+            <span class="text-text-secondary">{text}</span>
+          </li>
+        );
+      })}
+    </ul>
+  )}
+
+  {/* CTA */}
+  <a
+    href={ctaHref}
+    class:list={[
+      'pricing-cta block w-full py-3 px-6 text-center font-semibold rounded-lg transition-colors',
+      ctaClasses[ctaVariant],
+    ]}
+  >
+    {ctaText}
+  </a>
+
+  {/* Extra content */}
+  {Astro.slots.has('default') && (
+    <div class="pricing-extra mt-6 pt-6 border-t border-border-subtle">
+      <slot />
+    </div>
+  )}
+</div>
+
+<script>
+  function initPricingCards() {
+    document.addEventListener('pricing:toggle', ((e: CustomEvent) => {
+      const { billing } = e.detail;
+      const cards = document.querySelectorAll('[data-pricing-card]');
+
+      cards.forEach((card) => {
+        const monthlyPrice = card.querySelector('[data-price-monthly]');
+        const yearlyPrice = card.querySelector('[data-price-yearly]');
+        const yearlySavings = card.querySelector('[data-yearly-savings]');
+
+        if (billing === 'yearly') {
+          monthlyPrice?.classList.add('hidden');
+          yearlyPrice?.classList.remove('hidden');
+          yearlySavings?.classList.remove('hidden');
+        } else {
+          monthlyPrice?.classList.remove('hidden');
+          yearlyPrice?.classList.add('hidden');
+          yearlySavings?.classList.add('hidden');
+        }
+      });
+    }) as EventListener);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPricingCards);
+  } else {
+    initPricingCards();
+  }
+
+  document.addEventListener('astro:page-load', initPricingCards);
+</script>

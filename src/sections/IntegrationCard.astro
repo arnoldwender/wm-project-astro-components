@@ -1,0 +1,173 @@
+---
+/**
+ * IntegrationCard Component
+ *
+ * Individual integration, partner, or tool card.
+ *
+ * @example
+ * <IntegrationCard
+ *   name="Slack"
+ *   description="Send notifications to Slack channels"
+ *   logo="/integrations/slack.svg"
+ *   href="/integrations/slack"
+ *   category="Communication"
+ * />
+ */
+
+export interface Props {
+  name: string;
+  description?: string;
+  logo: string;
+  href?: string;
+  category?: string;
+  status?: 'available' | 'coming-soon' | 'beta' | 'new';
+  featured?: boolean;
+  variant?: 'default' | 'compact' | 'detailed' | 'minimal';
+  class?: string;
+}
+
+const {
+  name,
+  description,
+  logo,
+  href,
+  category,
+  status,
+  featured = false,
+  variant = 'default',
+  class: className = '',
+} = Astro.props;
+
+const statusLabels: Record<string, { label: string; class: string }> = {
+  'available': { label: 'Verfügbar', class: 'bg-green-100 text-green-700' },
+  'coming-soon': { label: 'Bald verfügbar', class: 'bg-amber-100 text-amber-700' },
+  'beta': { label: 'Beta', class: 'bg-blue-100 text-blue-700' },
+  'new': { label: 'Neu', class: 'bg-primary/10 text-primary' },
+};
+
+const Tag = href ? 'a' : 'div';
+---
+
+<Tag
+  href={href}
+  class:list={[
+    'integration-card group block',
+    variant === 'default' && 'bg-surface border border-border-subtle rounded-xl p-6 hover:border-primary/50 hover:shadow-lg transition-all',
+    variant === 'compact' && 'flex items-center gap-4 p-4 bg-surface border border-border-subtle rounded-lg hover:bg-background-subtle transition-colors',
+    variant === 'detailed' && 'bg-surface border border-border-subtle rounded-2xl overflow-hidden hover:shadow-xl transition-shadow',
+    variant === 'minimal' && 'flex items-center gap-3 p-3 rounded-lg hover:bg-background-subtle transition-colors',
+    featured && 'ring-2 ring-primary/20',
+    href && 'cursor-pointer',
+    className,
+  ]}
+>
+  {/* Detailed variant header */}
+  {variant === 'detailed' && (
+    <div class="bg-gradient-to-br from-background-subtle to-background-muted p-8 flex items-center justify-center">
+      <img
+        src={logo}
+        alt={`${name} logo`}
+        class="w-20 h-20 object-contain"
+        loading="lazy"
+      />
+    </div>
+  )}
+
+  <div class:list={[
+    variant === 'detailed' && 'p-6',
+    variant === 'minimal' && 'flex items-center gap-3 flex-1 min-w-0',
+  ]}>
+    {/* Logo for non-detailed variants */}
+    {variant !== 'detailed' && (
+      <div class:list={[
+        'integration-logo flex-shrink-0',
+        variant === 'default' && 'w-12 h-12 mb-4',
+        variant === 'compact' && 'w-10 h-10',
+        variant === 'minimal' && 'w-8 h-8',
+      ]}>
+        <img
+          src={logo}
+          alt={`${name} logo`}
+          class="w-full h-full object-contain"
+          loading="lazy"
+        />
+      </div>
+    )}
+
+    {/* Content */}
+    <div class:list={[
+      variant === 'minimal' && 'flex-1 min-w-0',
+      variant === 'compact' && 'flex-1 min-w-0',
+    ]}>
+      {/* Status & Category badges */}
+      {(status || category) && variant !== 'minimal' && variant !== 'compact' && (
+        <div class="flex flex-wrap items-center gap-2 mb-2">
+          {status && (
+            <span class:list={[
+              'px-2 py-0.5 text-xs font-medium rounded-full',
+              statusLabels[status]?.class || 'bg-background-subtle text-text-secondary',
+            ]}>
+              {statusLabels[status]?.label || status}
+            </span>
+          )}
+          {category && (
+            <span class="text-xs text-text-tertiary">{category}</span>
+          )}
+        </div>
+      )}
+
+      {/* Name */}
+      <h3 class:list={[
+        'font-semibold text-text-primary',
+        variant === 'minimal' && 'text-sm truncate',
+        variant === 'compact' && 'text-base',
+        (variant === 'default' || variant === 'detailed') && 'text-lg',
+        href && 'group-hover:text-primary transition-colors',
+      ]}>
+        {name}
+        {status === 'new' && variant === 'minimal' && (
+          <span class="ml-2 px-1.5 py-0.5 text-xs font-medium rounded bg-primary/10 text-primary">
+            Neu
+          </span>
+        )}
+      </h3>
+
+      {/* Description */}
+      {description && variant !== 'minimal' && (
+        <p class:list={[
+          'text-text-secondary mt-1',
+          variant === 'compact' ? 'text-sm line-clamp-1' : 'text-sm line-clamp-2',
+        ]}>
+          {description}
+        </p>
+      )}
+
+      {/* Action for detailed variant */}
+      {variant === 'detailed' && href && (
+        <div class="mt-4 pt-4 border-t border-border-subtle">
+          <span class="inline-flex items-center gap-2 text-sm font-medium text-primary group-hover:gap-3 transition-all">
+            Mehr erfahren
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </span>
+        </div>
+      )}
+    </div>
+
+    {/* Arrow for compact/minimal */}
+    {href && (variant === 'compact' || variant === 'minimal') && (
+      <svg class="w-4 h-4 text-text-tertiary group-hover:text-primary transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg>
+    )}
+  </div>
+</Tag>
+
+<style>
+  @media (prefers-reduced-motion: reduce) {
+    .integration-card {
+      transition: none;
+    }
+  }
+</style>

@@ -1,0 +1,294 @@
+---
+/**
+ * LogoCloudSection Component
+ *
+ * Display partner/client logos with various layouts.
+ *
+ * Variants:
+ * - grid: Simple logo grid
+ * - marquee: Infinite scrolling animation
+ * - centered: Centered with title
+ * - featured: Featured logos with descriptions
+ * - minimal: Simple inline logos
+ *
+ * @example
+ * <LogoCloudSection variant="grid" title="Trusted by leading companies">
+ *   <img src="/logos/company1.svg" alt="Company 1" />
+ *   <img src="/logos/company2.svg" alt="Company 2" />
+ * </LogoCloudSection>
+ */
+
+import SectionWrapper from './SectionWrapper.astro';
+
+export interface Props {
+  variant?: 'grid' | 'marquee' | 'centered' | 'featured' | 'minimal';
+  columns?: 3 | 4 | 5 | 6;
+  title?: string;
+  description?: string;
+  grayscale?: boolean;
+  speed?: 'slow' | 'normal' | 'fast';
+  background?: 'transparent' | 'subtle' | 'muted' | 'dark';
+  class?: string;
+}
+
+const {
+  variant = 'grid',
+  columns = 5,
+  title,
+  description,
+  grayscale = true,
+  speed = 'normal',
+  background = 'transparent',
+  class: className = '',
+} = Astro.props;
+
+// Column classes
+const columnClasses = {
+  3: 'grid-cols-2 md:grid-cols-3',
+  4: 'grid-cols-2 md:grid-cols-4',
+  5: 'grid-cols-2 md:grid-cols-3 lg:grid-cols-5',
+  6: 'grid-cols-2 md:grid-cols-3 lg:grid-cols-6',
+};
+
+// Marquee speed
+const speedClasses = {
+  slow: '60s',
+  normal: '40s',
+  fast: '20s',
+};
+---
+
+{variant === 'marquee' ? (
+  <section
+    class:list={[
+      'logo-cloud-marquee py-12 overflow-hidden',
+      background === 'subtle' && 'bg-background-subtle',
+      background === 'muted' && 'bg-background-muted',
+      background === 'dark' && 'bg-background-inverse text-white',
+      className,
+    ]}
+  >
+    {title && (
+      <p class:list={[
+        'text-center text-sm font-medium mb-8 px-4',
+        background === 'dark' ? 'text-white/60' : 'text-text-tertiary',
+      ]}>
+        {title}
+      </p>
+    )}
+    <div class="marquee-container relative">
+      <div
+        class="marquee-track flex gap-12 lg:gap-16"
+        style={`--marquee-duration: ${speedClasses[speed]}`}
+        data-marquee-track
+      >
+        <div class:list={[
+          'marquee-content flex items-center gap-12 lg:gap-16 shrink-0',
+          grayscale && 'logo-grayscale',
+        ]}>
+          <slot />
+        </div>
+        <div class:list={[
+          'marquee-content flex items-center gap-12 lg:gap-16 shrink-0',
+          grayscale && 'logo-grayscale',
+        ]} aria-hidden="true">
+          <slot />
+        </div>
+      </div>
+    </div>
+  </section>
+) : variant === 'minimal' ? (
+  <section
+    class:list={[
+      'logo-cloud-minimal py-8',
+      background === 'subtle' && 'bg-background-subtle',
+      background === 'muted' && 'bg-background-muted',
+      background === 'dark' && 'bg-background-inverse text-white',
+      className,
+    ]}
+  >
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-wrap items-center justify-center gap-x-8 gap-y-4">
+        {title && (
+          <span class:list={[
+            'text-sm font-medium',
+            background === 'dark' ? 'text-white/60' : 'text-text-tertiary',
+          ]}>
+            {title}
+          </span>
+        )}
+        <div class:list={[
+          'flex flex-wrap items-center justify-center gap-x-8 gap-y-4',
+          grayscale && 'logo-grayscale',
+        ]}>
+          <slot />
+        </div>
+      </div>
+    </div>
+  </section>
+) : variant === 'centered' ? (
+  <SectionWrapper background={background} class={className}>
+    <div class="text-center">
+      {title && (
+        <p class="text-sm font-medium text-text-tertiary mb-8">{title}</p>
+      )}
+      {description && (
+        <p class="text-text-secondary mb-8 max-w-2xl mx-auto">{description}</p>
+      )}
+      <div class:list={[
+        'flex flex-wrap items-center justify-center gap-8 lg:gap-12',
+        grayscale && 'logo-grayscale',
+      ]}>
+        <slot />
+      </div>
+    </div>
+  </SectionWrapper>
+) : variant === 'featured' ? (
+  <SectionWrapper background={background} class={className}>
+    {title && (
+      <h2 class="text-2xl lg:text-3xl font-bold text-text-primary text-center mb-4">
+        {title}
+      </h2>
+    )}
+    {description && (
+      <p class="text-text-secondary text-center mb-12 max-w-2xl mx-auto">
+        {description}
+      </p>
+    )}
+    <div class:list={[
+      'grid gap-8 lg:gap-12',
+      columnClasses[columns],
+    ]}>
+      <slot />
+    </div>
+  </SectionWrapper>
+) : (
+  <SectionWrapper background={background} class={className}>
+    {title && (
+      <p class="text-sm font-medium text-text-tertiary text-center mb-8">
+        {title}
+      </p>
+    )}
+    {description && (
+      <p class="text-text-secondary text-center mb-8 max-w-2xl mx-auto">
+        {description}
+      </p>
+    )}
+    <div class:list={[
+      'grid items-center justify-items-center gap-8 lg:gap-12',
+      columnClasses[columns],
+      grayscale && 'logo-grayscale',
+    ]}>
+      <slot />
+    </div>
+  </SectionWrapper>
+)}
+
+<style>
+  /* Grayscale filter with hover */
+  .logo-grayscale :global(img),
+  .logo-grayscale :global(svg) {
+    filter: grayscale(100%);
+    opacity: 0.6;
+    transition: filter var(--duration-200) var(--ease-out),
+                opacity var(--duration-200) var(--ease-out);
+  }
+
+  .logo-grayscale :global(img:hover),
+  .logo-grayscale :global(svg:hover) {
+    filter: grayscale(0%);
+    opacity: 1;
+  }
+
+  /* Logo sizing */
+  :global(.logo-cloud-marquee img),
+  :global(.logo-cloud-marquee svg),
+  :global(.logo-cloud-minimal img),
+  :global(.logo-cloud-minimal svg),
+  :global(.logo-cloud-centered img),
+  :global(.logo-cloud-centered svg) {
+    height: 2rem;
+    width: auto;
+    max-width: 8rem;
+  }
+
+  /* Marquee animation */
+  .marquee-track {
+    animation: marquee var(--marquee-duration) linear infinite;
+  }
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  /* Pause on hover */
+  .marquee-container:hover .marquee-track {
+    animation-play-state: paused;
+  }
+
+  /* Gradient masks */
+  .marquee-container::before,
+  .marquee-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 4rem;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .marquee-container::before {
+    left: 0;
+    background: linear-gradient(to right, var(--color-background), transparent);
+  }
+
+  .marquee-container::after {
+    right: 0;
+    background: linear-gradient(to left, var(--color-background), transparent);
+  }
+
+  /* Adjust gradient for different backgrounds */
+  .bg-background-subtle .marquee-container::before {
+    background: linear-gradient(to right, var(--color-background-subtle), transparent);
+  }
+
+  .bg-background-subtle .marquee-container::after {
+    background: linear-gradient(to left, var(--color-background-subtle), transparent);
+  }
+
+  .bg-background-muted .marquee-container::before {
+    background: linear-gradient(to right, var(--color-background-muted), transparent);
+  }
+
+  .bg-background-muted .marquee-container::after {
+    background: linear-gradient(to left, var(--color-background-muted), transparent);
+  }
+
+  .bg-background-inverse .marquee-container::before {
+    background: linear-gradient(to right, var(--color-background-inverse), transparent);
+  }
+
+  .bg-background-inverse .marquee-container::after {
+    background: linear-gradient(to left, var(--color-background-inverse), transparent);
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-track {
+      animation: none;
+    }
+
+    .logo-grayscale :global(img),
+    .logo-grayscale :global(svg) {
+      transition: none;
+      filter: none;
+      opacity: 0.8;
+    }
+  }
+</style>

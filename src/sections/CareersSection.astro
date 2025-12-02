@@ -1,0 +1,275 @@
+---
+/**
+ * CareersSection Component
+ *
+ * Job listings and career opportunities display.
+ *
+ * Variants:
+ * - list: Simple job list
+ * - cards: Job cards grid
+ * - grouped: Jobs grouped by department
+ * - featured: Featured jobs + list
+ * - compact: Dense listing
+ * - detailed: Full job details
+ *
+ * @example
+ * <CareersSection variant="cards" title="Open Positions">
+ *   <JobCard title="Developer" department="Engineering" />
+ * </CareersSection>
+ */
+
+import SectionWrapper from './SectionWrapper.astro';
+import SectionHeader from './SectionHeader.astro';
+
+export interface Department {
+  id: string;
+  name: string;
+  count?: number;
+}
+
+export interface Props {
+  variant?: 'list' | 'cards' | 'grouped' | 'featured' | 'compact' | 'detailed';
+  columns?: 1 | 2 | 3;
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+  departments?: Department[];
+  showFilters?: boolean;
+  showCount?: boolean;
+  emptyMessage?: string;
+  background?: 'transparent' | 'subtle' | 'muted';
+  class?: string;
+}
+
+const {
+  variant = 'list',
+  columns = 1,
+  eyebrow,
+  title,
+  description,
+  departments = [],
+  showFilters = false,
+  showCount = true,
+  emptyMessage = 'Keine offenen Stellen verfügbar.',
+  background = 'transparent',
+  class: className = '',
+} = Astro.props;
+
+const columnClasses = {
+  1: '',
+  2: 'md:grid-cols-2',
+  3: 'md:grid-cols-2 lg:grid-cols-3',
+};
+---
+
+<SectionWrapper background={background} class={className}>
+  {(eyebrow || title || description) && (
+    <SectionHeader
+      eyebrow={eyebrow}
+      title={title || ''}
+      description={description}
+    />
+  )}
+
+  {/* Filters */}
+  {showFilters && departments.length > 0 && (
+    <div class="careers-filters flex flex-wrap justify-center gap-2 mb-8" data-careers-filters>
+      <button
+        type="button"
+        class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-primary text-white transition-colors"
+        data-filter="all"
+        aria-pressed="true"
+      >
+        Alle Stellen
+        {showCount && (
+          <span class="ml-1 opacity-80" data-count="all"></span>
+        )}
+      </button>
+      {departments.map((dept) => (
+        <button
+          type="button"
+          class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-background-subtle text-text-secondary hover:bg-background-muted transition-colors"
+          data-filter={dept.id}
+          aria-pressed="false"
+        >
+          {dept.name}
+          {showCount && dept.count !== undefined && (
+            <span class="ml-1 opacity-70">({dept.count})</span>
+          )}
+        </button>
+      ))}
+    </div>
+  )}
+
+  {/* List Variant */}
+  {variant === 'list' && (
+    <div class="careers-list max-w-3xl mx-auto" data-careers-container>
+      <slot />
+      <div class="careers-empty hidden text-center py-12 text-text-secondary" data-careers-empty>
+        {emptyMessage}
+      </div>
+    </div>
+  )}
+
+  {/* Cards Variant */}
+  {variant === 'cards' && (
+    <div class:list={['careers-cards grid gap-6', columnClasses[columns]]} data-careers-container>
+      <slot />
+      <div class="careers-empty hidden text-center py-12 text-text-secondary col-span-full" data-careers-empty>
+        {emptyMessage}
+      </div>
+    </div>
+  )}
+
+  {/* Grouped Variant */}
+  {variant === 'grouped' && (
+    <div class="careers-grouped space-y-12" data-careers-container>
+      <slot />
+      <div class="careers-empty hidden text-center py-12 text-text-secondary" data-careers-empty>
+        {emptyMessage}
+      </div>
+    </div>
+  )}
+
+  {/* Featured Variant */}
+  {variant === 'featured' && (
+    <div class="careers-featured">
+      <div class="featured-jobs mb-12">
+        <h3 class="text-lg font-semibold text-text-primary mb-6">Hervorgehobene Stellen</h3>
+        <div class="grid gap-6 md:grid-cols-2">
+          <slot name="featured" />
+        </div>
+      </div>
+      <div class="all-jobs">
+        <h3 class="text-lg font-semibold text-text-primary mb-6">Alle offenen Stellen</h3>
+        <div data-careers-container>
+          <slot />
+          <div class="careers-empty hidden text-center py-12 text-text-secondary" data-careers-empty>
+            {emptyMessage}
+          </div>
+        </div>
+      </div>
+    </div>
+  )}
+
+  {/* Compact Variant */}
+  {variant === 'compact' && (
+    <div class="careers-compact max-w-4xl mx-auto" data-careers-container>
+      <div class="bg-surface border border-border-subtle rounded-xl divide-y divide-border-subtle">
+        <slot />
+      </div>
+      <div class="careers-empty hidden text-center py-12 text-text-secondary" data-careers-empty>
+        {emptyMessage}
+      </div>
+    </div>
+  )}
+
+  {/* Detailed Variant */}
+  {variant === 'detailed' && (
+    <div class:list={['careers-detailed grid gap-6', columnClasses[columns]]} data-careers-container>
+      <slot />
+      <div class="careers-empty hidden text-center py-12 text-text-secondary col-span-full" data-careers-empty>
+        {emptyMessage}
+      </div>
+    </div>
+  )}
+</SectionWrapper>
+
+<style>
+  /* Filter active state */
+  .filter-btn[aria-pressed="true"] {
+    background-color: var(--color-primary);
+    color: white;
+  }
+
+  .filter-btn[aria-pressed="false"]:hover {
+    background-color: var(--color-background-muted);
+  }
+
+  /* Compact variant styling */
+  .careers-compact :global(.job-card) {
+    border-bottom: none;
+    margin: 0;
+    padding: 1rem 1.5rem;
+  }
+
+  .careers-compact :global(.job-card:hover) {
+    background-color: var(--color-background-subtle);
+  }
+</style>
+
+<script>
+  function initCareersSection() {
+    const filterContainers = document.querySelectorAll('[data-careers-filters]');
+
+    filterContainers.forEach((filterContainer) => {
+      const buttons = filterContainer.querySelectorAll('[data-filter]');
+      const careersContainer = document.querySelector('[data-careers-container]');
+      const jobs = careersContainer?.querySelectorAll('[data-department]');
+      const emptyState = careersContainer?.querySelector('[data-careers-empty]');
+
+      // Count jobs per department
+      const counts: Record<string, number> = { all: jobs?.length || 0 };
+      jobs?.forEach((job) => {
+        const dept = job.getAttribute('data-department');
+        if (dept) {
+          counts[dept] = (counts[dept] || 0) + 1;
+        }
+      });
+
+      // Update count displays
+      buttons.forEach((btn) => {
+        const filter = btn.getAttribute('data-filter');
+        const countEl = btn.querySelector('[data-count]');
+        if (countEl && filter && counts[filter] !== undefined) {
+          countEl.textContent = `(${counts[filter]})`;
+        }
+      });
+
+      buttons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const filter = btn.getAttribute('data-filter');
+
+          // Update button states
+          buttons.forEach((b) => {
+            b.setAttribute('aria-pressed', 'false');
+            b.classList.remove('bg-primary', 'text-white');
+            b.classList.add('bg-background-subtle', 'text-text-secondary');
+          });
+          btn.setAttribute('aria-pressed', 'true');
+          btn.classList.add('bg-primary', 'text-white');
+          btn.classList.remove('bg-background-subtle', 'text-text-secondary');
+
+          // Filter jobs
+          let visibleCount = 0;
+          jobs?.forEach((job) => {
+            const department = job.getAttribute('data-department');
+            if (filter === 'all' || department === filter) {
+              (job as HTMLElement).style.display = '';
+              visibleCount++;
+            } else {
+              (job as HTMLElement).style.display = 'none';
+            }
+          });
+
+          // Show/hide empty state
+          if (emptyState) {
+            if (visibleCount === 0) {
+              emptyState.classList.remove('hidden');
+            } else {
+              emptyState.classList.add('hidden');
+            }
+          }
+        });
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCareersSection);
+  } else {
+    initCareersSection();
+  }
+
+  document.addEventListener('astro:page-load', initCareersSection);
+</script>

@@ -1,0 +1,212 @@
+---
+/**
+ * TestimonialsSection Component
+ *
+ * Social proof section with customer testimonials.
+ *
+ * Variants:
+ * - grid: Grid of testimonial cards
+ * - carousel: Sliding carousel
+ * - featured: Large featured testimonial
+ * - masonry: Pinterest-style masonry
+ * - quote: Single large quote
+ * - wall: Twitter/social media wall style
+ *
+ * @example
+ * <TestimonialsSection variant="grid" columns={3}>
+ *   <TestimonialCard name="John Doe" role="CEO" ... />
+ * </TestimonialsSection>
+ */
+
+import SectionWrapper from './SectionWrapper.astro';
+import SectionHeader from './SectionHeader.astro';
+
+export interface Props {
+  variant?: 'grid' | 'carousel' | 'featured' | 'masonry' | 'quote' | 'wall';
+  columns?: 2 | 3 | 4;
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+  background?: 'transparent' | 'subtle' | 'muted' | 'dark';
+  class?: string;
+}
+
+const {
+  variant = 'grid',
+  columns = 3,
+  eyebrow,
+  title,
+  description,
+  background = 'subtle',
+  class: className = '',
+} = Astro.props;
+
+// Column classes
+const columnClasses = {
+  2: 'md:grid-cols-2',
+  3: 'md:grid-cols-2 lg:grid-cols-3',
+  4: 'sm:grid-cols-2 lg:grid-cols-4',
+};
+
+// Masonry column classes
+const masonryClasses = {
+  2: 'columns-1 md:columns-2',
+  3: 'columns-1 md:columns-2 lg:columns-3',
+  4: 'columns-1 sm:columns-2 lg:columns-3 xl:columns-4',
+};
+---
+
+<SectionWrapper background={background} class={className}>
+  {(eyebrow || title || description) && (
+    <SectionHeader
+      eyebrow={eyebrow}
+      title={title || ''}
+      description={description}
+    />
+  )}
+
+  {/* Grid Variant */}
+  {variant === 'grid' && (
+    <div class:list={['testimonials-grid grid gap-6 lg:gap-8', columnClasses[columns]]}>
+      <slot />
+    </div>
+  )}
+
+  {/* Carousel Variant */}
+  {variant === 'carousel' && (
+    <div class="testimonials-carousel relative" data-testimonials-carousel>
+      <div class="overflow-hidden">
+        <div class="testimonials-track flex transition-transform duration-500" data-carousel-track>
+          <slot />
+        </div>
+      </div>
+
+      {/* Navigation */}
+      <div class="flex justify-center gap-2 mt-8">
+        <button
+          type="button"
+          class="p-2 rounded-full bg-surface border border-border-subtle hover:bg-background-subtle transition-colors"
+          data-carousel-prev
+          aria-label="Previous"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <button
+          type="button"
+          class="p-2 rounded-full bg-surface border border-border-subtle hover:bg-background-subtle transition-colors"
+          data-carousel-next
+          aria-label="Next"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  )}
+
+  {/* Featured Variant */}
+  {variant === 'featured' && (
+    <div class="testimonials-featured">
+      <div class="max-w-4xl mx-auto">
+        <slot name="featured" />
+      </div>
+      {Astro.slots.has('default') && (
+        <div class:list={['mt-12 grid gap-6', columnClasses[columns]]}>
+          <slot />
+        </div>
+      )}
+    </div>
+  )}
+
+  {/* Masonry Variant */}
+  {variant === 'masonry' && (
+    <div class:list={['testimonials-masonry gap-6', masonryClasses[columns]]}>
+      <slot />
+    </div>
+  )}
+
+  {/* Quote Variant - Single large quote */}
+  {variant === 'quote' && (
+    <div class="testimonials-quote max-w-4xl mx-auto text-center">
+      <slot />
+    </div>
+  )}
+
+  {/* Wall Variant - Social media style */}
+  {variant === 'wall' && (
+    <div class:list={['testimonials-wall grid gap-4', columnClasses[columns]]}>
+      <slot />
+    </div>
+  )}
+</SectionWrapper>
+
+<style>
+  /* Masonry items */
+  .testimonials-masonry :global(> *) {
+    break-inside: avoid;
+    margin-bottom: 1.5rem;
+  }
+
+  /* Carousel items */
+  .testimonials-carousel :global([data-testimonial-card]) {
+    flex: 0 0 100%;
+    padding: 0 1rem;
+  }
+
+  @media (min-width: 768px) {
+    .testimonials-carousel :global([data-testimonial-card]) {
+      flex: 0 0 50%;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .testimonials-carousel :global([data-testimonial-card]) {
+      flex: 0 0 33.333%;
+    }
+  }
+</style>
+
+<script>
+  function initCarousel() {
+    const carousels = document.querySelectorAll('[data-testimonials-carousel]');
+
+    carousels.forEach((carousel) => {
+      const track = carousel.querySelector('[data-carousel-track]') as HTMLElement;
+      const prevBtn = carousel.querySelector('[data-carousel-prev]');
+      const nextBtn = carousel.querySelector('[data-carousel-next]');
+      const items = track?.querySelectorAll('[data-testimonial-card]') || [];
+
+      if (!track || items.length === 0) return;
+
+      let currentIndex = 0;
+      const itemsPerView = window.innerWidth >= 1024 ? 3 : window.innerWidth >= 768 ? 2 : 1;
+      const maxIndex = Math.max(0, items.length - itemsPerView);
+
+      function updateCarousel() {
+        const itemWidth = 100 / itemsPerView;
+        track.style.transform = `translateX(-${currentIndex * itemWidth}%)`;
+      }
+
+      prevBtn?.addEventListener('click', () => {
+        currentIndex = Math.max(0, currentIndex - 1);
+        updateCarousel();
+      });
+
+      nextBtn?.addEventListener('click', () => {
+        currentIndex = Math.min(maxIndex, currentIndex + 1);
+        updateCarousel();
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCarousel);
+  } else {
+    initCarousel();
+  }
+
+  document.addEventListener('astro:page-load', initCarousel);
+</script>

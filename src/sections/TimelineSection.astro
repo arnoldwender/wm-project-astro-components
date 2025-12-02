@@ -1,0 +1,281 @@
+---
+/**
+ * TimelineSection Component
+ *
+ * Display chronological events, history, or process steps.
+ *
+ * Variants:
+ * - vertical: Standard vertical timeline
+ * - alternating: Zigzag left/right layout
+ * - horizontal: Horizontal scrolling timeline
+ * - compact: Condensed timeline
+ * - cards: Card-based timeline
+ *
+ * @example
+ * <TimelineSection variant="alternating" title="Our Journey">
+ *   <TimelineItem date="2020" title="Founded" description="..." />
+ *   <TimelineItem date="2021" title="First Product" description="..." />
+ * </TimelineSection>
+ */
+
+import SectionWrapper from './SectionWrapper.astro';
+import SectionHeader from './SectionHeader.astro';
+
+export interface Props {
+  variant?: 'vertical' | 'alternating' | 'horizontal' | 'compact' | 'cards';
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+  align?: 'left' | 'center';
+  background?: 'transparent' | 'subtle' | 'muted';
+  class?: string;
+}
+
+const {
+  variant = 'vertical',
+  eyebrow,
+  title,
+  description,
+  align = 'center',
+  background = 'transparent',
+  class: className = '',
+} = Astro.props;
+---
+
+<SectionWrapper background={background} class={className}>
+  {(eyebrow || title || description) && (
+    <SectionHeader
+      eyebrow={eyebrow}
+      title={title || ''}
+      description={description}
+      align={align}
+    />
+  )}
+
+  {/* Vertical Variant */}
+  {variant === 'vertical' && (
+    <div class="timeline-vertical max-w-2xl mx-auto">
+      <slot />
+    </div>
+  )}
+
+  {/* Alternating Variant */}
+  {variant === 'alternating' && (
+    <div class="timeline-alternating max-w-5xl mx-auto relative">
+      {/* Center line */}
+      <div class="timeline-line hidden lg:block absolute left-1/2 top-0 bottom-0 w-0.5 bg-border-subtle -translate-x-1/2" />
+      <div class="timeline-items">
+        <slot />
+      </div>
+    </div>
+  )}
+
+  {/* Horizontal Variant */}
+  {variant === 'horizontal' && (
+    <div class="timeline-horizontal overflow-x-auto pb-4 -mx-4 px-4" data-timeline-horizontal>
+      <div class="timeline-track relative min-w-max">
+        {/* Horizontal line */}
+        <div class="timeline-line absolute left-0 right-0 top-5 h-0.5 bg-border-subtle" />
+        <div class="flex gap-8 lg:gap-12">
+          <slot />
+        </div>
+      </div>
+    </div>
+  )}
+
+  {/* Compact Variant */}
+  {variant === 'compact' && (
+    <div class="timeline-compact max-w-xl mx-auto">
+      <slot />
+    </div>
+  )}
+
+  {/* Cards Variant */}
+  {variant === 'cards' && (
+    <div class="timeline-cards max-w-3xl mx-auto">
+      <slot />
+    </div>
+  )}
+</SectionWrapper>
+
+<style>
+  /* Alternating layout */
+  .timeline-alternating .timeline-items {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  @media (min-width: 1024px) {
+    .timeline-alternating :global(.timeline-item) {
+      width: calc(50% - 2rem);
+    }
+
+    .timeline-alternating :global(.timeline-item:nth-child(odd)) {
+      margin-left: auto;
+      padding-left: 2rem;
+    }
+
+    .timeline-alternating :global(.timeline-item:nth-child(even)) {
+      margin-right: auto;
+      padding-right: 2rem;
+      text-align: right;
+    }
+
+    .timeline-alternating :global(.timeline-item:nth-child(even)) .timeline-marker {
+      order: 1;
+    }
+
+    .timeline-alternating :global(.timeline-item:nth-child(even)) .timeline-content {
+      order: 0;
+    }
+
+    .timeline-alternating :global(.timeline-item .timeline-marker::after) {
+      display: none;
+    }
+
+    /* Position markers at center */
+    .timeline-alternating :global(.timeline-item:nth-child(odd) .timeline-marker) {
+      position: absolute;
+      left: -2rem;
+      transform: translateX(-50%);
+    }
+
+    .timeline-alternating :global(.timeline-item:nth-child(even) .timeline-marker) {
+      position: absolute;
+      right: -2rem;
+      transform: translateX(50%);
+    }
+
+    .timeline-alternating :global(.timeline-item) {
+      position: relative;
+    }
+  }
+
+  /* Horizontal layout */
+  .timeline-horizontal :global(.timeline-item) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    min-width: 200px;
+    max-width: 280px;
+    padding-bottom: 0;
+  }
+
+  .timeline-horizontal :global(.timeline-marker) {
+    margin-bottom: 1rem;
+  }
+
+  .timeline-horizontal :global(.timeline-marker::after) {
+    display: none;
+  }
+
+  .timeline-horizontal :global(.timeline-content) {
+    width: 100%;
+  }
+
+  /* Compact layout */
+  .timeline-compact :global(.timeline-item) {
+    grid-template-columns: auto 1fr;
+    gap: 0.75rem;
+    padding-bottom: 1rem;
+  }
+
+  .timeline-compact :global(.timeline-marker::after) {
+    height: calc(100% + 1rem);
+  }
+
+  .timeline-compact :global(.timeline-dot) {
+    width: 0.5rem;
+    height: 0.5rem;
+    ring-width: 2px;
+  }
+
+  /* Cards layout */
+  .timeline-cards :global(.timeline-item) {
+    padding-bottom: 1.5rem;
+  }
+
+  .timeline-cards :global(.timeline-content) {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-xl);
+    padding: 1.5rem;
+  }
+
+  /* Scroll shadow for horizontal */
+  .timeline-horizontal {
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 1rem,
+      black calc(100% - 1rem),
+      transparent
+    );
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 1rem,
+      black calc(100% - 1rem),
+      transparent
+    );
+  }
+
+  /* Hide scrollbar but keep functionality */
+  .timeline-horizontal {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .timeline-horizontal::-webkit-scrollbar {
+    display: none;
+  }
+</style>
+
+<script>
+  function initHorizontalTimeline() {
+    const containers = document.querySelectorAll('[data-timeline-horizontal]');
+
+    containers.forEach((container) => {
+      let isDown = false;
+      let startX: number;
+      let scrollLeft: number;
+
+      container.addEventListener('mousedown', (e: Event) => {
+        const mouseEvent = e as MouseEvent;
+        isDown = true;
+        container.classList.add('cursor-grabbing');
+        startX = mouseEvent.pageX - (container as HTMLElement).offsetLeft;
+        scrollLeft = container.scrollLeft;
+      });
+
+      container.addEventListener('mouseleave', () => {
+        isDown = false;
+        container.classList.remove('cursor-grabbing');
+      });
+
+      container.addEventListener('mouseup', () => {
+        isDown = false;
+        container.classList.remove('cursor-grabbing');
+      });
+
+      container.addEventListener('mousemove', (e: Event) => {
+        if (!isDown) return;
+        e.preventDefault();
+        const mouseEvent = e as MouseEvent;
+        const x = mouseEvent.pageX - (container as HTMLElement).offsetLeft;
+        const walk = (x - startX) * 2;
+        container.scrollLeft = scrollLeft - walk;
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initHorizontalTimeline);
+  } else {
+    initHorizontalTimeline();
+  }
+
+  document.addEventListener('astro:page-load', initHorizontalTimeline);
+</script>
