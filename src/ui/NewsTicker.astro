@@ -1,0 +1,399 @@
+---
+/**
+ * NewsTicker Component - WenderMedia Astro Components
+ *
+ * Animated horizontal scrolling ticker for announcements, news, stock data,
+ * promotions, or any streaming content.
+ *
+ * Features:
+ * - Infinite smooth scrolling animation
+ * - Multiple speed options
+ * - Pause on hover
+ * - Multiple variants (default, highlight, urgent, success, dark)
+ * - Optional separators between items
+ * - Supports icons per item
+ * - Fully accessible with pause controls
+ * - Respects prefers-reduced-motion
+ * - RTL support
+ * - Responsive
+ *
+ * @example
+ * <NewsTicker items={[
+ *   { text: "Breaking: New feature released!" },
+ *   { text: "Sale: 20% off all products", icon: "🎉" },
+ *   { text: "Stock: AAPL +2.5%", highlight: true }
+ * ]} />
+ *
+ * @example
+ * <NewsTicker
+ *   variant="urgent"
+ *   speed="fast"
+ *   pauseOnHover
+ *   items={announcements}
+ * />
+ */
+
+export interface TickerItem {
+  text: string;
+  icon?: string;
+  href?: string;
+  highlight?: boolean;
+  badge?: string;
+}
+
+export interface Props {
+  items: TickerItem[];
+  variant?: 'default' | 'highlight' | 'urgent' | 'success' | 'dark' | 'gradient';
+  speed?: 'slow' | 'normal' | 'fast';
+  direction?: 'left' | 'right';
+  pauseOnHover?: boolean;
+  separator?: string | boolean;
+  showControls?: boolean;
+  label?: string;
+  class?: string;
+}
+
+const {
+  items,
+  variant = 'default',
+  speed = 'normal',
+  direction = 'left',
+  pauseOnHover = true,
+  separator = '•',
+  showControls = false,
+  label,
+  class: className = '',
+} = Astro.props;
+
+// Speed values (duration for one complete scroll)
+const speedValues = {
+  slow: '60s',
+  normal: '40s',
+  fast: '25s',
+};
+
+// Variant styles
+const variantStyles = {
+  default: {
+    bg: 'bg-surface-secondary',
+    text: 'text-text-primary',
+    border: 'border-b border-border',
+    highlight: 'text-primary font-medium',
+    separator: 'text-text-muted',
+  },
+  highlight: {
+    bg: 'bg-primary',
+    text: 'text-white',
+    border: '',
+    highlight: 'text-white font-bold',
+    separator: 'text-white/50',
+  },
+  urgent: {
+    bg: 'bg-error',
+    text: 'text-white',
+    border: '',
+    highlight: 'text-white font-bold underline',
+    separator: 'text-white/50',
+  },
+  success: {
+    bg: 'bg-success',
+    text: 'text-white',
+    border: '',
+    highlight: 'text-white font-bold',
+    separator: 'text-white/50',
+  },
+  dark: {
+    bg: 'bg-neutral-900',
+    text: 'text-neutral-100',
+    border: '',
+    highlight: 'text-white font-medium',
+    separator: 'text-neutral-500',
+  },
+  gradient: {
+    bg: 'bg-gradient-to-r from-primary via-secondary to-primary',
+    text: 'text-white',
+    border: '',
+    highlight: 'text-white font-bold',
+    separator: 'text-white/50',
+  },
+};
+
+const styles = variantStyles[variant];
+const animationDuration = speedValues[speed];
+const animationDirection = direction === 'right' ? 'reverse' : 'normal';
+
+// Duplicate items for seamless loop
+const duplicatedItems = [...items, ...items];
+---
+
+<div
+  class:list={[
+    'news-ticker relative overflow-hidden',
+    styles.bg,
+    styles.text,
+    styles.border,
+    className,
+  ]}
+  data-ticker
+  data-pause-on-hover={pauseOnHover}
+  role="marquee"
+  aria-live="off"
+  aria-label={label || 'News ticker'}
+>
+  {/* Label */}
+  {label && (
+    <div class="ticker-label absolute left-0 top-0 bottom-0 z-10 flex items-center px-4 font-semibold bg-inherit">
+      <span class="flex items-center gap-2">
+        {variant === 'urgent' && (
+          <span class="ticker-pulse relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-white"></span>
+          </span>
+        )}
+        {label}
+      </span>
+      <div class="ml-4 h-full w-px bg-current opacity-20"></div>
+    </div>
+  )}
+
+  {/* Controls */}
+  {showControls && (
+    <div class="ticker-controls absolute right-0 top-0 bottom-0 z-10 flex items-center gap-1 px-2 bg-inherit">
+      <div class="mr-2 h-full w-px bg-current opacity-20"></div>
+      <button
+        type="button"
+        class="ticker-control p-1.5 rounded opacity-70 hover:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-current transition-opacity"
+        aria-label="Pause ticker"
+        data-ticker-toggle
+      >
+        <svg class="ticker-icon-pause w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+        </svg>
+        <svg class="ticker-icon-play w-4 h-4 hidden" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M8 5v14l11-7z"/>
+        </svg>
+      </button>
+    </div>
+  )}
+
+  {/* Ticker Track */}
+  <div
+    class:list={[
+      'ticker-track flex items-center whitespace-nowrap py-2.5',
+      label && 'pl-32',
+      showControls && 'pr-12',
+    ]}
+    style={`--ticker-duration: ${animationDuration}; --ticker-direction: ${animationDirection};`}
+    data-ticker-track
+  >
+    {duplicatedItems.map((item, index) => (
+      <span class="ticker-item inline-flex items-center">
+        {/* Separator (except for first item in each set) */}
+        {separator && index > 0 && (
+          <span class:list={['ticker-separator mx-4', styles.separator]} aria-hidden="true">
+            {typeof separator === 'string' ? separator : '•'}
+          </span>
+        )}
+
+        {/* Item content */}
+        {item.href ? (
+          <a
+            href={item.href}
+            class:list={[
+              'ticker-link inline-flex items-center gap-2 hover:underline focus:outline-none focus-visible:underline',
+              item.highlight && styles.highlight,
+            ]}
+          >
+            {item.icon && <span class="ticker-icon" aria-hidden="true">{item.icon}</span>}
+            {item.badge && (
+              <span class="ticker-badge px-1.5 py-0.5 text-xs font-semibold rounded bg-current/20">
+                {item.badge}
+              </span>
+            )}
+            <span>{item.text}</span>
+          </a>
+        ) : (
+          <span
+            class:list={[
+              'ticker-content inline-flex items-center gap-2',
+              item.highlight && styles.highlight,
+            ]}
+          >
+            {item.icon && <span class="ticker-icon" aria-hidden="true">{item.icon}</span>}
+            {item.badge && (
+              <span class="ticker-badge px-1.5 py-0.5 text-xs font-semibold rounded bg-current/20">
+                {item.badge}
+              </span>
+            )}
+            <span>{item.text}</span>
+          </span>
+        )}
+      </span>
+    ))}
+  </div>
+
+  {/* Gradient fade edges */}
+  <div class:list={[
+    'ticker-fade-left absolute left-0 top-0 bottom-0 w-8 pointer-events-none',
+    `bg-gradient-to-r from-current/5 to-transparent`,
+    label && 'hidden',
+  ]} aria-hidden="true"></div>
+  <div class:list={[
+    'ticker-fade-right absolute right-0 top-0 bottom-0 w-8 pointer-events-none',
+    `bg-gradient-to-l from-current/5 to-transparent`,
+    showControls && 'hidden',
+  ]} aria-hidden="true"></div>
+</div>
+
+<style>
+  .news-ticker {
+    --ticker-duration: 40s;
+    --ticker-direction: normal;
+  }
+
+  .ticker-track {
+    animation: ticker-scroll var(--ticker-duration) linear infinite;
+    animation-direction: var(--ticker-direction);
+  }
+
+  @keyframes ticker-scroll {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  /* Pause on hover */
+  .news-ticker[data-pause-on-hover="true"]:hover .ticker-track,
+  .news-ticker.paused .ticker-track {
+    animation-play-state: paused;
+  }
+
+  /* RTL support */
+  [dir="rtl"] .ticker-track {
+    animation-name: ticker-scroll-rtl;
+  }
+
+  @keyframes ticker-scroll-rtl {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(50%);
+    }
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .ticker-track {
+      animation: none;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+    }
+
+    .news-ticker {
+      padding-right: 1rem;
+    }
+  }
+
+  /* Paused state icons */
+  .news-ticker.paused .ticker-icon-pause {
+    display: none;
+  }
+
+  .news-ticker.paused .ticker-icon-play {
+    display: block;
+  }
+
+  /* Pulse animation for urgent */
+  @keyframes ticker-pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  .news-ticker[data-variant="urgent"] {
+    animation: ticker-pulse 2s ease-in-out infinite;
+  }
+
+  /* Gradient animation */
+  .news-ticker .bg-gradient-to-r {
+    background-size: 200% 100%;
+    animation: gradient-shift 8s ease infinite;
+  }
+
+  @keyframes gradient-shift {
+    0%, 100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  /* Focus styles for links */
+  .ticker-link:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  /* Label gradient fade */
+  .ticker-label::after {
+    content: '';
+    position: absolute;
+    right: -2rem;
+    top: 0;
+    bottom: 0;
+    width: 2rem;
+    background: linear-gradient(to right, inherit, transparent);
+  }
+</style>
+
+<script>
+  function initTickers() {
+    document.querySelectorAll('[data-ticker]').forEach((ticker) => {
+      const toggleBtn = ticker.querySelector('[data-ticker-toggle]');
+
+      if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+          ticker.classList.toggle('paused');
+          const isPaused = ticker.classList.contains('paused');
+          toggleBtn.setAttribute('aria-label', isPaused ? 'Play ticker' : 'Pause ticker');
+        });
+      }
+
+      // Keyboard accessibility - pause on focus
+      const links = ticker.querySelectorAll('.ticker-link');
+      links.forEach((link) => {
+        link.addEventListener('focus', () => {
+          ticker.classList.add('paused');
+        });
+        link.addEventListener('blur', () => {
+          // Only unpause if no other link is focused
+          setTimeout(() => {
+            const hasFocusedLink = ticker.querySelector('.ticker-link:focus');
+            if (!hasFocusedLink) {
+              ticker.classList.remove('paused');
+            }
+          }, 0);
+        });
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTickers);
+  } else {
+    initTickers();
+  }
+
+  // Re-init on Astro page navigation
+  document.addEventListener('astro:page-load', initTickers);
+</script>
