@@ -1,0 +1,354 @@
+---
+/**
+ * PortfolioLayout Component
+ *
+ * Showcase grid for creative work, photography, and projects.
+ * Designed for visual impact with lightbox and filtering support.
+ *
+ * Target: Photographers, Designers, Artists, Creative agencies
+ *
+ * Features:
+ * - Multiple grid patterns
+ * - Lightbox integration ready
+ * - Category filtering
+ * - Hover effects with project info
+ * - Lazy loading for performance
+ * - Masonry and uniform grid options
+ *
+ * @example
+ * <PortfolioLayout variant="masonry" columns={3}>
+ *   <PortfolioItem
+ *     title="Project Name"
+ *     image="/project.jpg"
+ *     category="Branding"
+ *     href="/projects/name"
+ *   />
+ * </PortfolioLayout>
+ */
+
+export interface Props {
+  variant?: 'grid' | 'masonry' | 'justified' | 'featured';
+  columns?: 2 | 3 | 4 | 5;
+  gap?: 'none' | 'sm' | 'md' | 'lg';
+  showFilter?: boolean;
+  categories?: string[];
+  class?: string;
+}
+
+const {
+  variant = 'grid',
+  columns = 3,
+  gap = 'md',
+  showFilter = false,
+  categories = [],
+  class: className = '',
+} = Astro.props;
+
+// Gap classes
+const gapClasses = {
+  none: 'gap-0',
+  sm: 'gap-2',
+  md: 'gap-4',
+  lg: 'gap-6',
+};
+
+// Column classes
+const columnClasses = {
+  2: 'grid-cols-1 sm:grid-cols-2',
+  3: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
+  4: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',
+  5: 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5',
+};
+
+// Masonry column classes
+const masonryClasses = {
+  2: 'columns-1 sm:columns-2',
+  3: 'columns-1 sm:columns-2 lg:columns-3',
+  4: 'columns-1 sm:columns-2 lg:columns-3 xl:columns-4',
+  5: 'columns-2 sm:columns-3 lg:columns-4 xl:columns-5',
+};
+---
+
+<section
+  class:list={['portfolio-layout', className]}
+  data-portfolio-layout
+  data-variant={variant}
+>
+  <!-- Filter Bar -->
+  {showFilter && categories.length > 0 && (
+    <nav class="portfolio-filter flex flex-wrap gap-2 mb-8" role="tablist" aria-label="Filter projects">
+      <button
+        type="button"
+        class="portfolio-filter-btn px-4 py-2 text-sm font-medium rounded-full transition-colors bg-primary text-primary-text"
+        data-filter="all"
+        role="tab"
+        aria-selected="true"
+      >
+        Alle
+      </button>
+      {categories.map((category) => (
+        <button
+          type="button"
+          class="portfolio-filter-btn px-4 py-2 text-sm font-medium rounded-full transition-colors bg-background-subtle text-text-secondary hover:bg-background-muted"
+          data-filter={category.toLowerCase().replace(/\s+/g, '-')}
+          role="tab"
+          aria-selected="false"
+        >
+          {category}
+        </button>
+      ))}
+    </nav>
+  )}
+
+  <!-- Portfolio Grid -->
+  {variant === 'grid' && (
+    <div class:list={[
+      'portfolio-grid grid',
+      columnClasses[columns],
+      gapClasses[gap],
+    ]}>
+      <slot />
+    </div>
+  )}
+
+  {variant === 'masonry' && (
+    <div class:list={[
+      'portfolio-masonry',
+      masonryClasses[columns],
+      gapClasses[gap],
+    ]}>
+      <slot />
+    </div>
+  )}
+
+  {variant === 'justified' && (
+    <div class="portfolio-justified flex flex-wrap" data-justified-gallery>
+      <slot />
+    </div>
+  )}
+
+  {variant === 'featured' && (
+    <!-- Featured: Large hero + smaller grid -->
+    <div class="portfolio-featured grid gap-6">
+      <div class="portfolio-hero">
+        <slot name="featured" />
+      </div>
+      <div class:list={[
+        'portfolio-grid grid',
+        columnClasses[columns],
+        gapClasses[gap],
+      ]}>
+        <slot />
+      </div>
+    </div>
+  )}
+
+  <!-- Lightbox Container -->
+  <div
+    class="portfolio-lightbox fixed inset-0 z-50 bg-black/95 hidden items-center justify-center"
+    data-lightbox
+    aria-hidden="true"
+    role="dialog"
+    aria-modal="true"
+  >
+    <button
+      type="button"
+      class="absolute top-4 right-4 p-2 text-white/70 hover:text-white transition-colors"
+      data-lightbox-close
+      aria-label="Close lightbox"
+    >
+      <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+
+    <button
+      type="button"
+      class="absolute left-4 top-1/2 -translate-y-1/2 p-2 text-white/70 hover:text-white transition-colors"
+      data-lightbox-prev
+      aria-label="Previous image"
+    >
+      <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+    </button>
+
+    <button
+      type="button"
+      class="absolute right-4 top-1/2 -translate-y-1/2 p-2 text-white/70 hover:text-white transition-colors"
+      data-lightbox-next
+      aria-label="Next image"
+    >
+      <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg>
+    </button>
+
+    <div class="lightbox-content max-w-[90vw] max-h-[90vh]" data-lightbox-content>
+      <!-- Image inserted dynamically -->
+    </div>
+
+    <div class="lightbox-caption absolute bottom-4 left-0 right-0 text-center text-white" data-lightbox-caption>
+      <!-- Caption inserted dynamically -->
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Masonry items */
+  .portfolio-masonry :global(> *) {
+    break-inside: avoid;
+    margin-bottom: 1rem;
+  }
+
+  /* Justified gallery (flexbox based) */
+  .portfolio-justified :global(> *) {
+    flex-grow: 1;
+    height: 250px;
+    min-width: 200px;
+    max-width: 400px;
+  }
+
+  /* Lightbox */
+  .portfolio-lightbox.active {
+    display: flex;
+  }
+
+  .portfolio-lightbox img {
+    max-width: 100%;
+    max-height: 90vh;
+    object-fit: contain;
+  }
+
+  /* Filter active state */
+  .portfolio-filter-btn[aria-selected="true"] {
+    background-color: var(--color-primary);
+    color: var(--color-primary-text);
+  }
+
+  .portfolio-filter-btn[aria-selected="false"] {
+    background-color: var(--color-background-subtle);
+    color: var(--color-text-secondary);
+  }
+
+  .portfolio-filter-btn[aria-selected="false"]:hover {
+    background-color: var(--color-background-muted);
+  }
+
+  /* Filtered items */
+  .portfolio-grid :global([data-category].hidden),
+  .portfolio-masonry :global([data-category].hidden) {
+    display: none;
+  }
+</style>
+
+<script>
+  function initPortfolio() {
+    const layouts = document.querySelectorAll('[data-portfolio-layout]');
+
+    layouts.forEach((layout) => {
+      const filterBtns = layout.querySelectorAll('[data-filter]');
+      const items = layout.querySelectorAll('[data-category]');
+      const lightbox = layout.querySelector('[data-lightbox]') as HTMLElement;
+      const lightboxContent = layout.querySelector('[data-lightbox-content]');
+      const lightboxCaption = layout.querySelector('[data-lightbox-caption]');
+      const lightboxClose = layout.querySelector('[data-lightbox-close]');
+      const lightboxPrev = layout.querySelector('[data-lightbox-prev]');
+      const lightboxNext = layout.querySelector('[data-lightbox-next]');
+
+      let currentIndex = 0;
+      let lightboxItems: HTMLElement[] = [];
+
+      // Filtering
+      filterBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const filter = btn.getAttribute('data-filter');
+
+          // Update button states
+          filterBtns.forEach((b) => b.setAttribute('aria-selected', 'false'));
+          btn.setAttribute('aria-selected', 'true');
+
+          // Filter items
+          items.forEach((item) => {
+            const category = item.getAttribute('data-category');
+            if (filter === 'all' || category === filter) {
+              item.classList.remove('hidden');
+            } else {
+              item.classList.add('hidden');
+            }
+          });
+        });
+      });
+
+      // Lightbox
+      if (lightbox && lightboxContent && lightboxCaption) {
+        // Gather lightbox-enabled items
+        lightboxItems = Array.from(layout.querySelectorAll('[data-lightbox-src]'));
+
+        lightboxItems.forEach((item, index) => {
+          item.addEventListener('click', (e) => {
+            e.preventDefault();
+            openLightbox(index);
+          });
+        });
+
+        function openLightbox(index: number) {
+          currentIndex = index;
+          updateLightbox();
+          lightbox.classList.add('active');
+          lightbox.setAttribute('aria-hidden', 'false');
+          document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+          lightbox.classList.remove('active');
+          lightbox.setAttribute('aria-hidden', 'true');
+          document.body.style.overflow = '';
+        }
+
+        function updateLightbox() {
+          const item = lightboxItems[currentIndex];
+          const src = item.getAttribute('data-lightbox-src');
+          const caption = item.getAttribute('data-lightbox-caption') || '';
+
+          lightboxContent!.innerHTML = `<img src="${src}" alt="${caption}" />`;
+          lightboxCaption!.textContent = caption;
+        }
+
+        function prevItem() {
+          currentIndex = (currentIndex - 1 + lightboxItems.length) % lightboxItems.length;
+          updateLightbox();
+        }
+
+        function nextItem() {
+          currentIndex = (currentIndex + 1) % lightboxItems.length;
+          updateLightbox();
+        }
+
+        lightboxClose?.addEventListener('click', closeLightbox);
+        lightboxPrev?.addEventListener('click', prevItem);
+        lightboxNext?.addEventListener('click', nextItem);
+
+        // Keyboard navigation
+        lightbox.addEventListener('keydown', (e: KeyboardEvent) => {
+          if (e.key === 'Escape') closeLightbox();
+          if (e.key === 'ArrowLeft') prevItem();
+          if (e.key === 'ArrowRight') nextItem();
+        });
+
+        // Click backdrop to close
+        lightbox.addEventListener('click', (e) => {
+          if (e.target === lightbox) closeLightbox();
+        });
+      }
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPortfolio);
+  } else {
+    initPortfolio();
+  }
+
+  document.addEventListener('astro:page-load', initPortfolio);
+</script>

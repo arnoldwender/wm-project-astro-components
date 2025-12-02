@@ -1,0 +1,150 @@
+---
+/**
+ * AwardItem Component
+ *
+ * Individual award, certification, or achievement.
+ *
+ * @example
+ * <AwardItem
+ *   title="Best Design Award"
+ *   organization="Design Awards"
+ *   year="2024"
+ *   image="/awards/design.png"
+ * />
+ */
+
+export interface Props {
+  title: string;
+  organization?: string;
+  year?: string;
+  image?: string;
+  description?: string;
+  href?: string;
+  variant?: 'default' | 'card' | 'badge' | 'minimal' | 'featured';
+  class?: string;
+}
+
+const {
+  title,
+  organization,
+  year,
+  image,
+  description,
+  href,
+  variant = 'default',
+  class: className = '',
+} = Astro.props;
+
+const Tag = href ? 'a' : 'div';
+---
+
+<Tag
+  href={href}
+  target={href?.startsWith('http') ? '_blank' : undefined}
+  rel={href?.startsWith('http') ? 'noopener noreferrer' : undefined}
+  class:list={[
+    'award-item group',
+    variant === 'card' && 'block bg-surface border border-border-subtle rounded-xl p-6 text-center hover:shadow-lg transition-shadow',
+    variant === 'badge' && 'inline-flex items-center gap-3 px-4 py-2 bg-background-subtle rounded-full',
+    variant === 'minimal' && 'flex items-center gap-4',
+    variant === 'featured' && 'block bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/20 dark:to-amber-800/20 border border-amber-200 dark:border-amber-700/50 rounded-2xl p-8 text-center',
+    variant === 'default' && 'flex items-start gap-4',
+    href && 'cursor-pointer',
+    className,
+  ]}
+>
+  {/* Image/Icon */}
+  {image && (
+    <div class:list={[
+      'award-image flex-shrink-0',
+      variant === 'card' && 'w-16 h-16 mx-auto mb-4',
+      variant === 'badge' && 'w-8 h-8',
+      variant === 'minimal' && 'w-10 h-10',
+      variant === 'featured' && 'w-24 h-24 mx-auto mb-4',
+      variant === 'default' && 'w-12 h-12',
+    ]}>
+      <img
+        src={image}
+        alt={title}
+        class="w-full h-full object-contain"
+        loading="lazy"
+      />
+    </div>
+  )}
+
+  {/* Trophy icon fallback for featured */}
+  {!image && variant === 'featured' && (
+    <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-amber-500/20 flex items-center justify-center">
+      <svg class="w-10 h-10 text-amber-600 dark:text-amber-400" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M5 4h14v2h-1v4c0 1.9-1.16 3.5-2.8 4.2l.3.8H14v4h2v2H8v-2h2v-4h-.5l.3-.8C8.16 13.5 7 11.9 7 10V6H6V4H5zm4 2v4c0 1.1.9 2 2 2s2-.9 2-2V6H9z"/>
+      </svg>
+    </div>
+  )}
+
+  {/* Content */}
+  <div class:list={[
+    'award-content',
+    variant === 'badge' && 'text-left',
+    variant === 'minimal' && 'flex-1 min-w-0',
+  ]}>
+    {/* Year badge */}
+    {year && (variant === 'card' || variant === 'featured') && (
+      <span class:list={[
+        'inline-block px-2 py-0.5 text-xs font-semibold rounded-full mb-2',
+        variant === 'featured' ? 'bg-amber-500 text-white' : 'bg-primary/10 text-primary',
+      ]}>
+        {year}
+      </span>
+    )}
+
+    {/* Title */}
+    <h3 class:list={[
+      'award-title font-semibold text-text-primary',
+      variant === 'badge' && 'text-sm',
+      variant === 'minimal' && 'text-sm truncate',
+      variant === 'featured' && 'text-xl mb-2',
+      variant === 'card' && 'mb-1',
+      href && 'group-hover:text-primary transition-colors',
+    ]}>
+      {title}
+    </h3>
+
+    {/* Organization */}
+    {organization && variant !== 'badge' && (
+      <p class:list={[
+        'award-org text-text-secondary',
+        variant === 'minimal' && 'text-xs truncate',
+        variant === 'featured' && 'text-base',
+        (variant === 'card' || variant === 'default') && 'text-sm',
+      ]}>
+        {organization}
+        {year && variant === 'default' && <span class="text-text-tertiary"> · {year}</span>}
+      </p>
+    )}
+
+    {/* Year for badge variant */}
+    {year && variant === 'badge' && (
+      <span class="text-xs text-text-tertiary">{year}</span>
+    )}
+
+    {/* Description */}
+    {description && (variant === 'featured' || variant === 'card') && (
+      <p class="award-desc text-sm text-text-secondary mt-2">{description}</p>
+    )}
+  </div>
+
+  {/* Arrow for linked items */}
+  {href && variant !== 'badge' && (
+    <svg class="w-4 h-4 text-text-tertiary group-hover:text-primary transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+    </svg>
+  )}
+</Tag>
+
+<style>
+  @media (prefers-reduced-motion: reduce) {
+    .award-item {
+      transition: none;
+    }
+  }
+</style>

@@ -1,0 +1,407 @@
+---
+/**
+ * ComparisonSection Component
+ *
+ * Compare features, plans, or products side by side.
+ *
+ * Variants:
+ * - table: Traditional comparison table
+ * - cards: Side-by-side cards
+ * - toggle: Before/after toggle
+ * - slider: Draggable image comparison
+ * - checklist: Feature checklist comparison
+ *
+ * @example
+ * <ComparisonSection variant="table" title="Plan Comparison">
+ *   <slot /> <!-- Comparison content -->
+ * </ComparisonSection>
+ */
+
+import SectionWrapper from './SectionWrapper.astro';
+import SectionHeader from './SectionHeader.astro';
+
+export interface ComparisonItem {
+  label: string;
+  values: (string | boolean)[];
+  tooltip?: string;
+}
+
+export interface ComparisonColumn {
+  name: string;
+  highlighted?: boolean;
+  badge?: string;
+}
+
+export interface Props {
+  variant?: 'table' | 'cards' | 'toggle' | 'slider' | 'checklist';
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+  columns?: ComparisonColumn[];
+  items?: ComparisonItem[];
+  beforeLabel?: string;
+  afterLabel?: string;
+  beforeImage?: string;
+  afterImage?: string;
+  background?: 'transparent' | 'subtle' | 'muted';
+  class?: string;
+}
+
+const {
+  variant = 'table',
+  eyebrow,
+  title,
+  description,
+  columns = [],
+  items = [],
+  beforeLabel = 'Vorher',
+  afterLabel = 'Nachher',
+  beforeImage,
+  afterImage,
+  background = 'transparent',
+  class: className = '',
+} = Astro.props;
+---
+
+<SectionWrapper background={background} class={className}>
+  {(eyebrow || title || description) && (
+    <SectionHeader
+      eyebrow={eyebrow}
+      title={title || ''}
+      description={description}
+    />
+  )}
+
+  {/* Table Variant */}
+  {variant === 'table' && columns.length > 0 && (
+    <div class="comparison-table overflow-x-auto">
+      <table class="w-full border-collapse">
+        <thead>
+          <tr>
+            <th class="text-left p-4 text-text-tertiary font-medium text-sm border-b border-border-subtle">
+              Features
+            </th>
+            {columns.map((col) => (
+              <th class:list={[
+                'p-4 text-center font-semibold border-b border-border-subtle min-w-[140px]',
+                col.highlighted && 'bg-primary/5',
+              ]}>
+                <div class="flex flex-col items-center gap-1">
+                  {col.badge && (
+                    <span class="px-2 py-0.5 text-xs font-medium rounded-full bg-primary text-white">
+                      {col.badge}
+                    </span>
+                  )}
+                  <span class="text-text-primary">{col.name}</span>
+                </div>
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {items.map((item) => (
+            <tr class="border-b border-border-subtle last:border-b-0">
+              <td class="p-4 text-text-secondary">
+                <span>{item.label}</span>
+                {item.tooltip && (
+                  <button
+                    type="button"
+                    class="ml-1 text-text-tertiary hover:text-text-secondary"
+                    title={item.tooltip}
+                  >
+                    <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </button>
+                )}
+              </td>
+              {item.values.map((value, i) => (
+                <td class:list={[
+                  'p-4 text-center',
+                  columns[i]?.highlighted && 'bg-primary/5',
+                ]}>
+                  {typeof value === 'boolean' ? (
+                    value ? (
+                      <svg class="w-5 h-5 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                      </svg>
+                    ) : (
+                      <svg class="w-5 h-5 text-text-tertiary mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    )
+                  ) : (
+                    <span class="text-text-primary">{value}</span>
+                  )}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )}
+
+  {/* Cards Variant */}
+  {variant === 'cards' && (
+    <div class="comparison-cards grid md:grid-cols-2 gap-6 lg:gap-8">
+      <slot />
+    </div>
+  )}
+
+  {/* Toggle Variant */}
+  {variant === 'toggle' && (
+    <div class="comparison-toggle max-w-4xl mx-auto" data-comparison-toggle>
+      {/* Toggle Switch */}
+      <div class="flex items-center justify-center gap-4 mb-8">
+        <span class="font-medium text-text-primary" data-toggle-label="before">{beforeLabel}</span>
+        <button
+          type="button"
+          class="relative w-14 h-7 bg-background-muted rounded-full transition-colors"
+          data-toggle-switch
+          aria-pressed="false"
+          aria-label="Toggle comparison view"
+        >
+          <span class="absolute top-1 left-1 w-5 h-5 bg-primary rounded-full transition-transform" data-toggle-knob />
+        </button>
+        <span class="font-medium text-text-tertiary" data-toggle-label="after">{afterLabel}</span>
+      </div>
+
+      {/* Content */}
+      <div class="relative">
+        <div class="comparison-before" data-comparison-content="before">
+          <slot name="before" />
+        </div>
+        <div class="comparison-after hidden" data-comparison-content="after">
+          <slot name="after" />
+        </div>
+      </div>
+    </div>
+  )}
+
+  {/* Slider Variant */}
+  {variant === 'slider' && beforeImage && afterImage && (
+    <div class="comparison-slider max-w-4xl mx-auto relative overflow-hidden rounded-2xl" data-comparison-slider>
+      {/* After image (background) */}
+      <img
+        src={afterImage}
+        alt={afterLabel}
+        class="w-full h-auto block"
+        loading="lazy"
+      />
+
+      {/* Before image (overlay) */}
+      <div class="comparison-overlay absolute inset-0 overflow-hidden" style="width: 50%;" data-slider-overlay>
+        <img
+          src={beforeImage}
+          alt={beforeLabel}
+          class="w-full h-full object-cover object-left"
+          style="min-width: 200%;"
+          loading="lazy"
+        />
+      </div>
+
+      {/* Slider handle */}
+      <div class="comparison-handle absolute top-0 bottom-0 w-1 bg-white cursor-ew-resize" style="left: 50%;" data-slider-handle>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center">
+          <svg class="w-5 h-5 text-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
+          </svg>
+        </div>
+      </div>
+
+      {/* Labels */}
+      <div class="absolute bottom-4 left-4 px-3 py-1 bg-black/70 text-white text-sm rounded-lg">
+        {beforeLabel}
+      </div>
+      <div class="absolute bottom-4 right-4 px-3 py-1 bg-black/70 text-white text-sm rounded-lg">
+        {afterLabel}
+      </div>
+    </div>
+  )}
+
+  {/* Checklist Variant */}
+  {variant === 'checklist' && columns.length >= 2 && (
+    <div class="comparison-checklist grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+      {columns.slice(0, 2).map((col, colIndex) => (
+        <div class:list={[
+          'comparison-column p-6 lg:p-8 rounded-2xl',
+          col.highlighted
+            ? 'bg-primary/5 border-2 border-primary'
+            : 'bg-surface border border-border-subtle',
+        ]}>
+          <div class="mb-6">
+            {col.badge && (
+              <span class:list={[
+                'inline-block px-3 py-1 text-xs font-medium rounded-full mb-2',
+                col.highlighted ? 'bg-primary text-white' : 'bg-background-muted text-text-secondary',
+              ]}>
+                {col.badge}
+              </span>
+            )}
+            <h3 class="text-xl font-bold text-text-primary">{col.name}</h3>
+          </div>
+
+          <ul class="space-y-3">
+            {items.map((item) => {
+              const value = item.values[colIndex];
+              const isIncluded = value === true || (typeof value === 'string' && value !== '');
+
+              return (
+                <li class="flex items-start gap-3">
+                  {isIncluded ? (
+                    <svg class="w-5 h-5 text-green-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                  ) : (
+                    <svg class="w-5 h-5 text-text-tertiary flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  )}
+                  <span class:list={[
+                    isIncluded ? 'text-text-primary' : 'text-text-tertiary line-through',
+                  ]}>
+                    {item.label}
+                    {typeof value === 'string' && value && (
+                      <span class="text-text-secondary ml-1">({value})</span>
+                    )}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      ))}
+    </div>
+  )}
+</SectionWrapper>
+
+<style>
+  /* Toggle switch states */
+  [data-toggle-switch][aria-pressed="true"] {
+    background-color: var(--color-primary);
+  }
+
+  [data-toggle-switch][aria-pressed="true"] [data-toggle-knob] {
+    transform: translateX(1.75rem);
+  }
+
+  [data-toggle-switch][aria-pressed="true"] ~ [data-toggle-label="after"] {
+    color: var(--color-text-primary);
+  }
+
+  [data-toggle-switch][aria-pressed="false"] ~ [data-toggle-label="before"] {
+    color: var(--color-text-primary);
+  }
+
+  /* Table responsive */
+  .comparison-table {
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-xl);
+  }
+
+  .comparison-table table {
+    min-width: 600px;
+  }
+
+  /* Slider handle */
+  .comparison-slider {
+    touch-action: pan-y;
+    user-select: none;
+  }
+</style>
+
+<script>
+  function initComparisonToggle() {
+    const toggles = document.querySelectorAll('[data-comparison-toggle]');
+
+    toggles.forEach((container) => {
+      const switchBtn = container.querySelector('[data-toggle-switch]');
+      const beforeContent = container.querySelector('[data-comparison-content="before"]');
+      const afterContent = container.querySelector('[data-comparison-content="after"]');
+
+      switchBtn?.addEventListener('click', () => {
+        const isAfter = switchBtn.getAttribute('aria-pressed') === 'true';
+        switchBtn.setAttribute('aria-pressed', (!isAfter).toString());
+
+        if (isAfter) {
+          beforeContent?.classList.remove('hidden');
+          afterContent?.classList.add('hidden');
+        } else {
+          beforeContent?.classList.add('hidden');
+          afterContent?.classList.remove('hidden');
+        }
+      });
+    });
+  }
+
+  function initComparisonSlider() {
+    const sliders = document.querySelectorAll('[data-comparison-slider]');
+
+    sliders.forEach((slider) => {
+      const handle = slider.querySelector('[data-slider-handle]') as HTMLElement;
+      const overlay = slider.querySelector('[data-slider-overlay]') as HTMLElement;
+
+      if (!handle || !overlay) return;
+
+      let isDragging = false;
+
+      const updatePosition = (clientX: number) => {
+        const rect = (slider as HTMLElement).getBoundingClientRect();
+        const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
+        const percentage = (x / rect.width) * 100;
+
+        handle.style.left = `${percentage}%`;
+        overlay.style.width = `${percentage}%`;
+      };
+
+      handle.addEventListener('mousedown', () => {
+        isDragging = true;
+      });
+
+      document.addEventListener('mouseup', () => {
+        isDragging = false;
+      });
+
+      document.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        e.preventDefault();
+        updatePosition(e.clientX);
+      });
+
+      // Touch support
+      handle.addEventListener('touchstart', () => {
+        isDragging = true;
+      });
+
+      document.addEventListener('touchend', () => {
+        isDragging = false;
+      });
+
+      document.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        updatePosition(e.touches[0].clientX);
+      });
+
+      // Click to position
+      slider.addEventListener('click', (e) => {
+        updatePosition((e as MouseEvent).clientX);
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      initComparisonToggle();
+      initComparisonSlider();
+    });
+  } else {
+    initComparisonToggle();
+    initComparisonSlider();
+  }
+
+  document.addEventListener('astro:page-load', () => {
+    initComparisonToggle();
+    initComparisonSlider();
+  });
+</script>

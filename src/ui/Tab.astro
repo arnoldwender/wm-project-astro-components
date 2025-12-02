@@ -1,0 +1,40 @@
+---
+/**
+ * Tab Component
+ *
+ * Individual tab button for use within Tabs component.
+ *
+ * @example
+ * <Tab id="overview" icon="📊">Overview</Tab>
+ */
+
+export interface Props {
+  id: string;
+  icon?: string;
+  disabled?: boolean;
+  class?: string;
+}
+
+const {
+  id,
+  icon,
+  disabled = false,
+  class: className = '',
+} = Astro.props;
+
+const panelId = `${id}-panel`;
+---
+
+<button
+  type="button"
+  role="tab"
+  id={`${id}-tab`}
+  aria-controls={panelId}
+  aria-selected="false"
+  aria-disabled={disabled}
+  class:list={['tab', className]}
+  tabindex="-1"
+>
+  {icon && <span class="tab-icon">{icon}</span>}
+  <slot />
+</button>

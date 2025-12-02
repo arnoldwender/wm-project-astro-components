@@ -1,0 +1,164 @@
+---
+/**
+ * MagazineCard Component
+ *
+ * Visual article card for magazine layouts.
+ *
+ * @example
+ * <MagazineCard
+ *   title="Article Title"
+ *   href="/article"
+ *   image="/image.jpg"
+ *   category="Fashion"
+ *   size="large"
+ * />
+ */
+
+export interface Props {
+  title: string;
+  href: string;
+  image: string;
+  imageAlt?: string;
+  excerpt?: string;
+  category?: string;
+  categoryColor?: string;
+  author?: string;
+  date?: Date;
+  size?: 'small' | 'medium' | 'large' | 'hero';
+  overlay?: 'gradient' | 'solid' | 'none';
+  aspectRatio?: 'square' | 'video' | 'portrait' | 'landscape' | 'auto';
+  class?: string;
+}
+
+const {
+  title,
+  href,
+  image,
+  imageAlt = '',
+  excerpt,
+  category,
+  categoryColor,
+  author,
+  date,
+  size = 'medium',
+  overlay = 'gradient',
+  aspectRatio = 'auto',
+  class: className = '',
+} = Astro.props;
+
+// Aspect ratio classes
+const aspectClasses = {
+  square: 'aspect-square',
+  video: 'aspect-video',
+  portrait: 'aspect-[3/4]',
+  landscape: 'aspect-[4/3]',
+  auto: '',
+};
+
+// Size-based aspect ratios (defaults)
+const sizeAspects = {
+  small: 'aspect-[4/3]',
+  medium: 'aspect-[4/3]',
+  large: 'aspect-[16/10]',
+  hero: 'aspect-[16/9] lg:aspect-[21/9]',
+};
+
+// Title size classes
+const titleClasses = {
+  small: 'text-lg',
+  medium: 'text-xl lg:text-2xl',
+  large: 'text-2xl lg:text-3xl',
+  hero: 'text-3xl lg:text-4xl xl:text-5xl',
+};
+
+const formatDate = (date: Date) => {
+  return date.toLocaleDateString('de-DE', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  });
+};
+
+const finalAspect = aspectRatio === 'auto' ? sizeAspects[size] : aspectClasses[aspectRatio];
+---
+
+<article
+  class:list={[
+    'magazine-card group relative overflow-hidden rounded-xl',
+    finalAspect,
+    className,
+  ]}
+>
+  <a href={href} class="absolute inset-0 z-10" aria-label={title}>
+    <span class="sr-only">{title}</span>
+  </a>
+
+  <!-- Image -->
+  <img
+    src={image}
+    alt={imageAlt}
+    class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+    loading="lazy"
+  />
+
+  <!-- Overlay -->
+  {overlay === 'gradient' && (
+    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+  )}
+  {overlay === 'solid' && (
+    <div class="absolute inset-0 bg-black/50" />
+  )}
+
+  <!-- Content -->
+  <div class="absolute inset-0 flex flex-col justify-end p-4 lg:p-6 text-white">
+    {category && (
+      <span
+        class="inline-block self-start px-2 py-1 text-xs font-semibold uppercase tracking-wider rounded mb-3"
+        style={categoryColor ? `background-color: ${categoryColor}` : undefined}
+      >
+        {category}
+      </span>
+    )}
+
+    <h3 class:list={[
+      'font-bold leading-tight mb-2',
+      titleClasses[size],
+    ]}>
+      {title}
+    </h3>
+
+    {excerpt && size !== 'small' && (
+      <p class:list={[
+        'text-white/80 line-clamp-2',
+        size === 'hero' ? 'text-lg' : 'text-sm',
+      ]}>
+        {excerpt}
+      </p>
+    )}
+
+    {(author || date) && (
+      <div class="flex items-center gap-2 mt-3 text-sm text-white/70">
+        {author && <span>{author}</span>}
+        {author && date && <span>·</span>}
+        {date && <time datetime={date.toISOString()}>{formatDate(date)}</time>}
+      </div>
+    )}
+  </div>
+</article>
+
+<style>
+  .magazine-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  /* Category default background */
+  .magazine-card span[class*="uppercase"]:not([style]) {
+    background-color: var(--color-primary);
+  }
+</style>

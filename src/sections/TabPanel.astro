@@ -1,0 +1,33 @@
+---
+/**
+ * TabPanel Component
+ *
+ * Individual tab panel content wrapper.
+ *
+ * @example
+ * <TabPanel id="features">
+ *   <p>Features content here...</p>
+ * </TabPanel>
+ */
+
+export interface Props {
+  id: string;
+  class?: string;
+}
+
+const {
+  id,
+  class: className = '',
+} = Astro.props;
+---
+
+<div
+  id={`panel-${id}`}
+  role="tabpanel"
+  aria-labelledby={`tab-${id}`}
+  data-tab-panel={id}
+  class:list={['tab-panel', className]}
+  tabindex="0"
+>
+  <slot />
+</div>

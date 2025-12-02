@@ -1,0 +1,228 @@
+---
+/**
+ * ResourcesSection Component
+ *
+ * Display downloadable resources, documents, and media.
+ *
+ * Variants:
+ * - grid: Standard resource grid
+ * - list: Vertical list layout
+ * - categories: Grouped by category
+ * - featured: Featured resource + grid
+ * - compact: Dense listing
+ * - cards: Visual card layout
+ *
+ * @example
+ * <ResourcesSection variant="grid" title="Downloads">
+ *   <ResourceCard title="Brochure" href="/brochure.pdf" />
+ * </ResourcesSection>
+ */
+
+import SectionWrapper from './SectionWrapper.astro';
+import SectionHeader from './SectionHeader.astro';
+
+export interface Category {
+  id: string;
+  name: string;
+  icon?: string;
+}
+
+export interface Props {
+  variant?: 'grid' | 'list' | 'categories' | 'featured' | 'compact' | 'cards';
+  columns?: 2 | 3 | 4;
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+  categories?: Category[];
+  showFilters?: boolean;
+  background?: 'transparent' | 'subtle' | 'muted';
+  class?: string;
+}
+
+const {
+  variant = 'grid',
+  columns = 3,
+  eyebrow,
+  title,
+  description,
+  categories = [],
+  showFilters = false,
+  background = 'transparent',
+  class: className = '',
+} = Astro.props;
+
+const columnClasses = {
+  2: 'md:grid-cols-2',
+  3: 'md:grid-cols-2 lg:grid-cols-3',
+  4: 'sm:grid-cols-2 lg:grid-cols-4',
+};
+---
+
+<SectionWrapper background={background} class={className}>
+  {(eyebrow || title || description) && (
+    <SectionHeader
+      eyebrow={eyebrow}
+      title={title || ''}
+      description={description}
+    />
+  )}
+
+  {/* Filters */}
+  {showFilters && categories.length > 0 && (
+    <div class="resources-filters flex flex-wrap justify-center gap-2 mb-8" data-resources-filters>
+      <button
+        type="button"
+        class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-primary text-white"
+        data-filter="all"
+        aria-pressed="true"
+      >
+        Alle
+      </button>
+      {categories.map((cat) => (
+        <button
+          type="button"
+          class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-background-subtle text-text-secondary hover:bg-background-muted transition-colors"
+          data-filter={cat.id}
+          aria-pressed="false"
+        >
+          {cat.icon && <span class="mr-1">{cat.icon}</span>}
+          {cat.name}
+        </button>
+      ))}
+    </div>
+  )}
+
+  {/* Grid Variant */}
+  {variant === 'grid' && (
+    <div class:list={['resources-grid grid gap-4', columnClasses[columns]]} data-resources-container>
+      <slot />
+    </div>
+  )}
+
+  {/* List Variant */}
+  {variant === 'list' && (
+    <div class="resources-list max-w-3xl mx-auto space-y-3" data-resources-container>
+      <slot />
+    </div>
+  )}
+
+  {/* Categories Variant */}
+  {variant === 'categories' && (
+    <div class="resources-categories space-y-12" data-resources-container>
+      <slot />
+    </div>
+  )}
+
+  {/* Featured Variant */}
+  {variant === 'featured' && (
+    <div class="resources-featured">
+      <div class="featured-resource mb-8">
+        <slot name="featured" />
+      </div>
+      <div class:list={['grid gap-4', columnClasses[columns]]} data-resources-container>
+        <slot />
+      </div>
+    </div>
+  )}
+
+  {/* Compact Variant */}
+  {variant === 'compact' && (
+    <div class="resources-compact max-w-2xl mx-auto bg-surface border border-border-subtle rounded-xl divide-y divide-border-subtle" data-resources-container>
+      <slot />
+    </div>
+  )}
+
+  {/* Cards Variant */}
+  {variant === 'cards' && (
+    <div class:list={['resources-cards grid gap-6', columnClasses[columns]]} data-resources-container>
+      <slot />
+    </div>
+  )}
+</SectionWrapper>
+
+<style>
+  /* Filter active state */
+  .filter-btn[aria-pressed="true"] {
+    background-color: var(--color-primary);
+    color: white;
+  }
+
+  .filter-btn[aria-pressed="false"]:hover {
+    background-color: var(--color-background-muted);
+  }
+
+  /* Compact variant items */
+  .resources-compact :global(.resource-card) {
+    border: none;
+    border-radius: 0;
+  }
+
+  .resources-compact :global(.resource-card:first-child) {
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  }
+
+  .resources-compact :global(.resource-card:last-child) {
+    border-radius: 0 0 var(--radius-xl) var(--radius-xl);
+  }
+
+  /* Featured resource */
+  .featured-resource :global(.resource-card) {
+    display: grid;
+    grid-template-columns: 1fr 2fr auto;
+    gap: 1.5rem;
+    padding: 1.5rem;
+  }
+
+  @media (max-width: 768px) {
+    .featured-resource :global(.resource-card) {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  function initResourcesFilters() {
+    const filterContainers = document.querySelectorAll('[data-resources-filters]');
+
+    filterContainers.forEach((filterContainer) => {
+      const buttons = filterContainer.querySelectorAll('[data-filter]');
+      const resourcesContainer = filterContainer.nextElementSibling?.querySelector('[data-resources-container]')
+        || filterContainer.parentElement?.querySelector('[data-resources-container]');
+      const items = resourcesContainer?.querySelectorAll('[data-category]');
+
+      buttons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const filter = btn.getAttribute('data-filter');
+
+          // Update button states
+          buttons.forEach((b) => {
+            b.setAttribute('aria-pressed', 'false');
+            b.classList.remove('bg-primary', 'text-white');
+            b.classList.add('bg-background-subtle', 'text-text-secondary');
+          });
+          btn.setAttribute('aria-pressed', 'true');
+          btn.classList.add('bg-primary', 'text-white');
+          btn.classList.remove('bg-background-subtle', 'text-text-secondary');
+
+          // Filter items
+          items?.forEach((item) => {
+            const category = item.getAttribute('data-category');
+            if (filter === 'all' || category === filter) {
+              (item as HTMLElement).style.display = '';
+            } else {
+              (item as HTMLElement).style.display = 'none';
+            }
+          });
+        });
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initResourcesFilters);
+  } else {
+    initResourcesFilters();
+  }
+
+  document.addEventListener('astro:page-load', initResourcesFilters);
+</script>

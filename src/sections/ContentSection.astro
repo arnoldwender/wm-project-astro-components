@@ -1,0 +1,278 @@
+---
+/**
+ * ContentSection Component
+ *
+ * Flexible content blocks for text, media, and mixed layouts.
+ *
+ * Variants:
+ * - prose: Long-form text content
+ * - media-left: Image/video on left, text right
+ * - media-right: Text left, image/video on right
+ * - media-top: Media above text
+ * - media-bottom: Text above media
+ * - full-bleed: Full-width media with overlaid text
+ * - split: 50/50 media and content split
+ *
+ * @example
+ * <ContentSection variant="media-right" title="Our Story">
+ *   <Fragment slot="media">
+ *     <img src="/about.jpg" alt="Our office" />
+ *   </Fragment>
+ *   <p>We started in 2020...</p>
+ * </ContentSection>
+ */
+
+import SectionWrapper from './SectionWrapper.astro';
+
+export interface Props {
+  variant?: 'prose' | 'media-left' | 'media-right' | 'media-top' | 'media-bottom' | 'full-bleed' | 'split';
+  eyebrow?: string;
+  title?: string;
+  mediaRatio?: '1:1' | '4:3' | '16:9' | '3:4' | 'auto';
+  mediaRounded?: boolean;
+  verticalAlign?: 'top' | 'center' | 'bottom';
+  background?: 'transparent' | 'subtle' | 'muted' | 'dark';
+  class?: string;
+}
+
+const {
+  variant = 'prose',
+  eyebrow,
+  title,
+  mediaRatio = 'auto',
+  mediaRounded = true,
+  verticalAlign = 'center',
+  background = 'transparent',
+  class: className = '',
+} = Astro.props;
+
+// Media aspect ratio classes
+const ratioClasses = {
+  '1:1': 'aspect-square',
+  '4:3': 'aspect-[4/3]',
+  '16:9': 'aspect-video',
+  '3:4': 'aspect-[3/4]',
+  'auto': '',
+};
+
+// Vertical alignment classes
+const alignClasses = {
+  top: 'items-start',
+  center: 'items-center',
+  bottom: 'items-end',
+};
+---
+
+{variant === 'full-bleed' ? (
+  <section
+    class:list={[
+      'content-full-bleed relative min-h-[50vh] flex items-center',
+      className,
+    ]}
+  >
+    <div class="absolute inset-0 overflow-hidden">
+      <div class="content-media w-full h-full">
+        <slot name="media" />
+      </div>
+      <div class="absolute inset-0 bg-black/50" />
+    </div>
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 text-white">
+      {eyebrow && (
+        <span class="text-sm font-semibold uppercase tracking-wider text-white/80 mb-3 block">
+          {eyebrow}
+        </span>
+      )}
+      {title && (
+        <h2 class="text-3xl lg:text-5xl font-bold mb-6">{title}</h2>
+      )}
+      <div class="prose prose-lg prose-invert max-w-2xl">
+        <slot />
+      </div>
+    </div>
+  </section>
+) : variant === 'split' ? (
+  <section class:list={['content-split', className]}>
+    <div class="grid lg:grid-cols-2 min-h-[60vh]">
+      <div class="content-media relative overflow-hidden">
+        <slot name="media" />
+      </div>
+      <div class:list={[
+        'flex flex-col justify-center px-8 lg:px-16 py-12 lg:py-16',
+        background === 'subtle' && 'bg-background-subtle',
+        background === 'muted' && 'bg-background-muted',
+        background === 'dark' && 'bg-background-inverse text-white',
+      ]}>
+        {eyebrow && (
+          <span class:list={[
+            'text-sm font-semibold uppercase tracking-wider mb-3',
+            background === 'dark' ? 'text-primary-400' : 'text-primary',
+          ]}>
+            {eyebrow}
+          </span>
+        )}
+        {title && (
+          <h2 class:list={[
+            'text-3xl lg:text-4xl font-bold mb-6',
+            background === 'dark' ? 'text-white' : 'text-text-primary',
+          ]}>
+            {title}
+          </h2>
+        )}
+        <div class:list={[
+          'prose prose-lg',
+          background === 'dark' && 'prose-invert',
+        ]}>
+          <slot />
+        </div>
+      </div>
+    </div>
+  </section>
+) : variant === 'media-top' || variant === 'media-bottom' ? (
+  <SectionWrapper background={background} class={className}>
+    <div class="max-w-4xl mx-auto">
+      {variant === 'media-top' && Astro.slots.has('media') && (
+        <div class:list={[
+          'content-media mb-8 overflow-hidden',
+          mediaRounded && 'rounded-2xl',
+          ratioClasses[mediaRatio],
+        ]}>
+          <slot name="media" />
+        </div>
+      )}
+
+      <div class="content-text text-center">
+        {eyebrow && (
+          <span class="text-sm font-semibold text-primary uppercase tracking-wider mb-3 block">
+            {eyebrow}
+          </span>
+        )}
+        {title && (
+          <h2 class="text-3xl lg:text-4xl font-bold text-text-primary mb-6">
+            {title}
+          </h2>
+        )}
+        <div class="prose prose-lg mx-auto">
+          <slot />
+        </div>
+      </div>
+
+      {variant === 'media-bottom' && Astro.slots.has('media') && (
+        <div class:list={[
+          'content-media mt-8 overflow-hidden',
+          mediaRounded && 'rounded-2xl',
+          ratioClasses[mediaRatio],
+        ]}>
+          <slot name="media" />
+        </div>
+      )}
+    </div>
+  </SectionWrapper>
+) : variant === 'media-left' || variant === 'media-right' ? (
+  <SectionWrapper background={background} class={className}>
+    <div class:list={[
+      'grid lg:grid-cols-2 gap-8 lg:gap-16',
+      alignClasses[verticalAlign],
+    ]}>
+      {/* Media */}
+      <div class:list={[
+        'content-media overflow-hidden',
+        variant === 'media-right' && 'lg:order-2',
+        mediaRounded && 'rounded-2xl',
+        ratioClasses[mediaRatio],
+      ]}>
+        <slot name="media" />
+      </div>
+
+      {/* Text Content */}
+      <div class:list={[
+        'content-text',
+        variant === 'media-right' && 'lg:order-1',
+      ]}>
+        {eyebrow && (
+          <span class="text-sm font-semibold text-primary uppercase tracking-wider mb-3 block">
+            {eyebrow}
+          </span>
+        )}
+        {title && (
+          <h2 class="text-3xl lg:text-4xl font-bold text-text-primary mb-6">
+            {title}
+          </h2>
+        )}
+        <div class="prose prose-lg">
+          <slot />
+        </div>
+      </div>
+    </div>
+  </SectionWrapper>
+) : (
+  <SectionWrapper background={background} class={className}>
+    <div class="max-w-3xl mx-auto">
+      {eyebrow && (
+        <span class="text-sm font-semibold text-primary uppercase tracking-wider mb-3 block text-center">
+          {eyebrow}
+        </span>
+      )}
+      {title && (
+        <h2 class="text-3xl lg:text-4xl font-bold text-text-primary mb-8 text-center">
+          {title}
+        </h2>
+      )}
+      <div class="prose prose-lg mx-auto">
+        <slot />
+      </div>
+    </div>
+  </SectionWrapper>
+)}
+
+<style>
+  /* Media container styling */
+  .content-media :global(img),
+  .content-media :global(video) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Full bleed media */
+  .content-full-bleed .content-media :global(img),
+  .content-full-bleed .content-media :global(video) {
+    position: absolute;
+    inset: 0;
+  }
+
+  /* Split section media */
+  .content-split .content-media :global(img),
+  .content-split .content-media :global(video) {
+    position: absolute;
+    inset: 0;
+  }
+
+  .content-split .content-media {
+    min-height: 300px;
+  }
+
+  @media (min-width: 1024px) {
+    .content-split .content-media {
+      min-height: auto;
+    }
+  }
+
+  /* Prose customization */
+  .prose :global(a) {
+    color: var(--color-primary);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .prose :global(a:hover) {
+    color: var(--color-primary-600);
+  }
+
+  .prose-invert :global(a) {
+    color: var(--color-primary-400);
+  }
+
+  .prose-invert :global(a:hover) {
+    color: var(--color-primary-300);
+  }
+</style>

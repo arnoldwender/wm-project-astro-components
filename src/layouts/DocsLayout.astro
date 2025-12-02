@@ -1,0 +1,407 @@
+---
+/**
+ * DocsLayout Component
+ *
+ * Documentation and research paper layout with sidebar navigation.
+ * Optimized for technical content and long-form reading.
+ *
+ * Target: Documentation sites, Research papers, Technical guides, API docs
+ *
+ * Features:
+ * - Sidebar navigation with sections
+ * - Table of contents
+ * - Search integration ready
+ * - Code block styling
+ * - Version selector slot
+ * - Edit on GitHub link
+ * - Previous/Next navigation
+ * - Mobile-friendly
+ *
+ * @example
+ * <DocsLayout
+ *   title="Getting Started"
+ *   section="Introduction"
+ * >
+ *   <Fragment slot="sidebar">
+ *     <DocsSidebar />
+ *   </Fragment>
+ *   <article>Documentation content...</article>
+ * </DocsLayout>
+ */
+
+export interface Props {
+  title: string;
+  section?: string;
+  description?: string;
+  editUrl?: string;
+  lastUpdated?: Date;
+  showToc?: boolean;
+  showBreadcrumb?: boolean;
+  prevPage?: { title: string; href: string };
+  nextPage?: { title: string; href: string };
+  class?: string;
+}
+
+const {
+  title,
+  section,
+  description,
+  editUrl,
+  lastUpdated,
+  showToc = true,
+  showBreadcrumb = true,
+  prevPage,
+  nextPage,
+  class: className = '',
+} = Astro.props;
+
+const formatDate = (date: Date) => {
+  return date.toLocaleDateString('de-DE', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+};
+---
+
+<div
+  class:list={[
+    'docs-layout min-h-screen bg-background',
+    className,
+  ]}
+  data-docs-layout
+>
+  <!-- Top Navigation -->
+  {Astro.slots.has('nav') && (
+    <header class="docs-nav sticky top-0 z-40 bg-surface/80 backdrop-blur-lg border-b border-border-subtle">
+      <slot name="nav" />
+    </header>
+  )}
+
+  <div class="docs-container max-w-8xl mx-auto flex">
+    <!-- Sidebar Navigation -->
+    <aside
+      class="docs-sidebar hidden lg:block w-64 xl:w-72 flex-shrink-0 border-r border-border-subtle"
+      data-docs-sidebar
+    >
+      <div class="sticky top-16 h-[calc(100vh-4rem)] overflow-y-auto py-6 px-4">
+        {/* Version Selector */}
+        {Astro.slots.has('version') && (
+          <div class="docs-version mb-6">
+            <slot name="version" />
+          </div>
+        )}
+
+        {/* Search */}
+        {Astro.slots.has('search') && (
+          <div class="docs-search mb-6">
+            <slot name="search" />
+          </div>
+        )}
+
+        {/* Navigation */}
+        <nav class="docs-sidebar-nav">
+          <slot name="sidebar" />
+        </nav>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="docs-main flex-1 min-w-0">
+      <div class:list={[
+        'docs-content-wrapper',
+        showToc && 'xl:grid xl:grid-cols-[1fr_220px] xl:gap-8',
+      ]}>
+        <!-- Article Content -->
+        <article class="docs-article px-4 sm:px-6 lg:px-8 py-8 max-w-3xl">
+          {/* Breadcrumb */}
+          {showBreadcrumb && (
+            <nav class="docs-breadcrumb mb-6" aria-label="Breadcrumb">
+              <ol class="flex items-center gap-2 text-sm text-text-tertiary">
+                <li>
+                  <a href="/docs" class="hover:text-text-primary transition-colors">Docs</a>
+                </li>
+                {section && (
+                  <>
+                    <li><span class="mx-1">/</span></li>
+                    <li>{section}</li>
+                  </>
+                )}
+                <li><span class="mx-1">/</span></li>
+                <li class="text-text-primary font-medium">{title}</li>
+              </ol>
+            </nav>
+          )}
+
+          {/* Header */}
+          <header class="docs-header mb-8">
+            <h1 class="text-3xl lg:text-4xl font-bold text-text-primary mb-4">
+              {title}
+            </h1>
+            {description && (
+              <p class="text-lg text-text-secondary">
+                {description}
+              </p>
+            )}
+          </header>
+
+          {/* Content */}
+          <div class="docs-content prose prose-lg max-w-none prose-headings:scroll-mt-24 prose-a:text-primary hover:prose-a:underline prose-code:bg-background-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:before:content-none prose-code:after:content-none prose-pre:bg-surface-inverse prose-pre:text-text-inverse">
+            <slot />
+          </div>
+
+          {/* Footer */}
+          <footer class="docs-footer mt-12 pt-8 border-t border-border-subtle">
+            {/* Meta info */}
+            <div class="flex flex-wrap items-center gap-4 text-sm text-text-tertiary mb-8">
+              {lastUpdated && (
+                <span>
+                  Zuletzt aktualisiert: <time datetime={lastUpdated.toISOString()}>{formatDate(lastUpdated)}</time>
+                </span>
+              )}
+              {editUrl && (
+                <a
+                  href={editUrl}
+                  class="inline-flex items-center gap-1 text-text-secondary hover:text-text-primary transition-colors"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  Diese Seite bearbeiten
+                </a>
+              )}
+            </div>
+
+            {/* Prev/Next Navigation */}
+            {(prevPage || nextPage) && (
+              <nav class="docs-pagination grid grid-cols-2 gap-4">
+                {prevPage ? (
+                  <a
+                    href={prevPage.href}
+                    class="docs-pagination-link group p-4 border border-border-subtle rounded-lg hover:border-primary transition-colors"
+                  >
+                    <span class="text-sm text-text-tertiary">Vorherige</span>
+                    <span class="flex items-center gap-2 font-medium text-text-primary group-hover:text-primary">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                      </svg>
+                      {prevPage.title}
+                    </span>
+                  </a>
+                ) : <div />}
+
+                {nextPage && (
+                  <a
+                    href={nextPage.href}
+                    class="docs-pagination-link group p-4 border border-border-subtle rounded-lg hover:border-primary transition-colors text-right"
+                  >
+                    <span class="text-sm text-text-tertiary">Nächste</span>
+                    <span class="flex items-center justify-end gap-2 font-medium text-text-primary group-hover:text-primary">
+                      {nextPage.title}
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                      </svg>
+                    </span>
+                  </a>
+                )}
+              </nav>
+            )}
+          </footer>
+        </article>
+
+        {/* Table of Contents */}
+        {showToc && (
+          <aside class="docs-toc hidden xl:block py-8 pr-4">
+            <div class="sticky top-24">
+              <h2 class="text-sm font-semibold text-text-primary mb-4">
+                Auf dieser Seite
+              </h2>
+              <nav class="docs-toc-nav text-sm" data-docs-toc>
+                <slot name="toc" />
+              </nav>
+            </div>
+          </aside>
+        )}
+      </div>
+    </main>
+  </div>
+
+  <!-- Mobile Sidebar Overlay -->
+  <div
+    class="docs-overlay fixed inset-0 z-30 bg-black/50 hidden lg:hidden"
+    data-docs-overlay
+  />
+
+  <!-- Mobile Sidebar -->
+  <div
+    class="docs-mobile-sidebar fixed inset-y-0 left-0 z-40 w-80 max-w-[calc(100%-3rem)] bg-surface transform -translate-x-full transition-transform duration-300 lg:hidden"
+    data-docs-mobile-sidebar
+  >
+    <div class="h-full overflow-y-auto py-6 px-4">
+      <slot name="sidebar" />
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Sidebar navigation styling */
+  .docs-sidebar-nav :global(a) {
+    display: block;
+    padding: 0.375rem 0;
+    color: var(--color-text-secondary);
+    font-size: 0.875rem;
+    transition: color var(--duration-150) var(--ease-out);
+  }
+
+  .docs-sidebar-nav :global(a:hover) {
+    color: var(--color-text-primary);
+  }
+
+  .docs-sidebar-nav :global(a.active),
+  .docs-sidebar-nav :global(a[aria-current="page"]) {
+    color: var(--color-primary);
+    font-weight: 500;
+  }
+
+  .docs-sidebar-nav :global(.nav-section) {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--color-text-primary);
+    margin-top: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .docs-sidebar-nav :global(.nav-section:first-child) {
+    margin-top: 0;
+  }
+
+  /* TOC styling */
+  .docs-toc-nav :global(a) {
+    display: block;
+    padding: 0.25rem 0;
+    padding-left: 0.75rem;
+    border-left: 2px solid transparent;
+    color: var(--color-text-tertiary);
+    transition: color var(--duration-150) var(--ease-out),
+                border-color var(--duration-150) var(--ease-out);
+  }
+
+  .docs-toc-nav :global(a:hover),
+  .docs-toc-nav :global(a.active) {
+    color: var(--color-text-primary);
+    border-left-color: var(--color-primary);
+  }
+
+  .docs-toc-nav :global(ul) {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .docs-toc-nav :global(ul ul) {
+    padding-left: 0.75rem;
+  }
+
+  .docs-toc-nav :global(ul ul a) {
+    font-size: 0.8125rem;
+  }
+
+  /* Mobile sidebar open */
+  .docs-mobile-sidebar.open {
+    transform: translateX(0);
+  }
+
+  .docs-overlay.open {
+    display: block;
+  }
+
+  /* Code block enhancements */
+  .docs-content :global(pre) {
+    position: relative;
+  }
+
+  .docs-content :global(pre code) {
+    background: transparent;
+    padding: 0;
+  }
+
+  /* Tables */
+  .docs-content :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .docs-content :global(th),
+  .docs-content :global(td) {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+
+  .docs-content :global(th) {
+    font-weight: 600;
+    background-color: var(--color-background-subtle);
+  }
+</style>
+
+<script>
+  function initDocs() {
+    const layout = document.querySelector('[data-docs-layout]');
+    if (!layout) return;
+
+    const toc = layout.querySelector('[data-docs-toc]');
+    const tocLinks = toc?.querySelectorAll('a');
+    const headings = layout.querySelectorAll('.docs-content h2, .docs-content h3');
+
+    // TOC active state
+    if (tocLinks && headings.length) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const id = entry.target.id;
+              tocLinks.forEach((link) => {
+                link.classList.toggle('active', link.getAttribute('href') === `#${id}`);
+              });
+            }
+          });
+        },
+        { rootMargin: '-100px 0px -66% 0px' }
+      );
+
+      headings.forEach((heading) => {
+        if (heading.id) observer.observe(heading);
+      });
+    }
+
+    // Mobile sidebar
+    const overlay = layout.querySelector('[data-docs-overlay]');
+    const mobileSidebar = layout.querySelector('[data-docs-mobile-sidebar]');
+    const mobileToggle = layout.querySelector('[data-docs-mobile-toggle]');
+
+    function openMobileSidebar() {
+      mobileSidebar?.classList.add('open');
+      overlay?.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeMobileSidebar() {
+      mobileSidebar?.classList.remove('open');
+      overlay?.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    mobileToggle?.addEventListener('click', openMobileSidebar);
+    overlay?.addEventListener('click', closeMobileSidebar);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initDocs);
+  } else {
+    initDocs();
+  }
+
+  document.addEventListener('astro:page-load', initDocs);
+</script>

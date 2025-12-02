@@ -1,0 +1,1094 @@
+---
+/**
+ * ServiceSection Component
+ *
+ * Service showcase and offerings display.
+ *
+ * Variants:
+ * - grid: Service cards in a grid
+ * - list: Detailed service list
+ * - tabs: Tabbed service categories
+ * - accordion: Expandable service details
+ * - featured: Featured service highlight
+ * - pricing: Service with pricing tiers
+ *
+ * @example
+ * <ServiceSection variant="grid" title="Our Services">
+ *   <ServiceCard ... />
+ * </ServiceSection>
+ */
+
+import SectionWrapper from './SectionWrapper.astro';
+import SectionHeader from './SectionHeader.astro';
+
+export interface Service {
+  id: string;
+  title: string;
+  description: string;
+  icon?: string;
+  image?: string;
+  features?: string[];
+  price?: string;
+  priceUnit?: string;
+  href?: string;
+  ctaLabel?: string;
+  badge?: string;
+  category?: string;
+}
+
+export interface Props {
+  variant?: 'grid' | 'list' | 'tabs' | 'accordion' | 'featured' | 'pricing';
+  services?: Service[];
+  categories?: string[];
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+  columns?: 2 | 3 | 4;
+  showIcons?: boolean;
+  showPrices?: boolean;
+  ctaLabel?: string;
+  background?: 'transparent' | 'subtle' | 'muted';
+  class?: string;
+}
+
+const {
+  variant = 'grid',
+  services = [],
+  categories = [],
+  eyebrow,
+  title,
+  description,
+  columns = 3,
+  showIcons = true,
+  showPrices = false,
+  ctaLabel = 'Learn More',
+  background = 'transparent',
+  class: className = '',
+} = Astro.props;
+
+// Group services by category for tabs variant
+const servicesByCategory = categories.length > 0
+  ? categories.reduce((acc, cat) => {
+      acc[cat] = services.filter((s) => s.category === cat);
+      return acc;
+    }, {} as Record<string, Service[]>)
+  : {};
+---
+
+<SectionWrapper background={background} class={className}>
+  {(eyebrow || title || description) && (
+    <SectionHeader
+      eyebrow={eyebrow}
+      title={title || ''}
+      description={description}
+    />
+  )}
+
+  {/* Grid variant */}
+  {variant === 'grid' && (
+    <div
+      class:list={[
+        'service-grid',
+        `service-grid--${columns}-cols`,
+      ]}
+    >
+      {services.map((service) => (
+        <article class="service-card">
+          {service.badge && (
+            <span class="service-badge">{service.badge}</span>
+          )}
+          {showIcons && service.icon && (
+            <div class="service-icon" set:html={service.icon} />
+          )}
+          {service.image && (
+            <div class="service-image">
+              <img src={service.image} alt="" loading="lazy" />
+            </div>
+          )}
+          <h3 class="service-title">{service.title}</h3>
+          <p class="service-description">{service.description}</p>
+
+          {service.features && service.features.length > 0 && (
+            <ul class="service-features">
+              {service.features.slice(0, 4).map((feature) => (
+                <li>
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  {feature}
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {showPrices && service.price && (
+            <div class="service-price">
+              <span class="price-value">{service.price}</span>
+              {service.priceUnit && <span class="price-unit">{service.priceUnit}</span>}
+            </div>
+          )}
+
+          {service.href && (
+            <a href={service.href} class="service-link">
+              {service.ctaLabel || ctaLabel}
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </a>
+          )}
+        </article>
+      ))}
+      <slot />
+    </div>
+  )}
+
+  {/* List variant */}
+  {variant === 'list' && (
+    <div class="service-list">
+      {services.map((service, index) => (
+        <article class:list={['service-list-item', index % 2 === 1 && 'service-list-item--reverse']}>
+          {service.image && (
+            <div class="list-item-image">
+              <img src={service.image} alt="" loading="lazy" />
+            </div>
+          )}
+          <div class="list-item-content">
+            {service.badge && (
+              <span class="service-badge service-badge--inline">{service.badge}</span>
+            )}
+            <h3 class="list-item-title">{service.title}</h3>
+            <p class="list-item-description">{service.description}</p>
+
+            {service.features && service.features.length > 0 && (
+              <ul class="service-features service-features--horizontal">
+                {service.features.map((feature) => (
+                  <li>
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {service.href && (
+              <a href={service.href} class="btn btn--primary">
+                {service.ctaLabel || ctaLabel}
+              </a>
+            )}
+          </div>
+        </article>
+      ))}
+    </div>
+  )}
+
+  {/* Tabs variant */}
+  {variant === 'tabs' && categories.length > 0 && (
+    <div class="service-tabs" data-service-tabs>
+      <nav class="tabs-nav" role="tablist">
+        {categories.map((cat, index) => (
+          <button
+            type="button"
+            role="tab"
+            class:list={['tab-btn', index === 0 && 'active']}
+            aria-selected={index === 0 ? 'true' : 'false'}
+            data-tab={cat}
+          >
+            {cat}
+          </button>
+        ))}
+      </nav>
+
+      <div class="tabs-content">
+        {categories.map((cat, index) => (
+          <div
+            class:list={['tab-panel', index === 0 && 'active']}
+            role="tabpanel"
+            data-panel={cat}
+          >
+            <div class="service-grid service-grid--3-cols">
+              {servicesByCategory[cat]?.map((service) => (
+                <article class="service-card">
+                  {showIcons && service.icon && (
+                    <div class="service-icon" set:html={service.icon} />
+                  )}
+                  <h3 class="service-title">{service.title}</h3>
+                  <p class="service-description">{service.description}</p>
+                  {service.href && (
+                    <a href={service.href} class="service-link">
+                      {service.ctaLabel || ctaLabel}
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                      </svg>
+                    </a>
+                  )}
+                </article>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )}
+
+  {/* Accordion variant */}
+  {variant === 'accordion' && (
+    <div class="service-accordion" data-service-accordion>
+      {services.map((service, index) => (
+        <div class:list={['accordion-item', index === 0 && 'active']} data-accordion-item>
+          <button
+            type="button"
+            class="accordion-trigger"
+            aria-expanded={index === 0 ? 'true' : 'false'}
+          >
+            <div class="accordion-header">
+              {showIcons && service.icon && (
+                <span class="accordion-icon" set:html={service.icon} />
+              )}
+              <span class="accordion-title">{service.title}</span>
+              {service.badge && (
+                <span class="service-badge service-badge--sm">{service.badge}</span>
+              )}
+            </div>
+            <svg class="accordion-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+          <div class="accordion-content">
+            <div class="accordion-body">
+              <p class="accordion-description">{service.description}</p>
+
+              {service.features && service.features.length > 0 && (
+                <ul class="service-features">
+                  {service.features.map((feature) => (
+                    <li>
+                      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                      </svg>
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              {service.href && (
+                <a href={service.href} class="btn btn--primary">
+                  {service.ctaLabel || ctaLabel}
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
+
+  {/* Featured variant */}
+  {variant === 'featured' && services.length > 0 && (
+    <div class="service-featured">
+      <div class="featured-main">
+        <article class="featured-card">
+          {services[0].image && (
+            <div class="featured-image">
+              <img src={services[0].image} alt="" loading="lazy" />
+            </div>
+          )}
+          <div class="featured-content">
+            {services[0].badge && (
+              <span class="service-badge">{services[0].badge}</span>
+            )}
+            <h3 class="featured-title">{services[0].title}</h3>
+            <p class="featured-description">{services[0].description}</p>
+
+            {services[0].features && (
+              <ul class="service-features">
+                {services[0].features.map((feature) => (
+                  <li>
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {services[0].href && (
+              <a href={services[0].href} class="btn btn--primary btn--lg">
+                {services[0].ctaLabel || ctaLabel}
+              </a>
+            )}
+          </div>
+        </article>
+      </div>
+
+      {services.length > 1 && (
+        <div class="featured-sidebar">
+          {services.slice(1).map((service) => (
+            <article class="sidebar-card">
+              {showIcons && service.icon && (
+                <div class="sidebar-icon" set:html={service.icon} />
+              )}
+              <div class="sidebar-content">
+                <h4 class="sidebar-title">{service.title}</h4>
+                <p class="sidebar-description">{service.description}</p>
+                {service.href && (
+                  <a href={service.href} class="service-link">
+                    {service.ctaLabel || ctaLabel}
+                  </a>
+                )}
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
+    </div>
+  )}
+
+  {/* Pricing variant */}
+  {variant === 'pricing' && (
+    <div class="service-pricing">
+      {services.map((service) => (
+        <article class:list={['pricing-card', service.badge && 'pricing-card--highlighted']}>
+          {service.badge && (
+            <span class="pricing-badge">{service.badge}</span>
+          )}
+
+          <div class="pricing-header">
+            {showIcons && service.icon && (
+              <div class="pricing-icon" set:html={service.icon} />
+            )}
+            <h3 class="pricing-title">{service.title}</h3>
+            <p class="pricing-description">{service.description}</p>
+          </div>
+
+          <div class="pricing-price">
+            <span class="price-value">{service.price}</span>
+            {service.priceUnit && <span class="price-unit">{service.priceUnit}</span>}
+          </div>
+
+          {service.features && service.features.length > 0 && (
+            <ul class="pricing-features">
+              {service.features.map((feature) => (
+                <li>
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                  </svg>
+                  {feature}
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <a
+            href={service.href || '#'}
+            class:list={[
+              'btn btn--full',
+              service.badge ? 'btn--primary' : 'btn--secondary',
+            ]}
+          >
+            {service.ctaLabel || ctaLabel}
+          </a>
+        </article>
+      ))}
+    </div>
+  )}
+</SectionWrapper>
+
+<style>
+  /* Grid */
+  .service-grid {
+    display: grid;
+    gap: 2rem;
+  }
+
+  .service-grid--2-cols { grid-template-columns: repeat(2, 1fr); }
+  .service-grid--3-cols { grid-template-columns: repeat(3, 1fr); }
+  .service-grid--4-cols { grid-template-columns: repeat(4, 1fr); }
+
+  @media (max-width: 1024px) {
+    .service-grid--4-cols { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 768px) {
+    .service-grid--2-cols,
+    .service-grid--3-cols,
+    .service-grid--4-cols { grid-template-columns: 1fr; }
+  }
+
+  /* Service card */
+  .service-card {
+    position: relative;
+    padding: 2rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-xl);
+    transition: box-shadow 0.2s, border-color 0.2s;
+  }
+
+  .service-card:hover {
+    box-shadow: var(--shadow-lg);
+    border-color: var(--color-border);
+  }
+
+  .service-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.25rem 0.75rem;
+    background: var(--color-primary);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: var(--radius-full);
+  }
+
+  .service-badge--inline {
+    position: static;
+    display: inline-block;
+    margin-bottom: 0.5rem;
+  }
+
+  .service-badge--sm {
+    position: static;
+    padding: 0.125rem 0.5rem;
+    font-size: 0.625rem;
+  }
+
+  .service-icon {
+    width: 3rem;
+    height: 3rem;
+    padding: 0.75rem;
+    background: var(--color-primary-alpha);
+    color: var(--color-primary);
+    border-radius: var(--radius-lg);
+    margin-bottom: 1.25rem;
+  }
+
+  .service-icon :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+
+  .service-image {
+    aspect-ratio: 16/9;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin: -2rem -2rem 1.5rem;
+  }
+
+  .service-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .service-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 0.75rem;
+    color: var(--color-text-primary);
+  }
+
+  .service-description {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    margin: 0 0 1.5rem;
+  }
+
+  .service-features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 1.5rem;
+  }
+
+  .service-features li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    margin-bottom: 0.5rem;
+  }
+
+  .service-features svg {
+    flex-shrink: 0;
+    color: var(--color-success);
+    margin-top: 0.125rem;
+  }
+
+  .service-features--horizontal {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .service-features--horizontal li {
+    margin-bottom: 0;
+  }
+
+  .service-price {
+    display: flex;
+    align-items: baseline;
+    gap: 0.25rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .price-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+  }
+
+  .price-unit {
+    font-size: 0.875rem;
+    color: var(--color-text-tertiary);
+  }
+
+  .service-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-primary);
+    text-decoration: none;
+  }
+
+  .service-link:hover {
+    text-decoration: underline;
+  }
+
+  /* List variant */
+  .service-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4rem;
+  }
+
+  .service-list-item {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+  }
+
+  .service-list-item--reverse {
+    direction: rtl;
+  }
+
+  .service-list-item--reverse > * {
+    direction: ltr;
+  }
+
+  .list-item-image {
+    aspect-ratio: 4/3;
+    border-radius: var(--radius-2xl);
+    overflow: hidden;
+  }
+
+  .list-item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .list-item-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0 0 1rem;
+    color: var(--color-text-primary);
+  }
+
+  .list-item-description {
+    font-size: 1rem;
+    color: var(--color-text-secondary);
+    line-height: 1.7;
+    margin: 0 0 1.5rem;
+  }
+
+  /* Tabs variant */
+  .service-tabs {
+    --tab-color: var(--color-text-secondary);
+    --tab-active-color: var(--color-primary);
+  }
+
+  .tabs-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-bottom: 3rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+
+  .tab-btn {
+    padding: 0.75rem 1.5rem;
+    background: transparent;
+    border: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--tab-color);
+    cursor: pointer;
+    border-radius: var(--radius-lg);
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .tab-btn:hover {
+    background: var(--color-background-subtle);
+  }
+
+  .tab-btn.active {
+    background: var(--color-primary);
+    color: white;
+  }
+
+  .tab-panel {
+    display: none;
+  }
+
+  .tab-panel.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Accordion variant */
+  .service-accordion {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-width: 48rem;
+    margin: 0 auto;
+  }
+
+  .accordion-item {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+  }
+
+  .accordion-trigger {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 1.5rem;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+  }
+
+  .accordion-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .accordion-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0.5rem;
+    background: var(--color-primary-alpha);
+    color: var(--color-primary);
+    border-radius: var(--radius-lg);
+    flex-shrink: 0;
+  }
+
+  .accordion-icon :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+
+  .accordion-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+  }
+
+  .accordion-chevron {
+    flex-shrink: 0;
+    color: var(--color-text-tertiary);
+    transition: transform 0.2s;
+  }
+
+  .accordion-item.active .accordion-chevron {
+    transform: rotate(180deg);
+  }
+
+  .accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+
+  .accordion-item.active .accordion-content {
+    max-height: 500px;
+  }
+
+  .accordion-body {
+    padding: 0 1.5rem 1.5rem;
+  }
+
+  .accordion-description {
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    margin: 0 0 1.5rem;
+  }
+
+  /* Featured variant */
+  .service-featured {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+  }
+
+  .featured-card {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-2xl);
+    overflow: hidden;
+  }
+
+  .featured-image {
+    height: 100%;
+    min-height: 400px;
+  }
+
+  .featured-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .featured-content {
+    padding: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .featured-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin: 0.5rem 0 1rem;
+    color: var(--color-text-primary);
+  }
+
+  .featured-description {
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    margin: 0 0 1.5rem;
+  }
+
+  .featured-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .sidebar-card {
+    display: flex;
+    gap: 1rem;
+    padding: 1.5rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-xl);
+    transition: box-shadow 0.2s;
+  }
+
+  .sidebar-card:hover {
+    box-shadow: var(--shadow-md);
+  }
+
+  .sidebar-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0.5rem;
+    background: var(--color-primary-alpha);
+    color: var(--color-primary);
+    border-radius: var(--radius-lg);
+    flex-shrink: 0;
+  }
+
+  .sidebar-icon :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+
+  .sidebar-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.375rem;
+    color: var(--color-text-primary);
+  }
+
+  .sidebar-description {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    margin: 0 0 0.75rem;
+    line-height: 1.5;
+  }
+
+  /* Pricing variant */
+  .service-pricing {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    align-items: start;
+  }
+
+  .pricing-card {
+    position: relative;
+    padding: 2rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-2xl);
+    text-align: center;
+  }
+
+  .pricing-card--highlighted {
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow-lg);
+    transform: scale(1.05);
+    z-index: 1;
+  }
+
+  .pricing-badge {
+    position: absolute;
+    top: -0.75rem;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0.375rem 1rem;
+    background: var(--color-primary);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: var(--radius-full);
+    white-space: nowrap;
+  }
+
+  .pricing-header {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+
+  .pricing-icon {
+    width: 3rem;
+    height: 3rem;
+    padding: 0.75rem;
+    background: var(--color-primary-alpha);
+    color: var(--color-primary);
+    border-radius: var(--radius-lg);
+    margin: 0 auto 1rem;
+  }
+
+  .pricing-icon :global(svg) {
+    width: 100%;
+    height: 100%;
+  }
+
+  .pricing-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem;
+    color: var(--color-text-primary);
+  }
+
+  .pricing-description {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    margin: 0;
+  }
+
+  .pricing-price {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 0.25rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .pricing-price .price-value {
+    font-size: 2.5rem;
+  }
+
+  .pricing-features {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 2rem;
+    text-align: left;
+  }
+
+  .pricing-features li {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 0;
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+
+  .pricing-features li:last-child {
+    border-bottom: none;
+  }
+
+  .pricing-features svg {
+    flex-shrink: 0;
+    color: var(--color-success);
+  }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.2s;
+    border: none;
+  }
+
+  .btn--primary {
+    background: var(--color-primary);
+    color: white;
+  }
+
+  .btn--primary:hover {
+    background: var(--color-primary-dark);
+  }
+
+  .btn--secondary {
+    background: var(--color-background-subtle);
+    color: var(--color-text-primary);
+  }
+
+  .btn--secondary:hover {
+    background: var(--color-background-muted);
+  }
+
+  .btn--lg {
+    padding: 1rem 2rem;
+    font-size: 1rem;
+  }
+
+  .btn--full {
+    width: 100%;
+  }
+
+  @media (max-width: 1024px) {
+    .service-list-item {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    .service-list-item--reverse {
+      direction: ltr;
+    }
+
+    .service-featured {
+      grid-template-columns: 1fr;
+    }
+
+    .featured-card {
+      grid-template-columns: 1fr;
+    }
+
+    .featured-image {
+      min-height: 250px;
+    }
+
+    .service-pricing {
+      grid-template-columns: 1fr;
+    }
+
+    .pricing-card--highlighted {
+      transform: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tab-panel.active {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  function initServiceSections() {
+    // Tabs
+    const tabContainers = document.querySelectorAll('[data-service-tabs]');
+    tabContainers.forEach((container) => {
+      const buttons = container.querySelectorAll('.tab-btn');
+      const panels = container.querySelectorAll('.tab-panel');
+
+      buttons.forEach((button) => {
+        button.addEventListener('click', () => {
+          const tab = button.getAttribute('data-tab');
+
+          buttons.forEach((b) => {
+            b.classList.remove('active');
+            b.setAttribute('aria-selected', 'false');
+          });
+          panels.forEach((p) => p.classList.remove('active'));
+
+          button.classList.add('active');
+          button.setAttribute('aria-selected', 'true');
+          container.querySelector(`[data-panel="${tab}"]`)?.classList.add('active');
+        });
+      });
+    });
+
+    // Accordion
+    const accordions = document.querySelectorAll('[data-service-accordion]');
+    accordions.forEach((accordion) => {
+      const items = accordion.querySelectorAll('[data-accordion-item]');
+
+      items.forEach((item) => {
+        const trigger = item.querySelector('.accordion-trigger');
+
+        trigger?.addEventListener('click', () => {
+          const isActive = item.classList.contains('active');
+
+          // Close all
+          items.forEach((i) => {
+            i.classList.remove('active');
+            i.querySelector('.accordion-trigger')?.setAttribute('aria-expanded', 'false');
+          });
+
+          // Open clicked if it was closed
+          if (!isActive) {
+            item.classList.add('active');
+            trigger.setAttribute('aria-expanded', 'true');
+          }
+        });
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initServiceSections);
+  } else {
+    initServiceSections();
+  }
+
+  document.addEventListener('astro:page-load', initServiceSections);
+</script>

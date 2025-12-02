@@ -1,0 +1,232 @@
+---
+/**
+ * Progress Component
+ *
+ * Visual indicator for task completion or loading state.
+ *
+ * Features:
+ * - Linear and circular variants
+ * - Determinate and indeterminate states
+ * - Multiple sizes and colors
+ * - Label and value display
+ * - Animated transitions
+ * - Reduced motion support
+ *
+ * @example
+ * <Progress value={75} />
+ * <Progress variant="circular" value={50} showValue />
+ * <Progress indeterminate color="primary" />
+ */
+
+export interface Props {
+  value?: number;
+  max?: number;
+  variant?: 'linear' | 'circular';
+  size?: 'sm' | 'md' | 'lg';
+  color?: 'primary' | 'secondary' | 'success' | 'warning' | 'error' | 'info';
+  indeterminate?: boolean;
+  showValue?: boolean;
+  label?: string;
+  class?: string;
+}
+
+const {
+  value = 0,
+  max = 100,
+  variant = 'linear',
+  size = 'md',
+  color = 'primary',
+  indeterminate = false,
+  showValue = false,
+  label,
+  class: className = '',
+} = Astro.props;
+
+const percentage = Math.min(Math.max((value / max) * 100, 0), 100);
+
+// Size classes for linear
+const linearSizeClasses = {
+  sm: 'h-1',
+  md: 'h-2',
+  lg: 'h-3',
+};
+
+// Size values for circular
+const circularSizes = {
+  sm: { size: 32, stroke: 3 },
+  md: { size: 48, stroke: 4 },
+  lg: { size: 64, stroke: 5 },
+};
+
+// Color classes
+const colorClasses = {
+  primary: 'bg-primary',
+  secondary: 'bg-secondary',
+  success: 'bg-success',
+  warning: 'bg-warning',
+  error: 'bg-error',
+  info: 'bg-info',
+};
+
+const strokeColorClasses = {
+  primary: 'stroke-primary',
+  secondary: 'stroke-secondary',
+  success: 'stroke-success',
+  warning: 'stroke-warning',
+  error: 'stroke-error',
+  info: 'stroke-info',
+};
+
+// Circular calculations
+const circularSize = circularSizes[size];
+const radius = (circularSize.size - circularSize.stroke) / 2;
+const circumference = 2 * Math.PI * radius;
+const strokeDashoffset = circumference - (percentage / 100) * circumference;
+---
+
+{variant === 'linear' ? (
+  <div
+    class:list={['progress-linear', className]}
+    role="progressbar"
+    aria-valuenow={indeterminate ? undefined : value}
+    aria-valuemin={0}
+    aria-valuemax={max}
+    aria-label={label || 'Progress'}
+    data-progress
+  >
+    {(label || showValue) && (
+      <div class="flex justify-between items-center mb-1 text-sm">
+        {label && <span class="text-text-secondary">{label}</span>}
+        {showValue && !indeterminate && (
+          <span class="text-text-tertiary font-medium">{Math.round(percentage)}%</span>
+        )}
+      </div>
+    )}
+
+    <div class:list={['progress-track w-full bg-background-muted rounded-full overflow-hidden', linearSizeClasses[size]]}>
+      <div
+        class:list={[
+          'progress-bar h-full rounded-full transition-all duration-300 ease-out',
+          colorClasses[color],
+          indeterminate && 'progress-indeterminate',
+        ]}
+        style={indeterminate ? undefined : `width: ${percentage}%`}
+      />
+    </div>
+  </div>
+) : (
+  <div
+    class:list={['progress-circular inline-flex items-center justify-center relative', className]}
+    role="progressbar"
+    aria-valuenow={indeterminate ? undefined : value}
+    aria-valuemin={0}
+    aria-valuemax={max}
+    aria-label={label || 'Progress'}
+    data-progress
+    style={`width: ${circularSize.size}px; height: ${circularSize.size}px`}
+  >
+    <svg
+      class:list={['progress-svg', indeterminate && 'progress-circular-indeterminate']}
+      width={circularSize.size}
+      height={circularSize.size}
+      viewBox={`0 0 ${circularSize.size} ${circularSize.size}`}
+    >
+      <!-- Background track -->
+      <circle
+        class="stroke-background-muted"
+        fill="none"
+        stroke-width={circularSize.stroke}
+        cx={circularSize.size / 2}
+        cy={circularSize.size / 2}
+        r={radius}
+      />
+      <!-- Progress arc -->
+      <circle
+        class:list={['progress-circle transition-all duration-300 ease-out', strokeColorClasses[color]]}
+        fill="none"
+        stroke-width={circularSize.stroke}
+        stroke-linecap="round"
+        cx={circularSize.size / 2}
+        cy={circularSize.size / 2}
+        r={radius}
+        style={indeterminate ? undefined : `stroke-dasharray: ${circumference}; stroke-dashoffset: ${strokeDashoffset}`}
+        transform={`rotate(-90 ${circularSize.size / 2} ${circularSize.size / 2})`}
+      />
+    </svg>
+
+    {showValue && !indeterminate && (
+      <span class:list={[
+        'progress-value absolute inset-0 flex items-center justify-center font-medium text-text-primary',
+        size === 'sm' && 'text-xs',
+        size === 'md' && 'text-sm',
+        size === 'lg' && 'text-base',
+      ]}>
+        {Math.round(percentage)}%
+      </span>
+    )}
+  </div>
+)}
+
+<style>
+  /* Linear indeterminate animation */
+  .progress-indeterminate {
+    width: 50% !important;
+    animation: progress-linear-indeterminate 1.5s ease-in-out infinite;
+  }
+
+  @keyframes progress-linear-indeterminate {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(200%);
+    }
+  }
+
+  /* Circular indeterminate animation */
+  .progress-circular-indeterminate {
+    animation: progress-circular-rotate 1.5s linear infinite;
+  }
+
+  .progress-circular-indeterminate .progress-circle {
+    stroke-dasharray: calc(0.75 * var(--circumference, 125.6)) var(--circumference, 125.6);
+    animation: progress-circular-dash 1.5s ease-in-out infinite;
+  }
+
+  @keyframes progress-circular-rotate {
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes progress-circular-dash {
+    0% {
+      stroke-dashoffset: calc(0.75 * var(--circumference, 125.6));
+    }
+    50% {
+      stroke-dashoffset: calc(0.2 * var(--circumference, 125.6));
+    }
+    100% {
+      stroke-dashoffset: calc(0.75 * var(--circumference, 125.6));
+    }
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .progress-bar,
+    .progress-circle {
+      transition: none;
+    }
+
+    .progress-indeterminate,
+    .progress-circular-indeterminate,
+    .progress-circular-indeterminate .progress-circle {
+      animation: none;
+    }
+
+    .progress-indeterminate {
+      width: 100% !important;
+      transform: none;
+    }
+  }
+</style>

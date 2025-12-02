@@ -1,0 +1,277 @@
+---
+/**
+ * HeroLayout Component
+ *
+ * Versatile hero section with multiple layout variations.
+ * The first impression of any page - make it count.
+ *
+ * Target: All websites - Landing pages, Homepages, Campaign pages
+ *
+ * Features:
+ * - Multiple layout variants
+ * - Background image/video support
+ * - Overlay gradients
+ * - Content alignment options
+ * - Call-to-action slots
+ * - Scroll indicator
+ * - Responsive typography scaling
+ *
+ * @example
+ * <HeroLayout
+ *   variant="centered"
+ *   backgroundImage="/hero-bg.jpg"
+ *   overlay="gradient"
+ * >
+ *   <h1 slot="headline">Welcome to the Future</h1>
+ *   <p slot="subheadline">Building tomorrow, today.</p>
+ *   <Fragment slot="cta">
+ *     <Button>Get Started</Button>
+ *   </Fragment>
+ * </HeroLayout>
+ */
+
+export interface Props {
+  variant?: 'centered' | 'left-aligned' | 'split' | 'stacked' | 'minimal';
+  size?: 'sm' | 'md' | 'lg' | 'full';
+  backgroundImage?: string;
+  backgroundVideo?: string;
+  backgroundColor?: string;
+  overlay?: 'none' | 'dark' | 'light' | 'gradient' | 'gradient-radial';
+  overlayOpacity?: number;
+  contentWidth?: 'narrow' | 'medium' | 'wide' | 'full';
+  textAlign?: 'left' | 'center' | 'right';
+  verticalAlign?: 'top' | 'center' | 'bottom';
+  showScrollIndicator?: boolean;
+  class?: string;
+}
+
+const {
+  variant = 'centered',
+  size = 'lg',
+  backgroundImage,
+  backgroundVideo,
+  backgroundColor,
+  overlay = 'none',
+  overlayOpacity = 50,
+  contentWidth = 'medium',
+  textAlign = variant === 'centered' ? 'center' : 'left',
+  verticalAlign = 'center',
+  showScrollIndicator = false,
+  class: className = '',
+} = Astro.props;
+
+// Size classes
+const sizeClasses = {
+  sm: 'min-h-[40vh] py-16',
+  md: 'min-h-[60vh] py-20',
+  lg: 'min-h-[80vh] py-24',
+  full: 'min-h-screen py-24',
+};
+
+// Content width classes
+const widthClasses = {
+  narrow: 'max-w-2xl',
+  medium: 'max-w-4xl',
+  wide: 'max-w-6xl',
+  full: 'max-w-none',
+};
+
+// Text align classes
+const textAlignClasses = {
+  left: 'text-left items-start',
+  center: 'text-center items-center',
+  right: 'text-right items-end',
+};
+
+// Vertical align classes
+const vAlignClasses = {
+  top: 'justify-start pt-24',
+  center: 'justify-center',
+  bottom: 'justify-end pb-24',
+};
+
+// Overlay classes
+const overlayClasses = {
+  none: '',
+  dark: 'bg-black',
+  light: 'bg-white',
+  gradient: 'bg-gradient-to-b from-black/80 via-black/50 to-transparent',
+  'gradient-radial': 'bg-[radial-gradient(ellipse_at_center,_transparent_0%,_black_100%)]',
+};
+
+const bgStyle = [
+  backgroundImage && `background-image: url('${backgroundImage}')`,
+  backgroundColor && `background-color: ${backgroundColor}`,
+].filter(Boolean).join('; ');
+---
+
+<section
+  class:list={[
+    'hero-layout relative flex flex-col overflow-hidden',
+    sizeClasses[size],
+    className,
+  ]}
+  style={bgStyle || undefined}
+  data-hero-layout
+  data-variant={variant}
+>
+  <!-- Background Video -->
+  {backgroundVideo && (
+    <video
+      class="hero-video absolute inset-0 w-full h-full object-cover"
+      src={backgroundVideo}
+      autoplay
+      muted
+      loop
+      playsinline
+      aria-hidden="true"
+    />
+  )}
+
+  <!-- Overlay -->
+  {overlay !== 'none' && (
+    <div
+      class:list={[
+        'hero-overlay absolute inset-0',
+        overlayClasses[overlay],
+      ]}
+      style={overlay === 'dark' || overlay === 'light' ? `opacity: ${overlayOpacity / 100}` : undefined}
+      aria-hidden="true"
+    />
+  )}
+
+  <!-- Content Container -->
+  <div
+    class:list={[
+      'hero-content relative z-10 flex flex-col flex-1 w-full px-4 sm:px-6 lg:px-8 mx-auto',
+      widthClasses[contentWidth],
+      vAlignClasses[verticalAlign],
+    ]}
+  >
+    {variant === 'split' ? (
+      <!-- Split Layout -->
+      <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center w-full">
+        <div class:list={['flex flex-col gap-6', textAlignClasses[textAlign]]}>
+          <slot name="headline" />
+          <slot name="subheadline" />
+          <div class="hero-cta flex flex-wrap gap-4 mt-4">
+            <slot name="cta" />
+          </div>
+        </div>
+        <div class="hero-media">
+          <slot name="media" />
+        </div>
+      </div>
+    ) : variant === 'stacked' ? (
+      <!-- Stacked Layout -->
+      <div class:list={['flex flex-col gap-8 w-full', textAlignClasses[textAlign]]}>
+        <div class="hero-media-top max-w-md mx-auto">
+          <slot name="media" />
+        </div>
+        <slot name="headline" />
+        <slot name="subheadline" />
+        <div class:list={['hero-cta flex flex-wrap gap-4 mt-4', textAlign === 'center' && 'justify-center']}>
+          <slot name="cta" />
+        </div>
+      </div>
+    ) : (
+      <!-- Default/Centered/Left-aligned/Minimal -->
+      <div class:list={['flex flex-col gap-6 w-full', textAlignClasses[textAlign]]}>
+        <slot name="eyebrow" />
+        <slot name="headline" />
+        <slot name="subheadline" />
+        <div class:list={['hero-cta flex flex-wrap gap-4 mt-4', textAlign === 'center' && 'justify-center']}>
+          <slot name="cta" />
+        </div>
+        {Astro.slots.has('media') && (
+          <div class="hero-media mt-8 lg:mt-12">
+            <slot name="media" />
+          </div>
+        )}
+      </div>
+    )}
+
+    <!-- Additional content -->
+    <slot />
+  </div>
+
+  <!-- Scroll Indicator -->
+  {showScrollIndicator && (
+    <div class="hero-scroll-indicator absolute bottom-8 left-1/2 -translate-x-1/2 z-10">
+      <button
+        type="button"
+        class="flex flex-col items-center gap-2 text-current opacity-70 hover:opacity-100 transition-opacity"
+        aria-label="Scroll down"
+        onclick="window.scrollBy({ top: window.innerHeight, behavior: 'smooth' })"
+      >
+        <span class="text-xs uppercase tracking-wider">Scroll</span>
+        <svg class="w-6 h-6 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+        </svg>
+      </button>
+    </div>
+  )}
+</section>
+
+<style>
+  .hero-layout {
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+
+  /* Typography scaling */
+  .hero-content :global(h1) {
+    font-size: clamp(2.5rem, 5vw + 1rem, 5rem);
+    line-height: 1.1;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-content :global(p) {
+    font-size: clamp(1.125rem, 1.5vw + 0.5rem, 1.5rem);
+    line-height: 1.6;
+    opacity: 0.9;
+  }
+
+  /* Eyebrow text */
+  .hero-content :global([slot="eyebrow"]) {
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-primary);
+  }
+
+  /* Media styling */
+  .hero-media :global(img),
+  .hero-media :global(video) {
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-2xl);
+  }
+
+  /* Scroll indicator animation */
+  @keyframes bounce {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(8px);
+    }
+  }
+
+  .animate-bounce {
+    animation: bounce 2s infinite;
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-bounce {
+      animation: none;
+    }
+
+    .hero-video {
+      display: none;
+    }
+  }
+</style>

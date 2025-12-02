@@ -1,0 +1,534 @@
+---
+/**
+ * Command Palette Component (Cmd+K)
+ *
+ * Fast, keyboard-driven search interface for navigation and actions.
+ * Follows modern command palette patterns from VS Code, Raycast, Linear.
+ *
+ * Features:
+ * - Global keyboard shortcut (Cmd/Ctrl + K)
+ * - Fuzzy search with highlighting
+ * - Grouped results with categories
+ * - Recent searches
+ * - Keyboard navigation
+ * - Custom actions and shortcuts
+ * - Reduced motion support
+ *
+ * @example
+ * <CommandPalette id="cmd-palette" placeholder="Search or jump to...">
+ *   <CommandGroup title="Pages">
+ *     <CommandItem value="home" href="/">Home</CommandItem>
+ *     <CommandItem value="about" href="/about">About</CommandItem>
+ *   </CommandGroup>
+ *   <CommandGroup title="Actions">
+ *     <CommandItem value="theme" action="toggleTheme" shortcut="⌘T">Toggle Theme</CommandItem>
+ *   </CommandGroup>
+ * </CommandPalette>
+ */
+
+export interface Props {
+  id?: string;
+  placeholder?: string;
+  shortcut?: string;
+  maxResults?: number;
+  showRecent?: boolean;
+  class?: string;
+}
+
+const {
+  id = 'command-palette',
+  placeholder = 'Type a command or search...',
+  shortcut = 'k',
+  maxResults = 10,
+  showRecent = true,
+  class: className = '',
+} = Astro.props;
+---
+
+<div
+  id={id}
+  class:list={['command-palette-root', className]}
+  data-command-palette
+  data-shortcut={shortcut}
+  data-max-results={maxResults}
+  data-show-recent={showRecent}
+  aria-hidden="true"
+>
+  <!-- Backdrop -->
+  <div
+    class="command-backdrop fixed inset-0 z-modal-backdrop bg-black/50 backdrop-blur-sm opacity-0 transition-opacity duration-200"
+    data-command-backdrop
+    aria-hidden="true"
+  />
+
+  <!-- Dialog -->
+  <div
+    role="dialog"
+    aria-modal="true"
+    aria-label="Command palette"
+    class="command-dialog fixed inset-x-4 top-[15vh] z-modal mx-auto max-w-2xl transform scale-95 opacity-0 transition-all duration-200"
+    data-command-dialog
+  >
+    <div class="command-container bg-surface rounded-xl shadow-2xl border border-border-subtle overflow-hidden">
+      <!-- Search Input -->
+      <div class="command-header flex items-center gap-3 px-4 border-b border-border-subtle">
+        <svg class="w-5 h-5 text-text-tertiary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <input
+          type="text"
+          class="command-input flex-1 py-4 bg-transparent text-text-primary placeholder-text-tertiary outline-none text-lg"
+          placeholder={placeholder}
+          data-command-input
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+        />
+        <kbd class="hidden sm:flex items-center gap-1 px-2 py-1 text-xs text-text-tertiary bg-background-subtle rounded border border-border-subtle">
+          ESC
+        </kbd>
+      </div>
+
+      <!-- Results -->
+      <div
+        class="command-results max-h-[60vh] overflow-y-auto overscroll-contain"
+        role="listbox"
+        data-command-results
+      >
+        <!-- Empty state -->
+        <div class="command-empty hidden p-8 text-center text-text-secondary" data-command-empty>
+          <svg class="w-12 h-12 mx-auto mb-3 text-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p class="font-medium">No results found</p>
+          <p class="text-sm text-text-tertiary mt-1">Try a different search term</p>
+        </div>
+
+        <!-- Dynamic content slot -->
+        <div class="command-content" data-command-content>
+          <slot />
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="command-footer flex items-center justify-between px-4 py-2 border-t border-border-subtle bg-background-subtle text-xs text-text-tertiary">
+        <div class="flex items-center gap-4">
+          <span class="flex items-center gap-1">
+            <kbd class="px-1.5 py-0.5 bg-surface rounded border border-border-subtle">↑</kbd>
+            <kbd class="px-1.5 py-0.5 bg-surface rounded border border-border-subtle">↓</kbd>
+            <span>Navigate</span>
+          </span>
+          <span class="flex items-center gap-1">
+            <kbd class="px-1.5 py-0.5 bg-surface rounded border border-border-subtle">↵</kbd>
+            <span>Select</span>
+          </span>
+        </div>
+        <span class="flex items-center gap-1">
+          <kbd class="px-1.5 py-0.5 bg-surface rounded border border-border-subtle">ESC</kbd>
+          <span>Close</span>
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .command-palette-root[aria-hidden="true"] {
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .command-palette-root[aria-hidden="false"] {
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .command-palette-root[aria-hidden="false"] .command-backdrop {
+    opacity: 1;
+  }
+
+  .command-palette-root[aria-hidden="false"] .command-dialog {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  /* Result items */
+  .command-palette-root :global([data-command-item]) {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: background-color var(--duration-100) var(--ease-out);
+  }
+
+  .command-palette-root :global([data-command-item]:hover),
+  .command-palette-root :global([data-command-item][aria-selected="true"]) {
+    background-color: var(--color-background-subtle);
+  }
+
+  .command-palette-root :global([data-command-item][aria-selected="true"]) {
+    background-color: var(--color-primary-muted);
+  }
+
+  .command-palette-root :global([data-command-item][aria-disabled="true"]) {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Group titles */
+  .command-palette-root :global([data-command-group-title]) {
+    padding: 0.5rem 1rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-tertiary);
+  }
+
+  /* Highlight matching text */
+  .command-palette-root :global(.command-highlight) {
+    color: var(--color-primary);
+    font-weight: 600;
+  }
+
+  /* Shortcut badges */
+  .command-palette-root :global([data-command-shortcut]) {
+    margin-left: auto;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    color: var(--color-text-tertiary);
+    background-color: var(--color-background-subtle);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--color-border-subtle);
+  }
+
+  /* Scrollbar styling */
+  .command-results::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .command-results::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .command-results::-webkit-scrollbar-thumb {
+    background-color: var(--color-border-default);
+    border-radius: 4px;
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .command-backdrop,
+    .command-dialog {
+      transition-duration: 0.01ms !important;
+    }
+  }
+</style>
+
+<script>
+  interface CommandItem {
+    element: HTMLElement;
+    value: string;
+    keywords: string[];
+    group: string | null;
+  }
+
+  function initCommandPalette(root: HTMLElement) {
+    const backdrop = root.querySelector('[data-command-backdrop]') as HTMLElement;
+    const dialog = root.querySelector('[data-command-dialog]') as HTMLElement;
+    const input = root.querySelector('[data-command-input]') as HTMLInputElement;
+    const results = root.querySelector('[data-command-results]') as HTMLElement;
+    const content = root.querySelector('[data-command-content]') as HTMLElement;
+    const empty = root.querySelector('[data-command-empty]') as HTMLElement;
+
+    const shortcut = root.dataset.shortcut || 'k';
+    const maxResults = parseInt(root.dataset.maxResults || '10', 10);
+    const showRecent = root.dataset.showRecent === 'true';
+
+    let items: CommandItem[] = [];
+    let selectedIndex = -1;
+    let previousActiveElement: Element | null = null;
+
+    // Initialize items
+    function initItems() {
+      items = [];
+      const itemElements = content.querySelectorAll('[data-command-item]');
+      itemElements.forEach(el => {
+        const element = el as HTMLElement;
+        const group = element.closest('[data-command-group]');
+        items.push({
+          element,
+          value: element.dataset.value || element.textContent || '',
+          keywords: (element.dataset.keywords || '').split(',').filter(Boolean),
+          group: group?.getAttribute('data-command-group') || null,
+        });
+      });
+    }
+
+    function open() {
+      previousActiveElement = document.activeElement;
+      root.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+
+      requestAnimationFrame(() => {
+        input.focus();
+        input.select();
+      });
+
+      initItems();
+      filterItems('');
+
+      root.dispatchEvent(new CustomEvent('command:open', { bubbles: true }));
+    }
+
+    function close() {
+      root.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      input.value = '';
+      selectedIndex = -1;
+
+      if (previousActiveElement instanceof HTMLElement) {
+        previousActiveElement.focus();
+      }
+
+      root.dispatchEvent(new CustomEvent('command:close', { bubbles: true }));
+    }
+
+    function filterItems(query: string) {
+      const normalizedQuery = query.toLowerCase().trim();
+      const groups = new Map<string | null, HTMLElement[]>();
+
+      // Reset visibility
+      items.forEach(item => {
+        item.element.hidden = true;
+        item.element.removeAttribute('aria-selected');
+      });
+
+      // Filter and group
+      let matchCount = 0;
+      items.forEach(item => {
+        if (matchCount >= maxResults) return;
+
+        const text = item.value.toLowerCase();
+        const keywordsMatch = item.keywords.some(k => k.toLowerCase().includes(normalizedQuery));
+        const textMatch = text.includes(normalizedQuery);
+
+        if (!normalizedQuery || textMatch || keywordsMatch) {
+          item.element.hidden = false;
+          matchCount++;
+
+          // Highlight matching text
+          if (normalizedQuery && textMatch) {
+            highlightText(item.element, normalizedQuery);
+          } else {
+            clearHighlight(item.element);
+          }
+
+          // Group items
+          if (!groups.has(item.group)) {
+            groups.set(item.group, []);
+          }
+          groups.get(item.group)!.push(item.element);
+        }
+      });
+
+      // Show/hide groups
+      content.querySelectorAll('[data-command-group]').forEach(group => {
+        const groupName = group.getAttribute('data-command-group');
+        const hasVisibleItems = groups.has(groupName) && groups.get(groupName)!.length > 0;
+        (group as HTMLElement).hidden = !hasVisibleItems;
+      });
+
+      // Show empty state
+      empty.classList.toggle('hidden', matchCount > 0);
+
+      // Select first item
+      selectItem(0);
+
+      root.dispatchEvent(new CustomEvent('command:filter', {
+        bubbles: true,
+        detail: { query, count: matchCount }
+      }));
+    }
+
+    function highlightText(element: HTMLElement, query: string) {
+      const textSpan = element.querySelector('[data-command-label]') as HTMLElement;
+      if (!textSpan) return;
+
+      const originalText = textSpan.dataset.originalText || textSpan.textContent || '';
+      textSpan.dataset.originalText = originalText;
+
+      const regex = new RegExp(`(${escapeRegex(query)})`, 'gi');
+      textSpan.innerHTML = originalText.replace(regex, '<span class="command-highlight">$1</span>');
+    }
+
+    function clearHighlight(element: HTMLElement) {
+      const textSpan = element.querySelector('[data-command-label]') as HTMLElement;
+      if (!textSpan || !textSpan.dataset.originalText) return;
+      textSpan.textContent = textSpan.dataset.originalText;
+    }
+
+    function escapeRegex(str: string) {
+      return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    function getVisibleItems(): HTMLElement[] {
+      return items.filter(i => !i.element.hidden).map(i => i.element);
+    }
+
+    function selectItem(index: number) {
+      const visibleItems = getVisibleItems();
+      if (visibleItems.length === 0) {
+        selectedIndex = -1;
+        return;
+      }
+
+      // Wrap around
+      if (index < 0) index = visibleItems.length - 1;
+      if (index >= visibleItems.length) index = 0;
+
+      // Deselect previous
+      visibleItems.forEach(item => item.removeAttribute('aria-selected'));
+
+      // Select new
+      selectedIndex = index;
+      const selectedItem = visibleItems[index];
+      selectedItem.setAttribute('aria-selected', 'true');
+
+      // Scroll into view
+      selectedItem.scrollIntoView({ block: 'nearest' });
+    }
+
+    function executeItem(element: HTMLElement) {
+      const href = element.dataset.href;
+      const action = element.dataset.action;
+
+      if (href) {
+        close();
+        window.location.href = href;
+        return;
+      }
+
+      if (action) {
+        close();
+        root.dispatchEvent(new CustomEvent('command:action', {
+          bubbles: true,
+          detail: { action, element }
+        }));
+        return;
+      }
+
+      // Generic select event
+      close();
+      root.dispatchEvent(new CustomEvent('command:select', {
+        bubbles: true,
+        detail: { value: element.dataset.value, element }
+      }));
+    }
+
+    // Event listeners
+    backdrop.addEventListener('click', close);
+
+    input.addEventListener('input', () => {
+      filterItems(input.value);
+    });
+
+    dialog.addEventListener('keydown', (e: KeyboardEvent) => {
+      switch (e.key) {
+        case 'Escape':
+          e.preventDefault();
+          close();
+          break;
+        case 'ArrowDown':
+          e.preventDefault();
+          selectItem(selectedIndex + 1);
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          selectItem(selectedIndex - 1);
+          break;
+        case 'Enter':
+          e.preventDefault();
+          const visibleItems = getVisibleItems();
+          if (selectedIndex >= 0 && visibleItems[selectedIndex]) {
+            executeItem(visibleItems[selectedIndex]);
+          }
+          break;
+        case 'Tab':
+          e.preventDefault();
+          if (e.shiftKey) {
+            selectItem(selectedIndex - 1);
+          } else {
+            selectItem(selectedIndex + 1);
+          }
+          break;
+      }
+    });
+
+    // Click on items
+    content.addEventListener('click', (e: MouseEvent) => {
+      const item = (e.target as HTMLElement).closest('[data-command-item]') as HTMLElement;
+      if (item && !item.hasAttribute('aria-disabled')) {
+        executeItem(item);
+      }
+    });
+
+    // Hover to select
+    content.addEventListener('mousemove', (e: MouseEvent) => {
+      const item = (e.target as HTMLElement).closest('[data-command-item]') as HTMLElement;
+      if (item) {
+        const visibleItems = getVisibleItems();
+        const index = visibleItems.indexOf(item);
+        if (index !== -1 && index !== selectedIndex) {
+          selectItem(index);
+        }
+      }
+    });
+
+    // Global keyboard shortcut
+    document.addEventListener('keydown', (e: KeyboardEvent) => {
+      const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+      const modifier = isMac ? e.metaKey : e.ctrlKey;
+
+      if (modifier && e.key.toLowerCase() === shortcut) {
+        e.preventDefault();
+        if (root.getAttribute('aria-hidden') === 'true') {
+          open();
+        } else {
+          close();
+        }
+      }
+    });
+
+    // Expose API
+    (root as any).openPalette = open;
+    (root as any).closePalette = close;
+  }
+
+  function initAllCommandPalettes() {
+    document.querySelectorAll('[data-command-palette]').forEach(palette => {
+      initCommandPalette(palette as HTMLElement);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAllCommandPalettes);
+  } else {
+    initAllCommandPalettes();
+  }
+
+  document.addEventListener('astro:page-load', initAllCommandPalettes);
+
+  // Global API
+  (window as any).openCommandPalette = (id: string = 'command-palette') => {
+    const palette = document.getElementById(id) as any;
+    palette?.openPalette?.();
+  };
+
+  (window as any).closeCommandPalette = (id: string = 'command-palette') => {
+    const palette = document.getElementById(id) as any;
+    palette?.closePalette?.();
+  };
+</script>

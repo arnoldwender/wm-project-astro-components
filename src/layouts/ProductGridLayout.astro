@@ -1,0 +1,346 @@
+---
+/**
+ * ProductGridLayout Component
+ *
+ * E-commerce product grid with filtering sidebar.
+ * Optimized for conversion and product discovery.
+ *
+ * Target: E-commerce, Online shops, Marketplaces, Product catalogs
+ *
+ * Features:
+ * - Filter sidebar with categories, price, etc.
+ * - Grid/List view toggle
+ * - Sorting options
+ * - Infinite scroll ready
+ * - Quick view support
+ * - Responsive product cards
+ *
+ * @example
+ * <ProductGridLayout showFilters columns={4}>
+ *   <Fragment slot="filters">
+ *     <FilterGroup title="Category">...</FilterGroup>
+ *   </Fragment>
+ *   <ProductCard />
+ *   <ProductCard />
+ * </ProductGridLayout>
+ */
+
+export interface Props {
+  showFilters?: boolean;
+  showSorting?: boolean;
+  showViewToggle?: boolean;
+  columns?: 2 | 3 | 4 | 5;
+  defaultView?: 'grid' | 'list';
+  gap?: 'sm' | 'md' | 'lg';
+  sidebarPosition?: 'left' | 'right';
+  stickyFilters?: boolean;
+  class?: string;
+}
+
+const {
+  showFilters = true,
+  showSorting = true,
+  showViewToggle = true,
+  columns = 4,
+  defaultView = 'grid',
+  gap = 'md',
+  sidebarPosition = 'left',
+  stickyFilters = true,
+  class: className = '',
+} = Astro.props;
+
+// Gap classes
+const gapClasses = {
+  sm: 'gap-4',
+  md: 'gap-6',
+  lg: 'gap-8',
+};
+
+// Column classes for grid view
+const columnClasses = {
+  2: 'grid-cols-1 sm:grid-cols-2',
+  3: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
+  4: 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4',
+  5: 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5',
+};
+---
+
+<div
+  class:list={[
+    'product-grid-layout',
+    className,
+  ]}
+  data-product-grid
+  data-view={defaultView}
+>
+  <!-- Top Bar (Sorting, View Toggle, Results Count) -->
+  <div class="product-grid-topbar flex flex-wrap items-center justify-between gap-4 mb-6">
+    <div class="product-grid-info">
+      <slot name="results-info">
+        <p class="text-sm text-text-tertiary">
+          <span data-results-count>0</span> Produkte
+        </p>
+      </slot>
+    </div>
+
+    <div class="product-grid-controls flex items-center gap-4">
+      {/* Sorting */}
+      {showSorting && (
+        <div class="product-sort">
+          <select
+            class="text-sm bg-surface border border-border-default rounded-lg px-3 py-2 text-text-primary focus:outline-none focus:ring-2 focus:ring-focus-ring"
+            data-sort-select
+          >
+            <option value="featured">Empfohlen</option>
+            <option value="newest">Neueste</option>
+            <option value="price-asc">Preis: Niedrig - Hoch</option>
+            <option value="price-desc">Preis: Hoch - Niedrig</option>
+            <option value="name-asc">Name: A - Z</option>
+            <option value="name-desc">Name: Z - A</option>
+          </select>
+        </div>
+      )}
+
+      {/* View Toggle */}
+      {showViewToggle && (
+        <div class="product-view-toggle flex border border-border-default rounded-lg overflow-hidden">
+          <button
+            type="button"
+            class:list={[
+              'p-2 transition-colors',
+              defaultView === 'grid' ? 'bg-primary text-primary-text' : 'bg-surface text-text-tertiary hover:text-text-primary',
+            ]}
+            data-view-toggle="grid"
+            aria-label="Grid view"
+            aria-pressed={defaultView === 'grid'}
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+            </svg>
+          </button>
+          <button
+            type="button"
+            class:list={[
+              'p-2 transition-colors',
+              defaultView === 'list' ? 'bg-primary text-primary-text' : 'bg-surface text-text-tertiary hover:text-text-primary',
+            ]}
+            data-view-toggle="list"
+            aria-label="List view"
+            aria-pressed={defaultView === 'list'}
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
+      )}
+
+      {/* Mobile Filter Toggle */}
+      {showFilters && (
+        <button
+          type="button"
+          class="lg:hidden flex items-center gap-2 px-4 py-2 bg-surface border border-border-default rounded-lg text-sm font-medium text-text-primary hover:bg-background-subtle transition-colors"
+          data-filter-toggle
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+          </svg>
+          Filter
+        </button>
+      )}
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class:list={[
+    'product-grid-main',
+    showFilters && 'lg:grid lg:gap-8',
+    showFilters && sidebarPosition === 'left' && 'lg:grid-cols-[280px_1fr]',
+    showFilters && sidebarPosition === 'right' && 'lg:grid-cols-[1fr_280px]',
+  ]}>
+    <!-- Filters Sidebar -->
+    {showFilters && (
+      <aside
+        class:list={[
+          'product-filters',
+          'fixed inset-0 z-50 bg-surface lg:static lg:z-auto',
+          'transform -translate-x-full lg:translate-x-0 transition-transform duration-300',
+          sidebarPosition === 'right' && 'lg:order-2 translate-x-full lg:translate-x-0',
+          stickyFilters && 'lg:sticky lg:top-4 lg:h-fit',
+        ]}
+        data-product-filters
+      >
+        <!-- Mobile Filter Header -->
+        <div class="flex items-center justify-between p-4 border-b border-border-subtle lg:hidden">
+          <h2 class="font-semibold text-text-primary">Filter</h2>
+          <button
+            type="button"
+            class="p-2 text-text-tertiary hover:text-text-primary"
+            data-filter-close
+            aria-label="Close filters"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Filter Content -->
+        <div class="product-filters-content p-4 lg:p-0 overflow-y-auto max-h-[calc(100vh-60px)] lg:max-h-none">
+          <slot name="filters" />
+        </div>
+
+        <!-- Mobile Apply Button -->
+        <div class="p-4 border-t border-border-subtle lg:hidden">
+          <button
+            type="button"
+            class="w-full py-3 bg-primary text-primary-text font-medium rounded-lg hover:bg-primary-hover transition-colors"
+            data-filter-apply
+          >
+            Filter anwenden
+          </button>
+        </div>
+      </aside>
+    )}
+
+    <!-- Products Grid/List -->
+    <div class="product-grid-content">
+      <!-- Grid View -->
+      <div
+        class:list={[
+          'product-grid grid',
+          columnClasses[columns],
+          gapClasses[gap],
+          defaultView === 'list' && 'hidden',
+        ]}
+        data-product-container="grid"
+      >
+        <slot />
+      </div>
+
+      <!-- List View -->
+      <div
+        class:list={[
+          'product-list flex flex-col',
+          gapClasses[gap],
+          defaultView === 'grid' && 'hidden',
+        ]}
+        data-product-container="list"
+      >
+        <slot name="list-items" />
+      </div>
+
+      <!-- Load More / Pagination -->
+      {Astro.slots.has('pagination') && (
+        <div class="product-pagination mt-8">
+          <slot name="pagination" />
+        </div>
+      )}
+    </div>
+  </div>
+
+  <!-- Filter Overlay (Mobile) -->
+  <div
+    class="product-filter-overlay fixed inset-0 z-40 bg-black/50 hidden lg:hidden"
+    data-filter-overlay
+  />
+</div>
+
+<style>
+  /* Filter accordion styling */
+  .product-filters :global(.filter-group) {
+    border-bottom: 1px solid var(--color-border-subtle);
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .product-filters :global(.filter-group:last-child) {
+    border-bottom: none;
+    padding-bottom: 0;
+    margin-bottom: 0;
+  }
+
+  .product-filters :global(.filter-title) {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--color-text-primary);
+    margin-bottom: 0.75rem;
+  }
+
+  /* Mobile filter open state */
+  .product-filters.open {
+    transform: translateX(0);
+  }
+
+  .product-filter-overlay.open {
+    display: block;
+  }
+</style>
+
+<script>
+  function initProductGrid() {
+    const layouts = document.querySelectorAll('[data-product-grid]');
+
+    layouts.forEach((layout) => {
+      const viewToggles = layout.querySelectorAll('[data-view-toggle]');
+      const gridContainer = layout.querySelector('[data-product-container="grid"]');
+      const listContainer = layout.querySelector('[data-product-container="list"]');
+      const filters = layout.querySelector('[data-product-filters]');
+      const filterToggle = layout.querySelector('[data-filter-toggle]');
+      const filterClose = layout.querySelector('[data-filter-close]');
+      const filterApply = layout.querySelector('[data-filter-apply]');
+      const filterOverlay = layout.querySelector('[data-filter-overlay]');
+
+      // View toggle
+      viewToggles.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const view = btn.getAttribute('data-view-toggle');
+          layout.setAttribute('data-view', view || 'grid');
+
+          viewToggles.forEach((b) => {
+            const isActive = b === btn;
+            b.setAttribute('aria-pressed', isActive.toString());
+            b.classList.toggle('bg-primary', isActive);
+            b.classList.toggle('text-primary-text', isActive);
+            b.classList.toggle('bg-surface', !isActive);
+            b.classList.toggle('text-text-tertiary', !isActive);
+          });
+
+          if (view === 'grid') {
+            gridContainer?.classList.remove('hidden');
+            listContainer?.classList.add('hidden');
+          } else {
+            gridContainer?.classList.add('hidden');
+            listContainer?.classList.remove('hidden');
+          }
+        });
+      });
+
+      // Mobile filters
+      function openFilters() {
+        filters?.classList.add('open');
+        filterOverlay?.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
+
+      function closeFilters() {
+        filters?.classList.remove('open');
+        filterOverlay?.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+
+      filterToggle?.addEventListener('click', openFilters);
+      filterClose?.addEventListener('click', closeFilters);
+      filterApply?.addEventListener('click', closeFilters);
+      filterOverlay?.addEventListener('click', closeFilters);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initProductGrid);
+  } else {
+    initProductGrid();
+  }
+
+  document.addEventListener('astro:page-load', initProductGrid);
+</script>

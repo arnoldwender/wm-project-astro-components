@@ -1,0 +1,147 @@
+---
+/**
+ * ProcessStep Component
+ *
+ * Individual step in a process/workflow.
+ *
+ * @example
+ * <ProcessStep
+ *   number={1}
+ *   title="Discovery"
+ *   description="We learn about your business and goals."
+ *   icon="🔍"
+ * />
+ */
+
+export interface Props {
+  number?: number;
+  title: string;
+  description?: string;
+  icon?: string;
+  image?: string;
+  duration?: string;
+  variant?: 'default' | 'card' | 'minimal' | 'detailed';
+  class?: string;
+}
+
+const {
+  number,
+  title,
+  description,
+  icon,
+  image,
+  duration,
+  variant = 'default',
+  class: className = '',
+} = Astro.props;
+---
+
+<div
+  class:list={[
+    'process-step',
+    `process-step--${variant}`,
+    className,
+  ]}
+  data-process-step
+>
+  {/* Step indicator */}
+  <div class="step-indicator">
+    {icon ? (
+      <div class:list={[
+        'step-icon flex items-center justify-center',
+        variant === 'card' ? 'w-14 h-14 rounded-2xl bg-primary/10' : 'w-12 h-12 rounded-xl bg-primary/10',
+      ]}>
+        {icon.startsWith('<') ? (
+          <span class="w-6 h-6 text-primary" set:html={icon} />
+        ) : (
+          <span class="text-2xl">{icon}</span>
+        )}
+      </div>
+    ) : number ? (
+      <div class:list={[
+        'step-number flex items-center justify-center font-bold text-white bg-primary',
+        variant === 'card' ? 'w-14 h-14 rounded-2xl text-xl' : 'w-10 h-10 rounded-full text-lg',
+      ]}>
+        {number}
+      </div>
+    ) : (
+      <div class="step-dot w-4 h-4 rounded-full bg-primary" />
+    )}
+  </div>
+
+  {/* Content */}
+  <div class:list={[
+    'step-content',
+    variant === 'card' && 'bg-surface border border-border-subtle rounded-xl p-6',
+    variant === 'detailed' && image && 'grid md:grid-cols-2 gap-6 items-center',
+  ]}>
+    {/* Image for detailed variant */}
+    {variant === 'detailed' && image && (
+      <div class="step-image rounded-xl overflow-hidden">
+        <img src={image} alt={title} class="w-full h-auto" loading="lazy" />
+      </div>
+    )}
+
+    <div>
+      {/* Duration badge */}
+      {duration && (
+        <span class="inline-block px-2 py-1 text-xs font-medium rounded-full bg-background-subtle text-text-secondary mb-2">
+          {duration}
+        </span>
+      )}
+
+      {/* Title */}
+      <h3 class:list={[
+        'step-title font-semibold text-text-primary',
+        variant === 'minimal' ? 'text-base' : 'text-lg mb-2',
+      ]}>
+        {title}
+      </h3>
+
+      {/* Description */}
+      {description && variant !== 'minimal' && (
+        <p class="step-description text-text-secondary">
+          {description}
+        </p>
+      )}
+
+      {/* Additional content */}
+      {Astro.slots.has('default') && (
+        <div class="step-extra mt-4">
+          <slot />
+        </div>
+      )}
+    </div>
+  </div>
+</div>
+
+<style>
+  .process-step {
+    position: relative;
+  }
+
+  .process-step--default,
+  .process-step--card {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 1rem;
+    align-items: start;
+  }
+
+  .process-step--minimal {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.75rem;
+    align-items: center;
+  }
+
+  .process-step--detailed {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .process-step--detailed .step-indicator {
+    align-self: flex-start;
+  }
+</style>
