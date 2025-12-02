@@ -1,0 +1,252 @@
+---
+/**
+ * LandingSection Component
+ *
+ * Pre-built section patterns for landing pages.
+ *
+ * @example
+ * <LandingSection variant="features" columns={3}>
+ *   <h2 slot="heading">Features</h2>
+ *   <FeatureCard />
+ *   <FeatureCard />
+ *   <FeatureCard />
+ * </LandingSection>
+ */
+
+export interface Props {
+  variant?: 'hero' | 'features' | 'benefits' | 'testimonials' | 'pricing' | 'faq' | 'cta' | 'stats' | 'logos' | 'content';
+  columns?: 1 | 2 | 3 | 4;
+  background?: 'transparent' | 'subtle' | 'muted' | 'gradient' | 'dark' | 'primary';
+  padding?: 'sm' | 'md' | 'lg' | 'xl';
+  container?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
+  centered?: boolean;
+  id?: string;
+  class?: string;
+}
+
+const {
+  variant = 'content',
+  columns = 3,
+  background = 'transparent',
+  padding = 'lg',
+  container = 'lg',
+  centered = true,
+  id,
+  class: className = '',
+} = Astro.props;
+
+// Padding classes
+const paddingClasses = {
+  sm: 'py-12 lg:py-16',
+  md: 'py-16 lg:py-20',
+  lg: 'py-20 lg:py-28',
+  xl: 'py-28 lg:py-36',
+};
+
+// Container classes
+const containerClasses = {
+  sm: 'max-w-3xl',
+  md: 'max-w-5xl',
+  lg: 'max-w-6xl',
+  xl: 'max-w-7xl',
+  full: 'max-w-none',
+};
+
+// Background classes
+const bgClasses = {
+  transparent: '',
+  subtle: 'bg-background-subtle',
+  muted: 'bg-background-muted',
+  gradient: 'bg-gradient-to-b from-background-subtle to-transparent',
+  dark: 'bg-surface-inverse text-text-inverse',
+  primary: 'bg-primary text-primary-text',
+};
+
+// Column classes
+const columnClasses = {
+  1: 'grid-cols-1',
+  2: 'grid-cols-1 md:grid-cols-2',
+  3: 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3',
+  4: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4',
+};
+---
+
+<section
+  class:list={[
+    'landing-section',
+    paddingClasses[padding],
+    bgClasses[background],
+    className,
+  ]}
+  id={id}
+  data-landing-section
+  data-variant={variant}
+>
+  <div class:list={[
+    'landing-container mx-auto px-4 sm:px-6 lg:px-8',
+    containerClasses[container],
+  ]}>
+    <!-- Section Header -->
+    {(Astro.slots.has('eyebrow') || Astro.slots.has('heading') || Astro.slots.has('subheading')) && (
+      <header class:list={[
+        'landing-section-header mb-12 lg:mb-16',
+        centered && 'text-center',
+      ]}>
+        {Astro.slots.has('eyebrow') && (
+          <div class="landing-eyebrow text-sm font-semibold uppercase tracking-wider text-primary mb-3">
+            <slot name="eyebrow" />
+          </div>
+        )}
+        {Astro.slots.has('heading') && (
+          <h2 class="landing-heading text-3xl lg:text-4xl xl:text-5xl font-bold text-current mb-4">
+            <slot name="heading" />
+          </h2>
+        )}
+        {Astro.slots.has('subheading') && (
+          <p class:list={[
+            'landing-subheading text-lg lg:text-xl text-current opacity-80',
+            centered && 'max-w-3xl mx-auto',
+          ]}>
+            <slot name="subheading" />
+          </p>
+        )}
+      </header>
+    )}
+
+    <!-- Content Based on Variant -->
+    {variant === 'features' && (
+      <div class:list={['landing-features grid gap-8', columnClasses[columns]]}>
+        <slot />
+      </div>
+    )}
+
+    {variant === 'benefits' && (
+      <div class="landing-benefits grid md:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <div class="benefits-content">
+          <slot name="content" />
+        </div>
+        <div class="benefits-visual">
+          <slot name="visual" />
+        </div>
+        <slot />
+      </div>
+    )}
+
+    {variant === 'testimonials' && (
+      <div class:list={['landing-testimonials grid gap-8', columnClasses[columns]]}>
+        <slot />
+      </div>
+    )}
+
+    {variant === 'pricing' && (
+      <div class:list={[
+        'landing-pricing grid gap-8 items-start',
+        columns === 2 && 'md:grid-cols-2 max-w-4xl mx-auto',
+        columns === 3 && 'lg:grid-cols-3 max-w-5xl mx-auto',
+        columns === 4 && 'lg:grid-cols-4 max-w-6xl mx-auto',
+      ]}>
+        <slot />
+      </div>
+    )}
+
+    {variant === 'faq' && (
+      <div class="landing-faq max-w-3xl mx-auto">
+        <slot />
+      </div>
+    )}
+
+    {variant === 'cta' && (
+      <div class:list={[
+        'landing-cta rounded-2xl p-8 lg:p-12',
+        background === 'transparent' && 'bg-primary text-primary-text',
+        centered && 'text-center',
+      ]}>
+        <slot />
+      </div>
+    )}
+
+    {variant === 'stats' && (
+      <div class:list={['landing-stats grid gap-8 text-center', columnClasses[columns]]}>
+        <slot />
+      </div>
+    )}
+
+    {variant === 'logos' && (
+      <div class="landing-logos">
+        {Astro.slots.has('label') && (
+          <p class="text-sm text-text-tertiary text-center mb-8 uppercase tracking-wider">
+            <slot name="label" />
+          </p>
+        )}
+        <div class="flex flex-wrap items-center justify-center gap-8 lg:gap-12 opacity-60">
+          <slot />
+        </div>
+      </div>
+    )}
+
+    {variant === 'hero' && (
+      <div class="landing-hero">
+        <slot />
+      </div>
+    )}
+
+    {variant === 'content' && (
+      <div class="landing-content">
+        <slot />
+      </div>
+    )}
+  </div>
+</section>
+
+<style>
+  /* Scroll-triggered animations */
+  [data-landing-section] {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  }
+
+  [data-landing-section].visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    [data-landing-section] {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  function initLandingSections() {
+    const sections = document.querySelectorAll('[data-landing-section]');
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      },
+      {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px',
+      }
+    );
+
+    sections.forEach((section) => observer.observe(section));
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initLandingSections);
+  } else {
+    initLandingSections();
+  }
+
+  document.addEventListener('astro:page-load', initLandingSections);
+</script>

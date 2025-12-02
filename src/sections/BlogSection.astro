@@ -1,0 +1,249 @@
+---
+/**
+ * BlogSection Component
+ *
+ * Display blog posts, news, or articles.
+ *
+ * Variants:
+ * - grid: Standard blog grid
+ * - featured: Featured post + grid
+ * - list: Vertical list layout
+ * - magazine: Magazine-style mixed layout
+ * - minimal: Simple text list
+ * - cards: Card-based grid
+ *
+ * @example
+ * <BlogSection variant="featured" title="Latest Articles">
+ *   <BlogCard slot="featured" title="..." featured />
+ *   <BlogCard title="..." />
+ * </BlogSection>
+ */
+
+import SectionWrapper from './SectionWrapper.astro';
+import SectionHeader from './SectionHeader.astro';
+
+export interface Props {
+  variant?: 'grid' | 'featured' | 'list' | 'magazine' | 'minimal' | 'cards';
+  columns?: 2 | 3 | 4;
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+  viewAllHref?: string;
+  viewAllText?: string;
+  background?: 'transparent' | 'subtle' | 'muted';
+  class?: string;
+}
+
+const {
+  variant = 'grid',
+  columns = 3,
+  eyebrow,
+  title,
+  description,
+  viewAllHref,
+  viewAllText = 'Alle Artikel',
+  background = 'transparent',
+  class: className = '',
+} = Astro.props;
+
+const columnClasses = {
+  2: 'md:grid-cols-2',
+  3: 'md:grid-cols-2 lg:grid-cols-3',
+  4: 'sm:grid-cols-2 lg:grid-cols-4',
+};
+---
+
+<SectionWrapper background={background} class={className}>
+  {/* Header with optional "View All" link */}
+  {(eyebrow || title || description || viewAllHref) && (
+    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-12">
+      <div class="flex-1">
+        {eyebrow && (
+          <span class="text-sm font-semibold text-primary uppercase tracking-wider mb-3 block">
+            {eyebrow}
+          </span>
+        )}
+        {title && (
+          <h2 class="text-3xl lg:text-4xl font-bold text-text-primary mb-2">
+            {title}
+          </h2>
+        )}
+        {description && (
+          <p class="text-text-secondary max-w-2xl">{description}</p>
+        )}
+      </div>
+      {viewAllHref && (
+        <a
+          href={viewAllHref}
+          class="inline-flex items-center gap-2 text-primary font-medium hover:gap-3 transition-all"
+        >
+          {viewAllText}
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          </svg>
+        </a>
+      )}
+    </div>
+  )}
+
+  {/* Grid Variant */}
+  {variant === 'grid' && (
+    <div class:list={['blog-grid grid gap-8', columnClasses[columns]]}>
+      <slot />
+    </div>
+  )}
+
+  {/* Featured Variant */}
+  {variant === 'featured' && (
+    <div class="blog-featured">
+      <div class="featured-post mb-12">
+        <slot name="featured" />
+      </div>
+      <div class:list={['grid gap-8', columnClasses[columns]]}>
+        <slot />
+      </div>
+    </div>
+  )}
+
+  {/* List Variant */}
+  {variant === 'list' && (
+    <div class="blog-list max-w-3xl mx-auto space-y-8">
+      <slot />
+    </div>
+  )}
+
+  {/* Magazine Variant */}
+  {variant === 'magazine' && (
+    <div class="blog-magazine grid gap-6 lg:grid-cols-12">
+      {/* Main featured area */}
+      <div class="lg:col-span-7">
+        <slot name="featured" />
+      </div>
+      {/* Sidebar posts */}
+      <div class="lg:col-span-5 space-y-6">
+        <slot />
+      </div>
+    </div>
+  )}
+
+  {/* Minimal Variant */}
+  {variant === 'minimal' && (
+    <div class="blog-minimal max-w-2xl mx-auto space-y-0">
+      <slot />
+    </div>
+  )}
+
+  {/* Cards Variant */}
+  {variant === 'cards' && (
+    <div class:list={['blog-cards grid gap-6', columnClasses[columns]]}>
+      <slot />
+    </div>
+  )}
+</SectionWrapper>
+
+<style>
+  /* Featured post styling */
+  .featured-post :global(.blog-card) {
+    display: grid;
+    gap: 2rem;
+  }
+
+  @media (min-width: 768px) {
+    .featured-post :global(.blog-card) {
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+    }
+
+    .featured-post :global(.blog-image) {
+      aspect-ratio: 4/3;
+      margin-bottom: 0;
+    }
+  }
+
+  .featured-post :global(.blog-card h3) {
+    font-size: 1.5rem;
+    line-height: 1.3;
+  }
+
+  @media (min-width: 1024px) {
+    .featured-post :global(.blog-card h3) {
+      font-size: 2rem;
+    }
+  }
+
+  /* Magazine layout */
+  .blog-magazine > div:first-child :global(.blog-card) {
+    height: 100%;
+  }
+
+  .blog-magazine > div:first-child :global(.blog-image) {
+    aspect-ratio: 4/3;
+    height: auto;
+  }
+
+  @media (min-width: 1024px) {
+    .blog-magazine > div:first-child :global(.blog-image) {
+      aspect-ratio: auto;
+      height: 100%;
+      min-height: 400px;
+    }
+
+    .blog-magazine > div:first-child :global(.blog-card) {
+      display: block;
+      position: relative;
+    }
+
+    .blog-magazine > div:first-child :global(.blog-content) {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 2rem;
+      background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+      color: white;
+    }
+
+    .blog-magazine > div:first-child :global(.blog-content *) {
+      color: white;
+    }
+
+    .blog-magazine > div:first-child :global(.blog-content .text-primary) {
+      color: white;
+      opacity: 0.9;
+    }
+  }
+
+  /* Cards variant */
+  .blog-cards :global(.blog-card) {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    transition: transform var(--duration-200) var(--ease-out),
+                box-shadow var(--duration-200) var(--ease-out);
+  }
+
+  .blog-cards :global(.blog-card:hover) {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .blog-cards :global(.blog-image) {
+    border-radius: 0;
+    margin-bottom: 0;
+  }
+
+  .blog-cards :global(.blog-content) {
+    padding: 1.5rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .blog-cards :global(.blog-card) {
+      transition: none;
+    }
+
+    .blog-cards :global(.blog-card:hover) {
+      transform: none;
+    }
+  }
+</style>

@@ -1,0 +1,91 @@
+---
+/**
+ * SectionWrapper Component
+ *
+ * Base wrapper for all section components with consistent spacing,
+ * backgrounds, and container options.
+ *
+ * @example
+ * <SectionWrapper background="subtle" padding="lg" container="md">
+ *   <YourContent />
+ * </SectionWrapper>
+ */
+
+export interface Props {
+  id?: string;
+  background?: 'transparent' | 'subtle' | 'muted' | 'surface' | 'dark' | 'gradient' | 'primary' | 'pattern';
+  padding?: 'none' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+  container?: 'sm' | 'md' | 'lg' | 'xl' | 'full' | 'none';
+  overflow?: 'visible' | 'hidden';
+  class?: string;
+}
+
+const {
+  id,
+  background = 'transparent',
+  padding = 'lg',
+  container = 'lg',
+  overflow = 'hidden',
+  class: className = '',
+} = Astro.props;
+
+// Padding classes
+const paddingClasses = {
+  none: 'py-0',
+  sm: 'py-8 lg:py-12',
+  md: 'py-12 lg:py-16',
+  lg: 'py-16 lg:py-24',
+  xl: 'py-24 lg:py-32',
+  '2xl': 'py-32 lg:py-40',
+};
+
+// Container classes
+const containerClasses = {
+  sm: 'max-w-3xl',
+  md: 'max-w-5xl',
+  lg: 'max-w-6xl',
+  xl: 'max-w-7xl',
+  full: 'max-w-none',
+  none: '',
+};
+
+// Background classes
+const bgClasses = {
+  transparent: '',
+  subtle: 'bg-background-subtle',
+  muted: 'bg-background-muted',
+  surface: 'bg-surface',
+  dark: 'bg-surface-inverse text-text-inverse',
+  gradient: 'bg-gradient-to-b from-background-subtle via-background to-background-subtle',
+  primary: 'bg-primary text-primary-text',
+  pattern: 'bg-background-subtle section-pattern',
+};
+---
+
+<section
+  id={id}
+  class:list={[
+    'section-wrapper relative',
+    paddingClasses[padding],
+    bgClasses[background],
+    overflow === 'hidden' && 'overflow-hidden',
+    className,
+  ]}
+  data-section
+>
+  {container !== 'none' ? (
+    <div class:list={['mx-auto px-4 sm:px-6 lg:px-8', containerClasses[container]]}>
+      <slot />
+    </div>
+  ) : (
+    <slot />
+  )}
+</section>
+
+<style>
+  /* Subtle pattern background */
+  .section-pattern {
+    background-image: radial-gradient(circle at 1px 1px, var(--color-border-subtle) 1px, transparent 0);
+    background-size: 24px 24px;
+  }
+</style>

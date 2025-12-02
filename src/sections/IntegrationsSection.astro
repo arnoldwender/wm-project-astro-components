@@ -1,0 +1,310 @@
+---
+/**
+ * IntegrationsSection Component
+ *
+ * Display integrations, partners, or compatible tools.
+ *
+ * Variants:
+ * - grid: Standard grid of integration cards
+ * - categories: Grouped by category
+ * - featured: Featured integrations + grid
+ * - marquee: Scrolling logo strip
+ * - searchable: With search and filters
+ * - compact: Dense listing
+ *
+ * @example
+ * <IntegrationsSection variant="grid" title="Integrations">
+ *   <IntegrationCard name="Slack" logo="/slack.svg" />
+ * </IntegrationsSection>
+ */
+
+import SectionWrapper from './SectionWrapper.astro';
+import SectionHeader from './SectionHeader.astro';
+
+export interface Category {
+  id: string;
+  name: string;
+  icon?: string;
+}
+
+export interface Props {
+  variant?: 'grid' | 'categories' | 'featured' | 'marquee' | 'searchable' | 'compact';
+  columns?: 2 | 3 | 4 | 5;
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+  categories?: Category[];
+  searchPlaceholder?: string;
+  background?: 'transparent' | 'subtle' | 'muted';
+  class?: string;
+}
+
+const {
+  variant = 'grid',
+  columns = 4,
+  eyebrow,
+  title,
+  description,
+  categories = [],
+  searchPlaceholder = 'Integrationen durchsuchen...',
+  background = 'transparent',
+  class: className = '',
+} = Astro.props;
+
+const columnClasses = {
+  2: 'sm:grid-cols-2',
+  3: 'sm:grid-cols-2 lg:grid-cols-3',
+  4: 'sm:grid-cols-2 lg:grid-cols-4',
+  5: 'sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5',
+};
+---
+
+<SectionWrapper background={background} class={className}>
+  {(eyebrow || title || description) && (
+    <SectionHeader
+      eyebrow={eyebrow}
+      title={title || ''}
+      description={description}
+    />
+  )}
+
+  {/* Grid Variant */}
+  {variant === 'grid' && (
+    <div class:list={['integrations-grid grid gap-6', columnClasses[columns]]}>
+      <slot />
+    </div>
+  )}
+
+  {/* Categories Variant */}
+  {variant === 'categories' && (
+    <div class="integrations-categories space-y-12">
+      <slot />
+    </div>
+  )}
+
+  {/* Featured Variant */}
+  {variant === 'featured' && (
+    <div class="integrations-featured">
+      <div class="featured-integrations mb-12">
+        <h3 class="text-lg font-semibold text-text-primary mb-6">Beliebte Integrationen</h3>
+        <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <slot name="featured" />
+        </div>
+      </div>
+      <div>
+        <h3 class="text-lg font-semibold text-text-primary mb-6">Alle Integrationen</h3>
+        <div class:list={['grid gap-4', columnClasses[columns]]}>
+          <slot />
+        </div>
+      </div>
+    </div>
+  )}
+
+  {/* Marquee Variant */}
+  {variant === 'marquee' && (
+    <div class="integrations-marquee overflow-hidden relative py-8">
+      <div class="marquee-track flex gap-12 animate-marquee" data-marquee-track>
+        <div class="marquee-content flex items-center gap-12 shrink-0">
+          <slot />
+        </div>
+        <div class="marquee-content flex items-center gap-12 shrink-0" aria-hidden="true">
+          <slot />
+        </div>
+      </div>
+      <div class="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-background to-transparent pointer-events-none" />
+      <div class="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-background to-transparent pointer-events-none" />
+    </div>
+  )}
+
+  {/* Searchable Variant */}
+  {variant === 'searchable' && (
+    <div class="integrations-searchable" data-integrations-searchable>
+      {/* Search & Filters */}
+      <div class="flex flex-col md:flex-row gap-4 mb-8">
+        <div class="relative flex-1">
+          <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-tertiary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input
+            type="search"
+            placeholder={searchPlaceholder}
+            class="w-full pl-12 pr-4 py-3 border border-border-subtle rounded-xl bg-surface text-text-primary placeholder:text-text-tertiary focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20"
+            data-search-input
+          />
+        </div>
+        {categories.length > 0 && (
+          <div class="flex flex-wrap gap-2" data-category-filters>
+            <button
+              type="button"
+              class="filter-btn px-4 py-2 rounded-lg text-sm font-medium bg-primary text-white"
+              data-filter="all"
+              aria-pressed="true"
+            >
+              Alle
+            </button>
+            {categories.map((cat) => (
+              <button
+                type="button"
+                class="filter-btn px-4 py-2 rounded-lg text-sm font-medium bg-background-subtle text-text-secondary hover:bg-background-muted transition-colors"
+                data-filter={cat.id}
+                aria-pressed="false"
+              >
+                {cat.icon && <span class="mr-1">{cat.icon}</span>}
+                {cat.name}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Results */}
+      <div class:list={['grid gap-4', columnClasses[columns]]} data-integrations-container>
+        <slot />
+      </div>
+
+      {/* Empty state */}
+      <div class="hidden text-center py-12" data-empty-state>
+        <p class="text-text-secondary">Keine Integrationen gefunden.</p>
+      </div>
+    </div>
+  )}
+
+  {/* Compact Variant */}
+  {variant === 'compact' && (
+    <div class="integrations-compact bg-surface border border-border-subtle rounded-xl divide-y divide-border-subtle">
+      <slot />
+    </div>
+  )}
+</SectionWrapper>
+
+<style>
+  /* Marquee animation */
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  .animate-marquee {
+    animation: marquee 40s linear infinite;
+  }
+
+  .integrations-marquee:hover .animate-marquee {
+    animation-play-state: paused;
+  }
+
+  /* Marquee items */
+  .marquee-content :global(.integration-card) {
+    width: auto;
+    white-space: nowrap;
+  }
+
+  .marquee-content :global(.integration-logo) {
+    width: 3rem;
+    height: 3rem;
+  }
+
+  /* Filter active state */
+  .filter-btn[aria-pressed="true"] {
+    background-color: var(--color-primary);
+    color: white;
+  }
+
+  /* Compact variant items */
+  .integrations-compact :global(.integration-card) {
+    border: none;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  .integrations-compact :global(.integration-card:hover) {
+    background-color: var(--color-background-subtle);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-marquee {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  function initIntegrationsSearch() {
+    const containers = document.querySelectorAll('[data-integrations-searchable]');
+
+    containers.forEach((container) => {
+      const searchInput = container.querySelector('[data-search-input]') as HTMLInputElement;
+      const filterBtns = container.querySelectorAll('[data-filter]');
+      const integrationsContainer = container.querySelector('[data-integrations-container]');
+      const items = integrationsContainer?.querySelectorAll('[data-integration]');
+      const emptyState = container.querySelector('[data-empty-state]');
+
+      let currentFilter = 'all';
+      let searchTerm = '';
+
+      const filterItems = () => {
+        let visibleCount = 0;
+
+        items?.forEach((item) => {
+          const name = item.getAttribute('data-integration')?.toLowerCase() || '';
+          const category = item.getAttribute('data-category') || '';
+
+          const matchesSearch = name.includes(searchTerm.toLowerCase());
+          const matchesFilter = currentFilter === 'all' || category === currentFilter;
+
+          if (matchesSearch && matchesFilter) {
+            (item as HTMLElement).style.display = '';
+            visibleCount++;
+          } else {
+            (item as HTMLElement).style.display = 'none';
+          }
+        });
+
+        // Toggle empty state
+        if (emptyState) {
+          if (visibleCount === 0) {
+            emptyState.classList.remove('hidden');
+          } else {
+            emptyState.classList.add('hidden');
+          }
+        }
+      };
+
+      // Search input
+      searchInput?.addEventListener('input', (e) => {
+        searchTerm = (e.target as HTMLInputElement).value;
+        filterItems();
+      });
+
+      // Filter buttons
+      filterBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          currentFilter = btn.getAttribute('data-filter') || 'all';
+
+          filterBtns.forEach((b) => {
+            b.setAttribute('aria-pressed', 'false');
+            b.classList.remove('bg-primary', 'text-white');
+            b.classList.add('bg-background-subtle', 'text-text-secondary');
+          });
+
+          btn.setAttribute('aria-pressed', 'true');
+          btn.classList.add('bg-primary', 'text-white');
+          btn.classList.remove('bg-background-subtle', 'text-text-secondary');
+
+          filterItems();
+        });
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initIntegrationsSearch);
+  } else {
+    initIntegrationsSearch();
+  }
+
+  document.addEventListener('astro:page-load', initIntegrationsSearch);
+</script>

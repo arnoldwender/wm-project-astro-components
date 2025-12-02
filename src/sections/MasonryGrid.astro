@@ -1,0 +1,63 @@
+---
+/**
+ * MasonryGrid Component
+ *
+ * Pinterest-style masonry layout for mixed-height content.
+ *
+ * @example
+ * <MasonryGrid columns={3} gap="md">
+ *   <div>Card 1</div>
+ *   <div>Card 2</div>
+ * </MasonryGrid>
+ */
+
+export interface Props {
+  columns?: 2 | 3 | 4 | 5;
+  gap?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
+  class?: string;
+}
+
+const {
+  columns = 3,
+  gap = 'md',
+  class: className = '',
+} = Astro.props;
+
+const gapSizes = {
+  none: '0',
+  sm: '0.5rem',
+  md: '1rem',
+  lg: '1.5rem',
+  xl: '2rem',
+};
+---
+
+<div
+  class:list={['masonry-grid', className]}
+  style={`columns: ${columns}; column-gap: ${gapSizes[gap]};`}
+>
+  <slot />
+</div>
+
+<style>
+  .masonry-grid {
+    column-fill: balance;
+  }
+
+  .masonry-grid :global(> *) {
+    break-inside: avoid;
+    margin-bottom: var(--masonry-gap, 1rem);
+  }
+
+  @media (max-width: 768px) {
+    .masonry-grid {
+      columns: 2 !important;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .masonry-grid {
+      columns: 1 !important;
+    }
+  }
+</style>

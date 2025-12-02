@@ -1,0 +1,414 @@
+---
+/**
+ * GallerySection Component
+ *
+ * Display images, portfolio items, or project showcases.
+ *
+ * Variants:
+ * - grid: Standard grid layout
+ * - masonry: Pinterest-style masonry
+ * - carousel: Horizontal scrolling carousel
+ * - lightbox: Grid with lightbox functionality
+ * - filterable: Grid with category filters
+ * - featured: Large featured item + grid
+ *
+ * @example
+ * <GallerySection variant="masonry" columns={3}>
+ *   <GalleryItem image="/img1.jpg" title="Project 1" />
+ *   <GalleryItem image="/img2.jpg" title="Project 2" />
+ * </GallerySection>
+ */
+
+import SectionWrapper from './SectionWrapper.astro';
+import SectionHeader from './SectionHeader.astro';
+
+export interface FilterCategory {
+  id: string;
+  label: string;
+}
+
+export interface Props {
+  variant?: 'grid' | 'masonry' | 'carousel' | 'lightbox' | 'filterable' | 'featured';
+  columns?: 2 | 3 | 4 | 5;
+  gap?: 'none' | 'small' | 'medium' | 'large';
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+  categories?: FilterCategory[];
+  showAllLabel?: string;
+  background?: 'transparent' | 'subtle' | 'muted' | 'dark';
+  class?: string;
+}
+
+const {
+  variant = 'grid',
+  columns = 3,
+  gap = 'medium',
+  eyebrow,
+  title,
+  description,
+  categories = [],
+  showAllLabel = 'Alle',
+  background = 'transparent',
+  class: className = '',
+} = Astro.props;
+
+const columnClasses = {
+  2: 'sm:grid-cols-2',
+  3: 'sm:grid-cols-2 lg:grid-cols-3',
+  4: 'sm:grid-cols-2 lg:grid-cols-4',
+  5: 'sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5',
+};
+
+const gapClasses = {
+  none: 'gap-0',
+  small: 'gap-2',
+  medium: 'gap-4 lg:gap-6',
+  large: 'gap-6 lg:gap-8',
+};
+---
+
+<SectionWrapper background={background} class={className}>
+  {(eyebrow || title || description) && (
+    <SectionHeader
+      eyebrow={eyebrow}
+      title={title || ''}
+      description={description}
+    />
+  )}
+
+  {/* Filterable Variant */}
+  {(variant === 'filterable' && categories.length > 0) && (
+    <div class="gallery-filters flex flex-wrap justify-center gap-2 mb-8" data-gallery-filters>
+      <button
+        type="button"
+        class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-primary text-white transition-colors"
+        data-filter="all"
+        aria-pressed="true"
+      >
+        {showAllLabel}
+      </button>
+      {categories.map((cat) => (
+        <button
+          type="button"
+          class="filter-btn px-4 py-2 rounded-full text-sm font-medium bg-background-subtle text-text-secondary hover:bg-background-muted transition-colors"
+          data-filter={cat.id}
+          aria-pressed="false"
+        >
+          {cat.label}
+        </button>
+      ))}
+    </div>
+  )}
+
+  {/* Grid Variant */}
+  {(variant === 'grid' || variant === 'filterable') && (
+    <div
+      class:list={['gallery-grid grid', columnClasses[columns], gapClasses[gap]]}
+      data-gallery-container={variant === 'filterable' ? 'filterable' : undefined}
+    >
+      <slot />
+    </div>
+  )}
+
+  {/* Masonry Variant */}
+  {variant === 'masonry' && (
+    <div
+      class:list={['gallery-masonry columns-1', `sm:columns-2 lg:columns-${columns}`, gapClasses[gap]]}
+      style={`column-gap: ${gap === 'none' ? '0' : gap === 'small' ? '0.5rem' : gap === 'large' ? '1.5rem' : '1rem'};`}
+    >
+      <slot />
+    </div>
+  )}
+
+  {/* Carousel Variant */}
+  {variant === 'carousel' && (
+    <div class="gallery-carousel relative" data-gallery-carousel>
+      <div class="overflow-hidden">
+        <div class="gallery-track flex gap-4 lg:gap-6 transition-transform duration-500" data-carousel-track>
+          <slot />
+        </div>
+      </div>
+
+      {/* Navigation */}
+      <button
+        type="button"
+        class="carousel-prev absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-12 h-12 rounded-full bg-surface border border-border-subtle shadow-lg flex items-center justify-center text-text-primary hover:bg-background-subtle transition-colors z-10"
+        data-carousel-prev
+        aria-label="Previous"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+      <button
+        type="button"
+        class="carousel-next absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-12 h-12 rounded-full bg-surface border border-border-subtle shadow-lg flex items-center justify-center text-text-primary hover:bg-background-subtle transition-colors z-10"
+        data-carousel-next
+        aria-label="Next"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+    </div>
+  )}
+
+  {/* Lightbox Variant */}
+  {variant === 'lightbox' && (
+    <>
+      <div
+        class:list={['gallery-lightbox grid', columnClasses[columns], gapClasses[gap]]}
+        data-gallery-lightbox
+      >
+        <slot />
+      </div>
+
+      {/* Lightbox Modal */}
+      <div
+        class="lightbox-modal fixed inset-0 z-50 bg-black/95 hidden items-center justify-center"
+        data-lightbox-modal
+        role="dialog"
+        aria-modal="true"
+        aria-label="Image lightbox"
+      >
+        <button
+          type="button"
+          class="absolute top-4 right-4 w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+          data-lightbox-close
+          aria-label="Close lightbox"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+
+        <button
+          type="button"
+          class="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+          data-lightbox-prev
+          aria-label="Previous image"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+
+        <button
+          type="button"
+          class="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+          data-lightbox-next
+          aria-label="Next image"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+
+        <div class="max-w-5xl max-h-[80vh] px-16">
+          <img
+            src=""
+            alt=""
+            class="max-w-full max-h-[80vh] object-contain"
+            data-lightbox-image
+          />
+        </div>
+
+        <div class="absolute bottom-4 left-0 right-0 text-center">
+          <p class="text-white font-medium" data-lightbox-title></p>
+          <p class="text-white/60 text-sm" data-lightbox-counter></p>
+        </div>
+      </div>
+    </>
+  )}
+
+  {/* Featured Variant */}
+  {variant === 'featured' && (
+    <div class:list={['gallery-featured grid lg:grid-cols-2', gapClasses[gap]]}>
+      <div class="featured-item">
+        <slot name="featured" />
+      </div>
+      <div class:list={['grid grid-cols-2', gapClasses[gap]]}>
+        <slot />
+      </div>
+    </div>
+  )}
+</SectionWrapper>
+
+<style>
+  /* Masonry items */
+  .gallery-masonry :global(> *) {
+    break-inside: avoid;
+    margin-bottom: 1rem;
+  }
+
+  /* Carousel items */
+  .gallery-carousel :global(.gallery-item) {
+    flex: 0 0 calc(33.333% - 1rem);
+    min-width: 280px;
+  }
+
+  /* Filter active state */
+  .filter-btn[aria-pressed="true"] {
+    background-color: var(--color-primary);
+    color: white;
+  }
+
+  .filter-btn[aria-pressed="false"]:hover {
+    background-color: var(--color-background-muted);
+  }
+
+  /* Lightbox modal */
+  .lightbox-modal.active {
+    display: flex;
+  }
+
+  /* Featured item sizing */
+  .featured-item :global(.gallery-item) {
+    height: 100%;
+  }
+
+  .featured-item :global(.gallery-image) {
+    height: 100%;
+  }
+</style>
+
+<script>
+  function initGallerySection() {
+    // Filterable gallery
+    const filterContainers = document.querySelectorAll('[data-gallery-filters]');
+    filterContainers.forEach((filterContainer) => {
+      const buttons = filterContainer.querySelectorAll('[data-filter]');
+      const gallery = filterContainer.nextElementSibling;
+      const items = gallery?.querySelectorAll('[data-gallery-item]');
+
+      buttons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const filter = btn.getAttribute('data-filter');
+
+          // Update button states
+          buttons.forEach((b) => {
+            b.setAttribute('aria-pressed', 'false');
+            b.classList.remove('bg-primary', 'text-white');
+            b.classList.add('bg-background-subtle', 'text-text-secondary');
+          });
+          btn.setAttribute('aria-pressed', 'true');
+          btn.classList.add('bg-primary', 'text-white');
+          btn.classList.remove('bg-background-subtle', 'text-text-secondary');
+
+          // Filter items
+          items?.forEach((item) => {
+            const category = item.getAttribute('data-category');
+            if (filter === 'all' || category === filter) {
+              (item as HTMLElement).style.display = '';
+            } else {
+              (item as HTMLElement).style.display = 'none';
+            }
+          });
+        });
+      });
+    });
+
+    // Carousel
+    const carousels = document.querySelectorAll('[data-gallery-carousel]');
+    carousels.forEach((carousel) => {
+      const track = carousel.querySelector('[data-carousel-track]') as HTMLElement;
+      const prevBtn = carousel.querySelector('[data-carousel-prev]');
+      const nextBtn = carousel.querySelector('[data-carousel-next]');
+
+      if (!track) return;
+
+      let position = 0;
+      const itemWidth = track.children[0]?.getBoundingClientRect().width || 300;
+      const gap = 24;
+      const visibleItems = Math.floor(track.parentElement!.offsetWidth / (itemWidth + gap));
+      const maxPosition = -(track.children.length - visibleItems) * (itemWidth + gap);
+
+      prevBtn?.addEventListener('click', () => {
+        position = Math.min(position + itemWidth + gap, 0);
+        track.style.transform = `translateX(${position}px)`;
+      });
+
+      nextBtn?.addEventListener('click', () => {
+        position = Math.max(position - itemWidth - gap, maxPosition);
+        track.style.transform = `translateX(${position}px)`;
+      });
+    });
+
+    // Lightbox
+    const lightboxContainers = document.querySelectorAll('[data-gallery-lightbox]');
+    lightboxContainers.forEach((container) => {
+      const items = container.querySelectorAll('[data-lightbox-src]');
+      const modal = container.nextElementSibling as HTMLElement;
+
+      if (!modal || !modal.hasAttribute('data-lightbox-modal')) return;
+
+      const image = modal.querySelector('[data-lightbox-image]') as HTMLImageElement;
+      const titleEl = modal.querySelector('[data-lightbox-title]');
+      const counterEl = modal.querySelector('[data-lightbox-counter]');
+      const closeBtn = modal.querySelector('[data-lightbox-close]');
+      const prevBtn = modal.querySelector('[data-lightbox-prev]');
+      const nextBtn = modal.querySelector('[data-lightbox-next]');
+
+      let currentIndex = 0;
+
+      const showImage = (index: number) => {
+        const item = items[index] as HTMLElement;
+        const src = item.getAttribute('data-lightbox-src') || '';
+        const title = item.getAttribute('data-lightbox-title') || '';
+
+        image.src = src;
+        image.alt = title;
+        if (titleEl) titleEl.textContent = title;
+        if (counterEl) counterEl.textContent = `${index + 1} / ${items.length}`;
+        currentIndex = index;
+      };
+
+      items.forEach((item, index) => {
+        item.addEventListener('click', (e) => {
+          e.preventDefault();
+          showImage(index);
+          modal.classList.add('active');
+          document.body.style.overflow = 'hidden';
+        });
+      });
+
+      const closeModal = () => {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+      };
+
+      closeBtn?.addEventListener('click', closeModal);
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+      });
+
+      prevBtn?.addEventListener('click', () => {
+        const newIndex = currentIndex > 0 ? currentIndex - 1 : items.length - 1;
+        showImage(newIndex);
+      });
+
+      nextBtn?.addEventListener('click', () => {
+        const newIndex = currentIndex < items.length - 1 ? currentIndex + 1 : 0;
+        showImage(newIndex);
+      });
+
+      // Keyboard navigation
+      document.addEventListener('keydown', (e) => {
+        if (!modal.classList.contains('active')) return;
+
+        if (e.key === 'Escape') closeModal();
+        if (e.key === 'ArrowLeft') prevBtn?.click();
+        if (e.key === 'ArrowRight') nextBtn?.click();
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initGallerySection);
+  } else {
+    initGallerySection();
+  }
+
+  document.addEventListener('astro:page-load', initGallerySection);
+</script>

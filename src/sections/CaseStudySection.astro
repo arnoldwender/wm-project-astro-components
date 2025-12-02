@@ -1,0 +1,1051 @@
+---
+/**
+ * CaseStudySection Component
+ *
+ * Case study and portfolio showcase sections.
+ *
+ * Variants:
+ * - grid: Case study cards in a grid
+ * - featured: Single featured case study
+ * - carousel: Horizontal scrolling case studies
+ * - detail: Full case study page layout
+ * - minimal: Simple text-focused case studies
+ * - stats: Case study with prominent metrics
+ *
+ * @example
+ * <CaseStudySection variant="grid" title="Our Work">
+ *   <slot />
+ * </CaseStudySection>
+ */
+
+import SectionWrapper from './SectionWrapper.astro';
+import SectionHeader from './SectionHeader.astro';
+
+export interface CaseStudy {
+  id: string;
+  title: string;
+  slug: string;
+  client: string;
+  industry?: string;
+  description: string;
+  excerpt?: string;
+  image: string;
+  logo?: string;
+  tags?: string[];
+  metrics?: { label: string; value: string }[];
+  testimonial?: {
+    quote: string;
+    author: string;
+    role: string;
+    avatar?: string;
+  };
+  href?: string;
+}
+
+export interface Props {
+  variant?: 'grid' | 'featured' | 'carousel' | 'detail' | 'minimal' | 'stats';
+  caseStudies?: CaseStudy[];
+  caseStudy?: CaseStudy;
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+  columns?: 2 | 3;
+  showTags?: boolean;
+  showMetrics?: boolean;
+  ctaLabel?: string;
+  background?: 'transparent' | 'subtle' | 'muted';
+  class?: string;
+}
+
+const {
+  variant = 'grid',
+  caseStudies = [],
+  caseStudy,
+  eyebrow,
+  title,
+  description,
+  columns = 2,
+  showTags = true,
+  showMetrics = true,
+  ctaLabel = 'View Case Study',
+  background = 'transparent',
+  class: className = '',
+} = Astro.props;
+---
+
+<SectionWrapper background={background} class={className}>
+  {(eyebrow || title || description) && (
+    <SectionHeader
+      eyebrow={eyebrow}
+      title={title || ''}
+      description={description}
+    />
+  )}
+
+  {/* Grid variant */}
+  {variant === 'grid' && (
+    <div
+      class:list={[
+        'case-grid',
+        `case-grid--${columns}-cols`,
+      ]}
+    >
+      {caseStudies.map((study) => (
+        <article class="case-card">
+          <a href={study.href || `/case-studies/${study.slug}`} class="case-link">
+            <div class="case-image">
+              <img src={study.image} alt={study.title} loading="lazy" />
+              {study.logo && (
+                <div class="case-logo">
+                  <img src={study.logo} alt={study.client} />
+                </div>
+              )}
+            </div>
+            <div class="case-content">
+              <div class="case-meta">
+                <span class="case-client">{study.client}</span>
+                {study.industry && (
+                  <span class="case-industry">{study.industry}</span>
+                )}
+              </div>
+              <h3 class="case-title">{study.title}</h3>
+              <p class="case-excerpt">{study.excerpt || study.description}</p>
+
+              {showTags && study.tags && study.tags.length > 0 && (
+                <div class="case-tags">
+                  {study.tags.slice(0, 3).map((tag) => (
+                    <span class="case-tag">{tag}</span>
+                  ))}
+                </div>
+              )}
+
+              {showMetrics && study.metrics && study.metrics.length > 0 && (
+                <div class="case-metrics">
+                  {study.metrics.slice(0, 3).map((metric) => (
+                    <div class="metric">
+                      <span class="metric-value">{metric.value}</span>
+                      <span class="metric-label">{metric.label}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </a>
+        </article>
+      ))}
+      <slot />
+    </div>
+  )}
+
+  {/* Featured variant */}
+  {variant === 'featured' && caseStudy && (
+    <div class="case-featured">
+      <div class="featured-image">
+        <img src={caseStudy.image} alt={caseStudy.title} />
+        {caseStudy.logo && (
+          <div class="featured-logo">
+            <img src={caseStudy.logo} alt={caseStudy.client} />
+          </div>
+        )}
+      </div>
+      <div class="featured-content">
+        <div class="case-meta">
+          <span class="case-client">{caseStudy.client}</span>
+          {caseStudy.industry && (
+            <span class="case-industry">{caseStudy.industry}</span>
+          )}
+        </div>
+        <h2 class="featured-title">{caseStudy.title}</h2>
+        <p class="featured-description">{caseStudy.description}</p>
+
+        {showMetrics && caseStudy.metrics && caseStudy.metrics.length > 0 && (
+          <div class="featured-metrics">
+            {caseStudy.metrics.map((metric) => (
+              <div class="metric metric--lg">
+                <span class="metric-value">{metric.value}</span>
+                <span class="metric-label">{metric.label}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {caseStudy.testimonial && (
+          <blockquote class="featured-quote">
+            <p>"{caseStudy.testimonial.quote}"</p>
+            <footer>
+              {caseStudy.testimonial.avatar && (
+                <img src={caseStudy.testimonial.avatar} alt="" class="quote-avatar" />
+              )}
+              <div class="quote-author">
+                <strong>{caseStudy.testimonial.author}</strong>
+                <span>{caseStudy.testimonial.role}</span>
+              </div>
+            </footer>
+          </blockquote>
+        )}
+
+        <a href={caseStudy.href || `/case-studies/${caseStudy.slug}`} class="btn btn--primary btn--lg">
+          {ctaLabel}
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </a>
+      </div>
+    </div>
+  )}
+
+  {/* Carousel variant */}
+  {variant === 'carousel' && (
+    <div class="case-carousel" data-case-carousel>
+      <div class="carousel-container">
+        <div class="carousel-track">
+          {caseStudies.map((study) => (
+            <article class="case-card case-card--carousel">
+              <a href={study.href || `/case-studies/${study.slug}`} class="case-link">
+                <div class="case-image">
+                  <img src={study.image} alt={study.title} loading="lazy" />
+                </div>
+                <div class="case-content">
+                  <span class="case-client">{study.client}</span>
+                  <h3 class="case-title">{study.title}</h3>
+                  <p class="case-excerpt">{study.excerpt || study.description}</p>
+                </div>
+              </a>
+            </article>
+          ))}
+        </div>
+      </div>
+
+      <div class="carousel-controls">
+        <button type="button" class="carousel-btn" data-carousel-prev aria-label="Previous">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+        <button type="button" class="carousel-btn" data-carousel-next aria-label="Next">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  )}
+
+  {/* Detail variant */}
+  {variant === 'detail' && caseStudy && (
+    <div class="case-detail">
+      <header class="detail-header">
+        <div class="detail-meta">
+          {caseStudy.logo && (
+            <img src={caseStudy.logo} alt={caseStudy.client} class="detail-logo" />
+          )}
+          <div>
+            <span class="case-client">{caseStudy.client}</span>
+            {caseStudy.industry && (
+              <span class="case-industry">{caseStudy.industry}</span>
+            )}
+          </div>
+        </div>
+        <h1 class="detail-title">{caseStudy.title}</h1>
+
+        {showTags && caseStudy.tags && caseStudy.tags.length > 0 && (
+          <div class="case-tags case-tags--lg">
+            {caseStudy.tags.map((tag) => (
+              <span class="case-tag">{tag}</span>
+            ))}
+          </div>
+        )}
+      </header>
+
+      <div class="detail-hero">
+        <img src={caseStudy.image} alt={caseStudy.title} />
+      </div>
+
+      {showMetrics && caseStudy.metrics && caseStudy.metrics.length > 0 && (
+        <div class="detail-metrics">
+          {caseStudy.metrics.map((metric) => (
+            <div class="metric metric--xl">
+              <span class="metric-value">{metric.value}</span>
+              <span class="metric-label">{metric.label}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div class="detail-body">
+        <slot />
+      </div>
+
+      {caseStudy.testimonial && (
+        <div class="detail-testimonial">
+          <blockquote class="testimonial-card">
+            <svg class="quote-icon" fill="currentColor" viewBox="0 0 24 24" width="48" height="48">
+              <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h4v10h-10z"/>
+            </svg>
+            <p>"{caseStudy.testimonial.quote}"</p>
+            <footer>
+              {caseStudy.testimonial.avatar && (
+                <img src={caseStudy.testimonial.avatar} alt="" class="quote-avatar quote-avatar--lg" />
+              )}
+              <div class="quote-author">
+                <strong>{caseStudy.testimonial.author}</strong>
+                <span>{caseStudy.testimonial.role}, {caseStudy.client}</span>
+              </div>
+            </footer>
+          </blockquote>
+        </div>
+      )}
+    </div>
+  )}
+
+  {/* Minimal variant */}
+  {variant === 'minimal' && (
+    <div class="case-minimal">
+      {caseStudies.map((study) => (
+        <article class="minimal-card">
+          <a href={study.href || `/case-studies/${study.slug}`} class="minimal-link">
+            <div class="minimal-number">{String(caseStudies.indexOf(study) + 1).padStart(2, '0')}</div>
+            <div class="minimal-content">
+              <span class="case-client">{study.client}</span>
+              <h3 class="minimal-title">{study.title}</h3>
+              <p class="minimal-excerpt">{study.excerpt || study.description}</p>
+            </div>
+            <div class="minimal-arrow">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </div>
+          </a>
+        </article>
+      ))}
+    </div>
+  )}
+
+  {/* Stats variant */}
+  {variant === 'stats' && caseStudies.length > 0 && (
+    <div class="case-stats">
+      {caseStudies.map((study) => (
+        <article class="stats-card">
+          <div class="stats-header">
+            {study.logo ? (
+              <img src={study.logo} alt={study.client} class="stats-logo" />
+            ) : (
+              <span class="stats-client">{study.client}</span>
+            )}
+          </div>
+
+          <div class="stats-metrics">
+            {study.metrics?.map((metric) => (
+              <div class="metric metric--centered">
+                <span class="metric-value metric-value--xl">{metric.value}</span>
+                <span class="metric-label">{metric.label}</span>
+              </div>
+            ))}
+          </div>
+
+          <div class="stats-content">
+            <h3 class="stats-title">{study.title}</h3>
+            <p class="stats-excerpt">{study.excerpt || study.description}</p>
+          </div>
+
+          <a href={study.href || `/case-studies/${study.slug}`} class="stats-link">
+            Read full case study
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </a>
+        </article>
+      ))}
+    </div>
+  )}
+</SectionWrapper>
+
+<style>
+  /* Grid */
+  .case-grid {
+    display: grid;
+    gap: 2rem;
+  }
+
+  .case-grid--2-cols { grid-template-columns: repeat(2, 1fr); }
+  .case-grid--3-cols { grid-template-columns: repeat(3, 1fr); }
+
+  @media (max-width: 1024px) {
+    .case-grid--3-cols { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 768px) {
+    .case-grid--2-cols,
+    .case-grid--3-cols { grid-template-columns: 1fr; }
+  }
+
+  /* Case card */
+  .case-card {
+    background: var(--color-surface);
+    border-radius: var(--radius-2xl);
+    overflow: hidden;
+    transition: box-shadow 0.3s, transform 0.3s;
+  }
+
+  .case-card:hover {
+    box-shadow: var(--shadow-xl);
+    transform: translateY(-4px);
+  }
+
+  .case-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .case-image {
+    position: relative;
+    aspect-ratio: 16/10;
+    overflow: hidden;
+    background: var(--color-background-subtle);
+  }
+
+  .case-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+  }
+
+  .case-card:hover .case-image img {
+    transform: scale(1.05);
+  }
+
+  .case-logo {
+    position: absolute;
+    bottom: 1rem;
+    left: 1rem;
+    padding: 0.5rem 0.75rem;
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+  }
+
+  .case-logo img {
+    height: 1.5rem;
+    width: auto;
+  }
+
+  .case-content {
+    padding: 1.5rem;
+  }
+
+  .case-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .case-client {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-primary);
+  }
+
+  .case-industry {
+    font-size: 0.75rem;
+    color: var(--color-text-tertiary);
+    padding: 0.125rem 0.5rem;
+    background: var(--color-background-subtle);
+    border-radius: var(--radius-full);
+  }
+
+  .case-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 0.75rem;
+    color: var(--color-text-primary);
+    line-height: 1.3;
+  }
+
+  .case-excerpt {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    margin: 0 0 1rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .case-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .case-tags--lg {
+    gap: 0.75rem;
+  }
+
+  .case-tag {
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+    padding: 0.25rem 0.625rem;
+    background: var(--color-background-subtle);
+    border-radius: var(--radius-full);
+  }
+
+  .case-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-border-subtle);
+  }
+
+  .metric {
+    text-align: center;
+  }
+
+  .metric--lg {
+    padding: 1rem;
+    background: var(--color-background-subtle);
+    border-radius: var(--radius-xl);
+  }
+
+  .metric--xl {
+    padding: 2rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-2xl);
+    text-align: center;
+  }
+
+  .metric--centered {
+    text-align: center;
+  }
+
+  .metric-value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    line-height: 1;
+    margin-bottom: 0.25rem;
+  }
+
+  .metric-value--xl {
+    font-size: 2.5rem;
+  }
+
+  .metric-label {
+    font-size: 0.75rem;
+    color: var(--color-text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  /* Featured variant */
+  .case-featured {
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 4rem;
+    align-items: center;
+  }
+
+  .featured-image {
+    position: relative;
+    aspect-ratio: 4/3;
+    border-radius: var(--radius-2xl);
+    overflow: hidden;
+  }
+
+  .featured-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .featured-logo {
+    position: absolute;
+    top: 1.5rem;
+    left: 1.5rem;
+    padding: 0.75rem 1rem;
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .featured-logo img {
+    height: 2rem;
+    width: auto;
+  }
+
+  .featured-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0.5rem 0 1rem;
+    color: var(--color-text-primary);
+    line-height: 1.2;
+  }
+
+  .featured-description {
+    font-size: 1rem;
+    color: var(--color-text-secondary);
+    line-height: 1.7;
+    margin: 0 0 1.5rem;
+  }
+
+  .featured-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .featured-quote {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: var(--color-background-subtle);
+    border-radius: var(--radius-xl);
+    border-left: 4px solid var(--color-primary);
+  }
+
+  .featured-quote p {
+    font-size: 1rem;
+    font-style: italic;
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    margin: 0 0 1rem;
+  }
+
+  .featured-quote footer {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .quote-avatar {
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: var(--radius-full);
+    object-fit: cover;
+  }
+
+  .quote-avatar--lg {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+
+  .quote-author {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.875rem;
+  }
+
+  .quote-author strong {
+    color: var(--color-text-primary);
+  }
+
+  .quote-author span {
+    color: var(--color-text-tertiary);
+  }
+
+  /* Carousel variant */
+  .case-carousel {
+    position: relative;
+  }
+
+  .carousel-container {
+    overflow: hidden;
+  }
+
+  .carousel-track {
+    display: flex;
+    gap: 1.5rem;
+    transition: transform 0.3s ease;
+  }
+
+  .case-card--carousel {
+    flex: 0 0 calc(33.333% - 1rem);
+  }
+
+  .carousel-controls {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .carousel-btn {
+    width: 3rem;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+  }
+
+  .carousel-btn:hover {
+    background: var(--color-background-subtle);
+    border-color: var(--color-border);
+  }
+
+  /* Detail variant */
+  .case-detail {
+    max-width: 48rem;
+    margin: 0 auto;
+  }
+
+  .detail-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .detail-meta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .detail-logo {
+    height: 2.5rem;
+    width: auto;
+  }
+
+  .detail-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 1rem 0;
+    color: var(--color-text-primary);
+    line-height: 1.2;
+  }
+
+  .detail-hero {
+    aspect-ratio: 16/9;
+    border-radius: var(--radius-2xl);
+    overflow: hidden;
+    margin-bottom: 3rem;
+  }
+
+  .detail-hero img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .detail-metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.5rem;
+    margin-bottom: 4rem;
+  }
+
+  .detail-body {
+    font-size: 1.125rem;
+    line-height: 1.8;
+    color: var(--color-text-secondary);
+  }
+
+  .detail-body :global(h2) {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+    margin: 3rem 0 1rem;
+  }
+
+  .detail-body :global(h3) {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin: 2rem 0 1rem;
+  }
+
+  .detail-body :global(p) {
+    margin: 0 0 1.5rem;
+  }
+
+  .detail-body :global(img) {
+    width: 100%;
+    border-radius: var(--radius-xl);
+    margin: 2rem 0;
+  }
+
+  .detail-testimonial {
+    margin-top: 4rem;
+  }
+
+  .testimonial-card {
+    position: relative;
+    padding: 3rem;
+    background: var(--color-background-subtle);
+    border-radius: var(--radius-2xl);
+    text-align: center;
+    margin: 0;
+  }
+
+  .quote-icon {
+    color: var(--color-primary);
+    opacity: 0.2;
+    margin-bottom: 1rem;
+  }
+
+  .testimonial-card > p {
+    font-size: 1.25rem;
+    font-style: italic;
+    color: var(--color-text-primary);
+    line-height: 1.6;
+    margin: 0 0 1.5rem;
+  }
+
+  .testimonial-card footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  /* Minimal variant */
+  .case-minimal {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border-top: 1px solid var(--color-border-subtle);
+  }
+
+  .minimal-card {
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+
+  .minimal-link {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 2rem;
+    padding: 2rem 0;
+    text-decoration: none;
+    color: inherit;
+    align-items: center;
+    transition: opacity 0.2s;
+  }
+
+  .minimal-link:hover {
+    opacity: 0.8;
+  }
+
+  .minimal-number {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--color-text-tertiary);
+    opacity: 0.3;
+    line-height: 1;
+  }
+
+  .minimal-content {
+    flex: 1;
+  }
+
+  .minimal-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0.25rem 0 0.75rem;
+    color: var(--color-text-primary);
+  }
+
+  .minimal-excerpt {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    margin: 0;
+    max-width: 36rem;
+  }
+
+  .minimal-arrow {
+    color: var(--color-text-tertiary);
+    transition: transform 0.2s;
+  }
+
+  .minimal-link:hover .minimal-arrow {
+    transform: translateX(4px);
+  }
+
+  /* Stats variant */
+  .case-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+  }
+
+  .stats-card {
+    padding: 2rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-2xl);
+  }
+
+  .stats-header {
+    margin-bottom: 1.5rem;
+  }
+
+  .stats-logo {
+    height: 2rem;
+    width: auto;
+  }
+
+  .stats-client {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+  }
+
+  .stats-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    padding: 1.5rem;
+    background: var(--color-background-subtle);
+    border-radius: var(--radius-xl);
+    margin-bottom: 1.5rem;
+  }
+
+  .stats-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem;
+    color: var(--color-text-primary);
+  }
+
+  .stats-excerpt {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+    margin: 0 0 1rem;
+  }
+
+  .stats-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-primary);
+    text-decoration: none;
+  }
+
+  .stats-link:hover {
+    text-decoration: underline;
+  }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    transition: background 0.2s;
+    border: none;
+    cursor: pointer;
+  }
+
+  .btn--primary {
+    background: var(--color-primary);
+    color: white;
+  }
+
+  .btn--primary:hover {
+    background: var(--color-primary-dark);
+  }
+
+  .btn--lg {
+    padding: 1rem 2rem;
+    font-size: 1rem;
+  }
+
+  @media (max-width: 1024px) {
+    .case-featured {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    .case-card--carousel {
+      flex: 0 0 calc(50% - 0.75rem);
+    }
+
+    .detail-metrics {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    .case-stats {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .minimal-link {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .minimal-number {
+      font-size: 2rem;
+    }
+
+    .minimal-arrow {
+      display: none;
+    }
+
+    .featured-metrics {
+      grid-template-columns: 1fr;
+    }
+
+    .case-card--carousel {
+      flex: 0 0 calc(85% - 0.75rem);
+    }
+  }
+</style>
+
+<script>
+  function initCaseStudySections() {
+    // Carousel
+    const carousels = document.querySelectorAll('[data-case-carousel]');
+    carousels.forEach((carousel) => {
+      const track = carousel.querySelector('.carousel-track') as HTMLElement;
+      const prevBtn = carousel.querySelector('[data-carousel-prev]');
+      const nextBtn = carousel.querySelector('[data-carousel-next]');
+
+      let position = 0;
+      const card = track?.querySelector('.case-card') as HTMLElement;
+      const cardWidth = card?.offsetWidth || 300;
+      const gap = 24;
+      const containerWidth = (carousel.querySelector('.carousel-container') as HTMLElement)?.offsetWidth || 0;
+      const visibleCards = Math.floor(containerWidth / (cardWidth + gap));
+      const totalCards = track?.children.length || 0;
+      const maxPosition = Math.max(0, (totalCards - visibleCards) * (cardWidth + gap));
+
+      prevBtn?.addEventListener('click', () => {
+        position = Math.max(0, position - (cardWidth + gap));
+        if (track) track.style.transform = `translateX(-${position}px)`;
+      });
+
+      nextBtn?.addEventListener('click', () => {
+        position = Math.min(maxPosition, position + (cardWidth + gap));
+        if (track) track.style.transform = `translateX(-${position}px)`;
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCaseStudySections);
+  } else {
+    initCaseStudySections();
+  }
+
+  document.addEventListener('astro:page-load', initCaseStudySections);
+</script>

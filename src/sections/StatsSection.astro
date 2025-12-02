@@ -1,0 +1,109 @@
+---
+/**
+ * StatsSection Component
+ *
+ * Display impressive numbers and statistics.
+ *
+ * Variants:
+ * - simple: Clean number display
+ * - cards: Stats in cards
+ * - inline: Horizontal inline layout
+ * - background: Stats over background image
+ * - animated: Count-up animation
+ *
+ * @example
+ * <StatsSection variant="simple">
+ *   <StatItem value="10K+" label="Happy Customers" />
+ *   <StatItem value="99.9%" label="Uptime" />
+ * </StatsSection>
+ */
+
+import SectionWrapper from './SectionWrapper.astro';
+import SectionHeader from './SectionHeader.astro';
+
+export interface Props {
+  variant?: 'simple' | 'cards' | 'inline' | 'background' | 'animated';
+  columns?: 2 | 3 | 4 | 5;
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+  backgroundImage?: string;
+  background?: 'transparent' | 'subtle' | 'muted' | 'dark' | 'primary';
+  class?: string;
+}
+
+const {
+  variant = 'simple',
+  columns = 4,
+  eyebrow,
+  title,
+  description,
+  backgroundImage,
+  background = 'transparent',
+  class: className = '',
+} = Astro.props;
+
+// Column classes
+const columnClasses = {
+  2: 'grid-cols-2',
+  3: 'grid-cols-2 lg:grid-cols-3',
+  4: 'grid-cols-2 lg:grid-cols-4',
+  5: 'grid-cols-2 lg:grid-cols-5',
+};
+---
+
+{variant === 'background' ? (
+  <div
+    class:list={[
+      'stats-background relative py-16 lg:py-24 bg-cover bg-center',
+      className,
+    ]}
+    style={backgroundImage ? `background-image: url('${backgroundImage}')` : undefined}
+  >
+    <div class="absolute inset-0 bg-black/70" />
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {(eyebrow || title || description) && (
+        <div class="text-center text-white mb-12">
+          {eyebrow && (
+            <span class="text-sm font-semibold uppercase tracking-wider opacity-80 mb-3 block">
+              {eyebrow}
+            </span>
+          )}
+          {title && (
+            <h2 class="text-3xl lg:text-4xl font-bold mb-4">{title}</h2>
+          )}
+          {description && (
+            <p class="text-lg opacity-80 max-w-2xl mx-auto">{description}</p>
+          )}
+        </div>
+      )}
+      <div class:list={['grid gap-8 text-white', columnClasses[columns]]}>
+        <slot />
+      </div>
+    </div>
+  </div>
+) : (
+  <SectionWrapper background={background} class={className}>
+    {(eyebrow || title || description) && (
+      <SectionHeader
+        eyebrow={eyebrow}
+        title={title || ''}
+        description={description}
+      />
+    )}
+
+    {variant === 'inline' ? (
+      <div class="stats-inline flex flex-wrap justify-center divide-x divide-border-subtle">
+        <slot />
+      </div>
+    ) : (
+      <div class:list={[
+        'stats-grid grid gap-8',
+        columnClasses[columns],
+        variant === 'cards' && 'lg:gap-6',
+      ]} data-stats-container={variant === 'animated' ? 'animated' : undefined}>
+        <slot />
+      </div>
+    )}
+  </SectionWrapper>
+)}

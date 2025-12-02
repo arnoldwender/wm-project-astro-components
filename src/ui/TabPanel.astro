@@ -1,0 +1,34 @@
+---
+/**
+ * TabPanel Component
+ *
+ * Content panel for use within Tabs component.
+ *
+ * @example
+ * <TabPanel id="overview">
+ *   <h3>Overview Content</h3>
+ *   <p>Panel content here...</p>
+ * </TabPanel>
+ */
+
+export interface Props {
+  id: string;
+  class?: string;
+}
+
+const {
+  id,
+  class: className = '',
+} = Astro.props;
+---
+
+<div
+  role="tabpanel"
+  id={`${id}-panel`}
+  aria-labelledby={`${id}-tab`}
+  class:list={['tab-panel', className]}
+  tabindex="0"
+  hidden
+>
+  <slot />
+</div>

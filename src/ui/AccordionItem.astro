@@ -1,0 +1,70 @@
+---
+/**
+ * AccordionItem Component
+ *
+ * Individual collapsible section for use within Accordion.
+ *
+ * @example
+ * <AccordionItem title="Getting Started" icon="🚀" defaultOpen>
+ *   <p>Content here...</p>
+ * </AccordionItem>
+ */
+
+export interface Props {
+  title: string;
+  icon?: string;
+  defaultOpen?: boolean;
+  disabled?: boolean;
+  class?: string;
+}
+
+const {
+  title,
+  icon,
+  defaultOpen = false,
+  disabled = false,
+  class: className = '',
+} = Astro.props;
+
+const id = `accordion-item-${Math.random().toString(36).slice(2, 9)}`;
+const triggerId = `${id}-trigger`;
+const contentId = `${id}-content`;
+---
+
+<div
+  class:list={['accordion-item', className]}
+  data-default-open={defaultOpen}
+>
+  <h3>
+    <button
+      type="button"
+      id={triggerId}
+      class="accordion-trigger"
+      aria-expanded="false"
+      aria-controls={contentId}
+      aria-disabled={disabled}
+    >
+      {icon && <span class="accordion-item-icon mr-3">{icon}</span>}
+      <span class="flex-1 text-left">{title}</span>
+      <svg
+        class="accordion-icon"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+      </svg>
+    </button>
+  </h3>
+  <div
+    id={contentId}
+    role="region"
+    aria-labelledby={triggerId}
+    class="accordion-content"
+    hidden
+  >
+    <div class="accordion-content-inner">
+      <slot />
+    </div>
+  </div>
+</div>

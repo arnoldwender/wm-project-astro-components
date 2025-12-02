@@ -1,0 +1,150 @@
+---
+/**
+ * PricingSection Component
+ *
+ * Pricing plans display with comparison features.
+ *
+ * Variants:
+ * - cards: Traditional pricing cards
+ * - comparison: Feature comparison table
+ * - toggle: Monthly/yearly toggle
+ * - minimal: Simple pricing list
+ *
+ * @example
+ * <PricingSection variant="cards">
+ *   <PricingCard name="Starter" price={9} ... />
+ *   <PricingCard name="Pro" price={29} featured ... />
+ * </PricingSection>
+ */
+
+import SectionWrapper from './SectionWrapper.astro';
+import SectionHeader from './SectionHeader.astro';
+
+export interface Props {
+  variant?: 'cards' | 'comparison' | 'toggle' | 'minimal';
+  columns?: 2 | 3 | 4;
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+  showToggle?: boolean;
+  background?: 'transparent' | 'subtle' | 'muted';
+  class?: string;
+}
+
+const {
+  variant = 'cards',
+  columns = 3,
+  eyebrow,
+  title,
+  description,
+  showToggle = false,
+  background = 'transparent',
+  class: className = '',
+} = Astro.props;
+
+// Column classes
+const columnClasses = {
+  2: 'md:grid-cols-2 max-w-4xl',
+  3: 'lg:grid-cols-3 max-w-5xl',
+  4: 'lg:grid-cols-4 max-w-6xl',
+};
+---
+
+<SectionWrapper background={background} class={className}>
+  {(eyebrow || title || description) && (
+    <SectionHeader
+      eyebrow={eyebrow}
+      title={title || ''}
+      description={description}
+    />
+  )}
+
+  {/* Billing Toggle */}
+  {showToggle && (
+    <div class="pricing-toggle flex items-center justify-center gap-4 mb-12" data-pricing-toggle>
+      <span class="text-sm font-medium text-text-secondary" data-toggle-label="monthly">Monatlich</span>
+      <button
+        type="button"
+        class="relative w-14 h-7 bg-background-muted rounded-full transition-colors"
+        data-toggle-switch
+        aria-pressed="false"
+        aria-label="Toggle billing period"
+      >
+        <span class="absolute top-1 left-1 w-5 h-5 bg-primary rounded-full transition-transform" data-toggle-knob />
+      </button>
+      <span class="text-sm font-medium text-text-tertiary" data-toggle-label="yearly">
+        Jährlich <span class="text-primary">(-20%)</span>
+      </span>
+    </div>
+  )}
+
+  {/* Cards Variant */}
+  {(variant === 'cards' || variant === 'toggle') && (
+    <div class:list={['pricing-cards grid gap-6 lg:gap-8 mx-auto items-start', columnClasses[columns]]}>
+      <slot />
+    </div>
+  )}
+
+  {/* Comparison Variant */}
+  {variant === 'comparison' && (
+    <div class="pricing-comparison overflow-x-auto">
+      <slot />
+    </div>
+  )}
+
+  {/* Minimal Variant */}
+  {variant === 'minimal' && (
+    <div class="pricing-minimal max-w-2xl mx-auto space-y-4">
+      <slot />
+    </div>
+  )}
+</SectionWrapper>
+
+<style>
+  /* Toggle switch */
+  [data-toggle-switch][aria-pressed="true"] {
+    background-color: var(--color-primary);
+  }
+
+  [data-toggle-switch][aria-pressed="true"] [data-toggle-knob] {
+    transform: translateX(1.75rem);
+    background-color: white;
+  }
+
+  [data-toggle-switch][aria-pressed="true"] + [data-toggle-label="yearly"] {
+    color: var(--color-text-secondary);
+  }
+
+  [data-toggle-switch][aria-pressed="false"] + [data-toggle-label="monthly"] {
+    color: var(--color-text-secondary);
+  }
+</style>
+
+<script>
+  function initPricingToggle() {
+    const toggles = document.querySelectorAll('[data-pricing-toggle]');
+
+    toggles.forEach((container) => {
+      const switchBtn = container.querySelector('[data-toggle-switch]');
+
+      switchBtn?.addEventListener('click', () => {
+        const isYearly = switchBtn.getAttribute('aria-pressed') === 'true';
+        switchBtn.setAttribute('aria-pressed', (!isYearly).toString());
+
+        // Dispatch event for pricing cards to update
+        container.dispatchEvent(new CustomEvent('pricing:toggle', {
+          bubbles: true,
+          detail: { billing: isYearly ? 'monthly' : 'yearly' }
+        }));
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initPricingToggle);
+  } else {
+    initPricingToggle();
+  }
+
+  document.addEventListener('astro:page-load', initPricingToggle);
+</script>

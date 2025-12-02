@@ -1,0 +1,318 @@
+---
+/**
+ * ProcessSection Component
+ *
+ * Display workflow, how-it-works, or step-by-step processes.
+ *
+ * Variants:
+ * - vertical: Vertical timeline with connector
+ * - horizontal: Horizontal steps with arrows
+ * - grid: Grid of numbered steps
+ * - alternating: Zigzag layout
+ * - cards: Steps in cards
+ * - roadmap: Visual roadmap style
+ *
+ * @example
+ * <ProcessSection variant="horizontal" title="How It Works">
+ *   <ProcessStep number={1} title="Sign Up" description="..." />
+ *   <ProcessStep number={2} title="Configure" description="..." />
+ * </ProcessSection>
+ */
+
+import SectionWrapper from './SectionWrapper.astro';
+import SectionHeader from './SectionHeader.astro';
+
+export interface Props {
+  variant?: 'vertical' | 'horizontal' | 'grid' | 'alternating' | 'cards' | 'roadmap';
+  columns?: 2 | 3 | 4 | 5;
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+  showConnectors?: boolean;
+  background?: 'transparent' | 'subtle' | 'muted';
+  class?: string;
+}
+
+const {
+  variant = 'vertical',
+  columns = 4,
+  eyebrow,
+  title,
+  description,
+  showConnectors = true,
+  background = 'transparent',
+  class: className = '',
+} = Astro.props;
+
+const columnClasses = {
+  2: 'sm:grid-cols-2',
+  3: 'sm:grid-cols-2 lg:grid-cols-3',
+  4: 'sm:grid-cols-2 lg:grid-cols-4',
+  5: 'sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5',
+};
+---
+
+<SectionWrapper background={background} class={className}>
+  {(eyebrow || title || description) && (
+    <SectionHeader
+      eyebrow={eyebrow}
+      title={title || ''}
+      description={description}
+    />
+  )}
+
+  {/* Vertical Variant */}
+  {variant === 'vertical' && (
+    <div class:list={['process-vertical max-w-2xl mx-auto', showConnectors && 'with-connectors']}>
+      <slot />
+    </div>
+  )}
+
+  {/* Horizontal Variant */}
+  {variant === 'horizontal' && (
+    <div class:list={[
+      'process-horizontal grid gap-8',
+      columnClasses[columns],
+      showConnectors && 'with-connectors',
+    ]}>
+      <slot />
+    </div>
+  )}
+
+  {/* Grid Variant */}
+  {variant === 'grid' && (
+    <div class:list={['process-grid grid gap-8', columnClasses[columns]]}>
+      <slot />
+    </div>
+  )}
+
+  {/* Alternating Variant */}
+  {variant === 'alternating' && (
+    <div class:list={['process-alternating max-w-4xl mx-auto', showConnectors && 'with-connectors']}>
+      <slot />
+    </div>
+  )}
+
+  {/* Cards Variant */}
+  {variant === 'cards' && (
+    <div class:list={['process-cards grid gap-6', columnClasses[columns]]}>
+      <slot />
+    </div>
+  )}
+
+  {/* Roadmap Variant */}
+  {variant === 'roadmap' && (
+    <div class="process-roadmap relative overflow-x-auto pb-4">
+      <div class="roadmap-track relative min-w-max">
+        {showConnectors && (
+          <div class="roadmap-line absolute left-0 right-0 top-6 h-1 bg-border-subtle" />
+        )}
+        <div class="flex gap-8 lg:gap-12 relative">
+          <slot />
+        </div>
+      </div>
+    </div>
+  )}
+</SectionWrapper>
+
+<style>
+  /* Vertical connectors */
+  .process-vertical.with-connectors :global(.process-step:not(:last-child) .step-indicator::after) {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: calc(100% + 1rem);
+    background: var(--color-border-subtle);
+  }
+
+  .process-vertical :global(.process-step) {
+    padding-bottom: 2rem;
+  }
+
+  .process-vertical :global(.process-step:last-child) {
+    padding-bottom: 0;
+  }
+
+  .process-vertical :global(.step-indicator) {
+    position: relative;
+  }
+
+  /* Horizontal connectors */
+  .process-horizontal.with-connectors :global(.process-step) {
+    position: relative;
+  }
+
+  .process-horizontal.with-connectors :global(.process-step:not(:last-child)::after) {
+    content: '';
+    position: absolute;
+    top: 1.25rem;
+    right: -1rem;
+    width: calc(100% - 3rem);
+    height: 2px;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-border-subtle));
+    transform: translateX(100%);
+  }
+
+  @media (max-width: 640px) {
+    .process-horizontal.with-connectors :global(.process-step::after) {
+      display: none;
+    }
+  }
+
+  /* Horizontal step layout */
+  .process-horizontal :global(.process-step) {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .process-horizontal :global(.step-indicator) {
+    margin-bottom: 1rem;
+    align-self: center;
+  }
+
+  .process-horizontal :global(.step-content) {
+    text-align: center;
+  }
+
+  /* Alternating layout */
+  .process-alternating :global(.process-step) {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 2rem;
+    padding-bottom: 3rem;
+  }
+
+  .process-alternating :global(.process-step:nth-child(odd) .step-content) {
+    text-align: right;
+    order: 0;
+  }
+
+  .process-alternating :global(.process-step:nth-child(odd) .step-indicator) {
+    order: 1;
+  }
+
+  .process-alternating :global(.process-step:nth-child(odd)::after) {
+    order: 2;
+    content: '';
+  }
+
+  .process-alternating :global(.process-step:nth-child(even) .step-content) {
+    text-align: left;
+    order: 2;
+  }
+
+  .process-alternating :global(.process-step:nth-child(even) .step-indicator) {
+    order: 1;
+  }
+
+  .process-alternating :global(.process-step:nth-child(even)::before) {
+    order: 0;
+    content: '';
+  }
+
+  .process-alternating.with-connectors :global(.step-indicator) {
+    position: relative;
+  }
+
+  .process-alternating.with-connectors :global(.process-step:not(:last-child) .step-indicator::after) {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    height: 3rem;
+    background: var(--color-border-subtle);
+  }
+
+  @media (max-width: 768px) {
+    .process-alternating :global(.process-step) {
+      grid-template-columns: auto 1fr;
+      gap: 1rem;
+    }
+
+    .process-alternating :global(.process-step .step-content) {
+      text-align: left !important;
+      order: 1 !important;
+    }
+
+    .process-alternating :global(.process-step .step-indicator) {
+      order: 0 !important;
+    }
+
+    .process-alternating :global(.process-step::before),
+    .process-alternating :global(.process-step::after) {
+      display: none !important;
+    }
+  }
+
+  /* Cards variant */
+  .process-cards :global(.process-step) {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .process-cards :global(.step-indicator) {
+    margin-bottom: 1rem;
+    align-self: center;
+  }
+
+  .process-cards :global(.step-content) {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Roadmap variant */
+  .process-roadmap :global(.process-step) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    min-width: 200px;
+    max-width: 280px;
+  }
+
+  .process-roadmap :global(.step-indicator) {
+    margin-bottom: 1rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .roadmap-track {
+    padding-top: 1rem;
+  }
+
+  /* Scroll shadow for roadmap */
+  .process-roadmap {
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 1rem,
+      black calc(100% - 1rem),
+      transparent
+    );
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 1rem,
+      black calc(100% - 1rem),
+      transparent
+    );
+  }
+
+  /* Hide scrollbar */
+  .process-roadmap {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .process-roadmap::-webkit-scrollbar {
+    display: none;
+  }
+</style>

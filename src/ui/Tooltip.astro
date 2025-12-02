@@ -1,0 +1,361 @@
+---
+/**
+ * Tooltip Component
+ *
+ * Accessible tooltip with smart positioning and rich content support.
+ *
+ * Features:
+ * - Auto-positioning (flips when near edges)
+ * - Multiple placements
+ * - Delay configuration
+ * - Rich content support
+ * - Arrow pointer
+ * - Keyboard accessible
+ * - Touch device support
+ * - Reduced motion support
+ *
+ * @example
+ * <Tooltip content="Helpful information">
+ *   <button>Hover me</button>
+ * </Tooltip>
+ *
+ * @example
+ * <Tooltip placement="right" delay={500}>
+ *   <span slot="content">Rich <strong>HTML</strong> content</span>
+ *   <button>Hover me</button>
+ * </Tooltip>
+ */
+
+export interface Props {
+  content?: string;
+  placement?: 'top' | 'bottom' | 'left' | 'right';
+  delay?: number;
+  hideDelay?: number;
+  offset?: number;
+  showArrow?: boolean;
+  interactive?: boolean;
+  class?: string;
+}
+
+const {
+  content,
+  placement = 'top',
+  delay = 200,
+  hideDelay = 0,
+  offset = 8,
+  showArrow = true,
+  interactive = false,
+  class: className = '',
+} = Astro.props;
+
+const id = `tooltip-${Math.random().toString(36).slice(2, 9)}`;
+---
+
+<div
+  class:list={['tooltip-wrapper inline-block', className]}
+  data-tooltip-wrapper
+  data-placement={placement}
+  data-delay={delay}
+  data-hide-delay={hideDelay}
+  data-offset={offset}
+  data-interactive={interactive}
+>
+  <!-- Trigger (slot content) -->
+  <div
+    class="tooltip-trigger inline-block"
+    data-tooltip-trigger
+    aria-describedby={id}
+  >
+    <slot />
+  </div>
+
+  <!-- Tooltip -->
+  <div
+    id={id}
+    role="tooltip"
+    class:list={[
+      'tooltip absolute z-tooltip',
+      'px-3 py-2 text-sm',
+      'bg-surface-inverse text-text-inverse',
+      'rounded-lg shadow-lg',
+      'opacity-0 invisible',
+      'transition-opacity duration-150',
+    ]}
+    data-tooltip
+  >
+    <!-- Content -->
+    <div class="tooltip-content">
+      {Astro.slots.has('content') ? (
+        <slot name="content" />
+      ) : (
+        content
+      )}
+    </div>
+
+    <!-- Arrow -->
+    {showArrow && (
+      <div
+        class="tooltip-arrow absolute w-2 h-2 bg-surface-inverse rotate-45"
+        data-tooltip-arrow
+      />
+    )}
+  </div>
+</div>
+
+<style>
+  .tooltip-wrapper {
+    position: relative;
+  }
+
+  .tooltip {
+    pointer-events: none;
+    max-width: 280px;
+    word-wrap: break-word;
+  }
+
+  .tooltip-wrapper[data-interactive="true"] .tooltip {
+    pointer-events: auto;
+  }
+
+  .tooltip.visible {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Placement positions */
+  .tooltip[data-position="top"] {
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .tooltip[data-position="bottom"] {
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .tooltip[data-position="left"] {
+    right: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .tooltip[data-position="right"] {
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  /* Arrow positions */
+  .tooltip[data-position="top"] .tooltip-arrow {
+    bottom: -4px;
+    left: 50%;
+    transform: translateX(-50%) rotate(45deg);
+  }
+
+  .tooltip[data-position="bottom"] .tooltip-arrow {
+    top: -4px;
+    left: 50%;
+    transform: translateX(-50%) rotate(45deg);
+  }
+
+  .tooltip[data-position="left"] .tooltip-arrow {
+    right: -4px;
+    top: 50%;
+    transform: translateY(-50%) rotate(45deg);
+  }
+
+  .tooltip[data-position="right"] .tooltip-arrow {
+    left: -4px;
+    top: 50%;
+    transform: translateY(-50%) rotate(45deg);
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .tooltip {
+      transition-duration: 0.01ms !important;
+    }
+  }
+</style>
+
+<script>
+  function initTooltip(wrapper: HTMLElement) {
+    const trigger = wrapper.querySelector('[data-tooltip-trigger]') as HTMLElement;
+    const tooltip = wrapper.querySelector('[data-tooltip]') as HTMLElement;
+    const arrow = wrapper.querySelector('[data-tooltip-arrow]') as HTMLElement;
+
+    const preferredPlacement = wrapper.dataset.placement || 'top';
+    const delay = parseInt(wrapper.dataset.delay || '200', 10);
+    const hideDelay = parseInt(wrapper.dataset.hideDelay || '0', 10);
+    const offset = parseInt(wrapper.dataset.offset || '8', 10);
+    const interactive = wrapper.dataset.interactive === 'true';
+
+    let showTimeout: ReturnType<typeof setTimeout>;
+    let hideTimeout: ReturnType<typeof setTimeout>;
+    let isVisible = false;
+
+    function show() {
+      clearTimeout(hideTimeout);
+      showTimeout = setTimeout(() => {
+        position();
+        tooltip.classList.add('visible');
+        isVisible = true;
+      }, delay);
+    }
+
+    function hide() {
+      clearTimeout(showTimeout);
+      hideTimeout = setTimeout(() => {
+        tooltip.classList.remove('visible');
+        isVisible = false;
+      }, hideDelay);
+    }
+
+    function position() {
+      const triggerRect = trigger.getBoundingClientRect();
+      const tooltipRect = tooltip.getBoundingClientRect();
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+
+      // Determine best placement
+      let placement = preferredPlacement;
+
+      // Check if preferred placement fits
+      const placements = {
+        top: triggerRect.top - tooltipRect.height - offset > 0,
+        bottom: triggerRect.bottom + tooltipRect.height + offset < viewportHeight,
+        left: triggerRect.left - tooltipRect.width - offset > 0,
+        right: triggerRect.right + tooltipRect.width + offset < viewportWidth,
+      };
+
+      // Flip if necessary
+      if (!placements[placement as keyof typeof placements]) {
+        const opposites: Record<string, string> = {
+          top: 'bottom',
+          bottom: 'top',
+          left: 'right',
+          right: 'left',
+        };
+        const opposite = opposites[placement];
+        if (placements[opposite as keyof typeof placements]) {
+          placement = opposite;
+        }
+      }
+
+      // Set position
+      tooltip.setAttribute('data-position', placement);
+
+      // Calculate position
+      let top = 0;
+      let left = 0;
+
+      switch (placement) {
+        case 'top':
+          top = -tooltipRect.height - offset;
+          left = (triggerRect.width - tooltipRect.width) / 2;
+          break;
+        case 'bottom':
+          top = triggerRect.height + offset;
+          left = (triggerRect.width - tooltipRect.width) / 2;
+          break;
+        case 'left':
+          top = (triggerRect.height - tooltipRect.height) / 2;
+          left = -tooltipRect.width - offset;
+          break;
+        case 'right':
+          top = (triggerRect.height - tooltipRect.height) / 2;
+          left = triggerRect.width + offset;
+          break;
+      }
+
+      // Apply position
+      tooltip.style.top = `${top}px`;
+      tooltip.style.left = `${left}px`;
+
+      // Keep within viewport horizontally
+      const tooltipAbsLeft = triggerRect.left + left;
+      const tooltipAbsRight = tooltipAbsLeft + tooltipRect.width;
+
+      if (tooltipAbsLeft < 8) {
+        const adjust = 8 - tooltipAbsLeft;
+        tooltip.style.left = `${left + adjust}px`;
+        if (arrow) {
+          arrow.style.left = `calc(50% - ${adjust}px)`;
+        }
+      } else if (tooltipAbsRight > viewportWidth - 8) {
+        const adjust = tooltipAbsRight - (viewportWidth - 8);
+        tooltip.style.left = `${left - adjust}px`;
+        if (arrow) {
+          arrow.style.left = `calc(50% + ${adjust}px)`;
+        }
+      } else if (arrow) {
+        arrow.style.left = '';
+      }
+    }
+
+    // Mouse events
+    trigger.addEventListener('mouseenter', show);
+    trigger.addEventListener('mouseleave', hide);
+
+    // Interactive tooltip
+    if (interactive) {
+      tooltip.addEventListener('mouseenter', () => {
+        clearTimeout(hideTimeout);
+      });
+      tooltip.addEventListener('mouseleave', hide);
+    }
+
+    // Focus events for keyboard accessibility
+    trigger.addEventListener('focusin', show);
+    trigger.addEventListener('focusout', hide);
+
+    // Touch devices
+    trigger.addEventListener('touchstart', (e) => {
+      if (isVisible) {
+        hide();
+      } else {
+        show();
+        // Hide on touch outside
+        const hideOnTouch = (event: TouchEvent) => {
+          if (!wrapper.contains(event.target as Node)) {
+            hide();
+            document.removeEventListener('touchstart', hideOnTouch);
+          }
+        };
+        document.addEventListener('touchstart', hideOnTouch);
+      }
+    }, { passive: true });
+
+    // Escape key
+    document.addEventListener('keydown', (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isVisible) {
+        hide();
+      }
+    });
+
+    // Reposition on scroll/resize
+    const repositionHandler = () => {
+      if (isVisible) {
+        position();
+      }
+    };
+    window.addEventListener('scroll', repositionHandler, { passive: true });
+    window.addEventListener('resize', repositionHandler, { passive: true });
+  }
+
+  function initAllTooltips() {
+    document.querySelectorAll('[data-tooltip-wrapper]').forEach(wrapper => {
+      initTooltip(wrapper as HTMLElement);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAllTooltips);
+  } else {
+    initAllTooltips();
+  }
+
+  document.addEventListener('astro:page-load', initAllTooltips);
+</script>

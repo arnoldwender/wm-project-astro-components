@@ -1,0 +1,217 @@
+---
+/**
+ * BlogCard Component
+ *
+ * Individual blog post or news article card.
+ *
+ * @example
+ * <BlogCard
+ *   title="How to Build Better Products"
+ *   excerpt="Learn the secrets of successful product development..."
+ *   image="/blog/products.jpg"
+ *   href="/blog/better-products"
+ *   date="2024-01-15"
+ *   category="Product"
+ *   author={{ name: "Jane Doe", avatar: "/team/jane.jpg" }}
+ * />
+ */
+
+export interface Author {
+  name: string;
+  avatar?: string;
+}
+
+export interface Props {
+  title: string;
+  excerpt?: string;
+  image?: string;
+  href: string;
+  date?: string;
+  category?: string;
+  author?: Author;
+  readingTime?: string;
+  featured?: boolean;
+  variant?: 'default' | 'horizontal' | 'minimal' | 'overlay' | 'compact';
+  class?: string;
+}
+
+const {
+  title,
+  excerpt,
+  image,
+  href,
+  date,
+  category,
+  author,
+  readingTime,
+  featured = false,
+  variant = 'default',
+  class: className = '',
+} = Astro.props;
+
+// Format date
+const formattedDate = date ? new Date(date).toLocaleDateString('de-DE', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+}) : null;
+---
+
+<article
+  class:list={[
+    'blog-card group',
+    variant === 'horizontal' && 'flex flex-col md:flex-row gap-6',
+    variant === 'overlay' && 'relative overflow-hidden rounded-2xl',
+    variant === 'compact' && 'flex items-start gap-4',
+    variant === 'minimal' && 'border-b border-border-subtle pb-6 last:border-b-0',
+    variant === 'default' && 'flex flex-col',
+    featured && 'md:col-span-2 lg:col-span-2',
+    className,
+  ]}
+>
+  {/* Image */}
+  {image && variant !== 'minimal' && (
+    <a
+      href={href}
+      class:list={[
+        'blog-image block overflow-hidden',
+        variant === 'overlay' && 'absolute inset-0',
+        variant === 'horizontal' && 'md:w-2/5 flex-shrink-0 rounded-xl',
+        variant === 'compact' && 'w-24 h-24 flex-shrink-0 rounded-lg',
+        variant === 'default' && 'rounded-xl mb-4 aspect-video',
+        featured && variant === 'default' && 'aspect-[2/1]',
+      ]}
+    >
+      <img
+        src={image}
+        alt={title}
+        class:list={[
+          'w-full h-full object-cover transition-transform duration-500',
+          variant !== 'compact' && 'group-hover:scale-105',
+        ]}
+        loading="lazy"
+      />
+      {variant === 'overlay' && (
+        <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/10" />
+      )}
+    </a>
+  )}
+
+  {/* Content */}
+  <div class:list={[
+    'blog-content flex-1 min-w-0',
+    variant === 'overlay' && 'relative z-10 flex flex-col justify-end p-6 text-white min-h-[300px]',
+    variant === 'horizontal' && 'flex flex-col justify-center',
+  ]}>
+    {/* Meta: Category & Date */}
+    <div class:list={[
+      'flex items-center gap-3 text-sm mb-2',
+      variant === 'overlay' ? 'text-white/80' : 'text-text-secondary',
+    ]}>
+      {category && (
+        <span class:list={[
+          'font-medium',
+          variant === 'overlay' ? 'text-white' : 'text-primary',
+        ]}>
+          {category}
+        </span>
+      )}
+      {category && formattedDate && (
+        <span class:list={[variant === 'overlay' ? 'text-white/50' : 'text-text-tertiary']}>·</span>
+      )}
+      {formattedDate && (
+        <time datetime={date}>{formattedDate}</time>
+      )}
+    </div>
+
+    {/* Title */}
+    <h3 class:list={[
+      'font-semibold leading-snug',
+      variant === 'compact' ? 'text-base' : 'text-lg lg:text-xl',
+      variant === 'overlay' ? 'text-white' : 'text-text-primary',
+      featured && 'text-xl lg:text-2xl',
+    ]}>
+      <a
+        href={href}
+        class:list={[
+          'hover:underline underline-offset-2',
+          variant !== 'overlay' && 'group-hover:text-primary transition-colors',
+        ]}
+      >
+        {title}
+      </a>
+    </h3>
+
+    {/* Excerpt */}
+    {excerpt && variant !== 'compact' && (
+      <p class:list={[
+        'mt-2',
+        variant === 'minimal' ? 'text-sm' : 'text-base',
+        variant === 'overlay' ? 'text-white/80 line-clamp-2' : 'text-text-secondary line-clamp-2',
+      ]}>
+        {excerpt}
+      </p>
+    )}
+
+    {/* Footer: Author & Reading Time */}
+    {(author || readingTime) && variant !== 'compact' && (
+      <div class:list={[
+        'flex items-center gap-4 mt-4',
+        variant === 'overlay' ? 'text-white/70' : 'text-text-secondary',
+      ]}>
+        {author && (
+          <div class="flex items-center gap-2">
+            {author.avatar ? (
+              <img
+                src={author.avatar}
+                alt={author.name}
+                class="w-8 h-8 rounded-full object-cover"
+                loading="lazy"
+              />
+            ) : (
+              <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                <span class="text-xs font-medium text-primary">
+                  {author.name.split(' ').map(n => n[0]).join('')}
+                </span>
+              </div>
+            )}
+            <span class="text-sm font-medium">{author.name}</span>
+          </div>
+        )}
+        {readingTime && (
+          <span class="text-sm flex items-center gap-1">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {readingTime}
+          </span>
+        )}
+      </div>
+    )}
+
+    {/* Read more for minimal variant */}
+    {variant === 'minimal' && (
+      <a
+        href={href}
+        class="inline-flex items-center gap-1 text-sm font-medium text-primary mt-3 hover:gap-2 transition-all"
+      >
+        Weiterlesen
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+        </svg>
+      </a>
+    )}
+  </div>
+</article>
+
+<style>
+  @media (prefers-reduced-motion: reduce) {
+    .blog-image img {
+      transition: none;
+    }
+
+    .blog-image img:hover {
+      transform: none;
+    }
+  }
+</style>

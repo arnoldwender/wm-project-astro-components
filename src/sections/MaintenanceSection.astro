@@ -1,0 +1,901 @@
+---
+/**
+ * MaintenanceSection Component
+ *
+ * Maintenance mode / under construction pages.
+ *
+ * Variants:
+ * - default: Standard maintenance message
+ * - progress: With progress indicator
+ * - scheduled: With scheduled time info
+ * - minimal: Simple text only
+ * - branded: Brand-focused design
+ * - technical: Technical/developer style
+ *
+ * @example
+ * <MaintenanceSection
+ *   variant="default"
+ *   title="Under Maintenance"
+ *   estimatedTime="2 hours"
+ * />
+ */
+
+export interface Props {
+  variant?: 'default' | 'progress' | 'scheduled' | 'minimal' | 'branded' | 'technical';
+  title?: string;
+  description?: string;
+  logo?: string;
+  estimatedTime?: string;
+  startTime?: string;
+  endTime?: string;
+  progress?: number;
+  statusUrl?: string;
+  contactEmail?: string;
+  socials?: { platform: string; href: string; icon: string }[];
+  showCountdown?: boolean;
+  class?: string;
+}
+
+const {
+  variant = 'default',
+  title = 'Under Maintenance',
+  description = "We're currently performing scheduled maintenance. We'll be back online shortly.",
+  logo,
+  estimatedTime,
+  startTime,
+  endTime,
+  progress = 0,
+  statusUrl,
+  contactEmail,
+  socials = [],
+  showCountdown = false,
+  class: className = '',
+} = Astro.props;
+
+const countdownId = `maintenance-countdown-${Math.random().toString(36).slice(2, 9)}`;
+---
+
+<section
+  class:list={[
+    'maintenance',
+    `maintenance--${variant}`,
+    className,
+  ]}
+  data-end-time={endTime}
+  data-countdown-id={countdownId}
+>
+  <div class="maintenance-container">
+    {/* Default variant */}
+    {variant === 'default' && (
+      <div class="content content--centered">
+        <div class="icon-wrapper">
+          <svg class="maintenance-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="64" height="64">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        </div>
+
+        {logo && <img src={logo} alt="Logo" class="logo" />}
+        <h1 class="title">{title}</h1>
+        <p class="description">{description}</p>
+
+        {estimatedTime && (
+          <div class="estimated-time">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>Estimated downtime: <strong>{estimatedTime}</strong></span>
+          </div>
+        )}
+
+        {(statusUrl || contactEmail) && (
+          <div class="links">
+            {statusUrl && (
+              <a href={statusUrl} class="link">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                </svg>
+                Check Status
+              </a>
+            )}
+            {contactEmail && (
+              <a href={`mailto:${contactEmail}`} class="link">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+                Contact Support
+              </a>
+            )}
+          </div>
+        )}
+      </div>
+    )}
+
+    {/* Progress variant */}
+    {variant === 'progress' && (
+      <div class="content content--centered">
+        <div class="progress-circle" style={`--progress: ${progress}`}>
+          <svg viewBox="0 0 100 100">
+            <circle class="progress-bg" cx="50" cy="50" r="45" />
+            <circle class="progress-bar" cx="50" cy="50" r="45" />
+          </svg>
+          <span class="progress-value">{progress}%</span>
+        </div>
+
+        <h1 class="title">{title}</h1>
+        <p class="description">{description}</p>
+
+        <div class="progress-linear">
+          <div class="progress-track">
+            <div class="progress-fill" style={`width: ${progress}%`} />
+          </div>
+          <span class="progress-label">{progress}% Complete</span>
+        </div>
+
+        {estimatedTime && (
+          <p class="time-remaining">
+            Estimated time remaining: <strong>{estimatedTime}</strong>
+          </p>
+        )}
+      </div>
+    )}
+
+    {/* Scheduled variant */}
+    {variant === 'scheduled' && (
+      <div class="content content--centered">
+        <div class="schedule-badge">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="20" height="20">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          Scheduled Maintenance
+        </div>
+
+        {logo && <img src={logo} alt="Logo" class="logo" />}
+        <h1 class="title">{title}</h1>
+        <p class="description">{description}</p>
+
+        <div class="schedule-info">
+          {startTime && (
+            <div class="schedule-item">
+              <span class="schedule-label">Start Time</span>
+              <span class="schedule-value">{startTime}</span>
+            </div>
+          )}
+          {endTime && (
+            <div class="schedule-item">
+              <span class="schedule-label">Expected End</span>
+              <span class="schedule-value">{endTime}</span>
+            </div>
+          )}
+        </div>
+
+        {showCountdown && endTime && (
+          <div class="countdown" id={countdownId}>
+            <p class="countdown-label">Back online in:</p>
+            <div class="countdown-items">
+              <div class="countdown-item">
+                <span class="countdown-value" data-hours>00</span>
+                <span class="countdown-unit">Hours</span>
+              </div>
+              <div class="countdown-item">
+                <span class="countdown-value" data-minutes>00</span>
+                <span class="countdown-unit">Minutes</span>
+              </div>
+              <div class="countdown-item">
+                <span class="countdown-value" data-seconds>00</span>
+                <span class="countdown-unit">Seconds</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {statusUrl && (
+          <a href={statusUrl} class="btn btn--primary">
+            View Status Page
+          </a>
+        )}
+      </div>
+    )}
+
+    {/* Minimal variant */}
+    {variant === 'minimal' && (
+      <div class="content content--minimal">
+        <h1 class="title-minimal">{title}</h1>
+        <p class="description">{description}</p>
+        {estimatedTime && (
+          <p class="time-info">Back in approximately {estimatedTime}</p>
+        )}
+      </div>
+    )}
+
+    {/* Branded variant */}
+    {variant === 'branded' && (
+      <div class="content content--branded">
+        <div class="branded-card">
+          {logo && <img src={logo} alt="Logo" class="logo logo--lg" />}
+
+          <div class="maintenance-badge">
+            <span class="badge-dot" />
+            Maintenance in Progress
+          </div>
+
+          <h1 class="title">{title}</h1>
+          <p class="description">{description}</p>
+
+          {estimatedTime && (
+            <div class="eta-box">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="24" height="24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div>
+                <span class="eta-label">Estimated Completion</span>
+                <span class="eta-value">{estimatedTime}</span>
+              </div>
+            </div>
+          )}
+
+          {socials.length > 0 && (
+            <div class="socials">
+              <p class="socials-label">Follow us for updates:</p>
+              <div class="socials-list">
+                {socials.map((social) => (
+                  <a
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="social-link"
+                    aria-label={social.platform}
+                  >
+                    <span set:html={social.icon} />
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    )}
+
+    {/* Technical variant */}
+    {variant === 'technical' && (
+      <div class="content content--technical">
+        <div class="terminal">
+          <div class="terminal-header">
+            <span class="terminal-dot terminal-dot--red" />
+            <span class="terminal-dot terminal-dot--yellow" />
+            <span class="terminal-dot terminal-dot--green" />
+            <span class="terminal-title">system-status</span>
+          </div>
+          <div class="terminal-body">
+            <div class="terminal-line">
+              <span class="prompt">$</span>
+              <span class="command">status --check</span>
+            </div>
+            <div class="terminal-line terminal-line--output">
+              <span class="status-icon">⚙️</span>
+              <span>Maintenance mode: <span class="text-yellow">ACTIVE</span></span>
+            </div>
+            <div class="terminal-line terminal-line--output">
+              <span class="status-icon">📅</span>
+              <span>Status: {title}</span>
+            </div>
+            {estimatedTime && (
+              <div class="terminal-line terminal-line--output">
+                <span class="status-icon">⏱️</span>
+                <span>ETA: {estimatedTime}</span>
+              </div>
+            )}
+            <div class="terminal-line terminal-line--output">
+              <span class="status-icon">📝</span>
+              <span>{description}</span>
+            </div>
+            <div class="terminal-line">
+              <span class="prompt">$</span>
+              <span class="cursor">_</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="technical-info">
+          {statusUrl && (
+            <a href={statusUrl} class="link link--code">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+              status.example.com
+            </a>
+          )}
+          {contactEmail && (
+            <a href={`mailto:${contactEmail}`} class="link link--code">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              {contactEmail}
+            </a>
+          )}
+        </div>
+      </div>
+    )}
+  </div>
+</section>
+
+<style>
+  .maintenance {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background: var(--color-background);
+  }
+
+  .maintenance-container {
+    width: 100%;
+    max-width: 40rem;
+  }
+
+  .content--centered {
+    text-align: center;
+  }
+
+  .icon-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .maintenance-icon {
+    color: var(--color-primary);
+    animation: spin 8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  .logo {
+    height: 2.5rem;
+    width: auto;
+    margin: 0 auto 1.5rem;
+  }
+
+  .logo--lg {
+    height: 3.5rem;
+  }
+
+  .title {
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    font-weight: 700;
+    margin: 0 0 1rem;
+    color: var(--color-text-primary);
+  }
+
+  .description {
+    font-size: 1.125rem;
+    color: var(--color-text-secondary);
+    margin: 0 0 2rem;
+    line-height: 1.6;
+  }
+
+  .estimated-time {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: var(--color-background-subtle);
+    border-radius: var(--radius-full);
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    margin-bottom: 1.5rem;
+  }
+
+  .links {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+  }
+
+  .link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-primary);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  .link:hover {
+    text-decoration: underline;
+  }
+
+  /* Progress variant */
+  .progress-circle {
+    position: relative;
+    width: 160px;
+    height: 160px;
+    margin: 0 auto 2rem;
+  }
+
+  .progress-circle svg {
+    transform: rotate(-90deg);
+  }
+
+  .progress-bg {
+    fill: none;
+    stroke: var(--color-background-muted);
+    stroke-width: 8;
+  }
+
+  .progress-bar {
+    fill: none;
+    stroke: var(--color-primary);
+    stroke-width: 8;
+    stroke-linecap: round;
+    stroke-dasharray: 283;
+    stroke-dashoffset: calc(283 - (283 * var(--progress)) / 100);
+    transition: stroke-dashoffset 0.5s ease;
+  }
+
+  .progress-value {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+  }
+
+  .progress-linear {
+    max-width: 20rem;
+    margin: 0 auto 1.5rem;
+  }
+
+  .progress-track {
+    height: 0.5rem;
+    background: var(--color-background-muted);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--color-primary);
+    border-radius: var(--radius-full);
+    transition: width 0.5s ease;
+  }
+
+  .progress-label {
+    font-size: 0.75rem;
+    color: var(--color-text-tertiary);
+  }
+
+  .time-remaining {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    margin: 0;
+  }
+
+  /* Scheduled variant */
+  .schedule-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--color-warning);
+    color: #000;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-radius: var(--radius-full);
+    margin-bottom: 1.5rem;
+  }
+
+  .schedule-info {
+    display: flex;
+    justify-content: center;
+    gap: 3rem;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: var(--color-background-subtle);
+    border-radius: var(--radius-xl);
+  }
+
+  .schedule-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .schedule-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-tertiary);
+  }
+
+  .schedule-value {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+  }
+
+  .countdown {
+    margin-bottom: 2rem;
+  }
+
+  .countdown-label {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    margin: 0 0 1rem;
+  }
+
+  .countdown-items {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  .countdown-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    background: var(--color-background-subtle);
+    border-radius: var(--radius-xl);
+  }
+
+  .countdown-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+  }
+
+  .countdown-unit {
+    font-size: 0.75rem;
+    color: var(--color-text-tertiary);
+    text-transform: uppercase;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    transition: background 0.2s;
+  }
+
+  .btn--primary {
+    background: var(--color-primary);
+    color: white;
+  }
+
+  .btn--primary:hover {
+    background: var(--color-primary-dark);
+  }
+
+  /* Minimal variant */
+  .content--minimal {
+    text-align: center;
+    max-width: 28rem;
+    margin: 0 auto;
+  }
+
+  .title-minimal {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0 0 0.75rem;
+  }
+
+  .time-info {
+    font-size: 0.875rem;
+    color: var(--color-text-tertiary);
+    margin: 0;
+  }
+
+  /* Branded variant */
+  .content--branded {
+    text-align: center;
+  }
+
+  .branded-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-2xl);
+    padding: 3rem;
+    box-shadow: var(--shadow-xl);
+  }
+
+  .maintenance-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--color-error);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: var(--radius-full);
+    margin-bottom: 1.5rem;
+  }
+
+  .badge-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    background: white;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  .eta-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    background: var(--color-background-subtle);
+    border-radius: var(--radius-xl);
+    margin-bottom: 2rem;
+  }
+
+  .eta-box svg {
+    color: var(--color-primary);
+  }
+
+  .eta-box div {
+    text-align: left;
+  }
+
+  .eta-label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--color-text-tertiary);
+  }
+
+  .eta-value {
+    font-weight: 600;
+    color: var(--color-text-primary);
+  }
+
+  .socials {
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-border-subtle);
+  }
+
+  .socials-label {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+    margin: 0 0 0.75rem;
+  }
+
+  .socials-list {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+  }
+
+  .social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    background: var(--color-background-subtle);
+    color: var(--color-text-secondary);
+    border-radius: var(--radius-lg);
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .social-link:hover {
+    background: var(--color-primary);
+    color: white;
+  }
+
+  .social-link :global(svg) {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  /* Technical variant */
+  .maintenance--technical {
+    background: #0d1117;
+  }
+
+  .content--technical {
+    max-width: 48rem;
+  }
+
+  .terminal {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    margin-bottom: 1.5rem;
+  }
+
+  .terminal-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: #21262d;
+    border-bottom: 1px solid #30363d;
+  }
+
+  .terminal-dot {
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 50%;
+  }
+
+  .terminal-dot--red { background: #ff5f56; }
+  .terminal-dot--yellow { background: #ffbd2e; }
+  .terminal-dot--green { background: #27c93f; }
+
+  .terminal-title {
+    margin-left: auto;
+    font-size: 0.75rem;
+    color: #8b949e;
+  }
+
+  .terminal-body {
+    padding: 1.5rem;
+  }
+
+  .terminal-line {
+    display: flex;
+    gap: 0.75rem;
+    color: #c9d1d9;
+    font-size: 0.875rem;
+    margin-bottom: 0.75rem;
+    line-height: 1.5;
+  }
+
+  .terminal-line:last-child {
+    margin-bottom: 0;
+  }
+
+  .terminal-line--output {
+    padding-left: 1.5rem;
+    color: #8b949e;
+  }
+
+  .prompt {
+    color: #27c93f;
+  }
+
+  .command {
+    color: #79c0ff;
+  }
+
+  .status-icon {
+    width: 1.25rem;
+    text-align: center;
+  }
+
+  .text-yellow {
+    color: #e3b341;
+  }
+
+  .cursor {
+    animation: blink 1s step-end infinite;
+  }
+
+  @keyframes blink {
+    50% { opacity: 0; }
+  }
+
+  .technical-info {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+  }
+
+  .link--code {
+    color: #58a6ff;
+    font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.875rem;
+  }
+
+  @media (max-width: 640px) {
+    .schedule-info {
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .countdown-items {
+      flex-wrap: wrap;
+    }
+
+    .countdown-item {
+      padding: 0.75rem 1rem;
+    }
+
+    .countdown-value {
+      font-size: 1.5rem;
+    }
+
+    .branded-card {
+      padding: 2rem;
+    }
+
+    .technical-info {
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .maintenance-icon,
+    .badge-dot,
+    .cursor {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  function initMaintenanceCountdowns() {
+    const sections = document.querySelectorAll('[data-end-time]');
+
+    sections.forEach((section) => {
+      const endTime = section.getAttribute('data-end-time');
+      const countdownId = section.getAttribute('data-countdown-id');
+      if (!endTime || !countdownId) return;
+
+      const countdown = document.getElementById(countdownId);
+      if (!countdown) return;
+
+      const targetDate = new Date(endTime).getTime();
+
+      const hoursEl = countdown.querySelector('[data-hours]');
+      const minutesEl = countdown.querySelector('[data-minutes]');
+      const secondsEl = countdown.querySelector('[data-seconds]');
+
+      function updateCountdown() {
+        const now = new Date().getTime();
+        const distance = targetDate - now;
+
+        if (distance < 0) {
+          if (hoursEl) hoursEl.textContent = '00';
+          if (minutesEl) minutesEl.textContent = '00';
+          if (secondsEl) secondsEl.textContent = '00';
+          return;
+        }
+
+        const hours = Math.floor(distance / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+        if (hoursEl) hoursEl.textContent = String(hours).padStart(2, '0');
+        if (minutesEl) minutesEl.textContent = String(minutes).padStart(2, '0');
+        if (secondsEl) secondsEl.textContent = String(seconds).padStart(2, '0');
+      }
+
+      updateCountdown();
+      setInterval(updateCountdown, 1000);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMaintenanceCountdowns);
+  } else {
+    initMaintenanceCountdowns();
+  }
+
+  document.addEventListener('astro:page-load', initMaintenanceCountdowns);
+</script>

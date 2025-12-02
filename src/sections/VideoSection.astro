@@ -1,0 +1,411 @@
+---
+/**
+ * VideoSection Component
+ *
+ * Video showcase, demo, or media player sections.
+ *
+ * Variants:
+ * - hero: Large hero video with overlay
+ * - inline: Standard inline video player
+ * - modal: Click-to-open video modal
+ * - gallery: Video gallery grid
+ * - background: Background video with content overlay
+ * - split: Video with side content
+ *
+ * @example
+ * <VideoSection
+ *   variant="hero"
+ *   videoUrl="https://youtube.com/watch?v=..."
+ *   poster="/video-poster.jpg"
+ *   title="Watch Our Demo"
+ * />
+ */
+
+import SectionWrapper from './SectionWrapper.astro';
+
+export interface Props {
+  variant?: 'hero' | 'inline' | 'modal' | 'gallery' | 'background' | 'split';
+  videoUrl?: string;
+  videoId?: string;
+  provider?: 'youtube' | 'vimeo' | 'html5';
+  poster?: string;
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+  autoplay?: boolean;
+  muted?: boolean;
+  loop?: boolean;
+  aspectRatio?: '16:9' | '4:3' | '21:9' | '1:1';
+  background?: 'transparent' | 'subtle' | 'muted' | 'dark';
+  class?: string;
+}
+
+const {
+  variant = 'inline',
+  videoUrl,
+  videoId,
+  provider = 'youtube',
+  poster,
+  eyebrow,
+  title,
+  description,
+  autoplay = false,
+  muted = false,
+  loop = false,
+  aspectRatio = '16:9',
+  background = 'transparent',
+  class: className = '',
+} = Astro.props;
+
+// Extract video ID from URL if not provided
+const extractVideoId = (url: string, provider: string): string => {
+  if (provider === 'youtube') {
+    const match = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([^&\s]+)/);
+    return match?.[1] || '';
+  }
+  if (provider === 'vimeo') {
+    const match = url.match(/vimeo\.com\/(\d+)/);
+    return match?.[1] || '';
+  }
+  return '';
+};
+
+const resolvedVideoId = videoId || (videoUrl ? extractVideoId(videoUrl, provider) : '');
+
+const aspectClasses = {
+  '16:9': 'aspect-video',
+  '4:3': 'aspect-[4/3]',
+  '21:9': 'aspect-[21/9]',
+  '1:1': 'aspect-square',
+};
+
+// Embed URLs
+const embedUrl = provider === 'youtube'
+  ? `https://www.youtube-nocookie.com/embed/${resolvedVideoId}?rel=0&modestbranding=1${autoplay ? '&autoplay=1' : ''}${muted ? '&mute=1' : ''}${loop ? '&loop=1' : ''}`
+  : provider === 'vimeo'
+  ? `https://player.vimeo.com/video/${resolvedVideoId}?title=0&byline=0&portrait=0${autoplay ? '&autoplay=1' : ''}${muted ? '&muted=1' : ''}${loop ? '&loop=1' : ''}`
+  : videoUrl;
+---
+
+{variant === 'background' ? (
+  <section
+    class:list={[
+      'video-background relative min-h-[60vh] flex items-center overflow-hidden',
+      className,
+    ]}
+  >
+    {/* Background video */}
+    <div class="absolute inset-0">
+      {provider === 'html5' && videoUrl ? (
+        <video
+          src={videoUrl}
+          autoplay
+          muted
+          loop
+          playsinline
+          class="w-full h-full object-cover"
+        />
+      ) : (
+        <iframe
+          src={embedUrl}
+          class="absolute inset-0 w-[300%] h-[300%] -top-[100%] -left-[100%] pointer-events-none"
+          frameborder="0"
+          allow="autoplay; encrypted-media"
+          allowfullscreen
+          loading="lazy"
+          title={title || 'Background video'}
+        />
+      )}
+      <div class="absolute inset-0 bg-black/60" />
+    </div>
+
+    {/* Content */}
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 text-white text-center">
+      {eyebrow && (
+        <span class="text-sm font-semibold uppercase tracking-wider text-white/80 mb-3 block">
+          {eyebrow}
+        </span>
+      )}
+      {title && (
+        <h2 class="text-3xl lg:text-5xl font-bold mb-4">{title}</h2>
+      )}
+      {description && (
+        <p class="text-lg text-white/80 max-w-2xl mx-auto mb-8">{description}</p>
+      )}
+      <slot />
+    </div>
+  </section>
+) : variant === 'hero' ? (
+  <SectionWrapper background={background} class={className}>
+    <div class="max-w-5xl mx-auto text-center">
+      {(eyebrow || title || description) && (
+        <div class="mb-8">
+          {eyebrow && (
+            <span class="text-sm font-semibold text-primary uppercase tracking-wider mb-3 block">
+              {eyebrow}
+            </span>
+          )}
+          {title && (
+            <h2 class="text-3xl lg:text-4xl font-bold text-text-primary mb-4">{title}</h2>
+          )}
+          {description && (
+            <p class="text-text-secondary max-w-2xl mx-auto">{description}</p>
+          )}
+        </div>
+      )}
+
+      <div class:list={['video-container relative rounded-2xl overflow-hidden shadow-2xl', aspectClasses[aspectRatio]]}>
+        {poster && (
+          <img
+            src={poster}
+            alt={title || 'Video poster'}
+            class="absolute inset-0 w-full h-full object-cover video-poster"
+            data-video-poster
+          />
+        )}
+        <iframe
+          src={embedUrl}
+          class="absolute inset-0 w-full h-full"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+          loading="lazy"
+          title={title || 'Video'}
+        />
+      </div>
+    </div>
+  </SectionWrapper>
+) : variant === 'modal' ? (
+  <SectionWrapper background={background} class={className}>
+    <div class="max-w-4xl mx-auto text-center">
+      {(eyebrow || title || description) && (
+        <div class="mb-8">
+          {eyebrow && (
+            <span class="text-sm font-semibold text-primary uppercase tracking-wider mb-3 block">
+              {eyebrow}
+            </span>
+          )}
+          {title && (
+            <h2 class="text-3xl lg:text-4xl font-bold text-text-primary mb-4">{title}</h2>
+          )}
+          {description && (
+            <p class="text-text-secondary max-w-2xl mx-auto">{description}</p>
+          )}
+        </div>
+      )}
+
+      {/* Thumbnail with play button */}
+      <button
+        type="button"
+        class:list={['video-trigger relative rounded-2xl overflow-hidden group cursor-pointer w-full', aspectClasses[aspectRatio]]}
+        data-video-modal-trigger
+        data-video-url={embedUrl}
+        aria-label="Video abspielen"
+      >
+        {poster ? (
+          <img
+            src={poster}
+            alt={title || 'Video thumbnail'}
+            class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          />
+        ) : (
+          <div class="w-full h-full bg-background-muted flex items-center justify-center">
+            <span class="text-text-tertiary">Video Vorschau</span>
+          </div>
+        )}
+        <div class="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors" />
+        <div class="absolute inset-0 flex items-center justify-center">
+          <span class="w-20 h-20 rounded-full bg-white/90 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+            <svg class="w-8 h-8 text-primary ml-1" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          </span>
+        </div>
+      </button>
+
+      {/* Modal */}
+      <div
+        class="video-modal fixed inset-0 z-50 bg-black/95 hidden items-center justify-center p-4"
+        data-video-modal
+        role="dialog"
+        aria-modal="true"
+        aria-label="Video player"
+      >
+        <button
+          type="button"
+          class="absolute top-4 right-4 w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+          data-video-modal-close
+          aria-label="Video schließen"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+        <div class="w-full max-w-5xl aspect-video">
+          <iframe
+            src=""
+            class="w-full h-full"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+            data-video-iframe
+            title={title || 'Video'}
+          />
+        </div>
+      </div>
+    </div>
+  </SectionWrapper>
+) : variant === 'split' ? (
+  <SectionWrapper background={background} class={className}>
+    <div class="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+      {/* Video */}
+      <div class:list={['video-container rounded-2xl overflow-hidden shadow-xl', aspectClasses[aspectRatio]]}>
+        <iframe
+          src={embedUrl}
+          class="w-full h-full"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+          loading="lazy"
+          title={title || 'Video'}
+        />
+      </div>
+
+      {/* Content */}
+      <div>
+        {eyebrow && (
+          <span class="text-sm font-semibold text-primary uppercase tracking-wider mb-3 block">
+            {eyebrow}
+          </span>
+        )}
+        {title && (
+          <h2 class="text-3xl lg:text-4xl font-bold text-text-primary mb-4">{title}</h2>
+        )}
+        {description && (
+          <p class="text-text-secondary mb-6">{description}</p>
+        )}
+        <slot />
+      </div>
+    </div>
+  </SectionWrapper>
+) : variant === 'gallery' ? (
+  <SectionWrapper background={background} class={className}>
+    {(eyebrow || title || description) && (
+      <div class="text-center mb-12">
+        {eyebrow && (
+          <span class="text-sm font-semibold text-primary uppercase tracking-wider mb-3 block">
+            {eyebrow}
+          </span>
+        )}
+        {title && (
+          <h2 class="text-3xl lg:text-4xl font-bold text-text-primary mb-4">{title}</h2>
+        )}
+        {description && (
+          <p class="text-text-secondary max-w-2xl mx-auto">{description}</p>
+        )}
+      </div>
+    )}
+    <div class="video-gallery grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <slot />
+    </div>
+  </SectionWrapper>
+) : (
+  <SectionWrapper background={background} class={className}>
+    {(eyebrow || title || description) && (
+      <div class="text-center mb-8">
+        {eyebrow && (
+          <span class="text-sm font-semibold text-primary uppercase tracking-wider mb-3 block">
+            {eyebrow}
+          </span>
+        )}
+        {title && (
+          <h2 class="text-3xl lg:text-4xl font-bold text-text-primary mb-4">{title}</h2>
+        )}
+        {description && (
+          <p class="text-text-secondary max-w-2xl mx-auto">{description}</p>
+        )}
+      </div>
+    )}
+    <div class:list={['video-container max-w-4xl mx-auto rounded-2xl overflow-hidden shadow-lg', aspectClasses[aspectRatio]]}>
+      {provider === 'html5' && videoUrl ? (
+        <video
+          src={videoUrl}
+          poster={poster}
+          controls
+          autoplay={autoplay}
+          muted={muted}
+          loop={loop}
+          class="w-full h-full object-cover"
+        />
+      ) : (
+        <iframe
+          src={embedUrl}
+          class="w-full h-full"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+          loading="lazy"
+          title={title || 'Video'}
+        />
+      )}
+    </div>
+  </SectionWrapper>
+)}
+
+<style>
+  .video-modal.active {
+    display: flex;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .video-trigger img {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  function initVideoModals() {
+    const triggers = document.querySelectorAll('[data-video-modal-trigger]');
+
+    triggers.forEach((trigger) => {
+      const modal = trigger.parentElement?.querySelector('[data-video-modal]');
+      const iframe = modal?.querySelector('[data-video-iframe]') as HTMLIFrameElement;
+      const closeBtn = modal?.querySelector('[data-video-modal-close]');
+      const videoUrl = trigger.getAttribute('data-video-url');
+
+      trigger.addEventListener('click', () => {
+        if (iframe && videoUrl) {
+          iframe.src = videoUrl + '&autoplay=1';
+        }
+        modal?.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      });
+
+      const closeModal = () => {
+        modal?.classList.remove('active');
+        if (iframe) iframe.src = '';
+        document.body.style.overflow = '';
+      };
+
+      closeBtn?.addEventListener('click', closeModal);
+      modal?.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal?.classList.contains('active')) {
+          closeModal();
+        }
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initVideoModals);
+  } else {
+    initVideoModals();
+  }
+
+  document.addEventListener('astro:page-load', initVideoModals);
+</script>

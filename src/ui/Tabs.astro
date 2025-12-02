@@ -1,0 +1,406 @@
+---
+/**
+ * Tabs Component
+ *
+ * Accessible tabbed interface following WAI-ARIA Tabs pattern.
+ *
+ * Features:
+ * - Keyboard navigation (arrow keys, Home, End)
+ * - Automatic and manual activation modes
+ * - Vertical and horizontal orientations
+ * - Lazy loading support
+ * - Animated indicator
+ * - Persistent tab state option
+ * - Reduced motion support
+ *
+ * @example
+ * <Tabs defaultTab="overview">
+ *   <Fragment slot="tabs">
+ *     <Tab id="overview">Overview</Tab>
+ *     <Tab id="features">Features</Tab>
+ *     <Tab id="pricing">Pricing</Tab>
+ *   </Fragment>
+ *   <TabPanel id="overview">Overview content</TabPanel>
+ *   <TabPanel id="features">Features content</TabPanel>
+ *   <TabPanel id="pricing">Pricing content</TabPanel>
+ * </Tabs>
+ */
+
+export interface Props {
+  defaultTab?: string;
+  orientation?: 'horizontal' | 'vertical';
+  activation?: 'automatic' | 'manual';
+  variant?: 'default' | 'pills' | 'underline' | 'bordered';
+  size?: 'sm' | 'md' | 'lg';
+  fullWidth?: boolean;
+  persist?: boolean | string;
+  class?: string;
+}
+
+const {
+  defaultTab,
+  orientation = 'horizontal',
+  activation = 'automatic',
+  variant = 'default',
+  size = 'md',
+  fullWidth = false,
+  persist = false,
+  class: className = '',
+} = Astro.props;
+
+const id = `tabs-${Math.random().toString(36).slice(2, 9)}`;
+const persistKey = typeof persist === 'string' ? persist : persist ? id : '';
+
+const sizeClasses = {
+  sm: 'text-sm',
+  md: 'text-base',
+  lg: 'text-lg',
+};
+---
+
+<div
+  class:list={[
+    'tabs-root',
+    orientation === 'vertical' && 'flex gap-4',
+    className,
+  ]}
+  data-tabs
+  data-orientation={orientation}
+  data-activation={activation}
+  data-persist={persistKey}
+  data-default-tab={defaultTab}
+>
+  <!-- Tab List -->
+  <div
+    role="tablist"
+    aria-orientation={orientation}
+    class:list={[
+      'tabs-list relative',
+      orientation === 'horizontal' && 'flex',
+      orientation === 'vertical' && 'flex flex-col',
+      fullWidth && 'w-full',
+      variant === 'default' && 'gap-1 bg-background-subtle rounded-lg p-1',
+      variant === 'pills' && 'gap-2',
+      variant === 'underline' && 'gap-0 border-b border-border-subtle',
+      variant === 'bordered' && 'gap-0 border border-border-default rounded-lg overflow-hidden',
+      sizeClasses[size],
+    ]}
+    data-tabs-list
+  >
+    <slot name="tabs" />
+
+    {/* Animated indicator for underline variant */}
+    {variant === 'underline' && (
+      <div
+        class="tabs-indicator absolute bottom-0 h-0.5 bg-primary transition-all duration-200 ease-out"
+        data-tabs-indicator
+        style="width: 0; left: 0;"
+      />
+    )}
+  </div>
+
+  <!-- Tab Panels Container -->
+  <div class="tabs-panels flex-1" data-tabs-panels>
+    <slot />
+  </div>
+</div>
+
+<style>
+  /* Tab button base styles */
+  .tabs-root :global([role="tab"]) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    transition: color var(--duration-150) var(--ease-out),
+                background-color var(--duration-150) var(--ease-out);
+    white-space: nowrap;
+    user-select: none;
+    border: none;
+    background: transparent;
+  }
+
+  .tabs-root :global([role="tab"]:hover) {
+    color: var(--color-text-primary);
+  }
+
+  .tabs-root :global([role="tab"]:focus-visible) {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-md);
+  }
+
+  .tabs-root :global([role="tab"][aria-selected="true"]) {
+    color: var(--color-text-primary);
+  }
+
+  .tabs-root :global([role="tab"][aria-disabled="true"]) {
+    color: var(--color-text-disabled);
+    cursor: not-allowed;
+  }
+
+  /* Default variant */
+  .tabs-root[data-variant="default"] :global([role="tab"][aria-selected="true"]) {
+    background-color: var(--color-surface);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* Pills variant */
+  .tabs-root[data-variant="pills"] :global([role="tab"]) {
+    border-radius: var(--radius-full);
+  }
+
+  .tabs-root[data-variant="pills"] :global([role="tab"][aria-selected="true"]) {
+    background-color: var(--color-primary);
+    color: var(--color-primary-text);
+  }
+
+  /* Underline variant */
+  .tabs-root[data-variant="underline"] :global([role="tab"]) {
+    padding-bottom: 0.75rem;
+    border-radius: 0;
+  }
+
+  /* Bordered variant */
+  .tabs-root[data-variant="bordered"] :global([role="tab"]) {
+    border-radius: 0;
+    border-right: 1px solid var(--color-border-subtle);
+  }
+
+  .tabs-root[data-variant="bordered"] :global([role="tab"]:last-child) {
+    border-right: none;
+  }
+
+  .tabs-root[data-variant="bordered"] :global([role="tab"][aria-selected="true"]) {
+    background-color: var(--color-surface);
+  }
+
+  /* Full width tabs */
+  .tabs-root :global([role="tab"].full-width) {
+    flex: 1;
+  }
+
+  /* Tab panels */
+  .tabs-root :global([role="tabpanel"]) {
+    padding: 1rem 0;
+  }
+
+  .tabs-root :global([role="tabpanel"][hidden]) {
+    display: none;
+  }
+
+  .tabs-root :global([role="tabpanel"]:focus-visible) {
+    outline: 2px solid var(--color-focus-ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-md);
+  }
+
+  /* Vertical orientation */
+  .tabs-root[data-orientation="vertical"] [role="tablist"] {
+    min-width: 160px;
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .tabs-indicator,
+    .tabs-root :global([role="tab"]) {
+      transition-duration: 0.01ms !important;
+    }
+  }
+</style>
+
+<script>
+  function initTabs(tabsRoot: HTMLElement) {
+    const tabList = tabsRoot.querySelector('[data-tabs-list]') as HTMLElement;
+    const panelsContainer = tabsRoot.querySelector('[data-tabs-panels]') as HTMLElement;
+    const indicator = tabsRoot.querySelector('[data-tabs-indicator]') as HTMLElement;
+
+    const orientation = tabsRoot.dataset.orientation || 'horizontal';
+    const activation = tabsRoot.dataset.activation || 'automatic';
+    const persistKey = tabsRoot.dataset.persist;
+    const defaultTab = tabsRoot.dataset.defaultTab;
+
+    const tabs = Array.from(tabList.querySelectorAll('[role="tab"]')) as HTMLElement[];
+    const panels = Array.from(panelsContainer.querySelectorAll('[role="tabpanel"]')) as HTMLElement[];
+
+    let activeIndex = 0;
+
+    // Initialize
+    function init() {
+      // Set up ARIA relationships
+      tabs.forEach((tab, index) => {
+        const panelId = tab.getAttribute('aria-controls') || tab.id?.replace('-tab', '-panel') || `panel-${index}`;
+        const tabId = tab.id || `tab-${index}`;
+
+        tab.id = tabId;
+        tab.setAttribute('aria-controls', panelId);
+        tab.setAttribute('tabindex', index === 0 ? '0' : '-1');
+
+        const panel = panels.find(p => p.id === panelId);
+        if (panel) {
+          panel.setAttribute('aria-labelledby', tabId);
+          panel.setAttribute('tabindex', '0');
+        }
+      });
+
+      // Determine initial tab
+      let initialTab = defaultTab;
+
+      if (persistKey) {
+        try {
+          const stored = localStorage.getItem(`tabs-${persistKey}`);
+          if (stored) initialTab = stored;
+        } catch {}
+      }
+
+      if (initialTab) {
+        const index = tabs.findIndex(t =>
+          t.id === initialTab || t.getAttribute('aria-controls') === initialTab
+        );
+        if (index > -1) activeIndex = index;
+      }
+
+      selectTab(activeIndex, false);
+    }
+
+    function selectTab(index: number, focus = true) {
+      if (index < 0 || index >= tabs.length) return;
+      if (tabs[index].getAttribute('aria-disabled') === 'true') return;
+
+      activeIndex = index;
+
+      tabs.forEach((tab, i) => {
+        const isActive = i === index;
+        tab.setAttribute('aria-selected', isActive.toString());
+        tab.setAttribute('tabindex', isActive ? '0' : '-1');
+      });
+
+      panels.forEach((panel, i) => {
+        const isActive = tabs[i]?.getAttribute('aria-controls') === panel.id;
+        panel.hidden = !isActive;
+      });
+
+      if (focus) {
+        tabs[index].focus();
+      }
+
+      updateIndicator();
+
+      // Persist
+      if (persistKey) {
+        try {
+          localStorage.setItem(`tabs-${persistKey}`, tabs[index].id);
+        } catch {}
+      }
+
+      // Dispatch event
+      tabsRoot.dispatchEvent(new CustomEvent('tabs:change', {
+        bubbles: true,
+        detail: { index, tab: tabs[index], panel: panels.find(p => !p.hidden) }
+      }));
+    }
+
+    function updateIndicator() {
+      if (!indicator) return;
+
+      const activeTab = tabs[activeIndex];
+      if (!activeTab) return;
+
+      if (orientation === 'horizontal') {
+        indicator.style.width = `${activeTab.offsetWidth}px`;
+        indicator.style.left = `${activeTab.offsetLeft}px`;
+      } else {
+        indicator.style.height = `${activeTab.offsetHeight}px`;
+        indicator.style.top = `${activeTab.offsetTop}px`;
+      }
+    }
+
+    function focusTab(index: number) {
+      if (index < 0) index = tabs.length - 1;
+      if (index >= tabs.length) index = 0;
+
+      // Skip disabled tabs
+      let attempts = 0;
+      while (tabs[index].getAttribute('aria-disabled') === 'true' && attempts < tabs.length) {
+        index = (index + 1) % tabs.length;
+        attempts++;
+      }
+
+      if (activation === 'automatic') {
+        selectTab(index);
+      } else {
+        tabs[index].focus();
+        tabs.forEach((tab, i) => {
+          tab.setAttribute('tabindex', i === index ? '0' : '-1');
+        });
+      }
+    }
+
+    // Event handlers
+    tabList.addEventListener('keydown', (e: KeyboardEvent) => {
+      const isHorizontal = orientation === 'horizontal';
+      const currentIndex = tabs.indexOf(document.activeElement as HTMLElement);
+
+      switch (e.key) {
+        case isHorizontal ? 'ArrowRight' : 'ArrowDown':
+          e.preventDefault();
+          focusTab(currentIndex + 1);
+          break;
+        case isHorizontal ? 'ArrowLeft' : 'ArrowUp':
+          e.preventDefault();
+          focusTab(currentIndex - 1);
+          break;
+        case 'Home':
+          e.preventDefault();
+          focusTab(0);
+          break;
+        case 'End':
+          e.preventDefault();
+          focusTab(tabs.length - 1);
+          break;
+        case 'Enter':
+        case ' ':
+          if (activation === 'manual') {
+            e.preventDefault();
+            selectTab(currentIndex);
+          }
+          break;
+      }
+    });
+
+    tabs.forEach((tab, index) => {
+      tab.addEventListener('click', () => {
+        selectTab(index);
+      });
+    });
+
+    // Resize observer for indicator
+    if (indicator) {
+      const resizeObserver = new ResizeObserver(() => {
+        updateIndicator();
+      });
+      resizeObserver.observe(tabList);
+    }
+
+    init();
+  }
+
+  function initAllTabs() {
+    document.querySelectorAll('[data-tabs]').forEach(tabs => {
+      initTabs(tabs as HTMLElement);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAllTabs);
+  } else {
+    initAllTabs();
+  }
+
+  document.addEventListener('astro:page-load', initAllTabs);
+</script>
