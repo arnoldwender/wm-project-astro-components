@@ -1,0 +1,340 @@
+---
+/**
+ * DocsLayout - WenderMedia Astro Components
+ *
+ * Documentation layout with sidebar navigation, table of contents, and search.
+ * Optimized for technical documentation and guides.
+ *
+ * @example
+ * <DocsLayout
+ *   title="Getting Started"
+ *   description="Learn how to get started"
+ *   sidebar={sidebarItems}
+ *   toc={tableOfContents}
+ * >
+ *   <article>Documentation content</article>
+ * </DocsLayout>
+ */
+
+import { ViewTransitions } from 'astro:transitions';
+
+export interface SidebarItem {
+  title: string;
+  href?: string;
+  items?: SidebarItem[];
+  badge?: string;
+}
+
+export interface TocItem {
+  depth: number;
+  text: string;
+  slug: string;
+}
+
+export interface Props {
+  title: string;
+  description: string;
+  sidebar: SidebarItem[];
+  toc?: TocItem[];
+  lang?: string;
+  siteName?: string;
+  editUrl?: string;
+  lastUpdated?: Date;
+  prev?: { title: string; href: string };
+  next?: { title: string; href: string };
+  class?: string;
+}
+
+const {
+  title,
+  description,
+  sidebar,
+  toc = [],
+  lang = 'de',
+  siteName = 'Docs',
+  editUrl,
+  lastUpdated,
+  prev,
+  next,
+  class: className = '',
+} = Astro.props;
+
+const fullTitle = `${title} | ${siteName}`;
+const currentPath = Astro.url.pathname;
+---
+
+<!doctype html>
+<html lang={lang} class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={Astro.url.href} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <ViewTransitions />
+
+    <script is:inline>
+      (function() {
+        const theme = localStorage.getItem('theme');
+        if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
+
+    <slot name="head" />
+
+    <style is:global>
+      *, *::before, *::after { box-sizing: border-box; }
+      * { margin: 0; }
+      html { -webkit-font-smoothing: antialiased; }
+      body { line-height: 1.6; min-height: 100vh; }
+      img, picture, video, canvas, svg { display: block; max-width: 100%; }
+
+      :root {
+        --color-bg: #ffffff;
+        --color-bg-secondary: #f9fafb;
+        --color-text: #111111;
+        --color-text-muted: #6b7280;
+        --color-border: #e5e7eb;
+        --color-primary: #3b82f6;
+        --sidebar-width: 280px;
+        --toc-width: 240px;
+      }
+      .dark {
+        --color-bg: #0f0f0f;
+        --color-bg-secondary: #1a1a1a;
+        --color-text: #ffffff;
+        --color-text-muted: #9ca3af;
+        --color-border: #374151;
+        --color-primary: #60a5fa;
+      }
+    </style>
+  </head>
+  <body class="bg-[var(--color-bg)] text-[var(--color-text)]">
+    <!-- Header -->
+    {Astro.slots.has('header') && (
+      <div transition:persist transition:name="header">
+        <slot name="header" />
+      </div>
+    )}
+
+    <div class="flex min-h-screen">
+      <!-- Sidebar -->
+      <aside
+        id="docs-sidebar"
+        class="fixed left-0 top-0 bottom-0 w-[var(--sidebar-width)] bg-[var(--color-bg-secondary)] border-r border-[var(--color-border)] overflow-y-auto pt-16 pb-8 px-4 hidden lg:block"
+      >
+        <nav class="space-y-6">
+          {sidebar.map((section) => (
+            <div>
+              {section.href ? (
+                <a
+                  href={section.href}
+                  class:list={[
+                    'block font-semibold mb-2 hover:text-[var(--color-primary)]',
+                    currentPath === section.href && 'text-[var(--color-primary)]'
+                  ]}
+                >
+                  {section.title}
+                  {section.badge && (
+                    <span class="ml-2 text-xs px-2 py-0.5 bg-[var(--color-primary)] text-white rounded-full">
+                      {section.badge}
+                    </span>
+                  )}
+                </a>
+              ) : (
+                <span class="block font-semibold text-[var(--color-text-muted)] uppercase text-xs tracking-wider mb-2">
+                  {section.title}
+                </span>
+              )}
+              {section.items && (
+                <ul class="space-y-1 ml-2">
+                  {section.items.map((item) => (
+                    <li>
+                      <a
+                        href={item.href}
+                        class:list={[
+                          'block py-1.5 px-3 rounded-md text-sm transition-colors',
+                          currentPath === item.href
+                            ? 'bg-[var(--color-primary)]/10 text-[var(--color-primary)] font-medium'
+                            : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:bg-[var(--color-border)]/50'
+                        ]}
+                      >
+                        {item.title}
+                        {item.badge && (
+                          <span class="ml-2 text-xs px-1.5 py-0.5 bg-[var(--color-primary)] text-white rounded">
+                            {item.badge}
+                          </span>
+                        )}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          ))}
+        </nav>
+      </aside>
+
+      <!-- Main Content -->
+      <main
+        class:list={[
+          'flex-1 lg:ml-[var(--sidebar-width)] min-w-0',
+          toc.length > 0 && 'xl:mr-[var(--toc-width)]',
+          className
+        ]}
+      >
+        <article class="max-w-3xl mx-auto px-4 md:px-8 py-12">
+          <!-- Breadcrumb -->
+          <nav class="text-sm text-[var(--color-text-muted)] mb-6" aria-label="Breadcrumb">
+            <ol class="flex items-center gap-2">
+              <li><a href="/docs" class="hover:text-[var(--color-text)]">Docs</a></li>
+              <li>/</li>
+              <li class="text-[var(--color-text)]">{title}</li>
+            </ol>
+          </nav>
+
+          <!-- Title -->
+          <header class="mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold mb-4">{title}</h1>
+            <p class="text-lg text-[var(--color-text-muted)]">{description}</p>
+          </header>
+
+          <!-- Content -->
+          <div class="prose">
+            <slot />
+          </div>
+
+          <!-- Footer -->
+          <footer class="mt-12 pt-8 border-t border-[var(--color-border)]">
+            <!-- Edit Link & Last Updated -->
+            <div class="flex flex-wrap items-center justify-between gap-4 mb-8 text-sm">
+              {editUrl && (
+                <a
+                  href={editUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
+                >
+                  Edit this page on GitHub
+                </a>
+              )}
+              {lastUpdated && (
+                <span class="text-[var(--color-text-muted)]">
+                  Last updated: {lastUpdated.toLocaleDateString(lang, { year: 'numeric', month: 'long', day: 'numeric' })}
+                </span>
+              )}
+            </div>
+
+            <!-- Prev/Next Navigation -->
+            {(prev || next) && (
+              <nav class="flex flex-col sm:flex-row gap-4">
+                {prev && (
+                  <a
+                    href={prev.href}
+                    class="flex-1 p-4 rounded-lg border border-[var(--color-border)] hover:border-[var(--color-primary)] transition-colors"
+                  >
+                    <span class="text-sm text-[var(--color-text-muted)]">Previous</span>
+                    <span class="block font-medium">{prev.title}</span>
+                  </a>
+                )}
+                {next && (
+                  <a
+                    href={next.href}
+                    class="flex-1 p-4 rounded-lg border border-[var(--color-border)] hover:border-[var(--color-primary)] transition-colors text-right"
+                  >
+                    <span class="text-sm text-[var(--color-text-muted)]">Next</span>
+                    <span class="block font-medium">{next.title}</span>
+                  </a>
+                )}
+              </nav>
+            )}
+          </footer>
+        </article>
+      </main>
+
+      <!-- Table of Contents -->
+      {toc.length > 0 && (
+        <aside class="fixed right-0 top-0 bottom-0 w-[var(--toc-width)] pt-20 pb-8 px-4 hidden xl:block overflow-y-auto">
+          <nav>
+            <h2 class="font-semibold text-sm mb-4">On this page</h2>
+            <ul class="space-y-2 text-sm" id="toc">
+              {toc.map((item) => (
+                <li style={`padding-left: ${(item.depth - 2) * 12}px`}>
+                  <a
+                    href={`#${item.slug}`}
+                    class="block text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors"
+                    data-toc-link
+                  >
+                    {item.text}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        </aside>
+      )}
+    </div>
+
+    <!-- Mobile Sidebar Toggle -->
+    <button
+      id="sidebar-toggle"
+      class="fixed bottom-4 right-4 lg:hidden z-50 p-4 bg-[var(--color-primary)] text-white rounded-full shadow-lg"
+      aria-label="Toggle sidebar"
+    >
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+
+    <script>
+      function initDocs() {
+        const sidebar = document.getElementById('docs-sidebar');
+        const toggle = document.getElementById('sidebar-toggle');
+
+        if (toggle && sidebar) {
+          toggle.addEventListener('click', () => {
+            sidebar.classList.toggle('hidden');
+            sidebar.classList.toggle('fixed');
+            sidebar.classList.toggle('z-40');
+          });
+        }
+
+        // ToC active state
+        const tocLinks = document.querySelectorAll('[data-toc-link]');
+        const headings = document.querySelectorAll('h2[id], h3[id], h4[id]');
+
+        if (tocLinks.length > 0 && headings.length > 0) {
+          const observer = new IntersectionObserver(
+            (entries) => {
+              entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                  tocLinks.forEach((link) => {
+                    link.classList.remove('text-[var(--color-primary)]', 'font-medium');
+                    if (link.getAttribute('href') === `#${entry.target.id}`) {
+                      link.classList.add('text-[var(--color-primary)]', 'font-medium');
+                    }
+                  });
+                }
+              });
+            },
+            { rootMargin: '-20% 0px -80% 0px' }
+          );
+
+          headings.forEach((heading) => observer.observe(heading));
+        }
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initDocs);
+      } else {
+        initDocs();
+      }
+      document.addEventListener('astro:page-load', initDocs);
+    </script>
+
+    <slot name="scripts" />
+  </body>
+</html>

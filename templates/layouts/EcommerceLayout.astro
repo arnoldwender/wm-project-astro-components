@@ -1,0 +1,254 @@
+---
+/**
+ * EcommerceLayout - WenderMedia Astro Components
+ *
+ * E-commerce optimized layout with product schema, cart integration, and conversion tracking.
+ * Includes breadcrumbs, filters sidebar, and optimized for product pages.
+ *
+ * @example
+ * <EcommerceLayout
+ *   title="Product Name"
+ *   description="Product description"
+ *   product={productData}
+ *   breadcrumbs={breadcrumbItems}
+ * >
+ *   <ProductDetails />
+ * </EcommerceLayout>
+ */
+
+import { ViewTransitions } from 'astro:transitions';
+
+export interface Product {
+  name: string;
+  description: string;
+  sku: string;
+  price: number;
+  currency?: string;
+  image: string;
+  images?: string[];
+  availability?: 'InStock' | 'OutOfStock' | 'PreOrder';
+  brand?: string;
+  category?: string;
+  rating?: number;
+  reviewCount?: number;
+}
+
+export interface BreadcrumbItem {
+  name: string;
+  url: string;
+}
+
+export interface Props {
+  title: string;
+  description: string;
+  product?: Product;
+  breadcrumbs?: BreadcrumbItem[];
+  lang?: string;
+  siteName?: string;
+  currency?: string;
+  noindex?: boolean;
+  class?: string;
+}
+
+const {
+  title,
+  description,
+  product,
+  breadcrumbs = [],
+  lang = 'de',
+  siteName = 'Shop',
+  currency = 'EUR',
+  noindex = false,
+  class: className = '',
+} = Astro.props;
+
+const fullTitle = `${title} | ${siteName}`;
+const currentUrl = Astro.url.href;
+const imageUrl = product?.image ? (product.image.startsWith('http') ? product.image : new URL(product.image, Astro.site).href) : '';
+
+// Product Schema
+const productSchema = product ? {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: product.name,
+  description: product.description,
+  sku: product.sku,
+  image: product.images || [imageUrl],
+  brand: product.brand ? {
+    '@type': 'Brand',
+    name: product.brand,
+  } : undefined,
+  offers: {
+    '@type': 'Offer',
+    url: currentUrl,
+    priceCurrency: product.currency || currency,
+    price: product.price,
+    availability: `https://schema.org/${product.availability || 'InStock'}`,
+    seller: {
+      '@type': 'Organization',
+      name: siteName,
+    },
+  },
+  ...(product.rating && product.reviewCount && {
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: product.rating,
+      reviewCount: product.reviewCount,
+    },
+  }),
+} : null;
+
+// Breadcrumb Schema
+const breadcrumbSchema = breadcrumbs.length > 0 ? {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: breadcrumbs.map((item, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    name: item.name,
+    item: item.url.startsWith('http') ? item.url : new URL(item.url, Astro.site).href,
+  })),
+} : null;
+---
+
+<!doctype html>
+<html lang={lang} class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Primary Meta Tags -->
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <link rel="canonical" href={currentUrl} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content={product ? 'product' : 'website'} />
+    <meta property="og:url" content={currentUrl} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    {imageUrl && <meta property="og:image" content={imageUrl} />}
+    <meta property="og:site_name" content={siteName} />
+
+    {product && (
+      <>
+        <meta property="product:price:amount" content={String(product.price)} />
+        <meta property="product:price:currency" content={product.currency || currency} />
+        {product.availability && <meta property="product:availability" content={product.availability.toLowerCase()} />}
+        {product.brand && <meta property="product:brand" content={product.brand} />}
+      </>
+    )}
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    {imageUrl && <meta name="twitter:image" content={imageUrl} />}
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <ViewTransitions />
+
+    <!-- Structured Data -->
+    {productSchema && <script type="application/ld+json" set:html={JSON.stringify(productSchema)} />}
+    {breadcrumbSchema && <script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />}
+
+    <script is:inline>
+      (function() {
+        const theme = localStorage.getItem('theme');
+        if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
+
+    <slot name="head" />
+
+    <style is:global>
+      *, *::before, *::after { box-sizing: border-box; }
+      * { margin: 0; }
+      html { -webkit-font-smoothing: antialiased; }
+      body { line-height: 1.6; min-height: 100vh; display: flex; flex-direction: column; }
+      img, picture, video, canvas, svg { display: block; max-width: 100%; }
+
+      :root {
+        --color-bg: #ffffff;
+        --color-text: #111111;
+        --color-text-muted: #6b7280;
+        --color-border: #e5e7eb;
+        --color-primary: #111111;
+        --color-success: #10b981;
+        --color-warning: #f59e0b;
+        --color-error: #ef4444;
+      }
+      .dark {
+        --color-bg: #0f0f0f;
+        --color-text: #ffffff;
+        --color-text-muted: #9ca3af;
+        --color-border: #374151;
+        --color-primary: #ffffff;
+      }
+    </style>
+  </head>
+  <body class="bg-[var(--color-bg)] text-[var(--color-text)]">
+    <!-- Announcement Bar Slot -->
+    {Astro.slots.has('announcement') && (
+      <div class="bg-[var(--color-primary)] text-[var(--color-bg)] text-center py-2 text-sm">
+        <slot name="announcement" />
+      </div>
+    )}
+
+    <!-- Header -->
+    {Astro.slots.has('header') && (
+      <div transition:persist transition:name="header">
+        <slot name="header" />
+      </div>
+    )}
+
+    <!-- Breadcrumbs -->
+    {breadcrumbs.length > 0 && (
+      <nav class="container mx-auto px-4 py-4" aria-label="Breadcrumb">
+        <ol class="flex flex-wrap items-center gap-2 text-sm text-[var(--color-text-muted)]">
+          {breadcrumbs.map((item, index) => (
+            <li class="flex items-center gap-2">
+              {index > 0 && <span>/</span>}
+              {index === breadcrumbs.length - 1 ? (
+                <span class="text-[var(--color-text)]">{item.name}</span>
+              ) : (
+                <a href={item.url} class="hover:text-[var(--color-text)] transition-colors">
+                  {item.name}
+                </a>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+    )}
+
+    <!-- Main Content -->
+    <main id="main-content" class:list={['flex-1', className]} transition:animate="fade">
+      <slot />
+    </main>
+
+    <!-- Recently Viewed / Recommendations Slot -->
+    {Astro.slots.has('recommendations') && (
+      <section class="border-t border-[var(--color-border)]">
+        <slot name="recommendations" />
+      </section>
+    )}
+
+    <!-- Footer -->
+    {Astro.slots.has('footer') && (
+      <div transition:persist transition:name="footer">
+        <slot name="footer" />
+      </div>
+    )}
+
+    <!-- Cart Drawer Slot -->
+    {Astro.slots.has('cart') && (
+      <slot name="cart" />
+    )}
+
+    <slot name="scripts" />
+  </body>
+</html>

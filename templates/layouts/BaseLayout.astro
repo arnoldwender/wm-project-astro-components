@@ -1,0 +1,299 @@
+---
+/**
+ * BaseLayout - WenderMedia Astro Components
+ *
+ * Production-ready base layout with SEO, accessibility, and performance optimizations.
+ * Use as the foundation for all pages.
+ *
+ * Features:
+ * - Full SEO meta tags (OpenGraph, Twitter, Schema.org)
+ * - WCAG 2.1 AA accessibility compliance
+ * - Performance optimizations (preload, prefetch)
+ * - View Transitions support
+ * - Dark mode support
+ * - GDPR/DSGVO compliant
+ *
+ * @example
+ * <BaseLayout
+ *   title="Page Title"
+ *   description="Page description for SEO"
+ *   image="/og-image.jpg"
+ * >
+ *   <Header slot="header" />
+ *   <main>Content here</main>
+ *   <Footer slot="footer" />
+ * </BaseLayout>
+ */
+
+import { ViewTransitions } from 'astro:transitions';
+
+export interface Props {
+  title: string;
+  description: string;
+  canonical?: string;
+  image?: string;
+  imageAlt?: string;
+  type?: 'website' | 'article' | 'product';
+  lang?: string;
+  dir?: 'ltr' | 'rtl';
+  siteName?: string;
+  twitterHandle?: string;
+  themeColor?: string;
+  noindex?: boolean;
+  nofollow?: boolean;
+  structuredData?: object;
+  preloadImages?: string[];
+  prefetchUrls?: string[];
+  class?: string;
+}
+
+const {
+  title,
+  description,
+  canonical,
+  image = '/og-image.jpg',
+  imageAlt,
+  type = 'website',
+  lang = 'de',
+  dir = 'ltr',
+  siteName = 'Website',
+  twitterHandle,
+  themeColor = '#000000',
+  noindex = false,
+  nofollow = false,
+  structuredData,
+  preloadImages = [],
+  prefetchUrls = [],
+  class: className = '',
+} = Astro.props;
+
+const fullTitle = title.includes('|') ? title : `${title} | ${siteName}`;
+const currentUrl = canonical || Astro.url.href;
+const robotsContent = `${noindex ? 'noindex' : 'index'}, ${nofollow ? 'nofollow' : 'follow'}`;
+const imageUrl = image.startsWith('http') ? image : new URL(image, Astro.site).href;
+
+const localeMap: Record<string, string> = {
+  en: 'en_US',
+  de: 'de_DE',
+  es: 'es_ES',
+  fr: 'fr_FR',
+  it: 'it_IT',
+  nl: 'nl_NL',
+  pl: 'pl_PL',
+  pt: 'pt_PT',
+};
+
+const defaultStructuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'WebPage',
+  name: title,
+  description: description,
+  url: currentUrl,
+  inLanguage: lang,
+  isPartOf: {
+    '@type': 'WebSite',
+    name: siteName,
+    url: Astro.site?.href,
+  },
+};
+---
+
+<!doctype html>
+<html lang={lang} dir={dir} class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Primary Meta Tags -->
+    <title>{fullTitle}</title>
+    <meta name="title" content={fullTitle} />
+    <meta name="description" content={description} />
+    <meta name="robots" content={robotsContent} />
+    <meta name="language" content={lang} />
+    <meta name="author" content={siteName} />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content={themeColor} media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#111111" media="(prefers-color-scheme: dark)" />
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href={currentUrl} />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content={type} />
+    <meta property="og:url" content={currentUrl} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={imageUrl} />
+    <meta property="og:image:alt" content={imageAlt || description} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content={localeMap[lang] || 'de_DE'} />
+    <meta property="og:site_name" content={siteName} />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content={currentUrl} />
+    <meta name="twitter:title" content={fullTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={imageUrl} />
+    {twitterHandle && <meta name="twitter:site" content={`@${twitterHandle}`} />}
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- Preload Critical Assets -->
+    {preloadImages.map((src) => (
+      <link rel="preload" as="image" href={src} />
+    ))}
+
+    <!-- Prefetch Navigation -->
+    {prefetchUrls.map((url) => (
+      <link rel="prefetch" href={url} />
+    ))}
+
+    <!-- DNS Prefetch for External Resources -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
+
+    <!-- View Transitions -->
+    <ViewTransitions />
+
+    <!-- Structured Data -->
+    <script
+      type="application/ld+json"
+      set:html={JSON.stringify(structuredData || defaultStructuredData)}
+    />
+
+    <!-- Dark Mode Script (prevent flash) -->
+    <script is:inline>
+      (function() {
+        const theme = localStorage.getItem('theme');
+        if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
+
+    <!-- Additional Head Content -->
+    <slot name="head" />
+
+    <style is:global>
+      /* Base Reset */
+      *, *::before, *::after {
+        box-sizing: border-box;
+      }
+
+      * {
+        margin: 0;
+      }
+
+      html {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+      }
+
+      body {
+        line-height: 1.6;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      img, picture, video, canvas, svg {
+        display: block;
+        max-width: 100%;
+      }
+
+      input, button, textarea, select {
+        font: inherit;
+      }
+
+      p, h1, h2, h3, h4, h5, h6 {
+        overflow-wrap: break-word;
+      }
+
+      /* Focus Visible */
+      :focus-visible {
+        outline: 2px solid currentColor;
+        outline-offset: 2px;
+      }
+
+      /* Skip Links */
+      .skip-link {
+        position: absolute;
+        top: -40px;
+        left: 0;
+        background: #000;
+        color: #fff;
+        padding: 8px 16px;
+        z-index: 100;
+        transition: top 0.2s;
+      }
+
+      .skip-link:focus {
+        top: 0;
+      }
+
+      /* View Transition Animations */
+      ::view-transition-old(root),
+      ::view-transition-new(root) {
+        animation-duration: 200ms;
+        animation-timing-function: ease-in-out;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        ::view-transition-old(root),
+        ::view-transition-new(root) {
+          animation: none !important;
+        }
+      }
+
+      /* Dark Mode Variables */
+      :root {
+        --color-bg: #ffffff;
+        --color-text: #111111;
+        --color-text-muted: #666666;
+        --color-border: #e5e5e5;
+      }
+
+      .dark {
+        --color-bg: #111111;
+        --color-text: #ffffff;
+        --color-text-muted: #a3a3a3;
+        --color-border: #333333;
+      }
+    </style>
+  </head>
+  <body class:list={['bg-[var(--color-bg)] text-[var(--color-text)]', className]}>
+    <!-- Skip Links for Accessibility -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <a href="#main-nav" class="skip-link">Skip to navigation</a>
+
+    <!-- Header -->
+    {Astro.slots.has('header') && (
+      <div transition:persist transition:name="header">
+        <slot name="header" />
+      </div>
+    )}
+
+    <!-- Main Content -->
+    <main id="main-content" class="flex-1" transition:animate="fade">
+      <slot />
+    </main>
+
+    <!-- Footer -->
+    {Astro.slots.has('footer') && (
+      <div transition:persist transition:name="footer">
+        <slot name="footer" />
+      </div>
+    )}
+
+    <!-- Scripts Slot -->
+    <slot name="scripts" />
+  </body>
+</html>

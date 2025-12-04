@@ -1,0 +1,174 @@
+---
+/**
+ * 500 Page Template - WenderMedia Astro Components
+ *
+ * Server error page with helpful messaging and retry options.
+ * Copy to src/pages/500.astro
+ */
+
+export interface Props {
+  title?: string;
+  description?: string;
+  heading?: string;
+  message?: string;
+  homeLink?: string;
+  supportEmail?: string;
+}
+
+const {
+  title = '500 - Serverfehler',
+  description = 'Ein unerwarteter Fehler ist aufgetreten.',
+  heading = '500',
+  message = 'Es tut uns leid, aber etwas ist schiefgelaufen. Bitte versuchen Sie es später erneut.',
+  homeLink = '/',
+  supportEmail,
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <style>
+      *, *::before, *::after { box-sizing: border-box; }
+      * { margin: 0; }
+
+      :root {
+        --color-bg: #ffffff;
+        --color-text: #111111;
+        --color-text-muted: #6b7280;
+        --color-primary: #111111;
+        --color-border: #e5e7eb;
+        --color-error: #ef4444;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --color-bg: #0a0a0a;
+          --color-text: #ffffff;
+          --color-text-muted: #9ca3af;
+          --color-primary: #ffffff;
+          --color-border: #374151;
+        }
+      }
+
+      html { -webkit-font-smoothing: antialiased; }
+
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        background: var(--color-bg);
+        color: var(--color-text);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        line-height: 1.6;
+      }
+
+      .container {
+        max-width: 32rem;
+        text-align: center;
+      }
+
+      .error-code {
+        font-size: clamp(6rem, 20vw, 12rem);
+        font-weight: 700;
+        line-height: 1;
+        opacity: 0.1;
+        margin-bottom: -2rem;
+        user-select: none;
+        color: var(--color-error);
+      }
+
+      h1 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+      }
+
+      .message {
+        color: var(--color-text-muted);
+        margin-bottom: 2rem;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+      }
+
+      .btn {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-decoration: none;
+        border-radius: 0.5rem;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .btn-primary {
+        background: var(--color-primary);
+        color: var(--color-bg);
+      }
+
+      .btn-primary:hover {
+        opacity: 0.9;
+      }
+
+      .btn-secondary {
+        background: transparent;
+        border: 1px solid var(--color-border);
+        color: var(--color-text);
+      }
+
+      .btn-secondary:hover {
+        border-color: var(--color-text-muted);
+      }
+
+      .support {
+        color: var(--color-text-muted);
+        font-size: 0.875rem;
+      }
+
+      .support a {
+        color: var(--color-text);
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="container">
+      <div class="error-code" aria-hidden="true">{heading}</div>
+
+      <h1>Serverfehler</h1>
+      <p class="message">{message}</p>
+
+      <div class="actions">
+        <button class="btn btn-primary" onclick="location.reload()">
+          Erneut versuchen
+        </button>
+        <a href={homeLink} class="btn btn-secondary">
+          Zur Startseite
+        </a>
+      </div>
+
+      {supportEmail && (
+        <p class="support">
+          Wenn das Problem weiterhin besteht, kontaktieren Sie uns unter{' '}
+          <a href={`mailto:${supportEmail}`}>{supportEmail}</a>
+        </p>
+      )}
+    </main>
+  </body>
+</html>

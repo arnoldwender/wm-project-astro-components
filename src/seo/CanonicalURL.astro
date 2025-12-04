@@ -1,0 +1,51 @@
+---
+/**
+ * CanonicalURL Component - WenderMedia Astro Components
+ *
+ * Set the canonical URL to prevent duplicate content issues.
+ * Automatically handles trailing slashes and query parameters.
+ *
+ * @example
+ * <CanonicalURL />
+ * <!-- Uses current URL as canonical -->
+ *
+ * <CanonicalURL url="https://example.com/specific-page" />
+ * <!-- Uses specified URL -->
+ */
+
+export interface Props {
+  url?: string;
+  removeQueryParams?: boolean;
+  removeTrailingSlash?: boolean;
+}
+
+const {
+  url,
+  removeQueryParams = true,
+  removeTrailingSlash = true,
+} = Astro.props;
+
+function normalizeUrl(inputUrl: string): string {
+  let normalized = inputUrl;
+
+  // Remove query parameters if specified
+  if (removeQueryParams) {
+    const urlObj = new URL(normalized);
+    urlObj.search = '';
+    normalized = urlObj.href;
+  }
+
+  // Remove trailing slash if specified (except for root)
+  if (removeTrailingSlash && normalized.endsWith('/') && normalized !== Astro.site?.href) {
+    normalized = normalized.slice(0, -1);
+  }
+
+  return normalized;
+}
+
+const canonicalUrl = url
+  ? normalizeUrl(url)
+  : normalizeUrl(Astro.url.href);
+---
+
+<link rel="canonical" href={canonicalUrl} />

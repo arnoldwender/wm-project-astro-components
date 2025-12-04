@@ -1,0 +1,189 @@
+---
+/**
+ * ReadingProgress Component - WenderMedia Astro Components
+ *
+ * Reading progress bar that shows how far the user has scrolled.
+ * Can target a specific container or the entire page.
+ *
+ * @example
+ * <ReadingProgress />
+ * <!-- Shows progress for entire page -->
+ *
+ * <ReadingProgress target="#article-content" />
+ * <!-- Shows progress for specific element -->
+ */
+
+export interface Props {
+  target?: string;
+  position?: 'top' | 'bottom';
+  height?: string;
+  color?: string;
+  backgroundColor?: string;
+  showPercentage?: boolean;
+  class?: string;
+}
+
+const {
+  target,
+  position = 'top',
+  height = '3px',
+  color,
+  backgroundColor,
+  showPercentage = false,
+  class: className = '',
+} = Astro.props;
+---
+
+<div
+  class:list={[
+    'reading-progress',
+    `reading-progress--${position}`,
+    className,
+  ]}
+  data-reading-progress
+  data-target={target}
+  style={`--progress-height: ${height}; ${color ? `--progress-color: ${color};` : ''} ${backgroundColor ? `--progress-bg: ${backgroundColor};` : ''}`}
+  role="progressbar"
+  aria-valuemin="0"
+  aria-valuemax="100"
+  aria-valuenow="0"
+  aria-label="Reading progress"
+>
+  <div class="reading-progress__bar"></div>
+  {showPercentage && (
+    <span class="reading-progress__percentage">0%</span>
+  )}
+</div>
+
+<style>
+  .reading-progress {
+    position: fixed;
+    left: 0;
+    right: 0;
+    height: var(--progress-height, 3px);
+    background: var(--progress-bg, rgba(0, 0, 0, 0.1));
+    z-index: 9999;
+    pointer-events: none;
+  }
+
+  .reading-progress--top {
+    top: 0;
+  }
+
+  .reading-progress--bottom {
+    bottom: 0;
+  }
+
+  .reading-progress__bar {
+    height: 100%;
+    width: 0%;
+    background: var(--progress-color, var(--color-primary, #3b82f6));
+    transition: width 0.1s ease-out;
+    will-change: width;
+  }
+
+  .reading-progress__percentage {
+    position: absolute;
+    right: 1rem;
+    top: calc(var(--progress-height, 3px) + 0.5rem);
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--color-text-muted, #6b7280);
+    background: var(--color-bg, #fff);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    pointer-events: auto;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .reading-progress {
+      --progress-bg: rgba(255, 255, 255, 0.1);
+    }
+
+    .reading-progress__percentage {
+      --color-bg: #1a1a1a;
+    }
+  }
+</style>
+
+<script>
+  function initReadingProgress() {
+    const progressBars = document.querySelectorAll('[data-reading-progress]');
+
+    progressBars.forEach((container) => {
+      const bar = container.querySelector('.reading-progress__bar') as HTMLElement;
+      const percentage = container.querySelector('.reading-progress__percentage');
+      const targetSelector = container.getAttribute('data-target');
+
+      if (!bar) return;
+
+      let targetElement: HTMLElement | null = null;
+      let targetTop = 0;
+      let targetHeight = 0;
+
+      function calculateBounds() {
+        if (targetSelector) {
+          targetElement = document.querySelector(targetSelector);
+          if (targetElement) {
+            const rect = targetElement.getBoundingClientRect();
+            targetTop = rect.top + window.scrollY;
+            targetHeight = targetElement.offsetHeight;
+          }
+        } else {
+          targetTop = 0;
+          targetHeight = document.documentElement.scrollHeight - window.innerHeight;
+        }
+      }
+
+      function updateProgress() {
+        const scrollTop = window.scrollY;
+        let progress = 0;
+
+        if (targetSelector && targetElement) {
+          // Calculate progress within target element
+          const scrollWithinTarget = scrollTop - targetTop + window.innerHeight;
+          progress = Math.max(0, Math.min(100, (scrollWithinTarget / targetHeight) * 100));
+        } else {
+          // Calculate progress for entire page
+          progress = Math.max(0, Math.min(100, (scrollTop / targetHeight) * 100));
+        }
+
+        bar.style.width = `${progress}%`;
+        container.setAttribute('aria-valuenow', String(Math.round(progress)));
+
+        if (percentage) {
+          percentage.textContent = `${Math.round(progress)}%`;
+        }
+      }
+
+      // Calculate bounds on load and resize
+      calculateBounds();
+      window.addEventListener('resize', calculateBounds);
+
+      // Update on scroll
+      let ticking = false;
+      window.addEventListener('scroll', () => {
+        if (!ticking) {
+          requestAnimationFrame(() => {
+            updateProgress();
+            ticking = false;
+          });
+          ticking = true;
+        }
+      }, { passive: true });
+
+      // Initial update
+      updateProgress();
+    });
+  }
+
+  // Initialize
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initReadingProgress);
+  } else {
+    initReadingProgress();
+  }
+
+  document.addEventListener('astro:page-load', initReadingProgress);
+</script>
