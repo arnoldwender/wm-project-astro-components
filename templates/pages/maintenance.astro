@@ -1,0 +1,205 @@
+---
+/**
+ * Maintenance Page Template - WenderMedia Astro Components
+ *
+ * Display during scheduled maintenance or updates.
+ * Copy to src/pages/maintenance.astro
+ */
+
+export interface Props {
+  title?: string;
+  heading?: string;
+  message?: string;
+  estimatedTime?: string;
+  contactEmail?: string;
+  socialLinks?: Array<{ name: string; href: string; icon: string }>;
+}
+
+const {
+  title = 'Wartungsarbeiten',
+  heading = 'Wir sind bald zurück',
+  message = 'Wir führen gerade geplante Wartungsarbeiten durch, um Ihnen ein besseres Erlebnis zu bieten.',
+  estimatedTime,
+  contactEmail,
+  socialLinks = [],
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <meta http-equiv="refresh" content="300" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <style>
+      *, *::before, *::after { box-sizing: border-box; }
+      * { margin: 0; }
+
+      :root {
+        --color-bg: #0a0a0a;
+        --color-text: #ffffff;
+        --color-text-muted: #9ca3af;
+        --color-primary: #3b82f6;
+        --color-border: #374151;
+      }
+
+      html { -webkit-font-smoothing: antialiased; }
+
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        background: var(--color-bg);
+        color: var(--color-text);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        line-height: 1.6;
+      }
+
+      .container {
+        max-width: 28rem;
+        text-align: center;
+      }
+
+      .icon {
+        width: 4rem;
+        height: 4rem;
+        margin: 0 auto 2rem;
+        opacity: 0.8;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0%, 100% { opacity: 0.8; }
+        50% { opacity: 0.4; }
+      }
+
+      h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+      }
+
+      .message {
+        color: var(--color-text-muted);
+        margin-bottom: 2rem;
+      }
+
+      .estimated {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 2rem;
+        font-size: 0.875rem;
+        color: var(--color-text-muted);
+        margin-bottom: 2rem;
+      }
+
+      .contact {
+        color: var(--color-text-muted);
+        font-size: 0.875rem;
+        margin-bottom: 2rem;
+      }
+
+      .contact a {
+        color: var(--color-primary);
+        text-decoration: none;
+      }
+
+      .contact a:hover {
+        text-decoration: underline;
+      }
+
+      .social {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+      }
+
+      .social a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 50%;
+        border: 1px solid var(--color-border);
+        color: var(--color-text-muted);
+        transition: all 0.2s;
+      }
+
+      .social a:hover {
+        border-color: var(--color-text-muted);
+        color: var(--color-text);
+      }
+
+      .progress {
+        margin-top: 3rem;
+        height: 2px;
+        background: var(--color-border);
+        border-radius: 1px;
+        overflow: hidden;
+      }
+
+      .progress-bar {
+        height: 100%;
+        width: 30%;
+        background: var(--color-primary);
+        animation: progress 3s ease-in-out infinite;
+      }
+
+      @keyframes progress {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(400%); }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="container">
+      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+        <circle cx="12" cy="12" r="3"/>
+      </svg>
+
+      <h1>{heading}</h1>
+      <p class="message">{message}</p>
+
+      {estimatedTime && (
+        <div class="estimated">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 6v6l4 2"/>
+          </svg>
+          Geschätzte Zeit: {estimatedTime}
+        </div>
+      )}
+
+      {contactEmail && (
+        <p class="contact">
+          Bei dringenden Anfragen: <a href={`mailto:${contactEmail}`}>{contactEmail}</a>
+        </p>
+      )}
+
+      {socialLinks.length > 0 && (
+        <div class="social">
+          {socialLinks.map((link) => (
+            <a href={link.href} target="_blank" rel="noopener noreferrer" aria-label={link.name}>
+              <Fragment set:html={link.icon} />
+            </a>
+          ))}
+        </div>
+      )}
+
+      <div class="progress">
+        <div class="progress-bar"></div>
+      </div>
+    </main>
+  </body>
+</html>

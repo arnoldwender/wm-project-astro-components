@@ -1,0 +1,186 @@
+---
+/**
+ * Breadcrumbs Component - WenderMedia Astro Components
+ *
+ * SEO-optimized breadcrumb navigation with Schema.org markup.
+ * Accessible and responsive design.
+ *
+ * @example
+ * <Breadcrumbs
+ *   items={[
+ *     { label: 'Home', href: '/' },
+ *     { label: 'Products', href: '/products' },
+ *     { label: 'Category', href: '/products/category' },
+ *     { label: 'Current Product' },
+ *   ]}
+ * />
+ */
+
+export interface BreadcrumbItem {
+  label: string;
+  href?: string;
+}
+
+export interface Props {
+  items: BreadcrumbItem[];
+  separator?: 'chevron' | 'slash' | 'arrow';
+  showHome?: boolean;
+  homeLabel?: string;
+  homeHref?: string;
+  class?: string;
+}
+
+const {
+  items,
+  separator = 'chevron',
+  showHome = true,
+  homeLabel = 'Home',
+  homeHref = '/',
+  class: className = '',
+} = Astro.props;
+
+// Ensure home is first if showHome is true
+const breadcrumbItems = showHome && items[0]?.href !== homeHref
+  ? [{ label: homeLabel, href: homeHref }, ...items]
+  : items;
+
+const separatorIcons: Record<string, string> = {
+  chevron: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>',
+  slash: '<span>/</span>',
+  arrow: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>',
+};
+
+// Schema.org structured data
+const schemaData = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: breadcrumbItems.map((item, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    name: item.label,
+    ...(item.href && { item: new URL(item.href, Astro.site).href }),
+  })),
+};
+---
+
+<nav
+  class:list={['breadcrumbs', className]}
+  aria-label="Breadcrumb"
+>
+  <ol class="breadcrumbs__list" itemscope itemtype="https://schema.org/BreadcrumbList">
+    {breadcrumbItems.map((item, index) => {
+      const isLast = index === breadcrumbItems.length - 1;
+
+      return (
+        <li
+          class="breadcrumbs__item"
+          itemprop="itemListElement"
+          itemscope
+          itemtype="https://schema.org/ListItem"
+        >
+          {index > 0 && (
+            <span class="breadcrumbs__separator" aria-hidden="true">
+              <Fragment set:html={separatorIcons[separator]} />
+            </span>
+          )}
+
+          {item.href && !isLast ? (
+            <a
+              href={item.href}
+              class="breadcrumbs__link"
+              itemprop="item"
+            >
+              <span itemprop="name">{item.label}</span>
+            </a>
+          ) : (
+            <span
+              class="breadcrumbs__current"
+              aria-current="page"
+              itemprop="name"
+            >
+              {item.label}
+            </span>
+          )}
+
+          <meta itemprop="position" content={String(index + 1)} />
+        </li>
+      );
+    })}
+  </ol>
+</nav>
+
+<!-- Additional Schema.org JSON-LD -->
+<script type="application/ld+json" set:html={JSON.stringify(schemaData)} />
+
+<style>
+  .breadcrumbs {
+    font-size: 0.875rem;
+  }
+
+  .breadcrumbs__list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .breadcrumbs__item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .breadcrumbs__separator {
+    display: flex;
+    align-items: center;
+    color: var(--color-text-muted, #9ca3af);
+  }
+
+  .breadcrumbs__separator svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .breadcrumbs__link {
+    color: var(--color-text-muted, #6b7280);
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+
+  .breadcrumbs__link:hover {
+    color: var(--color-text, #111);
+    text-decoration: underline;
+  }
+
+  .breadcrumbs__current {
+    color: var(--color-text, #111);
+    font-weight: 500;
+  }
+
+  /* Truncate on mobile */
+  @media (max-width: 640px) {
+    .breadcrumbs__item:not(:first-child):not(:last-child) {
+      display: none;
+    }
+
+    .breadcrumbs__item:first-child:not(:last-child)::after {
+      content: '...';
+      margin-left: 0.5rem;
+      color: var(--color-text-muted, #9ca3af);
+    }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .breadcrumbs__link {
+      --color-text-muted: #9ca3af;
+      --color-text: #fff;
+    }
+
+    .breadcrumbs__current {
+      --color-text: #fff;
+    }
+  }
+</style>

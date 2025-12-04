@@ -1,0 +1,354 @@
+---
+/**
+ * Privacy Policy Page Template - WenderMedia Astro Components
+ *
+ * GDPR/DSGVO compliant privacy policy template.
+ * Customize the sections based on your data processing activities.
+ * Copy to src/pages/datenschutz.astro or src/pages/privacy.astro
+ */
+
+export interface Props {
+  companyName: string;
+  companyAddress: string;
+  companyEmail: string;
+  companyPhone?: string;
+  websiteUrl: string;
+  lastUpdated: Date;
+  dataProtectionOfficer?: {
+    name: string;
+    email: string;
+    address?: string;
+  };
+  hostingProvider?: string;
+  analyticsTools?: string[];
+  thirdPartyServices?: Array<{ name: string; purpose: string; privacyUrl: string }>;
+}
+
+const {
+  companyName,
+  companyAddress,
+  companyEmail,
+  companyPhone,
+  websiteUrl,
+  lastUpdated,
+  dataProtectionOfficer,
+  hostingProvider = 'Vercel Inc.',
+  analyticsTools = [],
+  thirdPartyServices = [],
+} = Astro.props;
+
+const formattedDate = lastUpdated.toLocaleDateString('de-DE', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+---
+
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Datenschutzerklärung | {companyName}</title>
+    <meta name="description" content={`Datenschutzerklärung von ${companyName}. Informationen zur Verarbeitung Ihrer personenbezogenen Daten gemäß DSGVO.`} />
+    <link rel="canonical" href={`${websiteUrl}/datenschutz`} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <style>
+      *, *::before, *::after { box-sizing: border-box; }
+      * { margin: 0; }
+
+      :root {
+        --color-bg: #ffffff;
+        --color-text: #111111;
+        --color-text-muted: #6b7280;
+        --color-border: #e5e7eb;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --color-bg: #0f0f0f;
+          --color-text: #ffffff;
+          --color-text-muted: #9ca3af;
+          --color-border: #374151;
+        }
+      }
+
+      html { -webkit-font-smoothing: antialiased; }
+
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        background: var(--color-bg);
+        color: var(--color-text);
+        line-height: 1.7;
+        padding: 2rem 1rem;
+      }
+
+      .container {
+        max-width: 48rem;
+        margin: 0 auto;
+      }
+
+      h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+
+      .updated {
+        color: var(--color-text-muted);
+        font-size: 0.875rem;
+        margin-bottom: 3rem;
+      }
+
+      h2 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-top: 2.5rem;
+        margin-bottom: 1rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--color-border);
+      }
+
+      h3 {
+        font-size: 1rem;
+        font-weight: 600;
+        margin-top: 1.5rem;
+        margin-bottom: 0.75rem;
+      }
+
+      p {
+        margin-bottom: 1rem;
+      }
+
+      ul, ol {
+        margin-bottom: 1rem;
+        padding-left: 1.5rem;
+      }
+
+      li {
+        margin-bottom: 0.5rem;
+      }
+
+      a {
+        color: var(--color-text);
+        text-decoration: underline;
+      }
+
+      .contact-info {
+        background: rgba(0, 0, 0, 0.03);
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        margin: 1.5rem 0;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .contact-info {
+          background: rgba(255, 255, 255, 0.03);
+        }
+      }
+
+      .toc {
+        background: rgba(0, 0, 0, 0.03);
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        margin-bottom: 2rem;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        .toc {
+          background: rgba(255, 255, 255, 0.03);
+        }
+      }
+
+      .toc h2 {
+        margin-top: 0;
+        padding-top: 0;
+        border-top: none;
+        font-size: 1rem;
+      }
+
+      .toc ol {
+        margin-bottom: 0;
+      }
+
+      .toc a {
+        color: var(--color-text-muted);
+        text-decoration: none;
+      }
+
+      .toc a:hover {
+        color: var(--color-text);
+      }
+    </style>
+  </head>
+  <body>
+    <main class="container">
+      <h1>Datenschutzerklärung</h1>
+      <p class="updated">Stand: {formattedDate}</p>
+
+      <nav class="toc">
+        <h2>Inhaltsverzeichnis</h2>
+        <ol>
+          <li><a href="#verantwortlicher">Verantwortlicher</a></li>
+          <li><a href="#uebersicht">Übersicht der Verarbeitungen</a></li>
+          <li><a href="#rechtsgrundlagen">Rechtsgrundlagen</a></li>
+          <li><a href="#sicherheit">Sicherheitsmaßnahmen</a></li>
+          <li><a href="#hosting">Hosting</a></li>
+          <li><a href="#kontakt">Kontaktaufnahme</a></li>
+          {analyticsTools.length > 0 && <li><a href="#analytics">Webanalyse</a></li>}
+          <li><a href="#rechte">Ihre Rechte</a></li>
+          <li><a href="#aenderungen">Änderungen</a></li>
+        </ol>
+      </nav>
+
+      <section id="verantwortlicher">
+        <h2>1. Verantwortlicher</h2>
+        <div class="contact-info">
+          <p><strong>{companyName}</strong></p>
+          <p>{companyAddress}</p>
+          <p>E-Mail: <a href={`mailto:${companyEmail}`}>{companyEmail}</a></p>
+          {companyPhone && <p>Telefon: <a href={`tel:${companyPhone}`}>{companyPhone}</a></p>}
+        </div>
+
+        {dataProtectionOfficer && (
+          <>
+            <h3>Datenschutzbeauftragter</h3>
+            <div class="contact-info">
+              <p><strong>{dataProtectionOfficer.name}</strong></p>
+              {dataProtectionOfficer.address && <p>{dataProtectionOfficer.address}</p>}
+              <p>E-Mail: <a href={`mailto:${dataProtectionOfficer.email}`}>{dataProtectionOfficer.email}</a></p>
+            </div>
+          </>
+        )}
+      </section>
+
+      <section id="uebersicht">
+        <h2>2. Übersicht der Verarbeitungen</h2>
+        <p>Die nachfolgende Übersicht fasst die Arten der verarbeiteten Daten und die Zwecke ihrer Verarbeitung zusammen:</p>
+
+        <h3>Arten der verarbeiteten Daten</h3>
+        <ul>
+          <li>Bestandsdaten (z.B. Namen, Adressen)</li>
+          <li>Kontaktdaten (z.B. E-Mail, Telefonnummern)</li>
+          <li>Inhaltsdaten (z.B. Eingaben in Formularen)</li>
+          <li>Nutzungsdaten (z.B. besuchte Seiten, Zugriffszeit)</li>
+          <li>Meta-/Kommunikationsdaten (z.B. IP-Adressen, Geräte-Informationen)</li>
+        </ul>
+
+        <h3>Kategorien betroffener Personen</h3>
+        <ul>
+          <li>Nutzer der Website</li>
+          <li>Interessenten und Kunden</li>
+          <li>Kommunikationspartner</li>
+        </ul>
+
+        <h3>Zwecke der Verarbeitung</h3>
+        <ul>
+          <li>Bereitstellung der Website und ihrer Funktionen</li>
+          <li>Beantwortung von Kontaktanfragen</li>
+          <li>Sicherheitsmaßnahmen</li>
+          <li>Reichweitenmessung und Marketing (nur mit Einwilligung)</li>
+        </ul>
+      </section>
+
+      <section id="rechtsgrundlagen">
+        <h2>3. Maßgebliche Rechtsgrundlagen</h2>
+        <p>Im Folgenden erhalten Sie eine Übersicht der Rechtsgrundlagen der DSGVO, auf deren Basis wir personenbezogene Daten verarbeiten:</p>
+        <ul>
+          <li><strong>Einwilligung (Art. 6 Abs. 1 S. 1 lit. a DSGVO)</strong> - Die betroffene Person hat ihre Einwilligung in die Verarbeitung der sie betreffenden personenbezogenen Daten für einen spezifischen Zweck gegeben.</li>
+          <li><strong>Vertragserfüllung (Art. 6 Abs. 1 S. 1 lit. b DSGVO)</strong> - Die Verarbeitung ist für die Erfüllung eines Vertrags erforderlich.</li>
+          <li><strong>Rechtliche Verpflichtung (Art. 6 Abs. 1 S. 1 lit. c DSGVO)</strong> - Die Verarbeitung ist zur Erfüllung einer rechtlichen Verpflichtung erforderlich.</li>
+          <li><strong>Berechtigte Interessen (Art. 6 Abs. 1 S. 1 lit. f DSGVO)</strong> - Die Verarbeitung ist zur Wahrung der berechtigten Interessen des Verantwortlichen erforderlich.</li>
+        </ul>
+      </section>
+
+      <section id="sicherheit">
+        <h2>4. Sicherheitsmaßnahmen</h2>
+        <p>Wir treffen nach Maßgabe der gesetzlichen Vorgaben unter Berücksichtigung des Stands der Technik angemessene technische und organisatorische Maßnahmen, um ein dem Risiko angemessenes Schutzniveau zu gewährleisten.</p>
+        <p>Zu den Maßnahmen gehören insbesondere:</p>
+        <ul>
+          <li>Verschlüsselung der Datenübertragung (SSL/TLS)</li>
+          <li>Regelmäßige Sicherheitsupdates</li>
+          <li>Zugriffsbeschränkungen</li>
+          <li>Pseudonymisierung und Anonymisierung von Daten</li>
+        </ul>
+      </section>
+
+      <section id="hosting">
+        <h2>5. Bereitstellung des Onlineangebotes und Webhosting</h2>
+        <p>Wir verarbeiten die Daten der Nutzer, um ihnen unsere Online-Dienste zur Verfügung stellen zu können. Zu diesem Zweck verarbeiten wir die IP-Adresse des Nutzers, die notwendig ist, um die Inhalte und Funktionen unserer Online-Dienste an den Browser oder das Endgerät der Nutzer zu übermitteln.</p>
+
+        <h3>Hosting-Anbieter</h3>
+        <p>Unser Hosting-Anbieter ist {hostingProvider}. Die Server befinden sich in der EU oder in Ländern mit angemessenem Datenschutzniveau.</p>
+
+        <h3>Erhebung von Zugriffsdaten und Logfiles</h3>
+        <p>Bei jedem Zugriff auf unser Angebot werden folgende Daten erfasst:</p>
+        <ul>
+          <li>IP-Adresse des anfragenden Rechners</li>
+          <li>Datum und Uhrzeit des Zugriffs</li>
+          <li>Name und URL der abgerufenen Datei</li>
+          <li>Website, von der der Zugriff erfolgt (Referrer-URL)</li>
+          <li>Verwendeter Browser und Betriebssystem</li>
+        </ul>
+        <p>Die Speicherung erfolgt aus Sicherheitsgründen (z.B. zur Aufklärung von Missbrauchs- oder Betrugshandlungen) für maximal 7 Tage.</p>
+      </section>
+
+      <section id="kontakt">
+        <h2>6. Kontaktaufnahme</h2>
+        <p>Bei der Kontaktaufnahme mit uns (z.B. per Kontaktformular, E-Mail) werden die Angaben des Nutzers zur Bearbeitung der Kontaktanfrage verarbeitet.</p>
+        <ul>
+          <li><strong>Verarbeitete Daten:</strong> Name, E-Mail-Adresse, Nachrichteninhalt</li>
+          <li><strong>Rechtsgrundlage:</strong> Berechtigtes Interesse (Art. 6 Abs. 1 lit. f DSGVO) bzw. Vertragserfüllung (Art. 6 Abs. 1 lit. b DSGVO)</li>
+          <li><strong>Speicherdauer:</strong> Die Daten werden gelöscht, sobald sie für die Erreichung des Zweckes nicht mehr erforderlich sind</li>
+        </ul>
+      </section>
+
+      {analyticsTools.length > 0 && (
+        <section id="analytics">
+          <h2>7. Webanalyse und Optimierung</h2>
+          <p>Wir setzen Webanalyse-Dienste ein, um die Nutzung unserer Website zu analysieren und zu verbessern. Diese werden nur mit Ihrer ausdrücklichen Einwilligung aktiviert.</p>
+
+          {analyticsTools.map((tool) => (
+            <h3>{tool}</h3>
+          ))}
+
+          <p>Sie können Ihre Einwilligung jederzeit über die Cookie-Einstellungen widerrufen.</p>
+        </section>
+      )}
+
+      {thirdPartyServices.length > 0 && (
+        <section id="drittanbieter">
+          <h2>8. Dienste von Drittanbietern</h2>
+          {thirdPartyServices.map((service) => (
+            <>
+              <h3>{service.name}</h3>
+              <p>{service.purpose}</p>
+              <p>Datenschutzerklärung: <a href={service.privacyUrl} target="_blank" rel="noopener noreferrer">{service.privacyUrl}</a></p>
+            </>
+          ))}
+        </section>
+      )}
+
+      <section id="rechte">
+        <h2>9. Ihre Rechte als betroffene Person</h2>
+        <p>Sie haben gegenüber uns folgende Rechte hinsichtlich der Sie betreffenden personenbezogenen Daten:</p>
+        <ul>
+          <li><strong>Auskunftsrecht (Art. 15 DSGVO):</strong> Sie können Auskunft über Ihre von uns verarbeiteten personenbezogenen Daten verlangen.</li>
+          <li><strong>Berichtigungsrecht (Art. 16 DSGVO):</strong> Sie können die Berichtigung unrichtiger Daten verlangen.</li>
+          <li><strong>Löschungsrecht (Art. 17 DSGVO):</strong> Sie können die Löschung Ihrer bei uns gespeicherten Daten verlangen.</li>
+          <li><strong>Einschränkung der Verarbeitung (Art. 18 DSGVO):</strong> Sie können die Einschränkung der Verarbeitung Ihrer Daten verlangen.</li>
+          <li><strong>Datenübertragbarkeit (Art. 20 DSGVO):</strong> Sie können verlangen, dass wir Ihnen Ihre Daten in einem strukturierten Format übermitteln.</li>
+          <li><strong>Widerspruchsrecht (Art. 21 DSGVO):</strong> Sie können der Verarbeitung Ihrer Daten widersprechen.</li>
+          <li><strong>Widerruf der Einwilligung:</strong> Sie können eine erteilte Einwilligung jederzeit widerrufen.</li>
+          <li><strong>Beschwerderecht:</strong> Sie haben das Recht, sich bei einer Datenschutz-Aufsichtsbehörde zu beschweren.</li>
+        </ul>
+      </section>
+
+      <section id="aenderungen">
+        <h2>10. Änderungen dieser Datenschutzerklärung</h2>
+        <p>Wir behalten uns vor, diese Datenschutzerklärung anzupassen, damit sie stets den aktuellen rechtlichen Anforderungen entspricht oder um Änderungen unserer Leistungen umzusetzen. Für Ihren erneuten Besuch gilt dann die neue Datenschutzerklärung.</p>
+      </section>
+    </main>
+  </body>
+</html>

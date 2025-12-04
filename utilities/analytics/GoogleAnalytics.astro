@@ -1,0 +1,91 @@
+---
+/**
+ * GoogleAnalytics Component - WenderMedia Astro Components
+ *
+ * GDPR-compliant Google Analytics 4 integration.
+ * Only loads after user consent via CookieConsent component.
+ *
+ * @example
+ * <GoogleAnalytics measurementId="G-XXXXXXXXXX" />
+ */
+
+export interface Props {
+  measurementId: string;
+  anonymizeIp?: boolean;
+  debug?: boolean;
+}
+
+const {
+  measurementId,
+  anonymizeIp = true,
+  debug = false,
+} = Astro.props;
+---
+
+<script
+  define:vars={{ measurementId, anonymizeIp, debug }}
+  data-category="analytics"
+>
+  // Wait for consent
+  function initGA4() {
+    // Check if already loaded
+    if (window.gtag) return;
+
+    // Load gtag.js
+    const script = document.createElement('script');
+    script.async = true;
+    script.src = `https://www.googletagmanager.com/gtag/js?id=${measurementId}`;
+    document.head.appendChild(script);
+
+    // Initialize gtag
+    window.dataLayer = window.dataLayer || [];
+    function gtag(...args: unknown[]) {
+      window.dataLayer.push(args);
+    }
+    window.gtag = gtag;
+
+    gtag('js', new Date());
+    gtag('config', measurementId, {
+      anonymize_ip: anonymizeIp,
+      debug_mode: debug,
+      send_page_view: true,
+    });
+
+    // Track page views on Astro navigation
+    document.addEventListener('astro:page-load', () => {
+      gtag('event', 'page_view', {
+        page_title: document.title,
+        page_location: window.location.href,
+        page_path: window.location.pathname,
+      });
+    });
+
+    if (debug) {
+      console.log('[GA4] Initialized with ID:', measurementId);
+    }
+  }
+
+  // Listen for consent
+  window.addEventListener('cookie-consent-update', (e) => {
+    const consent = (e as CustomEvent).detail;
+    if (consent?.categories?.analytics) {
+      initGA4();
+    }
+  });
+
+  // Check existing consent on load
+  try {
+    const stored = localStorage.getItem('cookie-consent');
+    if (stored) {
+      const consent = JSON.parse(stored);
+      if (consent?.categories?.analytics) {
+        initGA4();
+      }
+    }
+  } catch {}
+</script>
+
+<!-- Declare gtag type -->
+<script is:inline>
+  window.dataLayer = window.dataLayer || [];
+</script>

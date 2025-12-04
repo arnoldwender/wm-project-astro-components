@@ -1,0 +1,134 @@
+---
+/**
+ * Matomo Analytics Component - WenderMedia Astro Components
+ *
+ * Self-hosted analytics with Matomo.
+ * Supports consent mode for GDPR compliance.
+ *
+ * @example
+ * <Matomo
+ *   url="https://analytics.example.com"
+ *   siteId="1"
+ * />
+ */
+
+export interface Props {
+  url: string;
+  siteId: string;
+  requireConsent?: boolean;
+  disableCookies?: boolean;
+  trackLinks?: boolean;
+  heartbeat?: boolean;
+  debug?: boolean;
+}
+
+const {
+  url,
+  siteId,
+  requireConsent = true,
+  disableCookies = false,
+  trackLinks = true,
+  heartbeat = true,
+  debug = false,
+} = Astro.props;
+
+// Ensure URL doesn't end with slash
+const matomoUrl = url.replace(/\/$/, '');
+---
+
+<script
+  define:vars={{ matomoUrl, siteId, requireConsent, disableCookies, trackLinks, heartbeat, debug }}
+  data-category="analytics"
+>
+  function initMatomo() {
+    // Check if already loaded
+    if (window._paq && window._paq.length > 0) return;
+
+    const _paq = window._paq = window._paq || [];
+
+    // Configure before loading script
+    if (requireConsent) {
+      _paq.push(['requireConsent']);
+    }
+
+    if (disableCookies) {
+      _paq.push(['disableCookies']);
+    }
+
+    // Enable features
+    if (trackLinks) {
+      _paq.push(['enableLinkTracking']);
+    }
+
+    if (heartbeat) {
+      _paq.push(['enableHeartBeatTimer', 15]);
+    }
+
+    // Track page view
+    _paq.push(['trackPageView']);
+
+    // Set tracker URL and site ID
+    _paq.push(['setTrackerUrl', `${matomoUrl}/matomo.php`]);
+    _paq.push(['setSiteId', siteId]);
+
+    // Load script
+    const script = document.createElement('script');
+    script.async = true;
+    script.src = `${matomoUrl}/matomo.js`;
+    document.head.appendChild(script);
+
+    if (debug) {
+      console.log('[Matomo] Initialized with URL:', matomoUrl, 'Site ID:', siteId);
+    }
+  }
+
+  function grantMatomoConsent() {
+    if (window._paq) {
+      window._paq.push(['setConsentGiven']);
+      if (debug) {
+        console.log('[Matomo] Consent granted');
+      }
+    }
+  }
+
+  // Handle consent
+  if (requireConsent) {
+    // Listen for consent
+    window.addEventListener('cookie-consent-update', (e) => {
+      const consent = (e as CustomEvent).detail;
+      if (consent?.categories?.analytics) {
+        initMatomo();
+        grantMatomoConsent();
+      }
+    });
+
+    // Check existing consent
+    try {
+      const stored = localStorage.getItem('cookie-consent');
+      if (stored) {
+        const consent = JSON.parse(stored);
+        if (consent?.categories?.analytics) {
+          initMatomo();
+          grantMatomoConsent();
+        }
+      }
+    } catch {}
+  } else {
+    // No consent required, initialize immediately
+    initMatomo();
+  }
+
+  // Track page views on Astro navigation
+  document.addEventListener('astro:page-load', () => {
+    if (window._paq) {
+      window._paq.push(['setCustomUrl', window.location.href]);
+      window._paq.push(['setDocumentTitle', document.title]);
+      window._paq.push(['trackPageView']);
+    }
+  });
+</script>
+
+<!-- Type definitions -->
+<script is:inline>
+  window._paq = window._paq || [];
+</script>

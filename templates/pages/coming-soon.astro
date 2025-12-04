@@ -1,0 +1,362 @@
+---
+/**
+ * Coming Soon Page Template - WenderMedia Astro Components
+ *
+ * Pre-launch page with email signup and countdown.
+ * Copy to src/pages/index.astro for pre-launch sites.
+ */
+
+export interface Props {
+  title?: string;
+  description?: string;
+  heading?: string;
+  subheading?: string;
+  launchDate?: Date;
+  formAction?: string;
+  privacyUrl?: string;
+  backgroundImage?: string;
+  logo?: { src: string; alt: string };
+  socialLinks?: Array<{ name: string; href: string; icon: string }>;
+}
+
+const {
+  title = 'Demnächst verfügbar',
+  description = 'Wir arbeiten an etwas Großartigem. Bleiben Sie dran!',
+  heading = 'Demnächst verfügbar',
+  subheading = 'Wir arbeiten an etwas Großartigem. Tragen Sie sich ein, um als Erster informiert zu werden.',
+  launchDate,
+  formAction = '/api/newsletter',
+  privacyUrl = '/datenschutz',
+  backgroundImage,
+  logo,
+  socialLinks = [],
+} = Astro.props;
+
+const launchTimestamp = launchDate?.getTime() || 0;
+---
+
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <style define:vars={{ bgImage: backgroundImage ? `url(${backgroundImage})` : 'none' }}>
+      *, *::before, *::after { box-sizing: border-box; }
+      * { margin: 0; }
+
+      :root {
+        --color-bg: #0a0a0a;
+        --color-text: #ffffff;
+        --color-text-muted: #9ca3af;
+        --color-primary: #ffffff;
+        --color-border: #374151;
+      }
+
+      html { -webkit-font-smoothing: antialiased; }
+
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        background: var(--color-bg);
+        background-image: var(--bgImage);
+        background-size: cover;
+        background-position: center;
+        color: var(--color-text);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        line-height: 1.6;
+        position: relative;
+      }
+
+      body::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 0;
+      }
+
+      .container {
+        position: relative;
+        z-index: 1;
+        max-width: 32rem;
+        text-align: center;
+      }
+
+      .logo {
+        height: 3rem;
+        margin: 0 auto 2rem;
+      }
+
+      h1 {
+        font-size: clamp(2rem, 5vw, 3rem);
+        font-weight: 700;
+        margin-bottom: 1rem;
+        line-height: 1.2;
+      }
+
+      .subheading {
+        color: var(--color-text-muted);
+        margin-bottom: 2.5rem;
+        font-size: 1.125rem;
+      }
+
+      .countdown {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 2.5rem;
+      }
+
+      .countdown-item {
+        text-align: center;
+        min-width: 4.5rem;
+      }
+
+      .countdown-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        line-height: 1;
+        margin-bottom: 0.25rem;
+      }
+
+      .countdown-label {
+        font-size: 0.75rem;
+        color: var(--color-text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+
+      .form {
+        display: flex;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+      }
+
+      .input {
+        flex: 1;
+        padding: 0.875rem 1rem;
+        font-size: 1rem;
+        border: 1px solid var(--color-border);
+        border-radius: 0.5rem;
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--color-text);
+        outline: none;
+        transition: border-color 0.2s;
+      }
+
+      .input:focus {
+        border-color: var(--color-primary);
+      }
+
+      .input::placeholder {
+        color: var(--color-text-muted);
+      }
+
+      .btn {
+        padding: 0.875rem 1.5rem;
+        font-size: 1rem;
+        font-weight: 600;
+        background: var(--color-primary);
+        color: var(--color-bg);
+        border: none;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: opacity 0.2s;
+        white-space: nowrap;
+      }
+
+      .btn:hover {
+        opacity: 0.9;
+      }
+
+      .privacy {
+        font-size: 0.75rem;
+        color: var(--color-text-muted);
+        margin-bottom: 3rem;
+      }
+
+      .privacy a {
+        color: var(--color-text-muted);
+        text-decoration: underline;
+      }
+
+      .social {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+      }
+
+      .social a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 50%;
+        border: 1px solid var(--color-border);
+        color: var(--color-text-muted);
+        transition: all 0.2s;
+      }
+
+      .social a:hover {
+        border-color: var(--color-text);
+        color: var(--color-text);
+      }
+
+      .success-message {
+        display: none;
+        padding: 1rem;
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        border-radius: 0.5rem;
+        color: #10b981;
+        margin-bottom: 1rem;
+      }
+
+      @media (max-width: 480px) {
+        .form {
+          flex-direction: column;
+        }
+        .countdown-item {
+          min-width: 3.5rem;
+        }
+        .countdown-value {
+          font-size: 1.75rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="container">
+      {logo && (
+        <img src={logo.src} alt={logo.alt} class="logo" />
+      )}
+
+      <h1>{heading}</h1>
+      <p class="subheading">{subheading}</p>
+
+      {launchDate && (
+        <div class="countdown" id="countdown" data-launch={launchTimestamp}>
+          <div class="countdown-item">
+            <div class="countdown-value" id="days">--</div>
+            <div class="countdown-label">Tage</div>
+          </div>
+          <div class="countdown-item">
+            <div class="countdown-value" id="hours">--</div>
+            <div class="countdown-label">Stunden</div>
+          </div>
+          <div class="countdown-item">
+            <div class="countdown-value" id="minutes">--</div>
+            <div class="countdown-label">Minuten</div>
+          </div>
+          <div class="countdown-item">
+            <div class="countdown-value" id="seconds">--</div>
+            <div class="countdown-label">Sekunden</div>
+          </div>
+        </div>
+      )}
+
+      <div class="success-message" id="success">
+        Vielen Dank! Wir werden Sie informieren, sobald wir live sind.
+      </div>
+
+      <form class="form" id="signup-form" action={formAction} method="POST">
+        <input
+          type="email"
+          name="email"
+          class="input"
+          placeholder="Ihre E-Mail-Adresse"
+          required
+          aria-label="E-Mail-Adresse"
+        />
+        <button type="submit" class="btn">Benachrichtigen</button>
+      </form>
+
+      <p class="privacy">
+        Mit der Anmeldung stimmen Sie unserer{' '}
+        <a href={privacyUrl}>Datenschutzerklärung</a> zu.
+      </p>
+
+      {socialLinks.length > 0 && (
+        <div class="social">
+          {socialLinks.map((link) => (
+            <a href={link.href} target="_blank" rel="noopener noreferrer" aria-label={link.name}>
+              <Fragment set:html={link.icon} />
+            </a>
+          ))}
+        </div>
+      )}
+    </main>
+
+    <script>
+      // Countdown Timer
+      const countdown = document.getElementById('countdown');
+      if (countdown) {
+        const launchTimestamp = parseInt(countdown.dataset.launch || '0');
+
+        function updateCountdown() {
+          const now = Date.now();
+          const diff = launchTimestamp - now;
+
+          if (diff <= 0) {
+            document.getElementById('days')!.textContent = '0';
+            document.getElementById('hours')!.textContent = '0';
+            document.getElementById('minutes')!.textContent = '0';
+            document.getElementById('seconds')!.textContent = '0';
+            return;
+          }
+
+          const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+          const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+          document.getElementById('days')!.textContent = String(days);
+          document.getElementById('hours')!.textContent = String(hours).padStart(2, '0');
+          document.getElementById('minutes')!.textContent = String(minutes).padStart(2, '0');
+          document.getElementById('seconds')!.textContent = String(seconds).padStart(2, '0');
+        }
+
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+      }
+
+      // Form Handler
+      const form = document.getElementById('signup-form') as HTMLFormElement;
+      const success = document.getElementById('success');
+
+      if (form && success) {
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const formData = new FormData(form);
+
+          try {
+            const response = await fetch(form.action, {
+              method: 'POST',
+              body: formData,
+            });
+
+            if (response.ok) {
+              form.style.display = 'none';
+              success.style.display = 'block';
+            }
+          } catch (error) {
+            // Show success anyway for demo
+            form.style.display = 'none';
+            success.style.display = 'block';
+          }
+        });
+      }
+    </script>
+  </body>
+</html>

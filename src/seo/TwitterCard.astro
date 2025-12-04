@@ -1,0 +1,105 @@
+---
+/**
+ * TwitterCard Component - WenderMedia Astro Components
+ *
+ * Twitter Card meta tags for rich social sharing on Twitter/X.
+ *
+ * @example
+ * <TwitterCard
+ *   title="Page Title"
+ *   description="Page description"
+ *   image="/twitter-image.jpg"
+ *   card="summary_large_image"
+ *   site="@yourhandle"
+ * />
+ */
+
+export interface Props {
+  title: string;
+  description: string;
+  image?: string;
+  imageAlt?: string;
+  card?: 'summary' | 'summary_large_image' | 'app' | 'player';
+  site?: string;
+  creator?: string;
+  player?: {
+    url: string;
+    width: number;
+    height: number;
+    stream?: string;
+  };
+  app?: {
+    name: {
+      iphone?: string;
+      ipad?: string;
+      googleplay?: string;
+    };
+    id: {
+      iphone?: string;
+      ipad?: string;
+      googleplay?: string;
+    };
+    url?: {
+      iphone?: string;
+      ipad?: string;
+      googleplay?: string;
+    };
+  };
+}
+
+const {
+  title,
+  description,
+  image,
+  imageAlt,
+  card = 'summary_large_image',
+  site,
+  creator,
+  player,
+  app,
+} = Astro.props;
+
+const imageUrl = image?.startsWith('http') ? image : (image ? new URL(image, Astro.site).href : undefined);
+---
+
+<!-- Basic Twitter Card -->
+<meta name="twitter:card" content={card} />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+
+<!-- Site and Creator -->
+{site && <meta name="twitter:site" content={site.startsWith('@') ? site : `@${site}`} />}
+{creator && <meta name="twitter:creator" content={creator.startsWith('@') ? creator : `@${creator}`} />}
+
+<!-- Image -->
+{imageUrl && (
+  <>
+    <meta name="twitter:image" content={imageUrl} />
+    <meta name="twitter:image:alt" content={imageAlt || description} />
+  </>
+)}
+
+<!-- Player Card -->
+{card === 'player' && player && (
+  <>
+    <meta name="twitter:player" content={player.url} />
+    <meta name="twitter:player:width" content={String(player.width)} />
+    <meta name="twitter:player:height" content={String(player.height)} />
+    {player.stream && <meta name="twitter:player:stream" content={player.stream} />}
+  </>
+)}
+
+<!-- App Card -->
+{card === 'app' && app && (
+  <>
+    {app.name.iphone && <meta name="twitter:app:name:iphone" content={app.name.iphone} />}
+    {app.name.ipad && <meta name="twitter:app:name:ipad" content={app.name.ipad} />}
+    {app.name.googleplay && <meta name="twitter:app:name:googleplay" content={app.name.googleplay} />}
+    {app.id.iphone && <meta name="twitter:app:id:iphone" content={app.id.iphone} />}
+    {app.id.ipad && <meta name="twitter:app:id:ipad" content={app.id.ipad} />}
+    {app.id.googleplay && <meta name="twitter:app:id:googleplay" content={app.id.googleplay} />}
+    {app.url?.iphone && <meta name="twitter:app:url:iphone" content={app.url.iphone} />}
+    {app.url?.ipad && <meta name="twitter:app:url:ipad" content={app.url.ipad} />}
+    {app.url?.googleplay && <meta name="twitter:app:url:googleplay" content={app.url.googleplay} />}
+  </>
+)}

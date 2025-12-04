@@ -1,0 +1,77 @@
+---
+/**
+ * Plausible Analytics Component - WenderMedia Astro Components
+ *
+ * Privacy-friendly analytics with Plausible.
+ * GDPR compliant by design (no cookies required).
+ *
+ * @example
+ * <Plausible domain="example.com" />
+ */
+
+export interface Props {
+  domain: string;
+  customDomain?: string;
+  hashMode?: boolean;
+  trackLocalhost?: boolean;
+  manual?: boolean;
+  outboundLinks?: boolean;
+  fileDownloads?: boolean;
+  taggedEvents?: boolean;
+}
+
+const {
+  domain,
+  customDomain,
+  hashMode = false,
+  trackLocalhost = false,
+  manual = false,
+  outboundLinks = true,
+  fileDownloads = true,
+  taggedEvents = true,
+} = Astro.props;
+
+const scriptUrl = customDomain
+  ? `https://${customDomain}/js/script.js`
+  : 'https://plausible.io/js/script.js';
+
+// Build script extensions
+const extensions: string[] = [];
+if (hashMode) extensions.push('hash');
+if (outboundLinks) extensions.push('outbound-links');
+if (fileDownloads) extensions.push('file-downloads');
+if (taggedEvents) extensions.push('tagged-events');
+if (manual) extensions.push('manual');
+
+const finalScriptUrl = extensions.length > 0
+  ? scriptUrl.replace('.js', `.${extensions.join('.')}.js`)
+  : scriptUrl;
+---
+
+<!-- Plausible is GDPR compliant without cookies, can load immediately -->
+<script
+  defer
+  data-domain={domain}
+  data-api={customDomain ? `https://${customDomain}/api/event` : undefined}
+  src={finalScriptUrl}
+  {...(trackLocalhost && { 'data-track-localhost': '' })}
+></script>
+
+<!-- Handle Astro page transitions -->
+<script define:vars={{ manual }}>
+  if (manual) {
+    // For manual mode, track page views on navigation
+    document.addEventListener('astro:page-load', () => {
+      if (window.plausible) {
+        window.plausible('pageview');
+      }
+    });
+  }
+</script>
+
+<!-- Type definitions -->
+<script is:inline>
+  window.plausible = window.plausible || function() {
+    (window.plausible.q = window.plausible.q || []).push(arguments);
+  };
+</script>

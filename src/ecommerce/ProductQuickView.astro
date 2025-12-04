@@ -1,0 +1,798 @@
+---
+/**
+ * ProductQuickView Component - WenderMedia Astro Components
+ *
+ * Modal-based quick view for products without leaving the current page.
+ * Supports image gallery, variant selection, and add to cart.
+ *
+ * @example
+ * <ProductQuickView />
+ * <!-- Place once in layout, triggers via data attributes -->
+ *
+ * <!-- Trigger button -->
+ * <button
+ *   data-quickview-trigger
+ *   data-product-id="prod-123"
+ *   data-product-name="Product Name"
+ *   data-product-price="29.99"
+ *   data-product-images='["/img1.jpg", "/img2.jpg"]'
+ *   data-product-description="Product description here"
+ *   data-product-variants='[{"name":"Size","options":["S","M","L"]}]'
+ * >
+ *   Quick View
+ * </button>
+ */
+
+export interface ProductVariant {
+  name: string;
+  options: string[];
+}
+
+export interface Props {
+  currency?: string;
+  locale?: string;
+  addToCartText?: string;
+  addToWishlistText?: string;
+  viewProductText?: string;
+  class?: string;
+}
+
+const {
+  currency = 'EUR',
+  locale = 'de-DE',
+  addToCartText = 'In den Warenkorb',
+  addToWishlistText = 'Auf die Wunschliste',
+  viewProductText = 'Produkt ansehen',
+  class: className = '',
+} = Astro.props;
+---
+
+<div
+  class:list={['quickview-container', className]}
+  data-quickview
+  data-currency={currency}
+  data-locale={locale}
+>
+  <!-- Modal Backdrop -->
+  <div class="quickview__backdrop" data-quickview-close hidden></div>
+
+  <!-- Modal Content -->
+  <div
+    class="quickview__modal"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="quickview-title"
+    hidden
+    data-quickview-modal
+  >
+    <!-- Close Button -->
+    <button
+      type="button"
+      class="quickview__close"
+      data-quickview-close
+      aria-label="Schließen"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M18 6L6 18M6 6l12 12"/>
+      </svg>
+    </button>
+
+    <div class="quickview__content">
+      <!-- Image Gallery -->
+      <div class="quickview__gallery">
+        <div class="quickview__main-image" data-main-image>
+          <img src="" alt="" />
+        </div>
+        <div class="quickview__thumbnails" data-thumbnails></div>
+      </div>
+
+      <!-- Product Info -->
+      <div class="quickview__info">
+        <h2 id="quickview-title" class="quickview__title" data-product-title></h2>
+
+        <div class="quickview__price" data-product-price></div>
+
+        <div class="quickview__description" data-product-description></div>
+
+        <!-- Variants -->
+        <div class="quickview__variants" data-variants-container></div>
+
+        <!-- Quantity -->
+        <div class="quickview__quantity">
+          <label for="quickview-qty" class="quickview__label">Menge</label>
+          <div class="quickview__qty-controls">
+            <button type="button" class="quickview__qty-btn" data-qty-decrease aria-label="Menge verringern">−</button>
+            <input
+              type="number"
+              id="quickview-qty"
+              class="quickview__qty-input"
+              value="1"
+              min="1"
+              data-qty-input
+            />
+            <button type="button" class="quickview__qty-btn" data-qty-increase aria-label="Menge erhöhen">+</button>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="quickview__actions">
+          <button type="button" class="quickview__add-cart" data-add-to-cart>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M6 6h15l-1.5 9h-12z"/>
+              <circle cx="9" cy="20" r="1"/>
+              <circle cx="18" cy="20" r="1"/>
+              <path d="M6 6L5 3H2"/>
+            </svg>
+            {addToCartText}
+          </button>
+
+          <button type="button" class="quickview__wishlist" data-add-wishlist aria-label={addToWishlistText}>
+            <svg class="quickview__wishlist-icon--empty" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+            <svg class="quickview__wishlist-icon--filled" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- View Full Product -->
+        <a href="#" class="quickview__view-product" data-product-link>
+          {viewProductText}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Variant Template -->
+<template data-variant-template>
+  <div class="quickview__variant" data-variant-group>
+    <label class="quickview__label" data-variant-label></label>
+    <div class="quickview__variant-options" data-variant-options></div>
+  </div>
+</template>
+
+<template data-variant-option-template>
+  <button type="button" class="quickview__variant-option" data-variant-option>
+    <span></span>
+  </button>
+</template>
+
+<style>
+  .quickview-container {
+    --qv-bg: #fff;
+    --qv-text: #111;
+    --qv-muted: #6b7280;
+    --qv-border: #e5e7eb;
+    --qv-primary: #3b82f6;
+    --qv-primary-hover: #2563eb;
+    --qv-danger: #ef4444;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .quickview-container {
+      --qv-bg: #1a1a1a;
+      --qv-text: #f5f5f5;
+      --qv-muted: #9ca3af;
+      --qv-border: #374151;
+    }
+  }
+
+  /* Backdrop */
+  .quickview__backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    background: rgba(0, 0, 0, 0.6);
+    animation: fadeIn 0.2s ease;
+  }
+
+  .quickview__backdrop[hidden] {
+    display: none;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* Modal */
+  .quickview__modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 9999;
+    width: 95%;
+    max-width: 56rem;
+    max-height: 90vh;
+    background: var(--qv-bg);
+    border-radius: 1rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+    animation: slideUp 0.3s ease;
+  }
+
+  .quickview__modal[hidden] {
+    display: none;
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -45%);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, -50%);
+    }
+  }
+
+  /* Close Button */
+  .quickview__close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    background: var(--qv-bg);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    color: var(--qv-muted);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.15s;
+  }
+
+  .quickview__close:hover {
+    color: var(--qv-text);
+    transform: scale(1.1);
+  }
+
+  .quickview__close svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  /* Content Layout */
+  .quickview__content {
+    display: grid;
+    grid-template-columns: 1fr;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+
+  @media (min-width: 768px) {
+    .quickview__content {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  /* Gallery */
+  .quickview__gallery {
+    padding: 1.5rem;
+    background: rgba(0, 0, 0, 0.02);
+  }
+
+  .quickview__main-image {
+    aspect-ratio: 1;
+    overflow: hidden;
+    border-radius: 0.75rem;
+    background: var(--qv-border);
+    margin-bottom: 1rem;
+  }
+
+  .quickview__main-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .quickview__thumbnails {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+  }
+
+  .quickview__thumbnail {
+    flex-shrink: 0;
+    width: 4rem;
+    height: 4rem;
+    overflow: hidden;
+    border: 2px solid transparent;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+
+  .quickview__thumbnail:hover,
+  .quickview__thumbnail.active {
+    border-color: var(--qv-primary);
+  }
+
+  .quickview__thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Product Info */
+  .quickview__info {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .quickview__title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--qv-text);
+    line-height: 1.3;
+    margin: 0;
+  }
+
+  .quickview__price {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--qv-primary);
+  }
+
+  .quickview__description {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--qv-muted);
+  }
+
+  /* Variants */
+  .quickview__variants {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .quickview__variant {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .quickview__label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--qv-text);
+  }
+
+  .quickview__variant-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .quickview__variant-option {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    color: var(--qv-text);
+    background: var(--qv-bg);
+    border: 1px solid var(--qv-border);
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .quickview__variant-option:hover {
+    border-color: var(--qv-primary);
+  }
+
+  .quickview__variant-option.selected {
+    background: var(--qv-primary);
+    border-color: var(--qv-primary);
+    color: #fff;
+  }
+
+  /* Quantity */
+  .quickview__quantity {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .quickview__qty-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    width: fit-content;
+  }
+
+  .quickview__qty-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1.25rem;
+    color: var(--qv-text);
+    background: var(--qv-border);
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .quickview__qty-btn:hover {
+    background: var(--qv-muted);
+    color: #fff;
+  }
+
+  .quickview__qty-input {
+    width: 3.5rem;
+    height: 2.5rem;
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 500;
+    border: 1px solid var(--qv-border);
+    border-radius: 0.5rem;
+    background: var(--qv-bg);
+    color: var(--qv-text);
+  }
+
+  .quickview__qty-input::-webkit-inner-spin-button,
+  .quickview__qty-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+  }
+
+  /* Actions */
+  .quickview__actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+
+  .quickview__add-cart {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    background: var(--qv-primary);
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .quickview__add-cart:hover {
+    background: var(--qv-primary-hover);
+  }
+
+  .quickview__add-cart svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .quickview__wishlist {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    color: var(--qv-muted);
+    background: var(--qv-bg);
+    border: 1px solid var(--qv-border);
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .quickview__wishlist:hover {
+    color: var(--qv-danger);
+    border-color: var(--qv-danger);
+  }
+
+  .quickview__wishlist svg {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .quickview__wishlist-icon--filled {
+    display: none;
+    color: var(--qv-danger);
+  }
+
+  .quickview__wishlist.active .quickview__wishlist-icon--empty {
+    display: none;
+  }
+
+  .quickview__wishlist.active .quickview__wishlist-icon--filled {
+    display: block;
+  }
+
+  /* View Product Link */
+  .quickview__view-product {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--qv-primary);
+    text-decoration: none;
+    transition: gap 0.15s;
+  }
+
+  .quickview__view-product:hover {
+    gap: 0.75rem;
+  }
+
+  .quickview__view-product svg {
+    width: 1rem;
+    height: 1rem;
+  }
+</style>
+
+<script>
+  interface ProductData {
+    id: string;
+    name: string;
+    price: number;
+    images: string[];
+    description?: string;
+    url?: string;
+    variants?: Array<{ name: string; options: string[] }>;
+  }
+
+  function initQuickView() {
+    const container = document.querySelector('[data-quickview]') as HTMLElement;
+    if (!container) return;
+
+    const backdrop = container.querySelector('[data-quickview-close].quickview__backdrop') as HTMLElement;
+    const modal = container.querySelector('[data-quickview-modal]') as HTMLElement;
+    const closeButtons = container.querySelectorAll('[data-quickview-close]');
+
+    const mainImage = container.querySelector('[data-main-image] img') as HTMLImageElement;
+    const thumbnails = container.querySelector('[data-thumbnails]') as HTMLElement;
+    const titleEl = container.querySelector('[data-product-title]') as HTMLElement;
+    const priceEl = container.querySelector('[data-product-price]') as HTMLElement;
+    const descEl = container.querySelector('[data-product-description]') as HTMLElement;
+    const variantsContainer = container.querySelector('[data-variants-container]') as HTMLElement;
+    const qtyInput = container.querySelector('[data-qty-input]') as HTMLInputElement;
+    const productLink = container.querySelector('[data-product-link]') as HTMLAnchorElement;
+    const addCartBtn = container.querySelector('[data-add-to-cart]') as HTMLButtonElement;
+    const wishlistBtn = container.querySelector('[data-add-wishlist]') as HTMLButtonElement;
+
+    const variantTemplate = document.querySelector('[data-variant-template]') as HTMLTemplateElement;
+    const optionTemplate = document.querySelector('[data-variant-option-template]') as HTMLTemplateElement;
+
+    const currency = container.dataset.currency || 'EUR';
+    const locale = container.dataset.locale || 'de-DE';
+
+    let currentProduct: ProductData | null = null;
+    let selectedVariants: Record<string, string> = {};
+
+    function formatPrice(amount: number): string {
+      return new Intl.NumberFormat(locale, {
+        style: 'currency',
+        currency: currency,
+      }).format(amount);
+    }
+
+    function openQuickView(product: ProductData) {
+      currentProduct = product;
+      selectedVariants = {};
+
+      // Set product info
+      titleEl.textContent = product.name;
+      priceEl.textContent = formatPrice(product.price);
+      descEl.textContent = product.description || '';
+      productLink.href = product.url || '#';
+
+      // Set main image
+      if (product.images.length > 0) {
+        mainImage.src = product.images[0];
+        mainImage.alt = product.name;
+      }
+
+      // Render thumbnails
+      thumbnails.innerHTML = '';
+      if (product.images.length > 1) {
+        product.images.forEach((src, index) => {
+          const thumb = document.createElement('button');
+          thumb.type = 'button';
+          thumb.className = `quickview__thumbnail${index === 0 ? ' active' : ''}`;
+          thumb.innerHTML = `<img src="${src}" alt="${product.name} - Bild ${index + 1}" />`;
+          thumb.addEventListener('click', () => {
+            mainImage.src = src;
+            thumbnails.querySelectorAll('.quickview__thumbnail').forEach((t) => t.classList.remove('active'));
+            thumb.classList.add('active');
+          });
+          thumbnails.appendChild(thumb);
+        });
+      }
+
+      // Render variants
+      variantsContainer.innerHTML = '';
+      if (product.variants && product.variants.length > 0) {
+        product.variants.forEach((variant) => {
+          const clone = variantTemplate.content.cloneNode(true) as DocumentFragment;
+          const groupEl = clone.querySelector('[data-variant-group]') as HTMLElement;
+          const labelEl = clone.querySelector('[data-variant-label]') as HTMLElement;
+          const optionsEl = clone.querySelector('[data-variant-options]') as HTMLElement;
+
+          labelEl.textContent = variant.name;
+          groupEl.dataset.variantName = variant.name;
+
+          variant.options.forEach((option, index) => {
+            const optClone = optionTemplate.content.cloneNode(true) as DocumentFragment;
+            const optBtn = optClone.querySelector('[data-variant-option]') as HTMLButtonElement;
+            optBtn.querySelector('span')!.textContent = option;
+            optBtn.dataset.value = option;
+
+            if (index === 0) {
+              optBtn.classList.add('selected');
+              selectedVariants[variant.name] = option;
+            }
+
+            optBtn.addEventListener('click', () => {
+              optionsEl.querySelectorAll('[data-variant-option]').forEach((b) => b.classList.remove('selected'));
+              optBtn.classList.add('selected');
+              selectedVariants[variant.name] = option;
+            });
+
+            optionsEl.appendChild(optClone);
+          });
+
+          variantsContainer.appendChild(clone);
+        });
+      }
+
+      // Reset quantity
+      qtyInput.value = '1';
+
+      // Check wishlist status
+      updateWishlistButton();
+
+      // Show modal
+      backdrop.hidden = false;
+      modal.hidden = false;
+      document.body.style.overflow = 'hidden';
+
+      // Focus close button
+      const firstClose = modal.querySelector('[data-quickview-close]') as HTMLElement;
+      firstClose?.focus();
+    }
+
+    function closeQuickView() {
+      backdrop.hidden = true;
+      modal.hidden = true;
+      document.body.style.overflow = '';
+      currentProduct = null;
+    }
+
+    function updateWishlistButton() {
+      if (!currentProduct) return;
+      try {
+        const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+        const isInWishlist = wishlist.some((item: { id: string }) => item.id === currentProduct!.id);
+        wishlistBtn.classList.toggle('active', isInWishlist);
+      } catch {}
+    }
+
+    // Quantity controls
+    container.querySelector('[data-qty-decrease]')?.addEventListener('click', () => {
+      const current = parseInt(qtyInput.value, 10) || 1;
+      if (current > 1) qtyInput.value = String(current - 1);
+    });
+
+    container.querySelector('[data-qty-increase]')?.addEventListener('click', () => {
+      const current = parseInt(qtyInput.value, 10) || 1;
+      qtyInput.value = String(current + 1);
+    });
+
+    // Add to cart
+    addCartBtn.addEventListener('click', () => {
+      if (!currentProduct) return;
+
+      const quantity = parseInt(qtyInput.value, 10) || 1;
+      const variantString = Object.entries(selectedVariants)
+        .map(([key, value]) => `${key}: ${value}`)
+        .join(', ');
+
+      window.dispatchEvent(new CustomEvent('cart:add', {
+        detail: {
+          id: `${currentProduct.id}${variantString ? `-${Object.values(selectedVariants).join('-')}` : ''}`,
+          name: currentProduct.name,
+          price: currentProduct.price,
+          image: currentProduct.images[0] || '',
+          variant: variantString,
+          quantity,
+        },
+      }));
+
+      closeQuickView();
+    });
+
+    // Add to wishlist
+    wishlistBtn.addEventListener('click', () => {
+      if (!currentProduct) return;
+
+      try {
+        let wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+        const index = wishlist.findIndex((item: { id: string }) => item.id === currentProduct!.id);
+
+        if (index > -1) {
+          wishlist.splice(index, 1);
+        } else {
+          wishlist.push({
+            id: currentProduct.id,
+            name: currentProduct.name,
+            price: currentProduct.price,
+            image: currentProduct.images[0] || '',
+            url: currentProduct.url,
+          });
+        }
+
+        localStorage.setItem('wishlist', JSON.stringify(wishlist));
+        window.dispatchEvent(new CustomEvent('wishlist:updated', { detail: wishlist }));
+        updateWishlistButton();
+      } catch {}
+    });
+
+    // Close handlers
+    closeButtons.forEach((btn) => {
+      btn.addEventListener('click', closeQuickView);
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !modal.hidden) {
+        closeQuickView();
+      }
+    });
+
+    // Listen for trigger clicks
+    document.addEventListener('click', (e) => {
+      const trigger = (e.target as Element).closest('[data-quickview-trigger]') as HTMLElement;
+      if (!trigger) return;
+
+      e.preventDefault();
+
+      try {
+        const product: ProductData = {
+          id: trigger.dataset.productId || '',
+          name: trigger.dataset.productName || '',
+          price: parseFloat(trigger.dataset.productPrice || '0'),
+          images: JSON.parse(trigger.dataset.productImages || '[]'),
+          description: trigger.dataset.productDescription,
+          url: trigger.dataset.productUrl,
+          variants: trigger.dataset.productVariants ? JSON.parse(trigger.dataset.productVariants) : undefined,
+        };
+
+        openQuickView(product);
+      } catch (err) {
+        console.error('Failed to parse product data:', err);
+      }
+    });
+
+    // Listen for external wishlist updates
+    window.addEventListener('wishlist:updated', updateWishlistButton);
+  }
+
+  // Initialize
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initQuickView);
+  } else {
+    initQuickView();
+  }
+
+  document.addEventListener('astro:page-load', initQuickView);
+</script>
