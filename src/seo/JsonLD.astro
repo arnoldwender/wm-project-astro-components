@@ -1,0 +1,54 @@
+---
+/**
+ * JsonLD Component - WenderMedia Astro Components
+ *
+ * Generate structured data (JSON-LD) for various schema.org types.
+ * Improves SEO and enables rich results in search engines.
+ *
+ * @example
+ * <JsonLD
+ *   type="Organization"
+ *   data={{
+ *     name: 'Company Name',
+ *     url: 'https://example.com',
+ *     logo: 'https://example.com/logo.png',
+ *   }}
+ * />
+ */
+
+export type SchemaType =
+  | 'Organization'
+  | 'LocalBusiness'
+  | 'Person'
+  | 'WebSite'
+  | 'WebPage'
+  | 'Article'
+  | 'BlogPosting'
+  | 'Product'
+  | 'Service'
+  | 'FAQPage'
+  | 'BreadcrumbList'
+  | 'Event'
+  | 'Course'
+  | 'Recipe'
+  | 'Review'
+  | 'SoftwareApplication'
+  | 'VideoObject'
+  | 'HowTo';
+
+export interface Props {
+  type: SchemaType;
+  data: Record<string, unknown>;
+}
+
+const { type, data } = Astro.props;
+
+// Build schema object
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': type,
+  ...data,
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(schema, null, 0)} />

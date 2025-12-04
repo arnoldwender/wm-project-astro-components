@@ -1,0 +1,635 @@
+---
+/**
+ * ProductCard Component - WenderMedia Astro Components
+ *
+ * SEO-optimized product card with Schema.org markup.
+ * Supports quick view, wishlist, and add to cart actions.
+ *
+ * @example
+ * <ProductCard
+ *   id="prod-123"
+ *   name="Product Name"
+ *   price={29.99}
+ *   image="/images/product.jpg"
+ *   url="/products/product-name"
+ * />
+ */
+
+export interface Props {
+  id: string;
+  name: string;
+  price: number;
+  originalPrice?: number;
+  image: string;
+  images?: string[];
+  url: string;
+  description?: string;
+  brand?: string;
+  sku?: string;
+  category?: string;
+  rating?: number;
+  reviewCount?: number;
+  inStock?: boolean;
+  badge?: string;
+  badgeVariant?: 'sale' | 'new' | 'bestseller' | 'limited';
+  currency?: string;
+  locale?: string;
+  showQuickView?: boolean;
+  showWishlist?: boolean;
+  showAddToCart?: boolean;
+  variants?: Array<{ name: string; options: string[] }>;
+  class?: string;
+}
+
+const {
+  id,
+  name,
+  price,
+  originalPrice,
+  image,
+  images = [],
+  url,
+  description,
+  brand,
+  sku,
+  category,
+  rating,
+  reviewCount,
+  inStock = true,
+  badge,
+  badgeVariant = 'new',
+  currency = 'EUR',
+  locale = 'de-DE',
+  showQuickView = true,
+  showWishlist = true,
+  showAddToCart = true,
+  variants,
+  class: className = '',
+} = Astro.props;
+
+const formattedPrice = new Intl.NumberFormat(locale, {
+  style: 'currency',
+  currency,
+}).format(price);
+
+const formattedOriginalPrice = originalPrice
+  ? new Intl.NumberFormat(locale, { style: 'currency', currency }).format(originalPrice)
+  : null;
+
+const discount = originalPrice
+  ? Math.round(((originalPrice - price) / originalPrice) * 100)
+  : 0;
+
+const allImages = images.length > 0 ? images : [image];
+
+// Schema.org Product structured data
+const productSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name,
+  image: allImages,
+  description,
+  sku,
+  brand: brand ? { '@type': 'Brand', name: brand } : undefined,
+  category,
+  offers: {
+    '@type': 'Offer',
+    price,
+    priceCurrency: currency,
+    availability: inStock
+      ? 'https://schema.org/InStock'
+      : 'https://schema.org/OutOfStock',
+    url: new URL(url, Astro.site || Astro.url).href,
+  },
+  ...(rating && reviewCount ? {
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: rating,
+      reviewCount,
+    },
+  } : {}),
+};
+---
+
+<article
+  class:list={['product-card', !inStock && 'product-card--out-of-stock', className]}
+  data-product-card
+  data-product-id={id}
+>
+  <!-- Schema.org JSON-LD -->
+  <script type="application/ld+json" set:html={JSON.stringify(productSchema)} />
+
+  <!-- Image Section -->
+  <div class="product-card__image-container">
+    <a href={url} class="product-card__image-link">
+      <img
+        src={image}
+        alt={name}
+        class="product-card__image"
+        loading="lazy"
+        decoding="async"
+        width="400"
+        height="400"
+      />
+      {allImages.length > 1 && (
+        <img
+          src={allImages[1]}
+          alt={`${name} - Ansicht 2`}
+          class="product-card__image product-card__image--hover"
+          loading="lazy"
+          decoding="async"
+          width="400"
+          height="400"
+        />
+      )}
+    </a>
+
+    {/* Badge */}
+    {badge && (
+      <span class:list={['product-card__badge', `product-card__badge--${badgeVariant}`]}>
+        {badge}
+      </span>
+    )}
+
+    {/* Discount Badge */}
+    {discount > 0 && !badge && (
+      <span class="product-card__badge product-card__badge--sale">
+        -{discount}%
+      </span>
+    )}
+
+    {/* Out of Stock Overlay */}
+    {!inStock && (
+      <div class="product-card__out-of-stock">
+        Ausverkauft
+      </div>
+    )}
+
+    {/* Actions */}
+    <div class="product-card__actions">
+      {showWishlist && (
+        <button
+          type="button"
+          class="product-card__action"
+          data-wishlist-toggle
+          data-product-id={id}
+          data-product-name={name}
+          data-product-image={image}
+          data-product-price={price}
+          data-product-url={url}
+          aria-label="Zur Wunschliste hinzufügen"
+          aria-pressed="false"
+        >
+          <svg class="product-card__action-icon product-card__action-icon--empty" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+          <svg class="product-card__action-icon product-card__action-icon--filled" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+          </svg>
+        </button>
+      )}
+
+      {showQuickView && (
+        <button
+          type="button"
+          class="product-card__action"
+          data-quickview-trigger
+          data-product-id={id}
+          data-product-name={name}
+          data-product-price={price}
+          data-product-images={JSON.stringify(allImages)}
+          data-product-description={description}
+          data-product-url={url}
+          data-product-variants={variants ? JSON.stringify(variants) : undefined}
+          aria-label="Schnellansicht"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+      )}
+    </div>
+  </div>
+
+  <!-- Content Section -->
+  <div class="product-card__content">
+    {brand && <span class="product-card__brand">{brand}</span>}
+
+    <h3 class="product-card__name">
+      <a href={url}>{name}</a>
+    </h3>
+
+    {/* Rating */}
+    {rating && (
+      <div class="product-card__rating" aria-label={`${rating} von 5 Sternen`}>
+        <div class="product-card__stars" style={`--rating: ${rating}`}>
+          {[1, 2, 3, 4, 5].map((star) => (
+            <svg viewBox="0 0 24 24" fill={star <= rating ? 'currentColor' : 'none'} stroke="currentColor" stroke-width="2">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+          ))}
+        </div>
+        {reviewCount && <span class="product-card__review-count">({reviewCount})</span>}
+      </div>
+    )}
+
+    {/* Price */}
+    <div class="product-card__price">
+      <span class="product-card__current-price">{formattedPrice}</span>
+      {formattedOriginalPrice && (
+        <span class="product-card__original-price">{formattedOriginalPrice}</span>
+      )}
+    </div>
+
+    {/* Add to Cart */}
+    {showAddToCart && inStock && (
+      <button
+        type="button"
+        class="product-card__add-cart"
+        data-add-cart-btn
+        data-product-id={id}
+        data-product-name={name}
+        data-product-price={price}
+        data-product-image={image}
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6 6h15l-1.5 9h-12z"/>
+          <circle cx="9" cy="20" r="1"/>
+          <circle cx="18" cy="20" r="1"/>
+          <path d="M6 6L5 3H2"/>
+        </svg>
+        <span>In den Warenkorb</span>
+      </button>
+    )}
+  </div>
+</article>
+
+<style>
+  .product-card {
+    --pc-bg: #fff;
+    --pc-text: #111;
+    --pc-muted: #6b7280;
+    --pc-border: #e5e7eb;
+    --pc-primary: #3b82f6;
+    --pc-danger: #ef4444;
+    --pc-success: #10b981;
+    --pc-warning: #f59e0b;
+
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: var(--pc-bg);
+    border-radius: 0.75rem;
+    overflow: hidden;
+    transition: box-shadow 0.2s;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .product-card {
+      --pc-bg: #1a1a1a;
+      --pc-text: #f5f5f5;
+      --pc-muted: #9ca3af;
+      --pc-border: #374151;
+    }
+  }
+
+  .product-card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
+
+  /* Image Container */
+  .product-card__image-container {
+    position: relative;
+    aspect-ratio: 1;
+    overflow: hidden;
+    background: var(--pc-border);
+  }
+
+  .product-card__image-link {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .product-card__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.3s, transform 0.5s;
+  }
+
+  .product-card__image--hover {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+  }
+
+  .product-card:hover .product-card__image:not(.product-card__image--hover) {
+    opacity: 0;
+  }
+
+  .product-card:hover .product-card__image--hover {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+
+  /* Badge */
+  .product-card__badge {
+    position: absolute;
+    top: 0.75rem;
+    left: 0.75rem;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #fff;
+    border-radius: 9999px;
+    z-index: 2;
+  }
+
+  .product-card__badge--sale {
+    background: var(--pc-danger);
+  }
+
+  .product-card__badge--new {
+    background: var(--pc-success);
+  }
+
+  .product-card__badge--bestseller {
+    background: var(--pc-warning);
+  }
+
+  .product-card__badge--limited {
+    background: #8b5cf6;
+  }
+
+  /* Out of Stock */
+  .product-card--out-of-stock .product-card__image {
+    opacity: 0.6;
+  }
+
+  .product-card__out-of-stock {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    font-weight: 600;
+    z-index: 2;
+  }
+
+  /* Actions */
+  .product-card__actions {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    opacity: 0;
+    transform: translateX(0.5rem);
+    transition: all 0.2s;
+    z-index: 3;
+  }
+
+  .product-card:hover .product-card__actions {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .product-card__action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    background: var(--pc-bg);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    color: var(--pc-muted);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.15s;
+  }
+
+  .product-card__action:hover {
+    color: var(--pc-primary);
+    transform: scale(1.1);
+  }
+
+  .product-card__action svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .product-card__action-icon--filled {
+    display: none;
+    color: var(--pc-danger);
+  }
+
+  .product-card__action[aria-pressed="true"] .product-card__action-icon--empty {
+    display: none;
+  }
+
+  .product-card__action[aria-pressed="true"] .product-card__action-icon--filled {
+    display: block;
+  }
+
+  /* Content */
+  .product-card__content {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .product-card__brand {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--pc-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .product-card__name {
+    font-size: 0.9375rem;
+    font-weight: 500;
+    line-height: 1.4;
+    margin: 0;
+  }
+
+  .product-card__name a {
+    color: var(--pc-text);
+    text-decoration: none;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .product-card__name a:hover {
+    color: var(--pc-primary);
+  }
+
+  /* Rating */
+  .product-card__rating {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+  }
+
+  .product-card__stars {
+    display: flex;
+    gap: 0.125rem;
+    color: var(--pc-warning);
+  }
+
+  .product-card__stars svg {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+
+  .product-card__review-count {
+    font-size: 0.75rem;
+    color: var(--pc-muted);
+  }
+
+  /* Price */
+  .product-card__price {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+  }
+
+  .product-card__current-price {
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--pc-text);
+  }
+
+  .product-card__original-price {
+    font-size: 0.875rem;
+    color: var(--pc-muted);
+    text-decoration: line-through;
+  }
+
+  /* Add to Cart Button */
+  .product-card__add-cart {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.75rem;
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #fff;
+    background: var(--pc-primary);
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .product-card__add-cart:hover {
+    background: #2563eb;
+  }
+
+  .product-card__add-cart svg {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+
+  /* Touch devices - always show actions */
+  @media (hover: none) {
+    .product-card__actions {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+</style>
+
+<script>
+  function initProductCards() {
+    // Add to cart buttons
+    document.querySelectorAll('[data-add-cart-btn]').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const el = btn as HTMLElement;
+
+        window.dispatchEvent(new CustomEvent('cart:add', {
+          detail: {
+            id: el.dataset.productId,
+            name: el.dataset.productName,
+            price: parseFloat(el.dataset.productPrice || '0'),
+            image: el.dataset.productImage,
+            quantity: 1,
+          },
+        }));
+      });
+    });
+
+    // Wishlist toggle buttons (if not handled by Wishlist component)
+    document.querySelectorAll('[data-wishlist-toggle]').forEach((btn) => {
+      const el = btn as HTMLElement;
+
+      // Check initial state
+      try {
+        const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+        const isInWishlist = wishlist.some((item: { id: string }) => item.id === el.dataset.productId);
+        el.setAttribute('aria-pressed', String(isInWishlist));
+      } catch {}
+
+      // Toggle on click
+      btn.addEventListener('click', () => {
+        try {
+          let wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+          const productId = el.dataset.productId;
+          const index = wishlist.findIndex((item: { id: string }) => item.id === productId);
+
+          if (index > -1) {
+            wishlist.splice(index, 1);
+            el.setAttribute('aria-pressed', 'false');
+          } else {
+            wishlist.push({
+              id: productId,
+              name: el.dataset.productName,
+              image: el.dataset.productImage,
+              price: parseFloat(el.dataset.productPrice || '0'),
+              url: el.dataset.productUrl,
+            });
+            el.setAttribute('aria-pressed', 'true');
+          }
+
+          localStorage.setItem('wishlist', JSON.stringify(wishlist));
+          window.dispatchEvent(new CustomEvent('wishlist:updated', { detail: wishlist }));
+        } catch {}
+      });
+    });
+
+    // Listen for wishlist updates
+    window.addEventListener('wishlist:updated', () => {
+      try {
+        const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+        document.querySelectorAll('[data-wishlist-toggle]').forEach((btn) => {
+          const el = btn as HTMLElement;
+          const isInWishlist = wishlist.some((item: { id: string }) => item.id === el.dataset.productId);
+          el.setAttribute('aria-pressed', String(isInWishlist));
+        });
+      } catch {}
+    });
+  }
+
+  // Initialize
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initProductCards);
+  } else {
+    initProductCards();
+  }
+
+  document.addEventListener('astro:page-load', initProductCards);
+</script>

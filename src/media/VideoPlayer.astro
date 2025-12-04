@@ -1,0 +1,466 @@
+---
+/**
+ * VideoPlayer Component - WenderMedia Astro Components
+ *
+ * Privacy-first video player supporting YouTube, Vimeo, and self-hosted videos.
+ * GDPR-compliant with consent-based loading for third-party embeds.
+ *
+ * @example
+ * <!-- Self-hosted video -->
+ * <VideoPlayer
+ *   src="/videos/intro.mp4"
+ *   poster="/images/poster.jpg"
+ * />
+ *
+ * <!-- YouTube (GDPR-compliant) -->
+ * <VideoPlayer
+ *   provider="youtube"
+ *   videoId="dQw4w9WgXcQ"
+ *   title="Video Title"
+ * />
+ */
+
+export type Provider = 'native' | 'youtube' | 'vimeo';
+
+export interface Props {
+  src?: string;
+  provider?: Provider;
+  videoId?: string;
+  title?: string;
+  poster?: string;
+  autoplay?: boolean;
+  muted?: boolean;
+  loop?: boolean;
+  controls?: boolean;
+  playsInline?: boolean;
+  preload?: 'none' | 'metadata' | 'auto';
+  aspectRatio?: string;
+  width?: number;
+  height?: number;
+  requireConsent?: boolean;
+  consentMessage?: string;
+  consentButtonText?: string;
+  class?: string;
+}
+
+const {
+  src,
+  provider = 'native',
+  videoId,
+  title = 'Video',
+  poster,
+  autoplay = false,
+  muted = false,
+  loop = false,
+  controls = true,
+  playsInline = true,
+  preload = 'metadata',
+  aspectRatio = '16/9',
+  width,
+  height,
+  requireConsent = true,
+  consentMessage = 'Dieses Video wird von einem Drittanbieter bereitgestellt. Durch Abspielen stimmen Sie der Datenverarbeitung zu.',
+  consentButtonText = 'Video laden',
+  class: className = '',
+} = Astro.props;
+
+const isNative = provider === 'native' || src;
+const isYouTube = provider === 'youtube' && videoId;
+const isVimeo = provider === 'vimeo' && videoId;
+
+// Generate YouTube thumbnail if no poster provided
+const youtubeThumb = isYouTube ? `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg` : undefined;
+const vimeoThumb = isVimeo ? poster : undefined; // Vimeo requires API call for thumbnails
+
+const posterUrl = poster || youtubeThumb || vimeoThumb;
+
+// Embed URLs (privacy-enhanced)
+const youtubeEmbedUrl = isYouTube
+  ? `https://www.youtube-nocookie.com/embed/${videoId}?${new URLSearchParams({
+      autoplay: autoplay ? '1' : '0',
+      mute: muted ? '1' : '0',
+      loop: loop ? '1' : '0',
+      controls: controls ? '1' : '0',
+      playsinline: playsInline ? '1' : '0',
+      rel: '0',
+      modestbranding: '1',
+    }).toString()}`
+  : undefined;
+
+const vimeoEmbedUrl = isVimeo
+  ? `https://player.vimeo.com/video/${videoId}?${new URLSearchParams({
+      autoplay: autoplay ? '1' : '0',
+      muted: muted ? '1' : '0',
+      loop: loop ? '1' : '0',
+      controls: controls ? '1' : '0',
+      playsinline: playsInline ? '1' : '0',
+      dnt: '1', // Do Not Track
+    }).toString()}`
+  : undefined;
+
+const needsConsent = requireConsent && !isNative;
+---
+
+<div
+  class:list={['video-player', className]}
+  data-video-player
+  data-provider={provider}
+  data-video-id={videoId}
+  data-needs-consent={needsConsent}
+  style={`aspect-ratio: ${aspectRatio}; ${width ? `max-width: ${width}px;` : ''}`}
+>
+  {/* Native Video */}
+  {isNative && src && (
+    <video
+      class="video-player__native"
+      src={src}
+      poster={posterUrl}
+      autoplay={autoplay}
+      muted={muted}
+      loop={loop}
+      controls={controls}
+      playsinline={playsInline}
+      preload={preload}
+      width={width}
+      height={height}
+    >
+      <track kind="captions" />
+      Ihr Browser unterstützt keine Videos.
+    </video>
+  )}
+
+  {/* Third-party Video with Consent */}
+  {!isNative && needsConsent && (
+    <div class="video-player__consent" data-consent-screen>
+      {posterUrl && (
+        <img
+          class="video-player__poster"
+          src={posterUrl}
+          alt={`Vorschaubild: ${title}`}
+          loading="lazy"
+        />
+      )}
+      <div class="video-player__consent-overlay">
+        <div class="video-player__consent-content">
+          <svg class="video-player__consent-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <p class="video-player__consent-message">{consentMessage}</p>
+          <button
+            type="button"
+            class="video-player__consent-btn"
+            data-load-video
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="5 3 19 12 5 21 5 3"/>
+            </svg>
+            {consentButtonText}
+          </button>
+          <p class="video-player__consent-provider">
+            {isYouTube && 'Powered by YouTube'}
+            {isVimeo && 'Powered by Vimeo'}
+          </p>
+        </div>
+      </div>
+    </div>
+  )}
+
+  {/* Third-party Video without Consent (or after consent) */}
+  <div class="video-player__embed" data-embed-container hidden>
+    {isYouTube && (
+      <iframe
+        data-src={youtubeEmbedUrl}
+        title={title}
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen
+        loading="lazy"
+      />
+    )}
+    {isVimeo && (
+      <iframe
+        data-src={vimeoEmbedUrl}
+        title={title}
+        frameborder="0"
+        allow="autoplay; fullscreen; picture-in-picture"
+        allowfullscreen
+        loading="lazy"
+      />
+    )}
+  </div>
+
+  {/* Play Button Overlay for native videos */}
+  {isNative && !autoplay && (
+    <button
+      type="button"
+      class="video-player__play-btn"
+      data-play-btn
+      aria-label="Video abspielen"
+    >
+      <svg viewBox="0 0 24 24" fill="currentColor">
+        <polygon points="5 3 19 12 5 21 5 3"/>
+      </svg>
+    </button>
+  )}
+</div>
+
+<style>
+  .video-player {
+    position: relative;
+    width: 100%;
+    background: #000;
+    border-radius: 0.75rem;
+    overflow: hidden;
+  }
+
+  /* Native Video */
+  .video-player__native {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Consent Screen */
+  .video-player__consent {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .video-player__poster {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.5);
+  }
+
+  .video-player__consent-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.3),
+      rgba(0, 0, 0, 0.7)
+    );
+  }
+
+  .video-player__consent-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    color: #fff;
+    max-width: 24rem;
+  }
+
+  .video-player__consent-icon {
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.8;
+  }
+
+  .video-player__consent-message {
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+    opacity: 0.9;
+  }
+
+  .video-player__consent-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #fff;
+    background: #ef4444;
+    border: none;
+    border-radius: 9999px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .video-player__consent-btn:hover {
+    background: #dc2626;
+    transform: scale(1.05);
+  }
+
+  .video-player__consent-btn svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .video-player__consent-provider {
+    margin-top: 1rem;
+    font-size: 0.75rem;
+    opacity: 0.6;
+  }
+
+  /* Embed Container */
+  .video-player__embed {
+    position: absolute;
+    inset: 0;
+  }
+
+  .video-player__embed[hidden] {
+    display: none;
+  }
+
+  .video-player__embed iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  /* Play Button Overlay */
+  .video-player__play-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 5rem;
+    height: 5rem;
+    background: rgba(0, 0, 0, 0.7);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    color: #fff;
+    transition: all 0.2s;
+  }
+
+  .video-player__play-btn:hover {
+    background: #ef4444;
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+
+  .video-player__play-btn svg {
+    width: 2rem;
+    height: 2rem;
+    margin-left: 0.25rem; /* Visual centering for play icon */
+  }
+
+  .video-player__play-btn[hidden] {
+    display: none;
+  }
+
+  /* Responsive */
+  @media (max-width: 480px) {
+    .video-player__consent-content {
+      padding: 1rem;
+    }
+
+    .video-player__consent-message {
+      font-size: 0.8125rem;
+    }
+
+    .video-player__consent-btn {
+      padding: 0.75rem 1.25rem;
+      font-size: 0.875rem;
+    }
+
+    .video-player__play-btn {
+      width: 4rem;
+      height: 4rem;
+    }
+
+    .video-player__play-btn svg {
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+  }
+</style>
+
+<script>
+  function initVideoPlayers() {
+    document.querySelectorAll('[data-video-player]').forEach((container) => {
+      const el = container as HTMLElement;
+      const needsConsent = el.dataset.needsConsent === 'true';
+      const consentScreen = el.querySelector('[data-consent-screen]') as HTMLElement | null;
+      const embedContainer = el.querySelector('[data-embed-container]') as HTMLElement | null;
+      const loadBtn = el.querySelector('[data-load-video]');
+      const playBtn = el.querySelector('[data-play-btn]') as HTMLButtonElement | null;
+      const video = el.querySelector('video') as HTMLVideoElement | null;
+
+      // Handle native video play button
+      if (video && playBtn) {
+        playBtn.addEventListener('click', () => {
+          video.play();
+          playBtn.hidden = true;
+        });
+
+        video.addEventListener('pause', () => {
+          playBtn.hidden = false;
+        });
+
+        video.addEventListener('play', () => {
+          playBtn.hidden = true;
+        });
+      }
+
+      // Handle consent-based loading
+      if (needsConsent && loadBtn && consentScreen && embedContainer) {
+        loadBtn.addEventListener('click', () => {
+          // Load the iframe
+          const iframe = embedContainer.querySelector('iframe');
+          if (iframe) {
+            const src = iframe.dataset.src;
+            if (src) {
+              iframe.src = src;
+            }
+          }
+
+          // Hide consent, show embed
+          consentScreen.hidden = true;
+          embedContainer.hidden = false;
+
+          // Store consent
+          const provider = el.dataset.provider;
+          if (provider) {
+            const consented = JSON.parse(localStorage.getItem('video-consent') || '{}');
+            consented[provider] = true;
+            localStorage.setItem('video-consent', JSON.stringify(consented));
+          }
+        });
+
+        // Check for existing consent
+        const provider = el.dataset.provider;
+        if (provider) {
+          const consented = JSON.parse(localStorage.getItem('video-consent') || '{}');
+          if (consented[provider]) {
+            loadBtn.click();
+          }
+        }
+      }
+
+      // Auto-load if consent not required
+      if (!needsConsent && embedContainer) {
+        const iframe = embedContainer.querySelector('iframe');
+        if (iframe && iframe.dataset.src) {
+          iframe.src = iframe.dataset.src;
+        }
+        embedContainer.hidden = false;
+        if (consentScreen) consentScreen.hidden = true;
+      }
+    });
+  }
+
+  // Initialize
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initVideoPlayers);
+  } else {
+    initVideoPlayers();
+  }
+
+  document.addEventListener('astro:page-load', initVideoPlayers);
+</script>

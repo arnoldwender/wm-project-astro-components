@@ -1,0 +1,86 @@
+---
+/**
+ * MinimalLayout - WenderMedia Astro Components
+ *
+ * Lightweight layout for landing pages, auth pages, and single-purpose pages.
+ * No header/footer by default, focused on content.
+ *
+ * @example
+ * <MinimalLayout title="Login" description="Sign in to your account">
+ *   <LoginForm />
+ * </MinimalLayout>
+ */
+
+import { ViewTransitions } from 'astro:transitions';
+
+export interface Props {
+  title: string;
+  description: string;
+  lang?: string;
+  themeColor?: string;
+  noindex?: boolean;
+  class?: string;
+}
+
+const {
+  title,
+  description,
+  lang = 'de',
+  themeColor = '#000000',
+  noindex = false,
+  class: className = '',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang={lang} class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    <meta name="theme-color" content={themeColor} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <ViewTransitions />
+
+    <script is:inline>
+      (function() {
+        const theme = localStorage.getItem('theme');
+        if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark');
+        }
+      })();
+    </script>
+
+    <slot name="head" />
+
+    <style is:global>
+      *, *::before, *::after { box-sizing: border-box; }
+      * { margin: 0; }
+      html { -webkit-font-smoothing: antialiased; }
+      body {
+        line-height: 1.6;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+      img, picture, video, canvas, svg { display: block; max-width: 100%; }
+
+      :root {
+        --color-bg: #ffffff;
+        --color-text: #111111;
+      }
+      .dark {
+        --color-bg: #111111;
+        --color-text: #ffffff;
+      }
+    </style>
+  </head>
+  <body class:list={['bg-[var(--color-bg)] text-[var(--color-text)]', className]}>
+    <main class="flex-1 flex items-center justify-center">
+      <slot />
+    </main>
+    <slot name="scripts" />
+  </body>
+</html>

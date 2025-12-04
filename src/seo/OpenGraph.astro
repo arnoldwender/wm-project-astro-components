@@ -1,0 +1,143 @@
+---
+/**
+ * OpenGraph Component - WenderMedia Astro Components
+ *
+ * Complete Open Graph meta tags for social media sharing.
+ * Supports website, article, product, and profile types.
+ *
+ * @example
+ * <OpenGraph
+ *   title="Page Title"
+ *   description="Page description"
+ *   image="/og-image.jpg"
+ *   type="article"
+ *   article={{
+ *     publishedTime: new Date('2025-01-15'),
+ *     author: 'John Doe',
+ *     section: 'Technology',
+ *   }}
+ * />
+ */
+
+export interface ArticleMeta {
+  publishedTime?: Date;
+  modifiedTime?: Date;
+  expirationTime?: Date;
+  author?: string | string[];
+  section?: string;
+  tags?: string[];
+}
+
+export interface ProductMeta {
+  price: number;
+  currency?: string;
+  availability?: 'instock' | 'outofstock' | 'preorder';
+  condition?: 'new' | 'refurbished' | 'used';
+  retailerItemId?: string;
+}
+
+export interface ProfileMeta {
+  firstName?: string;
+  lastName?: string;
+  username?: string;
+  gender?: 'male' | 'female';
+}
+
+export interface Props {
+  title: string;
+  description: string;
+  url?: string;
+  image?: string;
+  imageAlt?: string;
+  imageWidth?: number;
+  imageHeight?: number;
+  type?: 'website' | 'article' | 'product' | 'profile';
+  locale?: string;
+  siteName?: string;
+  article?: ArticleMeta;
+  product?: ProductMeta;
+  profile?: ProfileMeta;
+}
+
+const {
+  title,
+  description,
+  url,
+  image,
+  imageAlt,
+  imageWidth = 1200,
+  imageHeight = 630,
+  type = 'website',
+  locale = 'de_DE',
+  siteName,
+  article,
+  product,
+  profile,
+} = Astro.props;
+
+const currentUrl = url || Astro.url.href;
+const imageUrl = image?.startsWith('http') ? image : (image ? new URL(image, Astro.site).href : undefined);
+---
+
+<!-- Basic Open Graph -->
+<meta property="og:type" content={type} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={currentUrl} />
+<meta property="og:locale" content={locale} />
+{siteName && <meta property="og:site_name" content={siteName} />}
+
+<!-- Image -->
+{imageUrl && (
+  <>
+    <meta property="og:image" content={imageUrl} />
+    <meta property="og:image:secure_url" content={imageUrl} />
+    <meta property="og:image:width" content={String(imageWidth)} />
+    <meta property="og:image:height" content={String(imageHeight)} />
+    <meta property="og:image:alt" content={imageAlt || description} />
+    <meta property="og:image:type" content="image/jpeg" />
+  </>
+)}
+
+<!-- Article specific -->
+{type === 'article' && article && (
+  <>
+    {article.publishedTime && (
+      <meta property="article:published_time" content={article.publishedTime.toISOString()} />
+    )}
+    {article.modifiedTime && (
+      <meta property="article:modified_time" content={article.modifiedTime.toISOString()} />
+    )}
+    {article.expirationTime && (
+      <meta property="article:expiration_time" content={article.expirationTime.toISOString()} />
+    )}
+    {article.author && (
+      Array.isArray(article.author)
+        ? article.author.map((author) => <meta property="article:author" content={author} />)
+        : <meta property="article:author" content={article.author} />
+    )}
+    {article.section && <meta property="article:section" content={article.section} />}
+    {article.tags?.map((tag) => <meta property="article:tag" content={tag} />)}
+  </>
+)}
+
+<!-- Product specific -->
+{type === 'product' && product && (
+  <>
+    <meta property="product:price:amount" content={String(product.price)} />
+    <meta property="product:price:currency" content={product.currency || 'EUR'} />
+    {product.availability && <meta property="product:availability" content={product.availability} />}
+    {product.condition && <meta property="product:condition" content={product.condition} />}
+    {product.retailerItemId && <meta property="product:retailer_item_id" content={product.retailerItemId} />}
+  </>
+)}
+
+<!-- Profile specific -->
+{type === 'profile' && profile && (
+  <>
+    {profile.firstName && <meta property="profile:first_name" content={profile.firstName} />}
+    {profile.lastName && <meta property="profile:last_name" content={profile.lastName} />}
+    {profile.username && <meta property="profile:username" content={profile.username} />}
+    {profile.gender && <meta property="profile:gender" content={profile.gender} />}
+  </>
+)}

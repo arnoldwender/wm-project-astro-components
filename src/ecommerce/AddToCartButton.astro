@@ -1,0 +1,405 @@
+---
+/**
+ * AddToCartButton Component - WenderMedia Astro Components
+ *
+ * Standalone add to cart button with loading states and feedback.
+ * Works with the Cart component via custom events.
+ *
+ * @example
+ * <AddToCartButton
+ *   productId="prod-123"
+ *   productName="Product Name"
+ *   productPrice={29.99}
+ *   productImage="/images/product.jpg"
+ * />
+ */
+
+export interface Props {
+  productId: string;
+  productName: string;
+  productPrice: number;
+  productImage?: string;
+  productVariant?: string;
+  maxQuantity?: number;
+  quantity?: number;
+  showQuantity?: boolean;
+  size?: 'sm' | 'md' | 'lg';
+  variant?: 'primary' | 'secondary' | 'outline';
+  fullWidth?: boolean;
+  text?: string;
+  addedText?: string;
+  class?: string;
+}
+
+const {
+  productId,
+  productName,
+  productPrice,
+  productImage = '',
+  productVariant,
+  maxQuantity,
+  quantity = 1,
+  showQuantity = false,
+  size = 'md',
+  variant = 'primary',
+  fullWidth = false,
+  text = 'In den Warenkorb',
+  addedText = 'Hinzugefügt!',
+  class: className = '',
+} = Astro.props;
+---
+
+<div
+  class:list={[
+    'add-to-cart',
+    `add-to-cart--${size}`,
+    `add-to-cart--${variant}`,
+    fullWidth && 'add-to-cart--full',
+    className,
+  ]}
+  data-add-to-cart-container
+  data-product-id={productId}
+  data-product-name={productName}
+  data-product-price={productPrice}
+  data-product-image={productImage}
+  data-product-variant={productVariant}
+  data-max-quantity={maxQuantity}
+>
+  {showQuantity && (
+    <div class="add-to-cart__quantity">
+      <button
+        type="button"
+        class="add-to-cart__qty-btn"
+        data-qty-decrease
+        aria-label="Menge verringern"
+      >
+        −
+      </button>
+      <input
+        type="number"
+        class="add-to-cart__qty-input"
+        value={quantity}
+        min="1"
+        max={maxQuantity}
+        data-qty-input
+        aria-label="Menge"
+      />
+      <button
+        type="button"
+        class="add-to-cart__qty-btn"
+        data-qty-increase
+        aria-label="Menge erhöhen"
+      >
+        +
+      </button>
+    </div>
+  )}
+
+  <button
+    type="button"
+    class="add-to-cart__btn"
+    data-add-btn
+    aria-label={`${productName} ${text}`}
+  >
+    <span class="add-to-cart__text" data-btn-text>{text}</span>
+    <span class="add-to-cart__added" data-btn-added>{addedText}</span>
+    <svg class="add-to-cart__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M6 6h15l-1.5 9h-12z"/>
+      <circle cx="9" cy="20" r="1"/>
+      <circle cx="18" cy="20" r="1"/>
+      <path d="M6 6L5 3H2"/>
+    </svg>
+    <svg class="add-to-cart__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="20 6 9 17 4 12"/>
+    </svg>
+    <span class="add-to-cart__spinner"></span>
+  </button>
+</div>
+
+<style>
+  .add-to-cart {
+    --atc-primary: #3b82f6;
+    --atc-primary-hover: #2563eb;
+    --atc-secondary: #6b7280;
+    --atc-secondary-hover: #4b5563;
+    --atc-success: #10b981;
+    --atc-text: #fff;
+    --atc-border: #e5e7eb;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .add-to-cart--full {
+    display: flex;
+    width: 100%;
+  }
+
+  .add-to-cart--full .add-to-cart__btn {
+    flex: 1;
+  }
+
+  /* Quantity Controls */
+  .add-to-cart__quantity {
+    display: flex;
+    align-items: center;
+    border: 1px solid var(--atc-border);
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+
+  .add-to-cart__qty-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+    transition: background 0.15s;
+  }
+
+  .add-to-cart--sm .add-to-cart__qty-btn {
+    width: 1.75rem;
+    height: 1.75rem;
+    font-size: 0.875rem;
+  }
+
+  .add-to-cart--md .add-to-cart__qty-btn {
+    width: 2rem;
+    height: 2rem;
+    font-size: 1rem;
+  }
+
+  .add-to-cart--lg .add-to-cart__qty-btn {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1.125rem;
+  }
+
+  .add-to-cart__qty-btn:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  .add-to-cart__qty-input {
+    width: 2.5rem;
+    text-align: center;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border: none;
+    border-left: 1px solid var(--atc-border);
+    border-right: 1px solid var(--atc-border);
+    background: transparent;
+  }
+
+  .add-to-cart__qty-input::-webkit-inner-spin-button,
+  .add-to-cart__qty-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+  }
+
+  /* Button */
+  .add-to-cart__btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    overflow: hidden;
+  }
+
+  /* Sizes */
+  .add-to-cart--sm .add-to-cart__btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.8125rem;
+  }
+
+  .add-to-cart--md .add-to-cart__btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9375rem;
+  }
+
+  .add-to-cart--lg .add-to-cart__btn {
+    padding: 1rem 2rem;
+    font-size: 1rem;
+  }
+
+  /* Variants */
+  .add-to-cart--primary .add-to-cart__btn {
+    background: var(--atc-primary);
+    color: var(--atc-text);
+  }
+
+  .add-to-cart--primary .add-to-cart__btn:hover:not(:disabled) {
+    background: var(--atc-primary-hover);
+  }
+
+  .add-to-cart--secondary .add-to-cart__btn {
+    background: var(--atc-secondary);
+    color: var(--atc-text);
+  }
+
+  .add-to-cart--secondary .add-to-cart__btn:hover:not(:disabled) {
+    background: var(--atc-secondary-hover);
+  }
+
+  .add-to-cart--outline .add-to-cart__btn {
+    background: transparent;
+    color: var(--atc-primary);
+    border: 2px solid var(--atc-primary);
+  }
+
+  .add-to-cart--outline .add-to-cart__btn:hover:not(:disabled) {
+    background: var(--atc-primary);
+    color: var(--atc-text);
+  }
+
+  /* Icons */
+  .add-to-cart__icon,
+  .add-to-cart__check {
+    width: 1.25rem;
+    height: 1.25rem;
+    flex-shrink: 0;
+  }
+
+  .add-to-cart--sm .add-to-cart__icon,
+  .add-to-cart--sm .add-to-cart__check {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .add-to-cart--lg .add-to-cart__icon,
+  .add-to-cart--lg .add-to-cart__check {
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+
+  .add-to-cart__check {
+    display: none;
+  }
+
+  /* Spinner */
+  .add-to-cart__spinner {
+    display: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 2px solid transparent;
+    border-top-color: currentColor;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* States */
+  .add-to-cart__added {
+    display: none;
+  }
+
+  .add-to-cart__btn[data-state="loading"] {
+    pointer-events: none;
+  }
+
+  .add-to-cart__btn[data-state="loading"] .add-to-cart__text,
+  .add-to-cart__btn[data-state="loading"] .add-to-cart__icon {
+    display: none;
+  }
+
+  .add-to-cart__btn[data-state="loading"] .add-to-cart__spinner {
+    display: block;
+  }
+
+  .add-to-cart__btn[data-state="added"] {
+    background: var(--atc-success) !important;
+    border-color: var(--atc-success) !important;
+    color: var(--atc-text) !important;
+  }
+
+  .add-to-cart__btn[data-state="added"] .add-to-cart__text,
+  .add-to-cart__btn[data-state="added"] .add-to-cart__icon {
+    display: none;
+  }
+
+  .add-to-cart__btn[data-state="added"] .add-to-cart__added,
+  .add-to-cart__btn[data-state="added"] .add-to-cart__check {
+    display: inline-flex;
+  }
+
+  .add-to-cart__btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+</style>
+
+<script>
+  function initAddToCartButtons() {
+    document.querySelectorAll('[data-add-to-cart-container]').forEach((container) => {
+      const el = container as HTMLElement;
+      const btn = el.querySelector('[data-add-btn]') as HTMLButtonElement;
+      const qtyInput = el.querySelector('[data-qty-input]') as HTMLInputElement | null;
+      const decreaseBtn = el.querySelector('[data-qty-decrease]');
+      const increaseBtn = el.querySelector('[data-qty-increase]');
+
+      const maxQty = el.dataset.maxQuantity ? parseInt(el.dataset.maxQuantity, 10) : Infinity;
+
+      // Quantity controls
+      decreaseBtn?.addEventListener('click', () => {
+        if (!qtyInput) return;
+        const current = parseInt(qtyInput.value, 10) || 1;
+        if (current > 1) qtyInput.value = String(current - 1);
+      });
+
+      increaseBtn?.addEventListener('click', () => {
+        if (!qtyInput) return;
+        const current = parseInt(qtyInput.value, 10) || 1;
+        if (current < maxQty) qtyInput.value = String(current + 1);
+      });
+
+      // Add to cart
+      btn.addEventListener('click', async () => {
+        if (btn.dataset.state === 'loading' || btn.dataset.state === 'added') return;
+
+        btn.dataset.state = 'loading';
+
+        // Simulate brief loading for better UX
+        await new Promise((r) => setTimeout(r, 300));
+
+        const quantity = qtyInput ? parseInt(qtyInput.value, 10) || 1 : 1;
+
+        window.dispatchEvent(new CustomEvent('cart:add', {
+          detail: {
+            id: el.dataset.productId,
+            name: el.dataset.productName,
+            price: parseFloat(el.dataset.productPrice || '0'),
+            image: el.dataset.productImage,
+            variant: el.dataset.productVariant,
+            maxQuantity: maxQty < Infinity ? maxQty : undefined,
+            quantity,
+          },
+        }));
+
+        btn.dataset.state = 'added';
+
+        setTimeout(() => {
+          btn.dataset.state = '';
+        }, 2000);
+      });
+    });
+  }
+
+  // Initialize
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAddToCartButtons);
+  } else {
+    initAddToCartButtons();
+  }
+
+  document.addEventListener('astro:page-load', initAddToCartButtons);
+</script>
