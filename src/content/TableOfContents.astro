@@ -1,0 +1,207 @@
+---
+/**
+ * TableOfContents Component - WenderMedia Astro Components
+ *
+ * Auto-generated table of contents with active section highlighting.
+ * Supports nested headings and smooth scrolling.
+ *
+ * @example
+ * <TableOfContents
+ *   headings={[
+ *     { depth: 2, slug: 'intro', text: 'Introduction' },
+ *     { depth: 3, slug: 'getting-started', text: 'Getting Started' },
+ *   ]}
+ * />
+ */
+
+export interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+export interface Props {
+  headings: Heading[];
+  title?: string;
+  minDepth?: number;
+  maxDepth?: number;
+  sticky?: boolean;
+  class?: string;
+}
+
+const {
+  headings,
+  title = 'Inhaltsverzeichnis',
+  minDepth = 2,
+  maxDepth = 4,
+  sticky = true,
+  class: className = '',
+} = Astro.props;
+
+// Filter headings by depth
+const filteredHeadings = headings.filter(
+  (h) => h.depth >= minDepth && h.depth <= maxDepth
+);
+---
+
+{filteredHeadings.length > 0 && (
+  <nav
+    class:list={['toc', sticky && 'toc--sticky', className]}
+    aria-label={title}
+  >
+    <h2 class="toc__title">{title}</h2>
+    <ul class="toc__list" id="toc-list">
+      {filteredHeadings.map((heading) => (
+        <li
+          class="toc__item"
+          style={`--depth: ${heading.depth - minDepth}`}
+        >
+          <a
+            href={`#${heading.slug}`}
+            class="toc__link"
+            data-toc-link={heading.slug}
+          >
+            {heading.text}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </nav>
+)}
+
+<style>
+  .toc {
+    font-size: 0.875rem;
+  }
+
+  .toc--sticky {
+    position: sticky;
+    top: 5rem;
+    max-height: calc(100vh - 6rem);
+    overflow-y: auto;
+  }
+
+  .toc__title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-muted, #6b7280);
+    margin-bottom: 1rem;
+  }
+
+  .toc__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .toc__item {
+    margin-bottom: 0.25rem;
+    padding-left: calc(var(--depth, 0) * 0.75rem);
+  }
+
+  .toc__link {
+    display: block;
+    padding: 0.375rem 0.75rem;
+    color: var(--color-text-muted, #6b7280);
+    text-decoration: none;
+    border-left: 2px solid transparent;
+    border-radius: 0 0.25rem 0.25rem 0;
+    transition: all 0.15s;
+    line-height: 1.4;
+  }
+
+  .toc__link:hover {
+    color: var(--color-text, #111);
+    background: var(--color-bg-hover, rgba(0, 0, 0, 0.05));
+  }
+
+  .toc__link.active {
+    color: var(--color-primary, #3b82f6);
+    border-left-color: var(--color-primary, #3b82f6);
+    background: var(--color-primary-bg, rgba(59, 130, 246, 0.1));
+    font-weight: 500;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .toc__link:hover {
+      --color-bg-hover: rgba(255, 255, 255, 0.05);
+    }
+  }
+</style>
+
+<script>
+  function initTableOfContents() {
+    const tocLinks = document.querySelectorAll('[data-toc-link]');
+    if (tocLinks.length === 0) return;
+
+    // Get all heading elements that match our TOC
+    const headingIds = Array.from(tocLinks).map(
+      (link) => link.getAttribute('data-toc-link')
+    );
+    const headings = headingIds
+      .map((id) => document.getElementById(id as string))
+      .filter(Boolean) as HTMLElement[];
+
+    if (headings.length === 0) return;
+
+    // Intersection Observer for active state
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            // Remove active from all links
+            tocLinks.forEach((link) => link.classList.remove('active'));
+
+            // Add active to current link
+            const id = entry.target.id;
+            const activeLink = document.querySelector(`[data-toc-link="${id}"]`);
+            activeLink?.classList.add('active');
+          }
+        });
+      },
+      {
+        rootMargin: '-20% 0px -60% 0px',
+        threshold: 0,
+      }
+    );
+
+    headings.forEach((heading) => observer.observe(heading));
+
+    // Smooth scroll on click
+    tocLinks.forEach((link) => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const id = link.getAttribute('data-toc-link');
+        const target = document.getElementById(id as string);
+        if (target) {
+          const offset = 100;
+          const targetPosition = target.getBoundingClientRect().top + window.scrollY - offset;
+          window.scrollTo({
+            top: targetPosition,
+            behavior: 'smooth',
+          });
+
+          // Update URL without triggering scroll
+          history.pushState(null, '', `#${id}`);
+        }
+      });
+    });
+
+    // Cleanup
+    return () => {
+      headings.forEach((heading) => observer.unobserve(heading));
+    };
+  }
+
+  // Initialize on load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTableOfContents);
+  } else {
+    initTableOfContents();
+  }
+
+  // Re-initialize on Astro page navigation
+  document.addEventListener('astro:page-load', initTableOfContents);
+</script>

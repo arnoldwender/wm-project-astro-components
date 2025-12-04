@@ -1,0 +1,473 @@
+---
+/**
+ * MobileNav Component - WenderMedia Astro Components
+ *
+ * Full-screen mobile navigation overlay with smooth animations.
+ * Accessible and keyboard navigable.
+ *
+ * @example
+ * <MobileNav
+ *   items={[
+ *     { label: 'Home', href: '/' },
+ *     { label: 'About', href: '/about' },
+ *     { label: 'Contact', href: '/contact' },
+ *   ]}
+ *   socialLinks={[...]}
+ * />
+ */
+
+export interface NavItem {
+  label: string;
+  href: string;
+  external?: boolean;
+  children?: NavItem[];
+}
+
+export interface SocialLink {
+  name: string;
+  href: string;
+  icon: string;
+}
+
+export interface Props {
+  items: NavItem[];
+  socialLinks?: SocialLink[];
+  contactEmail?: string;
+  contactPhone?: string;
+  class?: string;
+}
+
+const {
+  items,
+  socialLinks = [],
+  contactEmail,
+  contactPhone,
+  class: className = '',
+} = Astro.props;
+
+const currentPath = Astro.url.pathname;
+---
+
+<!-- Mobile Menu Button (place in header) -->
+<button
+  id="mobile-nav-trigger"
+  class="mobile-nav-trigger"
+  aria-label="Open menu"
+  aria-expanded="false"
+  aria-controls="mobile-nav"
+>
+  <span class="mobile-nav-trigger__line"></span>
+  <span class="mobile-nav-trigger__line"></span>
+  <span class="mobile-nav-trigger__line"></span>
+</button>
+
+<!-- Mobile Navigation Overlay -->
+<div
+  id="mobile-nav"
+  class:list={['mobile-nav', className]}
+  aria-hidden="true"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Navigation"
+>
+  <div class="mobile-nav__backdrop"></div>
+
+  <div class="mobile-nav__container">
+    <!-- Close Button -->
+    <button
+      class="mobile-nav__close"
+      aria-label="Close menu"
+    >
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M18 6L6 18M6 6l12 12"/>
+      </svg>
+    </button>
+
+    <!-- Navigation Links -->
+    <nav class="mobile-nav__nav">
+      <ul class="mobile-nav__list">
+        {items.map((item, index) => (
+          <li
+            class="mobile-nav__item"
+            style={`--delay: ${index * 0.05}s`}
+          >
+            {item.children ? (
+              <div class="mobile-nav__group" data-accordion>
+                <button
+                  class="mobile-nav__link mobile-nav__link--parent"
+                  aria-expanded="false"
+                >
+                  {item.label}
+                  <svg class="mobile-nav__arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M6 9l6 6 6-6"/>
+                  </svg>
+                </button>
+                <ul class="mobile-nav__sublist">
+                  {item.children.map((child) => (
+                    <li>
+                      <a
+                        href={child.href}
+                        class:list={[
+                          'mobile-nav__sublink',
+                          currentPath === child.href && 'mobile-nav__sublink--active'
+                        ]}
+                        {...(child.external && { target: '_blank', rel: 'noopener noreferrer' })}
+                      >
+                        {child.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : (
+              <a
+                href={item.href}
+                class:list={[
+                  'mobile-nav__link',
+                  currentPath === item.href && 'mobile-nav__link--active'
+                ]}
+                {...(item.external && { target: '_blank', rel: 'noopener noreferrer' })}
+              >
+                {item.label}
+              </a>
+            )}
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <!-- Contact Info -->
+    {(contactEmail || contactPhone) && (
+      <div class="mobile-nav__contact">
+        {contactEmail && (
+          <a href={`mailto:${contactEmail}`} class="mobile-nav__contact-link">
+            {contactEmail}
+          </a>
+        )}
+        {contactPhone && (
+          <a href={`tel:${contactPhone}`} class="mobile-nav__contact-link">
+            {contactPhone}
+          </a>
+        )}
+      </div>
+    )}
+
+    <!-- Social Links -->
+    {socialLinks.length > 0 && (
+      <div class="mobile-nav__social">
+        {socialLinks.map((link) => (
+          <a
+            href={link.href}
+            class="mobile-nav__social-link"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={link.name}
+          >
+            <Fragment set:html={link.icon} />
+          </a>
+        ))}
+      </div>
+    )}
+  </div>
+</div>
+
+<style>
+  .mobile-nav-trigger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 32px;
+    height: 32px;
+    padding: 4px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    z-index: 60;
+  }
+
+  .mobile-nav-trigger__line {
+    display: block;
+    width: 100%;
+    height: 2px;
+    background: currentColor;
+    transition: transform 0.3s, opacity 0.3s;
+  }
+
+  .mobile-nav-trigger[aria-expanded="true"] .mobile-nav-trigger__line:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+
+  .mobile-nav-trigger[aria-expanded="true"] .mobile-nav-trigger__line:nth-child(2) {
+    opacity: 0;
+  }
+
+  .mobile-nav-trigger[aria-expanded="true"] .mobile-nav-trigger__line:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+  }
+
+  @media (max-width: 1024px) {
+    .mobile-nav-trigger {
+      display: flex;
+    }
+  }
+
+  .mobile-nav {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .mobile-nav[aria-hidden="false"] {
+    visibility: visible;
+    pointer-events: auto;
+  }
+
+  .mobile-nav__backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  .mobile-nav[aria-hidden="false"] .mobile-nav__backdrop {
+    opacity: 1;
+  }
+
+  .mobile-nav__container {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    max-width: 400px;
+    background: var(--color-bg, #fff);
+    padding: 5rem 2rem 2rem;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    overflow-y: auto;
+  }
+
+  .mobile-nav[aria-hidden="false"] .mobile-nav__container {
+    transform: translateX(0);
+  }
+
+  .mobile-nav__close {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--color-text-muted, #6b7280);
+    transition: color 0.2s;
+  }
+
+  .mobile-nav__close:hover {
+    color: var(--color-text, #111);
+  }
+
+  .mobile-nav__nav {
+    flex: 1;
+  }
+
+  .mobile-nav__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .mobile-nav__item {
+    opacity: 0;
+    transform: translateX(20px);
+    transition: opacity 0.3s var(--delay, 0s), transform 0.3s var(--delay, 0s);
+  }
+
+  .mobile-nav[aria-hidden="false"] .mobile-nav__item {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .mobile-nav__link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 1rem 0;
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: var(--color-text, #111);
+    text-decoration: none;
+    border: none;
+    background: none;
+    cursor: pointer;
+    border-bottom: 1px solid var(--color-border, #e5e7eb);
+    transition: color 0.2s;
+  }
+
+  .mobile-nav__link:hover,
+  .mobile-nav__link--active {
+    color: var(--color-primary, #3b82f6);
+  }
+
+  .mobile-nav__arrow {
+    transition: transform 0.2s;
+  }
+
+  .mobile-nav__link--parent[aria-expanded="true"] .mobile-nav__arrow {
+    transform: rotate(180deg);
+  }
+
+  .mobile-nav__sublist {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s;
+  }
+
+  .mobile-nav__link--parent[aria-expanded="true"] + .mobile-nav__sublist {
+    max-height: 500px;
+  }
+
+  .mobile-nav__sublink {
+    display: block;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    color: var(--color-text-muted, #6b7280);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .mobile-nav__sublink:hover,
+  .mobile-nav__sublink--active {
+    color: var(--color-primary, #3b82f6);
+  }
+
+  .mobile-nav__contact {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--color-border, #e5e7eb);
+  }
+
+  .mobile-nav__contact-link {
+    display: block;
+    padding: 0.5rem 0;
+    color: var(--color-text-muted, #6b7280);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .mobile-nav__contact-link:hover {
+    color: var(--color-text, #111);
+  }
+
+  .mobile-nav__social {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .mobile-nav__social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--color-border, #e5e7eb);
+    color: var(--color-text-muted, #6b7280);
+    transition: all 0.2s;
+  }
+
+  .mobile-nav__social-link:hover {
+    border-color: var(--color-text, #111);
+    color: var(--color-text, #111);
+  }
+
+  .mobile-nav__social-link svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .mobile-nav__container {
+      --color-bg: #111;
+      --color-text: #fff;
+      --color-text-muted: #9ca3af;
+      --color-border: #374151;
+    }
+  }
+</style>
+
+<script>
+  function initMobileNav() {
+    const trigger = document.getElementById('mobile-nav-trigger');
+    const nav = document.getElementById('mobile-nav');
+    const closeBtn = nav?.querySelector('.mobile-nav__close');
+    const backdrop = nav?.querySelector('.mobile-nav__backdrop');
+    const accordions = nav?.querySelectorAll('[data-accordion]');
+
+    if (!trigger || !nav) return;
+
+    function openNav() {
+      nav.setAttribute('aria-hidden', 'false');
+      trigger.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeNav() {
+      nav.setAttribute('aria-hidden', 'true');
+      trigger.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    }
+
+    trigger.addEventListener('click', () => {
+      const isOpen = nav.getAttribute('aria-hidden') === 'false';
+      isOpen ? closeNav() : openNav();
+    });
+
+    closeBtn?.addEventListener('click', closeNav);
+    backdrop?.addEventListener('click', closeNav);
+
+    // Close on escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && nav.getAttribute('aria-hidden') === 'false') {
+        closeNav();
+      }
+    });
+
+    // Close on link click
+    nav.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', closeNav);
+    });
+
+    // Accordions
+    accordions?.forEach((accordion) => {
+      const btn = accordion.querySelector('.mobile-nav__link--parent');
+      btn?.addEventListener('click', () => {
+        const isExpanded = btn.getAttribute('aria-expanded') === 'true';
+        btn.setAttribute('aria-expanded', String(!isExpanded));
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMobileNav);
+  } else {
+    initMobileNav();
+  }
+
+  document.addEventListener('astro:page-load', initMobileNav);
+</script>

@@ -1,0 +1,217 @@
+---
+/**
+ * 404 Page Template - WenderMedia Astro Components
+ *
+ * SEO-friendly 404 page with helpful navigation options.
+ * Customizable messaging and suggested links.
+ *
+ * @example Copy to src/pages/404.astro
+ */
+
+export interface Props {
+  title?: string;
+  description?: string;
+  heading?: string;
+  message?: string;
+  homeLink?: string;
+  searchEnabled?: boolean;
+  suggestedLinks?: Array<{ label: string; href: string }>;
+}
+
+const {
+  title = '404 - Seite nicht gefunden',
+  description = 'Die angeforderte Seite konnte nicht gefunden werden.',
+  heading = '404',
+  message = 'Die Seite, die Sie suchen, existiert nicht oder wurde verschoben.',
+  homeLink = '/',
+  searchEnabled = true,
+  suggestedLinks = [
+    { label: 'Startseite', href: '/' },
+    { label: 'Blog', href: '/blog' },
+    { label: 'Kontakt', href: '/kontakt' },
+  ],
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+    <style>
+      *, *::before, *::after { box-sizing: border-box; }
+      * { margin: 0; }
+
+      :root {
+        --color-bg: #ffffff;
+        --color-text: #111111;
+        --color-text-muted: #6b7280;
+        --color-primary: #111111;
+        --color-border: #e5e7eb;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --color-bg: #0a0a0a;
+          --color-text: #ffffff;
+          --color-text-muted: #9ca3af;
+          --color-primary: #ffffff;
+          --color-border: #374151;
+        }
+      }
+
+      html {
+        -webkit-font-smoothing: antialiased;
+      }
+
+      body {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        background: var(--color-bg);
+        color: var(--color-text);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        line-height: 1.6;
+      }
+
+      .container {
+        max-width: 32rem;
+        text-align: center;
+      }
+
+      .error-code {
+        font-size: clamp(6rem, 20vw, 12rem);
+        font-weight: 700;
+        line-height: 1;
+        opacity: 0.1;
+        margin-bottom: -2rem;
+        user-select: none;
+      }
+
+      h1 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+      }
+
+      .message {
+        color: var(--color-text-muted);
+        margin-bottom: 2rem;
+      }
+
+      .search-form {
+        margin-bottom: 2rem;
+      }
+
+      .search-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        border: 1px solid var(--color-border);
+        border-radius: 0.5rem;
+        background: var(--color-bg);
+        color: var(--color-text);
+        outline: none;
+        transition: border-color 0.2s;
+      }
+
+      .search-input:focus {
+        border-color: var(--color-primary);
+      }
+
+      .links {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1rem;
+      }
+
+      .link {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-decoration: none;
+        border-radius: 0.5rem;
+        transition: all 0.2s;
+      }
+
+      .link-primary {
+        background: var(--color-primary);
+        color: var(--color-bg);
+      }
+
+      .link-primary:hover {
+        opacity: 0.9;
+      }
+
+      .link-secondary {
+        border: 1px solid var(--color-border);
+        color: var(--color-text);
+      }
+
+      .link-secondary:hover {
+        border-color: var(--color-text-muted);
+      }
+
+      .back-link {
+        margin-top: 3rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--color-text-muted);
+        text-decoration: none;
+        font-size: 0.875rem;
+        transition: color 0.2s;
+      }
+
+      .back-link:hover {
+        color: var(--color-text);
+      }
+    </style>
+  </head>
+  <body>
+    <main class="container">
+      <div class="error-code" aria-hidden="true">{heading}</div>
+
+      <h1>Seite nicht gefunden</h1>
+      <p class="message">{message}</p>
+
+      {searchEnabled && (
+        <form class="search-form" action="/suche" method="GET">
+          <input
+            type="search"
+            name="q"
+            class="search-input"
+            placeholder="Suchen Sie nach..."
+            aria-label="Suche"
+          />
+        </form>
+      )}
+
+      <nav class="links">
+        <a href={homeLink} class="link link-primary">
+          Zur Startseite
+        </a>
+        {suggestedLinks.slice(1).map((link) => (
+          <a href={link.href} class="link link-secondary">
+            {link.label}
+          </a>
+        ))}
+      </nav>
+
+      <a href="javascript:history.back()" class="back-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        Zurück zur vorherigen Seite
+      </a>
+    </main>
+  </body>
+</html>

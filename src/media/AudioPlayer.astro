@@ -1,0 +1,900 @@
+---
+/**
+ * AudioPlayer Component - WenderMedia Astro Components
+ *
+ * Custom styled audio player with playlist support.
+ * Accessible and keyboard navigable.
+ *
+ * @example
+ * <!-- Single track -->
+ * <AudioPlayer
+ *   src="/audio/podcast-ep1.mp3"
+ *   title="Episode 1: Introduction"
+ *   artist="Podcast Name"
+ * />
+ *
+ * <!-- Playlist -->
+ * <AudioPlayer
+ *   playlist={[
+ *     { src: '/audio/track1.mp3', title: 'Track 1', artist: 'Artist' },
+ *     { src: '/audio/track2.mp3', title: 'Track 2', artist: 'Artist' },
+ *   ]}
+ * />
+ */
+
+export interface Track {
+  src: string;
+  title: string;
+  artist?: string;
+  cover?: string;
+  duration?: string;
+}
+
+export interface Props {
+  src?: string;
+  title?: string;
+  artist?: string;
+  cover?: string;
+  playlist?: Track[];
+  showPlaylist?: boolean;
+  autoplay?: boolean;
+  loop?: boolean;
+  preload?: 'none' | 'metadata' | 'auto';
+  class?: string;
+}
+
+const {
+  src,
+  title = 'Audio',
+  artist,
+  cover,
+  playlist = [],
+  showPlaylist = true,
+  autoplay = false,
+  loop = false,
+  preload = 'metadata',
+  class: className = '',
+} = Astro.props;
+
+// Convert single track to playlist format
+const tracks: Track[] = playlist.length > 0
+  ? playlist
+  : src
+    ? [{ src, title, artist, cover }]
+    : [];
+
+const hasMultipleTracks = tracks.length > 1;
+---
+
+<div
+  class:list={['audio-player', className]}
+  data-audio-player
+  data-autoplay={autoplay}
+  data-loop={loop}
+>
+  {/* Hidden audio element */}
+  <audio
+    preload={preload}
+    data-audio-element
+  >
+    <source src={tracks[0]?.src} type="audio/mpeg" />
+    Ihr Browser unterstützt kein Audio.
+  </audio>
+
+  {/* Track Data */}
+  <script type="application/json" data-tracks>
+    {JSON.stringify(tracks)}
+  </script>
+
+  {/* Player UI */}
+  <div class="audio-player__main">
+    {/* Cover Art */}
+    <div class="audio-player__cover" data-cover>
+      {tracks[0]?.cover ? (
+        <img src={tracks[0].cover} alt={tracks[0].title} />
+      ) : (
+        <div class="audio-player__cover-placeholder">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="12" cy="12" r="10"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </div>
+      )}
+    </div>
+
+    {/* Track Info & Controls */}
+    <div class="audio-player__content">
+      {/* Track Info */}
+      <div class="audio-player__info">
+        <h3 class="audio-player__title" data-title>{tracks[0]?.title}</h3>
+        {tracks[0]?.artist && (
+          <p class="audio-player__artist" data-artist>{tracks[0].artist}</p>
+        )}
+      </div>
+
+      {/* Progress Bar */}
+      <div class="audio-player__progress">
+        <span class="audio-player__time" data-current-time>0:00</span>
+        <div class="audio-player__progress-bar" data-progress-bar>
+          <div class="audio-player__progress-fill" data-progress-fill></div>
+          <div class="audio-player__progress-buffered" data-progress-buffered></div>
+          <input
+            type="range"
+            class="audio-player__progress-input"
+            min="0"
+            max="100"
+            value="0"
+            data-progress-input
+            aria-label="Wiedergabeposition"
+          />
+        </div>
+        <span class="audio-player__time" data-duration>0:00</span>
+      </div>
+
+      {/* Controls */}
+      <div class="audio-player__controls">
+        {/* Previous (if playlist) */}
+        {hasMultipleTracks && (
+          <button
+            type="button"
+            class="audio-player__btn audio-player__btn--secondary"
+            data-prev
+            aria-label="Vorheriger Track"
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="19 20 9 12 19 4 19 20"/>
+              <line x1="5" y1="19" x2="5" y2="5" stroke="currentColor" stroke-width="2"/>
+            </svg>
+          </button>
+        )}
+
+        {/* Rewind 10s */}
+        <button
+          type="button"
+          class="audio-player__btn audio-player__btn--secondary"
+          data-rewind
+          aria-label="10 Sekunden zurück"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 19l-7-7 7-7"/>
+            <text x="14" y="14" font-size="8" fill="currentColor" stroke="none">10</text>
+          </svg>
+        </button>
+
+        {/* Play/Pause */}
+        <button
+          type="button"
+          class="audio-player__btn audio-player__btn--primary"
+          data-play-pause
+          aria-label="Abspielen"
+        >
+          <svg class="audio-player__icon-play" viewBox="0 0 24 24" fill="currentColor">
+            <polygon points="5 3 19 12 5 21 5 3"/>
+          </svg>
+          <svg class="audio-player__icon-pause" viewBox="0 0 24 24" fill="currentColor" hidden>
+            <rect x="6" y="4" width="4" height="16"/>
+            <rect x="14" y="4" width="4" height="16"/>
+          </svg>
+        </button>
+
+        {/* Forward 10s */}
+        <button
+          type="button"
+          class="audio-player__btn audio-player__btn--secondary"
+          data-forward
+          aria-label="10 Sekunden vorwärts"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M13 5l7 7-7 7"/>
+            <text x="3" y="14" font-size="8" fill="currentColor" stroke="none">10</text>
+          </svg>
+        </button>
+
+        {/* Next (if playlist) */}
+        {hasMultipleTracks && (
+          <button
+            type="button"
+            class="audio-player__btn audio-player__btn--secondary"
+            data-next
+            aria-label="Nächster Track"
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="5 4 15 12 5 20 5 4"/>
+              <line x1="19" y1="5" x2="19" y2="19" stroke="currentColor" stroke-width="2"/>
+            </svg>
+          </button>
+        )}
+
+        {/* Speed */}
+        <button
+          type="button"
+          class="audio-player__btn audio-player__btn--text"
+          data-speed
+          aria-label="Geschwindigkeit ändern"
+        >
+          1x
+        </button>
+
+        {/* Volume */}
+        <div class="audio-player__volume">
+          <button
+            type="button"
+            class="audio-player__btn audio-player__btn--secondary"
+            data-mute
+            aria-label="Stummschalten"
+          >
+            <svg class="audio-player__icon-volume" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+              <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>
+            </svg>
+            <svg class="audio-player__icon-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" hidden>
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
+              <line x1="23" y1="9" x2="17" y2="15"/>
+              <line x1="17" y1="9" x2="23" y2="15"/>
+            </svg>
+          </button>
+          <input
+            type="range"
+            class="audio-player__volume-input"
+            min="0"
+            max="100"
+            value="100"
+            data-volume
+            aria-label="Lautstärke"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {/* Playlist */}
+  {hasMultipleTracks && showPlaylist && (
+    <div class="audio-player__playlist">
+      <h4 class="audio-player__playlist-title">
+        Playlist ({tracks.length} Tracks)
+      </h4>
+      <ul class="audio-player__playlist-list" data-playlist>
+        {tracks.map((track, index) => (
+          <li class="audio-player__playlist-item">
+            <button
+              type="button"
+              class:list={['audio-player__playlist-btn', index === 0 && 'active']}
+              data-track-index={index}
+            >
+              <span class="audio-player__playlist-number">{index + 1}</span>
+              <span class="audio-player__playlist-playing">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <polygon points="5 3 19 12 5 21 5 3"/>
+                </svg>
+              </span>
+              <div class="audio-player__playlist-info">
+                <span class="audio-player__playlist-track-title">{track.title}</span>
+                {track.artist && (
+                  <span class="audio-player__playlist-track-artist">{track.artist}</span>
+                )}
+              </div>
+              {track.duration && (
+                <span class="audio-player__playlist-duration">{track.duration}</span>
+              )}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )}
+</div>
+
+<style>
+  .audio-player {
+    --ap-bg: #fff;
+    --ap-text: #111;
+    --ap-muted: #6b7280;
+    --ap-border: #e5e7eb;
+    --ap-primary: #3b82f6;
+    --ap-primary-hover: #2563eb;
+
+    background: var(--ap-bg);
+    border: 1px solid var(--ap-border);
+    border-radius: 1rem;
+    overflow: hidden;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .audio-player {
+      --ap-bg: #1a1a1a;
+      --ap-text: #f5f5f5;
+      --ap-muted: #9ca3af;
+      --ap-border: #374151;
+    }
+  }
+
+  /* Main Player */
+  .audio-player__main {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+  }
+
+  /* Cover Art */
+  .audio-player__cover {
+    flex-shrink: 0;
+    width: 5rem;
+    height: 5rem;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    background: var(--ap-border);
+  }
+
+  .audio-player__cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .audio-player__cover-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: var(--ap-muted);
+  }
+
+  .audio-player__cover-placeholder svg {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  /* Content */
+  .audio-player__content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 0;
+  }
+
+  /* Track Info */
+  .audio-player__info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+
+  .audio-player__title {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--ap-text);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .audio-player__artist {
+    font-size: 0.8125rem;
+    color: var(--ap-muted);
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* Progress Bar */
+  .audio-player__progress {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .audio-player__time {
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--ap-muted);
+    min-width: 2.5rem;
+  }
+
+  .audio-player__time:last-child {
+    text-align: right;
+  }
+
+  .audio-player__progress-bar {
+    position: relative;
+    flex: 1;
+    height: 0.5rem;
+    background: var(--ap-border);
+    border-radius: 9999px;
+    overflow: hidden;
+  }
+
+  .audio-player__progress-fill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: var(--ap-primary);
+    border-radius: 9999px;
+    transition: width 0.1s;
+    z-index: 2;
+  }
+
+  .audio-player__progress-buffered {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: rgba(59, 130, 246, 0.3);
+    border-radius: 9999px;
+    z-index: 1;
+  }
+
+  .audio-player__progress-input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 3;
+  }
+
+  /* Controls */
+  .audio-player__controls {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+
+  .audio-player__btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .audio-player__btn--primary {
+    width: 2.5rem;
+    height: 2.5rem;
+    color: #fff;
+    background: var(--ap-primary);
+    border-radius: 50%;
+  }
+
+  .audio-player__btn--primary:hover {
+    background: var(--ap-primary-hover);
+    transform: scale(1.05);
+  }
+
+  .audio-player__btn--primary svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .audio-player__btn--secondary {
+    width: 2rem;
+    height: 2rem;
+    color: var(--ap-muted);
+    border-radius: 50%;
+  }
+
+  .audio-player__btn--secondary:hover {
+    color: var(--ap-text);
+    background: var(--ap-border);
+  }
+
+  .audio-player__btn--secondary svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .audio-player__btn--text {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--ap-muted);
+    border-radius: 0.25rem;
+  }
+
+  .audio-player__btn--text:hover {
+    color: var(--ap-text);
+    background: var(--ap-border);
+  }
+
+  .audio-player__icon-pause,
+  .audio-player__icon-muted {
+    display: none;
+  }
+
+  .audio-player[data-playing="true"] .audio-player__icon-play {
+    display: none;
+  }
+
+  .audio-player[data-playing="true"] .audio-player__icon-pause {
+    display: block;
+  }
+
+  .audio-player[data-muted="true"] .audio-player__icon-volume {
+    display: none;
+  }
+
+  .audio-player[data-muted="true"] .audio-player__icon-muted {
+    display: block;
+  }
+
+  /* Volume */
+  .audio-player__volume {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-left: auto;
+  }
+
+  .audio-player__volume-input {
+    width: 4rem;
+    height: 0.25rem;
+    background: var(--ap-border);
+    border-radius: 9999px;
+    cursor: pointer;
+    -webkit-appearance: none;
+  }
+
+  .audio-player__volume-input::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 0.75rem;
+    height: 0.75rem;
+    background: var(--ap-primary);
+    border-radius: 50%;
+    cursor: pointer;
+  }
+
+  /* Playlist */
+  .audio-player__playlist {
+    border-top: 1px solid var(--ap-border);
+    padding: 1rem;
+    max-height: 15rem;
+    overflow-y: auto;
+  }
+
+  .audio-player__playlist-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--ap-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0 0 0.75rem;
+  }
+
+  .audio-player__playlist-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .audio-player__playlist-item {
+    margin-bottom: 0.25rem;
+  }
+
+  .audio-player__playlist-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.5rem;
+    text-align: left;
+    background: transparent;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .audio-player__playlist-btn:hover {
+    background: var(--ap-border);
+  }
+
+  .audio-player__playlist-btn.active {
+    background: rgba(59, 130, 246, 0.1);
+  }
+
+  .audio-player__playlist-number {
+    width: 1.5rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--ap-muted);
+    text-align: center;
+  }
+
+  .audio-player__playlist-playing {
+    display: none;
+    width: 1.5rem;
+    color: var(--ap-primary);
+  }
+
+  .audio-player__playlist-playing svg {
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+
+  .audio-player__playlist-btn.active .audio-player__playlist-number {
+    display: none;
+  }
+
+  .audio-player__playlist-btn.active .audio-player__playlist-playing {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .audio-player__playlist-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+  }
+
+  .audio-player__playlist-track-title {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--ap-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .audio-player__playlist-track-artist {
+    font-size: 0.75rem;
+    color: var(--ap-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .audio-player__playlist-duration {
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--ap-muted);
+  }
+
+  /* Responsive */
+  @media (max-width: 480px) {
+    .audio-player__cover {
+      width: 4rem;
+      height: 4rem;
+    }
+
+    .audio-player__volume-input {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  interface Track {
+    src: string;
+    title: string;
+    artist?: string;
+    cover?: string;
+    duration?: string;
+  }
+
+  function initAudioPlayers() {
+    document.querySelectorAll('[data-audio-player]').forEach((container) => {
+      const el = container as HTMLElement;
+      const audio = el.querySelector('[data-audio-element]') as HTMLAudioElement;
+      const tracksJson = el.querySelector('[data-tracks]')?.textContent;
+      const tracks: Track[] = tracksJson ? JSON.parse(tracksJson) : [];
+
+      if (!audio || tracks.length === 0) return;
+
+      let currentIndex = 0;
+      const speeds = [0.5, 0.75, 1, 1.25, 1.5, 2];
+      let speedIndex = 2; // Start at 1x
+
+      // Elements
+      const playPauseBtn = el.querySelector('[data-play-pause]');
+      const prevBtn = el.querySelector('[data-prev]');
+      const nextBtn = el.querySelector('[data-next]');
+      const rewindBtn = el.querySelector('[data-rewind]');
+      const forwardBtn = el.querySelector('[data-forward]');
+      const speedBtn = el.querySelector('[data-speed]');
+      const muteBtn = el.querySelector('[data-mute]');
+      const volumeInput = el.querySelector('[data-volume]') as HTMLInputElement;
+      const progressInput = el.querySelector('[data-progress-input]') as HTMLInputElement;
+      const progressFill = el.querySelector('[data-progress-fill]') as HTMLElement;
+      const progressBuffered = el.querySelector('[data-progress-buffered]') as HTMLElement;
+      const currentTimeEl = el.querySelector('[data-current-time]');
+      const durationEl = el.querySelector('[data-duration]');
+      const titleEl = el.querySelector('[data-title]');
+      const artistEl = el.querySelector('[data-artist]');
+      const coverEl = el.querySelector('[data-cover]');
+      const playlistBtns = el.querySelectorAll('[data-track-index]');
+
+      const autoplay = el.dataset.autoplay === 'true';
+      const loop = el.dataset.loop === 'true';
+
+      function formatTime(seconds: number): string {
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
+      }
+
+      function loadTrack(index: number) {
+        if (index < 0 || index >= tracks.length) return;
+
+        currentIndex = index;
+        const track = tracks[index];
+
+        audio.src = track.src;
+        if (titleEl) titleEl.textContent = track.title;
+        if (artistEl) artistEl.textContent = track.artist || '';
+
+        if (coverEl) {
+          const img = coverEl.querySelector('img');
+          if (img && track.cover) {
+            img.src = track.cover;
+            img.alt = track.title;
+          }
+        }
+
+        // Update playlist active state
+        playlistBtns.forEach((btn, i) => {
+          btn.classList.toggle('active', i === index);
+        });
+
+        audio.load();
+      }
+
+      function updateProgress() {
+        const progress = (audio.currentTime / audio.duration) * 100 || 0;
+        progressFill.style.width = `${progress}%`;
+        progressInput.value = String(progress);
+        if (currentTimeEl) currentTimeEl.textContent = formatTime(audio.currentTime);
+      }
+
+      function updateBuffered() {
+        if (audio.buffered.length > 0) {
+          const buffered = (audio.buffered.end(audio.buffered.length - 1) / audio.duration) * 100;
+          progressBuffered.style.width = `${buffered}%`;
+        }
+      }
+
+      // Event listeners
+      audio.addEventListener('loadedmetadata', () => {
+        if (durationEl) durationEl.textContent = formatTime(audio.duration);
+      });
+
+      audio.addEventListener('timeupdate', updateProgress);
+      audio.addEventListener('progress', updateBuffered);
+
+      audio.addEventListener('play', () => {
+        el.dataset.playing = 'true';
+        playPauseBtn?.setAttribute('aria-label', 'Pausieren');
+      });
+
+      audio.addEventListener('pause', () => {
+        el.dataset.playing = 'false';
+        playPauseBtn?.setAttribute('aria-label', 'Abspielen');
+      });
+
+      audio.addEventListener('ended', () => {
+        if (loop && tracks.length === 1) {
+          audio.play();
+        } else if (currentIndex < tracks.length - 1) {
+          loadTrack(currentIndex + 1);
+          audio.play();
+        } else if (loop) {
+          loadTrack(0);
+          audio.play();
+        }
+      });
+
+      // Controls
+      playPauseBtn?.addEventListener('click', () => {
+        if (audio.paused) {
+          audio.play();
+        } else {
+          audio.pause();
+        }
+      });
+
+      prevBtn?.addEventListener('click', () => {
+        if (audio.currentTime > 3 || currentIndex === 0) {
+          audio.currentTime = 0;
+        } else {
+          loadTrack(currentIndex - 1);
+          audio.play();
+        }
+      });
+
+      nextBtn?.addEventListener('click', () => {
+        if (currentIndex < tracks.length - 1) {
+          loadTrack(currentIndex + 1);
+          audio.play();
+        }
+      });
+
+      rewindBtn?.addEventListener('click', () => {
+        audio.currentTime = Math.max(0, audio.currentTime - 10);
+      });
+
+      forwardBtn?.addEventListener('click', () => {
+        audio.currentTime = Math.min(audio.duration, audio.currentTime + 10);
+      });
+
+      speedBtn?.addEventListener('click', () => {
+        speedIndex = (speedIndex + 1) % speeds.length;
+        audio.playbackRate = speeds[speedIndex];
+        speedBtn.textContent = `${speeds[speedIndex]}x`;
+      });
+
+      muteBtn?.addEventListener('click', () => {
+        audio.muted = !audio.muted;
+        el.dataset.muted = String(audio.muted);
+      });
+
+      volumeInput?.addEventListener('input', () => {
+        audio.volume = parseInt(volumeInput.value, 10) / 100;
+        if (audio.volume > 0) audio.muted = false;
+        el.dataset.muted = String(audio.muted);
+      });
+
+      progressInput?.addEventListener('input', () => {
+        const time = (parseInt(progressInput.value, 10) / 100) * audio.duration;
+        audio.currentTime = time;
+      });
+
+      // Playlist
+      playlistBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const index = parseInt((btn as HTMLElement).dataset.trackIndex || '0', 10);
+          loadTrack(index);
+          audio.play();
+        });
+      });
+
+      // Keyboard shortcuts
+      el.addEventListener('keydown', (e) => {
+        switch ((e as KeyboardEvent).key) {
+          case ' ':
+            e.preventDefault();
+            playPauseBtn?.click();
+            break;
+          case 'ArrowLeft':
+            audio.currentTime = Math.max(0, audio.currentTime - 5);
+            break;
+          case 'ArrowRight':
+            audio.currentTime = Math.min(audio.duration, audio.currentTime + 5);
+            break;
+          case 'ArrowUp':
+            audio.volume = Math.min(1, audio.volume + 0.1);
+            if (volumeInput) volumeInput.value = String(audio.volume * 100);
+            break;
+          case 'ArrowDown':
+            audio.volume = Math.max(0, audio.volume - 0.1);
+            if (volumeInput) volumeInput.value = String(audio.volume * 100);
+            break;
+        }
+      });
+
+      // Autoplay
+      if (autoplay) {
+        audio.play().catch(() => {
+          // Autoplay blocked
+        });
+      }
+    });
+  }
+
+  // Initialize
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAudioPlayers);
+  } else {
+    initAudioPlayers();
+  }
+
+  document.addEventListener('astro:page-load', initAudioPlayers);
+</script>

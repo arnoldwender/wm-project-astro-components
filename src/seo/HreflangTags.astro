@@ -1,0 +1,48 @@
+---
+/**
+ * HreflangTags Component - WenderMedia Astro Components
+ *
+ * Generate hreflang tags for multilingual SEO.
+ * Helps search engines serve the correct language version.
+ *
+ * @example
+ * <HreflangTags
+ *   currentLocale="de"
+ *   locales={[
+ *     { lang: 'de', url: 'https://example.de/page' },
+ *     { lang: 'en', url: 'https://example.com/page' },
+ *   ]}
+ *   defaultLocale="de"
+ * />
+ */
+
+export interface LocaleLink {
+  lang: string;
+  url: string;
+}
+
+export interface Props {
+  currentLocale: string;
+  locales: LocaleLink[];
+  defaultLocale?: string;
+}
+
+const {
+  currentLocale,
+  locales,
+  defaultLocale = locales[0]?.lang,
+} = Astro.props;
+
+// Get x-default URL
+const xDefaultUrl = locales.find(l => l.lang === defaultLocale)?.url || locales[0]?.url;
+---
+
+<!-- Hreflang tags for each locale -->
+{locales.map(({ lang, url }) => (
+  <link rel="alternate" hreflang={lang} href={url} />
+))}
+
+<!-- x-default for language/region selector pages -->
+{xDefaultUrl && (
+  <link rel="alternate" hreflang="x-default" href={xDefaultUrl} />
+)}

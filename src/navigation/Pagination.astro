@@ -1,0 +1,286 @@
+---
+/**
+ * Pagination Component - WenderMedia Astro Components
+ *
+ * SEO-friendly pagination with schema.org markup.
+ * Supports numbered pages, prev/next, and ellipsis.
+ *
+ * @example
+ * <Pagination
+ *   currentPage={3}
+ *   totalPages={10}
+ *   baseUrl="/blog"
+ * />
+ */
+
+export interface Props {
+  currentPage: number;
+  totalPages: number;
+  baseUrl: string;
+  siblingCount?: number;
+  showFirstLast?: boolean;
+  prevLabel?: string;
+  nextLabel?: string;
+  ariaLabel?: string;
+  class?: string;
+}
+
+const {
+  currentPage,
+  totalPages,
+  baseUrl,
+  siblingCount = 1,
+  showFirstLast = true,
+  prevLabel = 'Zurück',
+  nextLabel = 'Weiter',
+  ariaLabel = 'Seitennavigation',
+  class: className = '',
+} = Astro.props;
+
+function getPageUrl(page: number): string {
+  if (page === 1) return baseUrl;
+  return `${baseUrl}/page/${page}`;
+}
+
+function generatePagination(): (number | 'ellipsis')[] {
+  const pages: (number | 'ellipsis')[] = [];
+
+  // Always show first page
+  pages.push(1);
+
+  // Calculate range around current page
+  const leftSibling = Math.max(2, currentPage - siblingCount);
+  const rightSibling = Math.min(totalPages - 1, currentPage + siblingCount);
+
+  // Add left ellipsis
+  if (leftSibling > 2) {
+    pages.push('ellipsis');
+  }
+
+  // Add pages around current
+  for (let i = leftSibling; i <= rightSibling; i++) {
+    if (i !== 1 && i !== totalPages) {
+      pages.push(i);
+    }
+  }
+
+  // Add right ellipsis
+  if (rightSibling < totalPages - 1) {
+    pages.push('ellipsis');
+  }
+
+  // Always show last page
+  if (totalPages > 1) {
+    pages.push(totalPages);
+  }
+
+  return pages;
+}
+
+const pages = generatePagination();
+const hasPrev = currentPage > 1;
+const hasNext = currentPage < totalPages;
+---
+
+<nav
+  class:list={['pagination', className]}
+  aria-label={ariaLabel}
+  role="navigation"
+>
+  <!-- Previous Button -->
+  {hasPrev ? (
+    <a
+      href={getPageUrl(currentPage - 1)}
+      class="pagination__btn pagination__btn--prev"
+      rel="prev"
+      aria-label={`${prevLabel}, Seite ${currentPage - 1}`}
+    >
+      <svg class="pagination__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M15 19l-7-7 7-7"/>
+      </svg>
+      <span class="pagination__btn-text">{prevLabel}</span>
+    </a>
+  ) : (
+    <span class="pagination__btn pagination__btn--prev pagination__btn--disabled" aria-disabled="true">
+      <svg class="pagination__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M15 19l-7-7 7-7"/>
+      </svg>
+      <span class="pagination__btn-text">{prevLabel}</span>
+    </span>
+  )}
+
+  <!-- Page Numbers -->
+  <ul class="pagination__list">
+    {pages.map((page, index) => (
+      <li class="pagination__item">
+        {page === 'ellipsis' ? (
+          <span class="pagination__ellipsis" aria-hidden="true">…</span>
+        ) : page === currentPage ? (
+          <span
+            class="pagination__page pagination__page--current"
+            aria-current="page"
+            aria-label={`Seite ${page}`}
+          >
+            {page}
+          </span>
+        ) : (
+          <a
+            href={getPageUrl(page)}
+            class="pagination__page"
+            aria-label={`Gehe zu Seite ${page}`}
+          >
+            {page}
+          </a>
+        )}
+      </li>
+    ))}
+  </ul>
+
+  <!-- Next Button -->
+  {hasNext ? (
+    <a
+      href={getPageUrl(currentPage + 1)}
+      class="pagination__btn pagination__btn--next"
+      rel="next"
+      aria-label={`${nextLabel}, Seite ${currentPage + 1}`}
+    >
+      <span class="pagination__btn-text">{nextLabel}</span>
+      <svg class="pagination__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 5l7 7-7 7"/>
+      </svg>
+    </a>
+  ) : (
+    <span class="pagination__btn pagination__btn--next pagination__btn--disabled" aria-disabled="true">
+      <span class="pagination__btn-text">{nextLabel}</span>
+      <svg class="pagination__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M9 5l7 7-7 7"/>
+      </svg>
+    </span>
+  )}
+</nav>
+
+<!-- SEO: Structured Data -->
+<script type="application/ld+json" set:html={JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  'url': Astro.url.href,
+  'isPartOf': {
+    '@type': 'CollectionPage',
+    'url': baseUrl,
+  },
+  ...(hasPrev && {
+    'relatedLink': getPageUrl(currentPage - 1),
+  }),
+  ...(hasNext && {
+    'relatedLink': getPageUrl(currentPage + 1),
+  }),
+})} />
+
+<style>
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem 0;
+  }
+
+  .pagination__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-text, #111);
+    text-decoration: none;
+    border: 1px solid var(--color-border, #e5e7eb);
+    border-radius: 0.5rem;
+    transition: all 0.15s;
+  }
+
+  .pagination__btn:hover:not(.pagination__btn--disabled) {
+    background: var(--color-bg-hover, #f3f4f6);
+    border-color: var(--color-border-hover, #d1d5db);
+  }
+
+  .pagination__btn--disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .pagination__icon {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .pagination__btn-text {
+    display: none;
+  }
+
+  @media (min-width: 640px) {
+    .pagination__btn-text {
+      display: inline;
+    }
+  }
+
+  .pagination__list {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .pagination__item {
+    display: flex;
+  }
+
+  .pagination__page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.5rem;
+    height: 2.5rem;
+    padding: 0 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-text, #111);
+    text-decoration: none;
+    border-radius: 0.5rem;
+    transition: all 0.15s;
+  }
+
+  .pagination__page:hover:not(.pagination__page--current) {
+    background: var(--color-bg-hover, #f3f4f6);
+  }
+
+  .pagination__page--current {
+    background: var(--color-primary, #111);
+    color: var(--color-primary-text, #fff);
+  }
+
+  .pagination__ellipsis {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.5rem;
+    height: 2.5rem;
+    color: var(--color-text-muted, #6b7280);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .pagination__btn,
+    .pagination__page {
+      --color-text: #fff;
+      --color-border: #374151;
+      --color-bg-hover: #374151;
+    }
+
+    .pagination__page--current {
+      --color-primary: #fff;
+      --color-primary-text: #111;
+    }
+  }
+</style>
