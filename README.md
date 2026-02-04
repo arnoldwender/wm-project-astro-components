@@ -37,7 +37,7 @@ npm install @wendermedia/astro-components
 ### From GitHub (private)
 
 ```bash
-npm install git+ssh://git@github.com:arnoldwender/wm-astro-components-2025.git
+npm install git+ssh://git@github.com:arnoldwender/wm-project-astro-components.git
 ```
 
 ## Quick Start
