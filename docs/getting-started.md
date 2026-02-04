@@ -36,7 +36,7 @@ pnpm add @wendermedia/astro-components
 ### Method 3: GitHub Installation (Private)
 
 ```bash
-npm install git+ssh://git@github.com:arnoldwender/wm-astro-components-2025.git
+npm install git+ssh://git@github.com:arnoldwender/wm-project-astro-components.git
 ```
 
 Or add to `package.json`:
@@ -44,7 +44,7 @@ Or add to `package.json`:
 ```json
 {
   "dependencies": {
-    "@wendermedia/astro-components": "github:arnoldwender/wm-astro-components-2025"
+    "@wendermedia/astro-components": "github:arnoldwender/wm-project-astro-components"
   }
 }
 ```
