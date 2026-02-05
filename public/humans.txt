@@ -1,0 +1,67 @@
+# humanstxt.org/
+# The humans responsible & technology colophon
+
+# TEAM
+
+    Arnold Wender -- Founder & CEO -- Halle (Saale), Germany
+    Victoria Wender -- Freelance PR & Operations -- Halle (Saale), Germany
+
+# THANKS
+
+    Ozzy Osbourne -- Inspiration & Prince of Darkness
+    Astro Team -- Amazing framework that rocks
+    Open Source Community -- For making the web better
+    Our Clients -- For trusting us with their digital presence
+
+# TECHNOLOGY COLOPHON
+
+    ## Frontend
+    Astro 5
+    TypeScript
+    Tailwind CSS
+    Modern CSS Grid & Flexbox
+    
+    ## Performance
+    Static Site Generation
+    Image Optimization
+    Font Preloading
+    
+    ## Accessibility
+    WCAG 2.2 AA Compliance
+    Screen Reader Optimization
+    Keyboard Navigation
+    
+    ## SEO
+    Schema.org Structured Data
+    XML Sitemap
+    Meta Tag Optimization
+    
+    ## Hosting & Deployment
+    Netlify
+    Global CDN
+    SSL/TLS Encryption
+    
+    ## Development Tools
+    VS Code
+    Git Version Control
+    npm/pnpm Package Management
+
+# SITE
+
+    Last update: 2026/02/05
+    Language: German / Deutsch
+    Doctype: HTML5
+    IDE: VS Code
+
+# CONTACT
+
+    Website: https://www.wendermedia.com
+    Email: info@wendermedia.com
+    Phone: +49-151-4193-2856
+    Address: Franckestraße 3a, 06110 Halle (Saale), Germany
+
+# DEDICATION
+
+    Dedicated to Ozzy Osbourne - The Prince of Darkness
+    "I'm just a dreamer, I dream my life away"
+    Rock on! 🤘
