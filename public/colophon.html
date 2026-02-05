@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Colophon - Technology Credits</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      color: #374151;
+      background: #F9FAFB;
+      padding: 2rem;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      padding: 3rem;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      color: #0A0A0A;
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    h2 {
+      color: #002D5B;
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin: 2rem 0 1rem 0;
+      border-bottom: 2px solid #0080C9;
+      padding-bottom: 0.5rem;
+    }
+    .subtitle {
+      text-align: center;
+      font-size: 1.125rem;
+      color: #6B7280;
+      margin-bottom: 2rem;
+    }
+    .tech-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    .tech-item {
+      background: #F3F4F6;
+      padding: 1rem;
+      border-radius: 8px;
+      border-left: 4px solid #0080C9;
+    }
+    .tech-name {
+      font-weight: 600;
+      color: #0A0A0A;
+      display: block;
+    }
+    .tech-version {
+      font-size: 0.9rem;
+      color: #6B7280;
+    }
+    .score-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    .score-item {
+      background: #ECFDF5;
+      padding: 1rem;
+      border-radius: 8px;
+      text-align: center;
+      border: 2px solid #059669;
+    }
+    .score-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #059669;
+      display: block;
+    }
+    .score-label {
+      font-size: 0.9rem;
+      color: #374151;
+    }
+    .dedication {
+      background: linear-gradient(135deg, #0A0A0A 0%, #002D5B 100%);
+      color: white;
+      padding: 2rem;
+      border-radius: 12px;
+      text-align: center;
+      margin: 2rem 0;
+    }
+    .dedication h3 { color: #FFD700; margin-bottom: 1rem; }
+    .back-link {
+      display: inline-block;
+      background: #0080C9;
+      color: white;
+      padding: 0.75rem 1.5rem;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      margin-top: 2rem;
+      transition: background-color 0.2s ease;
+    }
+    .back-link:hover { background: #004C91; }
+    .back-link-wrapper { text-align: center; margin-top: 2rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎸 Colophon</h1>
+    <p class="subtitle">Technical details, tools, and acknowledgments</p>
+
+    <h2>🏗️ Architecture & Framework</h2>
+    <div class="tech-grid">
+      <div class="tech-item">
+        <span class="tech-name">Astro</span>
+        <span class="tech-version">v5 - Static Site Generator</span>
+      </div>
+      <div class="tech-item">
+        <span class="tech-name">TypeScript</span>
+        <span class="tech-version">Type Safety</span>
+      </div>
+      <div class="tech-item">
+        <span class="tech-name">Tailwind CSS</span>
+        <span class="tech-version">Utility-First CSS</span>
+      </div>
+      <div class="tech-item">
+        <span class="tech-name">Islands Architecture</span>
+        <span class="tech-version">Selective Hydration</span>
+      </div>
+    </div>
+
+    <h2>🎨 Design & Styling</h2>
+    <div class="tech-grid">
+      <div class="tech-item">
+        <span class="tech-name">CSS Custom Properties</span>
+        <span class="tech-version">Design Token System</span>
+      </div>
+      <div class="tech-item">
+        <span class="tech-name">CSS Grid & Flexbox</span>
+        <span class="tech-version">Modern Layout</span>
+      </div>
+      <div class="tech-item">
+        <span class="tech-name">Mobile-First Design</span>
+        <span class="tech-version">Responsive Breakpoints</span>
+      </div>
+    </div>
+
+    <h2>⚡ Performance</h2>
+    <div class="tech-grid">
+      <div class="tech-item">
+        <span class="tech-name">Static Site Generation</span>
+        <span class="tech-version">Pre-built HTML</span>
+      </div>
+      <div class="tech-item">
+        <span class="tech-name">Image Optimization</span>
+        <span class="tech-version">WebP/AVIF</span>
+      </div>
+      <div class="tech-item">
+        <span class="tech-name">Font Preloading</span>
+        <span class="tech-version">Optimized Loading</span>
+      </div>
+    </div>
+
+    <h2>♿ Accessibility</h2>
+    <div class="tech-grid">
+      <div class="tech-item">
+        <span class="tech-name">WCAG 2.2 AA</span>
+        <span class="tech-version">Compliance Target</span>
+      </div>
+      <div class="tech-item">
+        <span class="tech-name">ARIA Implementation</span>
+        <span class="tech-version">Screen Reader Optimization</span>
+      </div>
+      <div class="tech-item">
+        <span class="tech-name">Keyboard Navigation</span>
+        <span class="tech-version">Full Support</span>
+      </div>
+    </div>
+
+    <h2>🔍 SEO</h2>
+    <div class="tech-grid">
+      <div class="tech-item">
+        <span class="tech-name">Schema.org</span>
+        <span class="tech-version">Structured Data</span>
+      </div>
+      <div class="tech-item">
+        <span class="tech-name">XML Sitemap</span>
+        <span class="tech-version">Auto-generated</span>
+      </div>
+      <div class="tech-item">
+        <span class="tech-name">Meta Tag Optimization</span>
+        <span class="tech-version">Social & Search</span>
+      </div>
+    </div>
+
+    <h2>🚀 Deployment</h2>
+    <div class="tech-grid">
+      <div class="tech-item">
+        <span class="tech-name">Netlify</span>
+        <span class="tech-version">Production Hosting</span>
+      </div>
+      <div class="tech-item">
+        <span class="tech-name">Global CDN</span>
+        <span class="tech-version">Edge Caching</span>
+      </div>
+      <div class="tech-item">
+        <span class="tech-name">SSL/TLS</span>
+        <span class="tech-version">HTTPS Encryption</span>
+      </div>
+    </div>
+
+    <div class="dedication">
+      <h3>🎸 Dedication</h3>
+      <p><em>"Dedicated to Ozzy Osbourne - The Prince of Darkness"</em> 🦇</p>
+      <p><strong>Keep coding, keep rocking!</strong> 🤘</p>
+    </div>
+
+    <h2>📞 Credits</h2>
+    <p>
+      <strong>Created by:</strong> Arnold Wender - Wender Media<br>
+      <strong>Location:</strong> Halle (Saale), Germany<br>
+      <strong>Email:</strong> <a href="mailto:info@wendermedia.com">info@wendermedia.com</a><br>
+      <strong>Website:</strong> <a href="https://www.wendermedia.com">www.wendermedia.com</a>
+    </p>
+
+    <p style="margin-top: 1.5rem;">
+      <strong>Last Updated:</strong> February 5, 2026<br>
+      <strong>Status:</strong> Production Ready
+    </p>
+
+    <div class="back-link-wrapper">
+      <a href="/" class="back-link">← Back to Website</a>
+    </div>
+  </div>
+</body>
+</html>
