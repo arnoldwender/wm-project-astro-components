@@ -442,3 +442,21 @@ PROPRIETARY - WenderMedia internal use only.
 <p align="center">
   Made with ❤️ by <a href="mailto:arnold.wender@gmail.com">Arnold Wender</a>
 </p>
+
+
+---
+
+## Webentwicklung und Online-Marketing
+
+Entwickelt von **Werbeagentur Wender Media**
+
+| Attribut | Details |
+|----------|---------|
+| Agentur | Wender Media |
+| Adresse | Franckestraße 3a, 06110 Halle (Saale) |
+| Telefon | 0345 / 68676857 |
+| Website | [www.wendermedia.com](https://www.wendermedia.com) |
+
+## License
+
+Proprietary - © Wender Media. All rights reserved.
