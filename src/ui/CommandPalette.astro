@@ -353,6 +353,13 @@ const {
       }));
     }
 
+    // Escape HTML entities to prevent XSS when highlighting search queries
+    function escapeHTML(str: string): string {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
     function highlightText(element: HTMLElement, query: string) {
       const textSpan = element.querySelector('[data-command-label]') as HTMLElement;
       if (!textSpan) return;
@@ -360,8 +367,10 @@ const {
       const originalText = textSpan.dataset.originalText || textSpan.textContent || '';
       textSpan.dataset.originalText = originalText;
 
+      // Escape both the text and query before inserting into innerHTML
+      const safeText = escapeHTML(originalText);
       const regex = new RegExp(`(${escapeRegex(query)})`, 'gi');
-      textSpan.innerHTML = originalText.replace(regex, '<span class="command-highlight">$1</span>');
+      textSpan.innerHTML = safeText.replace(regex, '<span class="command-highlight">$1</span>');
     }
 
     function clearHighlight(element: HTMLElement) {
