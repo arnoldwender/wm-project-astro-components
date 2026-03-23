@@ -4,3 +4,7 @@ dist/
 *.log
 .env
 .env.*
+
+# Certificates and keys
+*.pem
+*.key
