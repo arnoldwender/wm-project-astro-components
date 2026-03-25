@@ -1,0 +1,60 @@
+# @wendermedia/astro-components
+
+> Complete Astro development resource — production-ready, accessible, GDPR-compliant components for modern web development. 150+ components across 17 categories.
+
+## Tech Stack
+
+- Astro 4.x / 5.x
+- TypeScript 5.x
+- Vitest (Unit + A11y testing)
+- Storybook 8.x (Component docs)
+- Style Dictionary (Design tokens)
+- Changesets (Versioning)
+
+## Component Categories
+
+- `src/layout/` — Header, Footer, Container, Grid, Section
+- `src/seo/` — SEOHead, SchemaOrg, Canonical, RichSnippets, Sitemap
+- `src/accessibility/` — CookieConsent, SkipToContent, FontResizer, ThemeToggle, BackToTop
+- `src/navigation/` — Breadcrumbs, Pagination, TableOfContents, ScrollToTop
+- `src/sections/` — Hero and other section components (68 components)
+- `src/content/` — Accordion, Tabs, Modal
+- `src/ecommerce/` — Cart, Wishlist, ProductCard, ProductQuickView, AddToCartButton
+- `src/media/` — VideoPlayer, AudioPlayer, ImageGallery
+- `src/forms/` — ContactForm
+- `src/gallery/` — BeforeAfter slider
+- `src/ui/` — UI primitives (19 components)
+- `src/images/` — OptimizedImage
+- `src/products/` — Product cards
+- `src/maps/` — Map components
+- `src/social/` — Social sharing
+- `src/design-system/` — Base styles, tokens, utilities
+
+## Additional Features
+
+- `integrations/` — WordPress headless CMS, React, Vue, Svelte, Solid
+- `tokens/` — Design tokens via Style Dictionary
+- `cli/` — Project scaffolding tool (`create-wm-component`)
+- `bundles/` — Pre-configured component bundles
+- `templates/` — Project templates (default, minimal, ecommerce, blog, landing)
+- `testing/` — A11y test utilities
+
+## Commands
+
+- `npm run test` — Unit tests
+- `npm run test:a11y` — Accessibility tests
+- `npm run test:coverage` — Coverage report
+- `npm run storybook` — Start Storybook (port 6006)
+- `npm run tokens:build` — Build design tokens
+- `npm run changeset` — Add a changeset
+
+## Key Principles
+
+- WCAG 2.1 AA / BFSG compliant
+- GDPR/DSGVO ready (privacy-first, no third-party tracking)
+- TypeScript-first with complete type definitions
+- Dark mode support via CSS custom properties
+
+## License
+
+PROPRIETARY — WenderMedia internal use only.
