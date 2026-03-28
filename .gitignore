@@ -8,3 +8,10 @@ dist/
 # Certificates and keys
 *.pem
 *.key
+
+# Playwright
+playwright-cli/
+.playwright-cli/
+playwright-report/
+test-results/
+.playwright/
