@@ -1,6 +1,6 @@
 ---
 /**
- * DSGVO-Compliant Social Follow Links
+ * DSGVO-Compliant Social Follow Links - WenderMedia Astro Components
  *
  * Simple links to social profiles - no tracking, no external scripts.
  * Uses rel="noopener noreferrer" for security.
@@ -12,6 +12,8 @@
  *     { platform: 'instagram', url: 'https://instagram.com/yourhandle' },
  *   ]}
  * />
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
  */
 
 type Platform =
@@ -33,7 +35,7 @@ interface SocialLink {
   label?: string;
 }
 
-interface Props {
+export interface Props {
   links: SocialLink[];
   class?: string;
   variant?: 'default' | 'filled' | 'outline' | 'minimal';
@@ -185,7 +187,7 @@ const sizeClasses = {
     justify-content: center;
     gap: 0.5rem;
     padding: 0.625rem;
-    color: #6b7280;
+    color: var(--color-text-muted, #6b7280);
     border-radius: var(--follow-radius);
     transition: all 0.2s;
     text-decoration: none;

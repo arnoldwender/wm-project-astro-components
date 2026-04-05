@@ -20,6 +20,8 @@
  *     { src: '/audio/track2.mp3', title: 'Track 2', artist: 'Artist' },
  *   ]}
  * />
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
  */
 
 export interface Track {
@@ -72,6 +74,8 @@ const hasMultipleTracks = tracks.length > 1;
   data-autoplay={autoplay}
   data-loop={loop}
 >
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   {/* Hidden audio element */}
   <audio
     preload={preload}
@@ -81,13 +85,19 @@ const hasMultipleTracks = tracks.length > 1;
     Ihr Browser unterstützt kein Audio.
   </audio>
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   {/* Track Data */}
   <script type="application/json" data-tracks>
     {JSON.stringify(tracks)}
   </script>
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   {/* Player UI */}
   <div class="audio-player__main">
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
     {/* Cover Art */}
     <div class="audio-player__cover" data-cover>
       {tracks[0]?.cover ? (
@@ -102,8 +112,12 @@ const hasMultipleTracks = tracks.length > 1;
       )}
     </div>
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
     {/* Track Info & Controls */}
     <div class="audio-player__content">
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
       {/* Track Info */}
       <div class="audio-player__info">
         <h3 class="audio-player__title" data-title>{tracks[0]?.title}</h3>
@@ -112,6 +126,8 @@ const hasMultipleTracks = tracks.length > 1;
         )}
       </div>
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
       {/* Progress Bar */}
       <div class="audio-player__progress">
         <span class="audio-player__time" data-current-time>0:00</span>
@@ -131,8 +147,12 @@ const hasMultipleTracks = tracks.length > 1;
         <span class="audio-player__time" data-duration>0:00</span>
       </div>
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
       {/* Controls */}
       <div class="audio-player__controls">
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
         {/* Previous (if playlist) */}
         {hasMultipleTracks && (
           <button
@@ -148,6 +168,8 @@ const hasMultipleTracks = tracks.length > 1;
           </button>
         )}
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
         {/* Rewind 10s */}
         <button
           type="button"
@@ -161,6 +183,8 @@ const hasMultipleTracks = tracks.length > 1;
           </svg>
         </button>
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
         {/* Play/Pause */}
         <button
           type="button"
@@ -177,6 +201,8 @@ const hasMultipleTracks = tracks.length > 1;
           </svg>
         </button>
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
         {/* Forward 10s */}
         <button
           type="button"
@@ -190,6 +216,8 @@ const hasMultipleTracks = tracks.length > 1;
           </svg>
         </button>
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
         {/* Next (if playlist) */}
         {hasMultipleTracks && (
           <button
@@ -205,6 +233,8 @@ const hasMultipleTracks = tracks.length > 1;
           </button>
         )}
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
         {/* Speed */}
         <button
           type="button"
@@ -215,6 +245,8 @@ const hasMultipleTracks = tracks.length > 1;
           1x
         </button>
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
         {/* Volume */}
         <div class="audio-player__volume">
           <button
@@ -247,6 +279,8 @@ const hasMultipleTracks = tracks.length > 1;
     </div>
   </div>
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   {/* Playlist */}
   {hasMultipleTracks && showPlaylist && (
     <div class="audio-player__playlist">
@@ -286,12 +320,12 @@ const hasMultipleTracks = tracks.length > 1;
 
 <style>
   .audio-player {
-    --ap-bg: #fff;
-    --ap-text: #111;
-    --ap-muted: #6b7280;
-    --ap-border: #e5e7eb;
-    --ap-primary: #3b82f6;
-    --ap-primary-hover: #2563eb;
+    --ap-bg: var(--color-bg, #fff);
+    --ap-text: var(--color-text, #111);
+    --ap-muted: var(--color-text-muted, #6b7280);
+    --ap-border: var(--color-border, #e5e7eb);
+    --ap-primary: var(--color-primary, #3b82f6);
+    --ap-primary-hover: var(--color-primary-hover, #2563eb);
 
     background: var(--ap-bg);
     border: 1px solid var(--ap-border);
@@ -301,13 +335,15 @@ const hasMultipleTracks = tracks.length > 1;
 
   @media (prefers-color-scheme: dark) {
     .audio-player {
-      --ap-bg: #1a1a1a;
-      --ap-text: #f5f5f5;
-      --ap-muted: #9ca3af;
-      --ap-border: #374151;
+      --ap-bg: var(--color-bg-dark, #1a1a1a);
+      --ap-text: var(--color-text-dark, #f5f5f5);
+      --ap-muted: var(--color-text-muted-dark, #9ca3af);
+      --ap-border: var(--color-border-dark, #374151);
     }
   }
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* Main Player */
   .audio-player__main {
     display: flex;
@@ -315,6 +351,8 @@ const hasMultipleTracks = tracks.length > 1;
     padding: 1rem;
   }
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* Cover Art */
   .audio-player__cover {
     flex-shrink: 0;
@@ -345,6 +383,8 @@ const hasMultipleTracks = tracks.length > 1;
     height: 2.5rem;
   }
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* Content */
   .audio-player__content {
     flex: 1;
@@ -354,6 +394,8 @@ const hasMultipleTracks = tracks.length > 1;
     min-width: 0;
   }
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* Track Info */
   .audio-player__info {
     display: flex;
@@ -380,6 +422,8 @@ const hasMultipleTracks = tracks.length > 1;
     text-overflow: ellipsis;
   }
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* Progress Bar */
   .audio-player__progress {
     display: flex;
@@ -423,7 +467,7 @@ const hasMultipleTracks = tracks.length > 1;
     top: 0;
     left: 0;
     height: 100%;
-    background: rgba(59, 130, 246, 0.3);
+    background: var(--color-primary-muted, rgba(59, 130, 246, 0.3));
     border-radius: 9999px;
     z-index: 1;
   }
@@ -438,6 +482,8 @@ const hasMultipleTracks = tracks.length > 1;
     z-index: 3;
   }
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* Controls */
   .audio-player__controls {
     display: flex;
@@ -458,7 +504,7 @@ const hasMultipleTracks = tracks.length > 1;
   .audio-player__btn--primary {
     width: 2.5rem;
     height: 2.5rem;
-    color: #fff;
+    color: var(--color-white, #fff);
     background: var(--ap-primary);
     border-radius: 50%;
   }
@@ -524,6 +570,8 @@ const hasMultipleTracks = tracks.length > 1;
     display: block;
   }
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* Volume */
   .audio-player__volume {
     display: flex;
@@ -550,6 +598,8 @@ const hasMultipleTracks = tracks.length > 1;
     cursor: pointer;
   }
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* Playlist */
   .audio-player__playlist {
     border-top: 1px solid var(--ap-border);
@@ -596,7 +646,7 @@ const hasMultipleTracks = tracks.length > 1;
   }
 
   .audio-player__playlist-btn.active {
-    background: rgba(59, 130, 246, 0.1);
+    background: var(--color-primary-subtle, rgba(59, 130, 246, 0.1));
   }
 
   .audio-player__playlist-number {
@@ -659,6 +709,8 @@ const hasMultipleTracks = tracks.length > 1;
     color: var(--ap-muted);
   }
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* Responsive */
   @media (max-width: 480px) {
     .audio-player__cover {

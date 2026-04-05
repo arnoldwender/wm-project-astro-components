@@ -14,6 +14,8 @@
  *   ]}
  *   collapsed={false}
  * />
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
  */
 
 export interface SidebarItem {
@@ -287,7 +289,7 @@ const icons: Record<string, string> = {
   .sidebar__item--active > .sidebar__link,
   .sidebar__item--active > .sidebar__group > .sidebar__link {
     background: var(--color-primary, #3b82f6);
-    color: #fff;
+    color: var(--color-white, #fff);
   }
 
   .sidebar__link--disabled {
@@ -320,10 +322,10 @@ const icons: Record<string, string> = {
     color: var(--color-text-muted, #6b7280);
   }
 
-  .sidebar__badge--primary { background: var(--color-primary, #3b82f6); color: #fff; }
-  .sidebar__badge--success { background: #10b981; color: #fff; }
-  .sidebar__badge--warning { background: #f59e0b; color: #fff; }
-  .sidebar__badge--error { background: #ef4444; color: #fff; }
+  .sidebar__badge--primary { background: var(--color-primary, #3b82f6); color: var(--color-white, #fff); }
+  .sidebar__badge--success { background: var(--color-success, #10b981); color: var(--color-white, #fff); }
+  .sidebar__badge--warning { background: var(--color-warning, #f59e0b); color: var(--color-white, #fff); }
+  .sidebar__badge--error { background: var(--color-error, #ef4444); color: var(--color-white, #fff); }
 
   .sidebar--collapsed .sidebar__badge {
     display: none;

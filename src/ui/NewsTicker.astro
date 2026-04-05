@@ -31,6 +31,8 @@
  *   pauseOnHover
  *   items={announcements}
  * />
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
  */
 
 export interface TickerItem {
@@ -140,6 +142,8 @@ const duplicatedItems = [...items, ...items];
   aria-live="off"
   aria-label={label || 'News ticker'}
 >
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   {/* Label */}
   {label && (
     <div class="ticker-label absolute left-0 top-0 bottom-0 z-10 flex items-center px-4 font-semibold bg-inherit">
@@ -156,6 +160,8 @@ const duplicatedItems = [...items, ...items];
     </div>
   )}
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   {/* Controls */}
   {showControls && (
     <div class="ticker-controls absolute right-0 top-0 bottom-0 z-10 flex items-center gap-1 px-2 bg-inherit">
@@ -176,6 +182,8 @@ const duplicatedItems = [...items, ...items];
     </div>
   )}
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   {/* Ticker Track */}
   <div
     class:list={[
@@ -188,6 +196,8 @@ const duplicatedItems = [...items, ...items];
   >
     {duplicatedItems.map((item, index) => (
       <span class="ticker-item inline-flex items-center">
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
         {/* Separator (except for first item in each set) */}
         {separator && index > 0 && (
           <span class:list={['ticker-separator mx-4', styles.separator]} aria-hidden="true">
@@ -195,6 +205,8 @@ const duplicatedItems = [...items, ...items];
           </span>
         )}
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
         {/* Item content */}
         {item.href ? (
           <a
@@ -232,6 +244,8 @@ const duplicatedItems = [...items, ...items];
     ))}
   </div>
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   {/* Gradient fade edges */}
   <div class:list={[
     'ticker-fade-left absolute left-0 top-0 bottom-0 w-8 pointer-events-none',
@@ -265,12 +279,16 @@ const duplicatedItems = [...items, ...items];
     }
   }
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* Pause on hover */
   .news-ticker[data-pause-on-hover="true"]:hover .ticker-track,
   .news-ticker.paused .ticker-track {
     animation-play-state: paused;
   }
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* RTL support */
   [dir="rtl"] .ticker-track {
     animation-name: ticker-scroll-rtl;
@@ -285,6 +303,8 @@ const duplicatedItems = [...items, ...items];
     }
   }
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* Reduced motion */
   @media (prefers-reduced-motion: reduce) {
     .ticker-track {
@@ -299,6 +319,8 @@ const duplicatedItems = [...items, ...items];
     }
   }
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* Paused state icons */
   .news-ticker.paused .ticker-icon-pause {
     display: none;
@@ -308,6 +330,8 @@ const duplicatedItems = [...items, ...items];
     display: block;
   }
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* Pulse animation for urgent */
   @keyframes ticker-pulse {
     0%, 100% {
@@ -322,6 +346,8 @@ const duplicatedItems = [...items, ...items];
     animation: ticker-pulse 2s ease-in-out infinite;
   }
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* Gradient animation */
   .news-ticker .bg-gradient-to-r {
     background-size: 200% 100%;
@@ -337,6 +363,8 @@ const duplicatedItems = [...items, ...items];
     }
   }
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* Focus styles for links */
   .ticker-link:focus-visible {
     outline: 2px solid currentColor;
@@ -344,6 +372,8 @@ const duplicatedItems = [...items, ...items];
     border-radius: 2px;
   }
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* Label gradient fade */
   .ticker-label::after {
     content: '';

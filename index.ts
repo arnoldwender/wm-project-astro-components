@@ -3,6 +3,8 @@
  * Complete component library for Astro projects with SEO optimization
  *
  * @package @wendermedia/astro-components
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
  * @version 2.0.0
  */
 

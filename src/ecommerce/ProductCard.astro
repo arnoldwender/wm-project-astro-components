@@ -13,6 +13,8 @@
  *   image="/images/product.jpg"
  *   url="/products/product-name"
  * />
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
  */
 
 export interface Props {
@@ -144,6 +146,8 @@ const productSchema = {
       )}
     </a>
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
     {/* Badge */}
     {badge && (
       <span class:list={['product-card__badge', `product-card__badge--${badgeVariant}`]}>
@@ -151,6 +155,8 @@ const productSchema = {
       </span>
     )}
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
     {/* Discount Badge */}
     {discount > 0 && !badge && (
       <span class="product-card__badge product-card__badge--sale">
@@ -158,6 +164,8 @@ const productSchema = {
       </span>
     )}
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
     {/* Out of Stock Overlay */}
     {!inStock && (
       <div class="product-card__out-of-stock">
@@ -165,6 +173,8 @@ const productSchema = {
       </div>
     )}
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
     {/* Actions */}
     <div class="product-card__actions">
       {showWishlist && (
@@ -220,6 +230,8 @@ const productSchema = {
       <a href={url}>{name}</a>
     </h3>
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
     {/* Rating */}
     {rating && (
       <div class="product-card__rating" aria-label={`${rating} von 5 Sternen`}>
@@ -234,6 +246,8 @@ const productSchema = {
       </div>
     )}
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
     {/* Price */}
     <div class="product-card__price">
       <span class="product-card__current-price">{formattedPrice}</span>
@@ -242,6 +256,8 @@ const productSchema = {
       )}
     </div>
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
     {/* Add to Cart */}
     {showAddToCart && inStock && (
       <button
@@ -267,14 +283,14 @@ const productSchema = {
 
 <style>
   .product-card {
-    --pc-bg: #fff;
-    --pc-text: #111;
-    --pc-muted: #6b7280;
-    --pc-border: #e5e7eb;
-    --pc-primary: #3b82f6;
-    --pc-danger: #ef4444;
-    --pc-success: #10b981;
-    --pc-warning: #f59e0b;
+    --pc-bg: var(--color-bg, #fff);
+    --pc-text: var(--color-text, #111);
+    --pc-muted: var(--color-text-muted, #6b7280);
+    --pc-border: var(--color-border, #e5e7eb);
+    --pc-primary: var(--color-primary, #3b82f6);
+    --pc-danger: var(--color-error, #ef4444);
+    --pc-success: var(--color-success, #10b981);
+    --pc-warning: var(--color-warning, #f59e0b);
 
     position: relative;
     display: flex;
@@ -287,17 +303,19 @@ const productSchema = {
 
   @media (prefers-color-scheme: dark) {
     .product-card {
-      --pc-bg: #1a1a1a;
-      --pc-text: #f5f5f5;
-      --pc-muted: #9ca3af;
-      --pc-border: #374151;
+      --pc-bg: var(--color-bg-dark, #1a1a1a);
+      --pc-text: var(--color-text-dark, #f5f5f5);
+      --pc-muted: var(--color-text-muted-dark, #9ca3af);
+      --pc-border: var(--color-border-dark, #374151);
     }
   }
 
   .product-card:hover {
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    box-shadow: var(--shadow-lg, 0 8px 24px rgba(0, 0, 0, 0.12));
   }
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* Image Container */
   .product-card__image-container {
     position: relative;
@@ -334,6 +352,8 @@ const productSchema = {
     transform: scale(1.05);
   }
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* Badge */
   .product-card__badge {
     position: absolute;
@@ -342,7 +362,7 @@ const productSchema = {
     padding: 0.25rem 0.75rem;
     font-size: 0.75rem;
     font-weight: 600;
-    color: #fff;
+    color: var(--color-white, #fff);
     border-radius: 9999px;
     z-index: 2;
   }
@@ -360,9 +380,11 @@ const productSchema = {
   }
 
   .product-card__badge--limited {
-    background: #8b5cf6;
+    background: var(--color-accent, #8b5cf6);
   }
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* Out of Stock */
   .product-card--out-of-stock .product-card__image {
     opacity: 0.6;
@@ -374,12 +396,14 @@ const productSchema = {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(0, 0, 0, 0.5);
-    color: #fff;
+    background: var(--color-overlay, rgba(0, 0, 0, 0.5));
+    color: var(--color-white, #fff);
     font-weight: 600;
     z-index: 2;
   }
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* Actions */
   .product-card__actions {
     position: absolute;
@@ -410,7 +434,7 @@ const productSchema = {
     border-radius: 50%;
     cursor: pointer;
     color: var(--pc-muted);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.1));
     transition: all 0.15s;
   }
 
@@ -437,6 +461,8 @@ const productSchema = {
     display: block;
   }
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* Content */
   .product-card__content {
     padding: 1rem;
@@ -473,6 +499,8 @@ const productSchema = {
     color: var(--pc-primary);
   }
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* Rating */
   .product-card__rating {
     display: flex;
@@ -496,6 +524,8 @@ const productSchema = {
     color: var(--pc-muted);
   }
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* Price */
   .product-card__price {
     display: flex;
@@ -516,6 +546,8 @@ const productSchema = {
     text-decoration: line-through;
   }
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* Add to Cart Button */
   .product-card__add-cart {
     display: flex;
@@ -527,7 +559,7 @@ const productSchema = {
     margin-top: 0.5rem;
     font-size: 0.875rem;
     font-weight: 600;
-    color: #fff;
+    color: var(--color-white, #fff);
     background: var(--pc-primary);
     border: none;
     border-radius: 0.5rem;
@@ -536,7 +568,7 @@ const productSchema = {
   }
 
   .product-card__add-cart:hover {
-    background: #2563eb;
+    background: var(--color-primary-hover, #2563eb);
   }
 
   .product-card__add-cart svg {
@@ -544,6 +576,8 @@ const productSchema = {
     height: 1.125rem;
   }
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* Touch devices - always show actions */
   @media (hover: none) {
     .product-card__actions {

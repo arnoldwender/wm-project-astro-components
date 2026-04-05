@@ -1,6 +1,6 @@
 ---
 /**
- * MegaMenuSection Component
+ * MegaMenuSection Component - WenderMedia Astro Components
  *
  * Advanced mega menu navigation with rich content support.
  *
@@ -16,6 +16,8 @@
  * <MegaMenuSection variant="default" trigger="Products">
  *   <MegaMenuItem href="/feature-1">Feature 1</MegaMenuItem>
  * </MegaMenuSection>
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
  */
 
 export interface MenuColumn {
@@ -160,7 +162,7 @@ const menuId = `mega-menu-${Math.random().toString(36).slice(2, 9)}`;
           {/* Featured section */}
           <div class="featured-section">
             {featuredImage && (
-              <img src={featuredImage} alt="" class="featured-image" />
+              <img src={featuredImage} alt={featuredTitle || 'Featured'} class="featured-image" />
             )}
             <div class="featured-content">
               {featuredTitle && (

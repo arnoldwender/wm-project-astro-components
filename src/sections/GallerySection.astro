@@ -1,6 +1,6 @@
 ---
 /**
- * GallerySection Component
+ * GallerySection Component - WenderMedia Astro Components
  *
  * Display images, portfolio items, or project showcases.
  *
@@ -17,6 +17,8 @@
  *   <GalleryItem image="/img1.jpg" title="Project 1" />
  *   <GalleryItem image="/img2.jpg" title="Project 2" />
  * </GallerySection>
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
  */
 
 import SectionWrapper from './SectionWrapper.astro';
@@ -209,6 +211,7 @@ const gapClasses = {
           <img
             src=""
             alt=""
+            aria-hidden="true"
             class="max-w-full max-h-[80vh] object-contain"
             data-lightbox-image
           />

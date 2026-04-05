@@ -2,8 +2,51 @@
 /**
  * ContactForm Component - WenderMedia Astro Components
  *
- * GDPR-compliant contact form with validation
- * Features: honeypot spam protection, real-time validation, accessible
+ * A ready-to-use, GDPR-compliant contact form with built-in client-side validation
+ * and spam protection. Drop it into any page and it handles name, email, message,
+ * and a mandatory privacy-consent checkbox. The form posts to your backend endpoint
+ * via fetch (no full-page reload) and shows inline success/error feedback.
+ *
+ * Features:
+ * - Honeypot field for bot/spam protection (hidden input that bots fill in, humans skip)
+ * - Real-time field validation on blur (required fields + email format)
+ * - GDPR/DSGVO consent checkbox linked to your privacy policy page
+ * - Accessible: aria-describedby on inputs, aria-invalid on errors, role="alert" messages
+ * - All labels, messages, and the form action URL are customizable via props
+ * - Works with Astro view transitions (re-initializes on astro:page-load)
+ *
+ * @example
+ * ---
+ * import ContactForm from '../forms/ContactForm.astro';
+ * ---
+ * <!-- Basic usage with defaults (posts to /api/contact) -->
+ * <ContactForm />
+ *
+ * @example
+ * ---
+ * import ContactForm from '../forms/ContactForm.astro';
+ * ---
+ * <!-- German labels with a custom endpoint and privacy page -->
+ * <ContactForm
+ *   action="/api/kontakt"
+ *   nameLabel="Ihr Name"
+ *   emailLabel="E-Mail-Adresse"
+ *   messageLabel="Ihre Nachricht"
+ *   consentText="Ich stimme der Verarbeitung meiner Daten zur Bearbeitung meiner Anfrage zu."
+ *   privacyUrl="/datenschutz"
+ *   submitLabel="Nachricht senden"
+ *   successMessage="Vielen Dank! Ihre Nachricht wurde erfolgreich gesendet."
+ *   errorMessage="Senden fehlgeschlagen. Bitte versuchen Sie es erneut."
+ * />
+ *
+ * @example
+ * <!-- How the honeypot works (no code needed from you):
+ *      The form includes a hidden input named "honeypot". Bots that auto-fill every
+ *      field will populate it, while real users never see it. Your backend should
+ *      reject submissions where the honeypot field is not empty. -->
+ *
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
  */
 
 export interface Props {

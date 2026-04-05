@@ -1,21 +1,81 @@
 ---
 /**
- * FAQSection Component
+ * FAQSection Component - WenderMedia Astro Components
  *
- * Frequently asked questions with accordion functionality.
+ * An accordion-powered FAQ section that supports five layout variants. Pass FAQItem
+ * child components into the default slot; this section handles the accordion
+ * behavior, optional single-open mode, and -- for the sidebar variant -- sticky
+ * category navigation with scroll-based highlighting.
  *
- * Variants:
- * - simple: Clean accordion list
- * - cards: Each FAQ in a card
- * - columns: Two-column layout
- * - categorized: Grouped by category
- * - sidebar: FAQ with sidebar navigation
+ * Features:
+ * - Five variants: simple accordion, card-style, two-column, categorized groups, sidebar nav
+ * - Optional single-open mode (singleOpen prop) that collapses other items when one opens
+ * - Sidebar variant includes a sticky left-hand navigation that highlights the active category
+ *   on scroll via IntersectionObserver
+ * - Optional SectionHeader with eyebrow, title, and description
+ * - Accessible: FAQItem children use aria-expanded, aria-hidden, and keyboard navigation
+ * - Works with Astro view transitions (re-initializes on astro:page-load)
+ * - Great for SEO: FAQ content is rendered in the HTML, not hidden behind JS
+ *
+ * Child components:
+ * - Use FAQItem inside the default <slot /> for all variants
+ * - For the "categorized" variant, wrap groups of FAQItems in containers with ids
+ * - For the "sidebar" variant, pass a categories array and use matching id="faq-{id}" wrappers
  *
  * @example
- * <FAQSection variant="simple">
- *   <FAQItem question="What is...?" answer="..." />
- *   <FAQItem question="How do I...?" answer="..." />
+ * ---
+ * import FAQSection from '../sections/FAQSection.astro';
+ * import FAQItem from '../content/FAQItem.astro';
+ * ---
+ * <!-- Simple accordion FAQ -->
+ * <FAQSection
+ *   variant="simple"
+ *   title="Frequently Asked Questions"
+ *   description="Find answers to the most common questions."
+ * >
+ *   <FAQItem question="What payment methods do you accept?" answer="We accept all major credit cards, PayPal, and bank transfer." />
+ *   <FAQItem question="Can I cancel my subscription?" answer="Yes, you can cancel anytime from your account settings." />
+ *   <FAQItem question="Do you offer refunds?" answer="We offer a 30-day money-back guarantee on all plans." />
  * </FAQSection>
+ *
+ * @example
+ * <!-- Card-style FAQ with single-open accordion (only one answer visible at a time) -->
+ * <FAQSection variant="cards" singleOpen title="Help Center" background="subtle">
+ *   <FAQItem question="How do I reset my password?" answer="Click 'Forgot password' on the login page." />
+ *   <FAQItem question="Where can I find my invoices?" answer="Go to Settings > Billing > Invoices." />
+ * </FAQSection>
+ *
+ * @example
+ * <!-- Two-column layout for long FAQ lists -->
+ * <FAQSection variant="columns" title="All Questions" eyebrow="FAQ">
+ *   <FAQItem question="Is there a free trial?" answer="Yes, 14 days free." />
+ *   <FAQItem question="What is your uptime SLA?" answer="99.9% guaranteed." />
+ *   <FAQItem question="Can I upgrade later?" answer="Upgrade anytime." />
+ *   <FAQItem question="Do you offer team plans?" answer="Yes, from 5 seats." />
+ * </FAQSection>
+ *
+ * @example
+ * <!-- Sidebar variant with category navigation -->
+ * <FAQSection
+ *   variant="sidebar"
+ *   title="Knowledge Base"
+ *   categories={[
+ *     { id: 'billing', label: 'Billing' },
+ *     { id: 'technical', label: 'Technical' },
+ *   ]}
+ * >
+ *   <div id="faq-billing">
+ *     <h3>Billing</h3>
+ *     <FAQItem question="How do I update my card?" answer="Go to Billing settings." />
+ *   </div>
+ *   <div id="faq-technical">
+ *     <h3>Technical</h3>
+ *     <FAQItem question="Which browsers are supported?" answer="All modern browsers." />
+ *   </div>
+ * </FAQSection>
+ *
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
  */
 
 import SectionWrapper from './SectionWrapper.astro';
