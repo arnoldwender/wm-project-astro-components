@@ -2,25 +2,96 @@
 /**
  * HeroSection Component - WenderMedia Astro Components
  *
- * Multiple hero variants for landing pages and key pages.
+ * The main above-the-fold section for landing pages, home pages, and key entry points.
+ * Supports six layout variants so you can match the visual style to your content: a
+ * classic centered headline, a side-by-side split with media, a full background
+ * image/video, a decorative gradient, a minimal text-only layout, or a product
+ * showcase with a subtle 3D hover effect.
  *
- * Variants:
- * - centered: Classic centered hero
- * - split: Content left, media right
- * - background: Full background image/video
- * - gradient: Gradient background with floating elements
- * - minimal: Clean, text-focused
- * - product: Product showcase with 3D-like presentation
+ * Features:
+ * - Six variants: centered, split, background, gradient, minimal, product
+ * - Four size presets controlling minimum height (sm/md/lg/full-screen)
+ * - Background image or video support with configurable dark overlay
+ * - Decorative gradient blobs for the "gradient" variant
+ * - 3D hover effect on media in the "product" variant (respects prefers-reduced-motion)
+ * - "split" variant supports reversed column order via the reverse prop
+ * - Fully slot-based content for maximum flexibility
+ *
+ * Named slots:
+ * - "eyebrow"     — Small uppercase label above the title (e.g., "New Release")
+ * - "title"       — The main <h1> headline (required for all variants)
+ * - "description" — Supporting paragraph below the title
+ * - "cta"         — Call-to-action buttons or links
+ * - "media"       — Image, video, or illustration (used by centered, split, product, gradient)
+ * - "extra"       — Additional content below the CTA (only in the "split" variant)
  *
  * @example
- * <HeroSection variant="centered">
- *   <Fragment slot="eyebrow">New Release</Fragment>
- *   <Fragment slot="title">Build faster, ship sooner</Fragment>
- *   <Fragment slot="description">The modern way to build websites.</Fragment>
+ * ---
+ * import HeroSection from '../sections/HeroSection.astro';
+ * import Button from '../atoms/Button.astro';
+ * ---
+ * <!-- Centered hero (default) -->
+ * <HeroSection variant="centered" size="lg">
+ *   <Fragment slot="eyebrow">Trusted by 5,000+ Teams</Fragment>
+ *   <Fragment slot="title">Build Faster, Ship Sooner</Fragment>
+ *   <Fragment slot="description">The modern platform for web development.</Fragment>
  *   <Fragment slot="cta">
- *     <Button>Get Started</Button>
+ *     <Button href="/signup">Get Started Free</Button>
+ *     <Button href="/demo" variant="outline">Watch Demo</Button>
  *   </Fragment>
  * </HeroSection>
+ *
+ * @example
+ * <!-- Split hero with image on the right -->
+ * <HeroSection variant="split">
+ *   <Fragment slot="title">Design Without Limits</Fragment>
+ *   <Fragment slot="description">Drag, drop, and publish in minutes.</Fragment>
+ *   <Fragment slot="cta">
+ *     <Button href="/try">Try It Now</Button>
+ *   </Fragment>
+ *   <Fragment slot="media">
+ *     <img src="/images/dashboard.png" alt="Dashboard screenshot" />
+ *   </Fragment>
+ * </HeroSection>
+ *
+ * @example
+ * <!-- Split hero with reversed columns (media left, text right) -->
+ * <HeroSection variant="split" reverse>
+ *   <Fragment slot="title">Your Data, Visualized</Fragment>
+ *   <Fragment slot="media">
+ *     <img src="/images/chart.png" alt="Analytics chart" />
+ *   </Fragment>
+ * </HeroSection>
+ *
+ * @example
+ * <!-- Full background image with dark overlay -->
+ * <HeroSection
+ *   variant="background"
+ *   backgroundImage="/images/hero-bg.jpg"
+ *   overlay={true}
+ *   overlayOpacity={60}
+ *   size="full"
+ * >
+ *   <Fragment slot="title">Welcome to Acme Corp</Fragment>
+ *   <Fragment slot="description">Innovation that moves you forward.</Fragment>
+ *   <Fragment slot="cta">
+ *     <Button href="/contact">Get in Touch</Button>
+ *   </Fragment>
+ * </HeroSection>
+ *
+ * @example
+ * <!-- Product showcase with 3D hover effect -->
+ * <HeroSection variant="product">
+ *   <Fragment slot="eyebrow">Introducing AppKit</Fragment>
+ *   <Fragment slot="title">The Toolkit You Deserve</Fragment>
+ *   <Fragment slot="cta">
+ *     <Button href="/download">Download Now</Button>
+ *   </Fragment>
+ *   <Fragment slot="media">
+ *     <img src="/images/product-hero.png" alt="AppKit product screenshot" />
+ *   </Fragment>
+ * </HeroSection>
+ *
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */
