@@ -93,7 +93,19 @@
     "headless-cms"
   ],
   "author": "Arnold Wender <arnold.wender@gmail.com>",
-  "license": "PROPRIETARY",
+  "license": "MIT",
+  "homepage": "https://github.com/arnoldwender/wm-project-astro-components#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arnoldwender/wm-project-astro-components.git"
+  },
+  "bugs": {
+    "url": "https://github.com/arnoldwender/wm-project-astro-components/issues"
+  },
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/arnoldwender"
+  },
   "peerDependencies": {
     "astro": "^4.0.0 || ^5.0.0"
   },

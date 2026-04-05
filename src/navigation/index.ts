@@ -1,4 +1,10 @@
 /**
+ * @wendermedia/astro-components
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
+ */
+
+/**
  * Navigation Components Index - WenderMedia Astro Components
  *
  * Complete navigation component set for all use cases.
