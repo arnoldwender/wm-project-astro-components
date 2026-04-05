@@ -4,6 +4,13 @@
  *
  * Job listings and career opportunities display.
  *
+ * Features:
+ * - Six layout variants: list, cards, grouped, featured, compact, detailed
+ * - Department filter buttons with live job counts
+ * - Empty state message when no jobs match the active filter
+ * - Featured slot for highlighting priority positions
+ * - Compact variant with bordered card and hover highlight
+ *
  * Variants:
  * - list: Simple job list
  * - cards: Job cards grid
@@ -13,8 +20,26 @@
  * - detailed: Full job details
  *
  * @example
- * <CareersSection variant="cards" title="Open Positions">
- *   <JobCard title="Developer" department="Engineering" />
+ * <CareersSection
+ *   variant="cards"
+ *   columns={2}
+ *   eyebrow="We are hiring"
+ *   title="Open Positions at Acme Corp"
+ *   description="Join our growing team and make an impact."
+ *   showFilters={true}
+ *   departments={[
+ *     { id: 'engineering', name: 'Engineering', count: 5 },
+ *     { id: 'design', name: 'Design', count: 2 },
+ *   ]}
+ * >
+ *   <JobCard title="Senior Frontend Developer" department="engineering" location="Berlin" type="full-time" href="/careers/senior-frontend" />
+ *   <JobCard title="UX Designer" department="design" location="Remote" type="full-time" href="/careers/ux-designer" />
+ * </CareersSection>
+ *
+ * @example
+ * <CareersSection variant="featured" title="Career Opportunities" background="subtle">
+ *   <JobCard slot="featured" title="VP of Engineering" department="engineering" location="Berlin" urgent />
+ *   <JobCard title="Backend Developer" department="engineering" href="/careers/backend-dev" />
  * </CareersSection>
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

@@ -4,13 +4,33 @@
  *
  * Individual integration, partner, or tool card.
  *
+ * Features:
+ * - Four display variants: default, compact, detailed, minimal
+ * - Status badges: available, coming-soon, beta, new
+ * - Featured highlight mode with accent styling
+ * - Renders as anchor tag when href is provided
+ * - Category label for grouping and filtering
+ *
  * @example
  * <IntegrationCard
  *   name="Slack"
- *   description="Send notifications to Slack channels"
+ *   description="Send real-time notifications to your Slack channels."
  *   logo="/integrations/slack.svg"
  *   href="/integrations/slack"
  *   category="Communication"
+ *   status="available"
+ *   variant="default"
+ * />
+ *
+ * @example
+ * <IntegrationCard
+ *   name="Acme Analytics"
+ *   description="Connect your analytics dashboard for deeper insights."
+ *   logo="/integrations/analytics.svg"
+ *   category="Analytics"
+ *   status="beta"
+ *   featured={true}
+ *   variant="detailed"
  * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

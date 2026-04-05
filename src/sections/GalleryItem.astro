@@ -4,12 +4,32 @@
  *
  * Individual gallery/portfolio item with lightbox support.
  *
+ * Features:
+ * - Four display variants: default, overlay, card, minimal
+ * - Configurable aspect ratios: square, landscape, portrait, auto
+ * - Lightbox mode renders as button for in-page image preview
+ * - Linked mode renders as anchor tag with hover effects
+ * - Category and description overlays for context
+ *
  * @example
  * <GalleryItem
- *   image="/portfolio/project1.jpg"
- *   title="Project Name"
+ *   image="/portfolio/acme-redesign.jpg"
+ *   title="Acme Corp Redesign"
  *   category="Web Design"
- *   href="/projects/project1"
+ *   description="Complete brand refresh and website overhaul"
+ *   href="/projects/acme-redesign"
+ *   aspectRatio="landscape"
+ *   variant="overlay"
+ * />
+ *
+ * @example
+ * <GalleryItem
+ *   image="/portfolio/product-shoot.jpg"
+ *   title="Product Photography"
+ *   category="Photography"
+ *   lightbox={true}
+ *   aspectRatio="square"
+ *   variant="card"
  * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

@@ -9,10 +9,42 @@
  * - Feature highlighting
  * - Accessible markup
  *
+ * Features:
+ * - Five layout options: grid, alternating, bento, cards, list
+ * - Configurable columns (2-4) with responsive breakpoints
+ * - Scroll-triggered entrance animations (toggleable)
+ * - Feature highlighting and badge labels
+ * - Per-feature links and images with alt text
+ *
  * Design patterns:
  * - Visual hierarchy with icons
  * - Scannable benefit-focused copy
  * - Progressive disclosure
+ *
+ * @example
+ * <Features
+ *   title="Why Choose Acme Platform"
+ *   subtitle="Built for modern teams"
+ *   description="Everything you need to manage projects, track progress, and ship faster."
+ *   layout="grid"
+ *   columns={3}
+ *   features={[
+ *     { id: 'speed', title: 'Blazing Fast', description: 'Sub-100ms load times worldwide.', icon: '⚡' },
+ *     { id: 'secure', title: 'Secure by Default', description: 'End-to-end encryption on all plans.', icon: '🔒' },
+ *     { id: 'scale', title: 'Scales With You', description: 'From 5 users to 5,000 with zero config changes.', icon: '📈', highlighted: true, badge: 'Popular' },
+ *   ]}
+ * />
+ *
+ * @example
+ * <Features
+ *   title="Platform Capabilities"
+ *   layout="alternating"
+ *   animate={false}
+ *   features={[
+ *     { id: 'analytics', title: 'Advanced Analytics', description: 'Real-time dashboards and custom reports.', image: '/images/analytics.jpg', imageAlt: 'Analytics dashboard' },
+ *     { id: 'collab', title: 'Team Collaboration', description: 'Shared workspaces with live cursors.', image: '/images/collaboration.jpg', imageAlt: 'Team collaboration view' },
+ *   ]}
+ * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */

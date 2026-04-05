@@ -10,11 +10,46 @@
  * - A/B testing support
  * - Accessibility compliant
  *
+ * Features:
+ * - Five layout variants: centered, split, banner, floating, gradient
+ * - Urgency elements with pulsing indicator and countdown timer
+ * - Social proof: user count, star rating, review count
+ * - Trust logos and testimonial quote integration
+ * - Sticky and scroll-triggered floating CTA behavior
+ *
  * Conversion optimizations based on 2025 research:
  * - Personalized CTAs: 202% better conversion
  * - Urgency elements: up to 332% lift
  * - Specific CTAs: 161% improvement
  * - Button-based CTAs: 30% higher CTR
+ *
+ * @example
+ * <CTA
+ *   variant="centered"
+ *   title="Start your free trial today"
+ *   description="Join 10,000+ teams already using Acme Platform."
+ *   ctaText="Get Started Free"
+ *   ctaHref="/signup"
+ *   secondaryText="Book a demo"
+ *   secondaryHref="/demo"
+ *   usersCount={10000}
+ *   rating={4.8}
+ *   reviewsCount={2500}
+ * />
+ *
+ * @example
+ * <CTA
+ *   variant="split"
+ *   title="Ready to transform your workflow?"
+ *   subtitle="Limited Offer"
+ *   ctaText="Claim your discount"
+ *   ctaHref="/pricing"
+ *   image="/images/dashboard-preview.jpg"
+ *   imageAlt="Acme Corp dashboard"
+ *   testimonialQuote="Acme Platform saved us 20 hours per week."
+ *   testimonialAuthor="Jane Doe, CTO at WidgetCo"
+ *   urgencyText="Only 5 spots left this month"
+ * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */

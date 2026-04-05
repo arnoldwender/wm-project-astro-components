@@ -4,12 +4,34 @@
  *
  * Zigzag feature row with image and content.
  *
+ * Features:
+ * - Two-column grid layout with image and text content
+ * - Reversible order via `reverse` prop for zigzag patterns
+ * - Optional eyebrow label above the title
+ * - Bullet-point feature list with optional icons
+ * - Responsive stacking on smaller screens
+ *
  * @example
  * <FeatureAlternating
- *   title="Powerful Analytics"
- *   description="Get insights into your data."
- *   image="/analytics.png"
+ *   eyebrow="Analytics"
+ *   title="Powerful Analytics Dashboard"
+ *   description="Get real-time insights into your team performance with customizable reports."
+ *   image="/images/analytics-dashboard.png"
+ *   imageAlt="Acme Corp analytics dashboard showing key metrics"
  *   reverse={false}
+ *   features={[
+ *     { text: 'Real-time data updates every 30 seconds' },
+ *     { text: 'Export reports as PDF or CSV' },
+ *     { text: 'Custom date range filters' },
+ *   ]}
+ * />
+ *
+ * @example
+ * <FeatureAlternating
+ *   title="Seamless Team Collaboration"
+ *   description="Work together in real time with built-in chat and shared workspaces."
+ *   image="/images/collaboration.png"
+ *   reverse={true}
  * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

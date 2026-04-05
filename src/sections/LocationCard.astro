@@ -4,13 +4,38 @@
  *
  * Individual location, office, or store card.
  *
+ * Features:
+ * - Five display variants: default, card, compact, horizontal, detailed
+ * - Opening hours table display
+ * - Map link for directions (Google Maps, etc.)
+ * - Phone and email contact with clickable links
+ * - Featured badge and tags for location categorization
+ *
  * @example
  * <LocationCard
- *   name="Berlin Office"
- *   address="Friedrichstraße 123, 10117 Berlin"
+ *   name="Berlin Headquarters"
+ *   address="Friedrichstrasse 123, 10117 Berlin"
+ *   city="Berlin"
+ *   country="Germany"
  *   phone="+49 30 12345678"
  *   email="berlin@example.com"
  *   image="/offices/berlin.jpg"
+ *   mapUrl="https://maps.google.com/?q=Friedrichstrasse+123+Berlin"
+ *   variant="card"
+ *   tags={['HQ', 'Sales']}
+ * />
+ *
+ * @example
+ * <LocationCard
+ *   name="Halle Office"
+ *   address="Marktplatz 1, 06108 Halle (Saale)"
+ *   phone="+49 345 9876543"
+ *   variant="detailed"
+ *   featured={true}
+ *   openingHours={[
+ *     { day: 'Mon-Fri', hours: '09:00 - 17:00' },
+ *     { day: 'Sat-Sun', hours: 'Closed' },
+ *   ]}
  * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

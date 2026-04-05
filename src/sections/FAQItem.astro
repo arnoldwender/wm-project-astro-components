@@ -4,10 +4,26 @@
  *
  * Individual FAQ accordion item.
  *
+ * Features:
+ * - Four display variants: default, bordered, card, minimal
+ * - Accessible button trigger with aria-expanded state
+ * - Smooth height animation for open/close transitions
+ * - Optional default open state via prop
+ * - Unique ID generation for accessibility linking
+ *
  * @example
  * <FAQItem
  *   question="What is your refund policy?"
- *   answer="We offer a 30-day money-back guarantee..."
+ *   answer="We offer a 30-day money-back guarantee on all plans. Contact support@example.com to request a refund."
+ *   variant="default"
+ * />
+ *
+ * @example
+ * <FAQItem
+ *   question="Do you offer enterprise pricing?"
+ *   answer="Yes, Acme Corp provides custom enterprise plans for teams of 50+. Please reach out to sales@example.com."
+ *   variant="card"
+ *   defaultOpen={true}
  * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

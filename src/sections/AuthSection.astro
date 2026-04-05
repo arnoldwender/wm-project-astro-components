@@ -4,6 +4,13 @@
  *
  * Authentication pages (login, signup, forgot password, etc.)
  *
+ * Features:
+ * - Six auth variants: login, signup, forgot, reset, verify, mfa
+ * - Three layout options: centered, split (with background image), card
+ * - Social login providers (Google, GitHub) with customizable list
+ * - Password visibility toggle and verification code inputs
+ * - Remember me, terms acceptance, and forgot password links
+ *
  * Variants:
  * - login: Standard login form
  * - signup: Registration form
@@ -16,7 +23,24 @@
  * <AuthSection
  *   variant="login"
  *   title="Welcome back"
+ *   layout="centered"
  *   showSocials={true}
+ *   showRemember={true}
+ *   showForgotPassword={true}
+ * />
+ *
+ * @example
+ * <AuthSection
+ *   variant="signup"
+ *   layout="split"
+ *   title="Join Acme Corp"
+ *   subtitle="Start your free trial today"
+ *   logo="/images/acme-logo.svg"
+ *   backgroundImage="/images/auth-bg.jpg"
+ *   showTerms={true}
+ *   termsUrl="/terms"
+ *   privacyUrl="/privacy"
+ *   redirectUrl="/dashboard"
  * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

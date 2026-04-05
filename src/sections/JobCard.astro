@@ -4,13 +4,36 @@
  *
  * Individual job listing card.
  *
+ * Features:
+ * - Four display variants: default, card, compact, detailed
+ * - Employment type labels with German localization
+ * - Urgent and new badges for priority listings
+ * - Salary range display and skill/requirement tags
+ * - Links to full job description page
+ *
  * @example
  * <JobCard
- *   title="Senior Developer"
+ *   title="Senior Frontend Developer"
  *   department="Engineering"
  *   location="Berlin, Germany"
- *   type="Full-time"
- *   href="/careers/senior-developer"
+ *   type="full-time"
+ *   salary="65,000 - 85,000 EUR"
+ *   href="/careers/senior-frontend"
+ *   tags={['React', 'TypeScript', 'Astro']}
+ *   variant="card"
+ * />
+ *
+ * @example
+ * <JobCard
+ *   title="UX Designer"
+ *   department="Design"
+ *   location="Remote"
+ *   type="contract"
+ *   href="/careers/ux-designer"
+ *   urgent={true}
+ *   new={true}
+ *   description="Join the Acme Corp design team to shape our next-gen product experience."
+ *   variant="detailed"
  * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

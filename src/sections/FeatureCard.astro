@@ -4,12 +4,29 @@
  *
  * Individual feature card for use in FeaturesSection.
  *
+ * Features:
+ * - Four layout variants: default, compact, horizontal, centered
+ * - Renders as anchor tag when href is provided, div otherwise
+ * - Optional icon background circle for visual emphasis
+ * - Supports text/emoji icons or inline SVG via the icon prop
+ * - Hover effects for linked cards
+ *
  * @example
  * <FeatureCard
  *   icon="⚡"
  *   title="Lightning Fast"
- *   description="Optimized for speed and performance."
+ *   description="Optimized for speed with sub-100ms response times."
  *   href="/features/speed"
+ *   variant="default"
+ *   iconBackground={true}
+ * />
+ *
+ * @example
+ * <FeatureCard
+ *   icon="🔒"
+ *   title="Enterprise Security"
+ *   description="SOC 2 compliant with end-to-end encryption for all data at rest and in transit."
+ *   variant="horizontal"
  * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

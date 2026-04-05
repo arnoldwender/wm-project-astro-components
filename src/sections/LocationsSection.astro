@@ -4,6 +4,13 @@
  *
  * Display office locations, stores, or service areas.
  *
+ * Features:
+ * - Six layout variants: grid, map, list, cards, split, tabs
+ * - Configurable columns (2-4) for grid-based layouts
+ * - Map embed support for map and split variants
+ * - Region tabs with default selection for the tabs variant
+ * - Composable with LocationCard children
+ *
  * Variants:
  * - grid: Standard location grid
  * - map: Interactive map with location list
@@ -13,8 +20,30 @@
  * - tabs: Tabbed by region/country
  *
  * @example
- * <LocationsSection variant="grid" title="Our Offices">
- *   <LocationCard name="Berlin" address="..." />
+ * <LocationsSection
+ *   variant="grid"
+ *   columns={3}
+ *   eyebrow="Locations"
+ *   title="Our Offices"
+ *   description="Visit us at one of our locations worldwide."
+ * >
+ *   <LocationCard name="Berlin HQ" address="Friedrichstrasse 123, 10117 Berlin" variant="card" />
+ *   <LocationCard name="Halle Office" address="Marktplatz 1, 06108 Halle" variant="card" />
+ *   <LocationCard name="Munich Branch" address="Leopoldstrasse 45, 80802 Munich" variant="card" />
+ * </LocationsSection>
+ *
+ * @example
+ * <LocationsSection
+ *   variant="tabs"
+ *   title="Find Us Near You"
+ *   regions={[
+ *     { id: 'europe', name: 'Europe' },
+ *     { id: 'americas', name: 'Americas' },
+ *   ]}
+ *   defaultRegion="europe"
+ * >
+ *   <LocationCard name="Berlin" address="Friedrichstrasse 123" data-region="europe" />
+ *   <LocationCard name="New York" address="5th Avenue 200" data-region="americas" />
  * </LocationsSection>
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

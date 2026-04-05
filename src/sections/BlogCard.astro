@@ -4,15 +4,35 @@
  *
  * Individual blog post or news article card.
  *
+ * Features:
+ * - Five variants: default (vertical), horizontal, minimal, overlay, compact
+ * - Author display with avatar fallback (initials)
+ * - Reading time indicator with clock icon
+ * - German locale date formatting
+ * - Featured mode for spanning multiple grid columns
+ *
  * @example
  * <BlogCard
  *   title="How to Build Better Products"
- *   excerpt="Learn the secrets of successful product development..."
+ *   excerpt="Learn the secrets of successful product development from our team."
  *   image="/blog/products.jpg"
  *   href="/blog/better-products"
  *   date="2024-01-15"
  *   category="Product"
  *   author={{ name: "Jane Doe", avatar: "/team/jane.jpg" }}
+ *   readingTime="5 min"
+ * />
+ *
+ * @example
+ * <BlogCard
+ *   title="Acme Corp Raises Series B"
+ *   excerpt="We are thrilled to announce our latest funding round."
+ *   href="/blog/series-b"
+ *   date="2025-03-20"
+ *   category="News"
+ *   variant="overlay"
+ *   image="/blog/funding.jpg"
+ *   featured={true}
  * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

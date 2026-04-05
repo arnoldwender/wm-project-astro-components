@@ -10,10 +10,43 @@
  * - Search/filter functionality
  * - Keyboard accessible
  *
+ * Features:
+ * - Schema.org FAQPage markup for Google rich snippets
+ * - Pure CSS accordion with optional JS enhancement
+ * - Search/filter functionality across questions and answers
+ * - Category grouping with filter pills
+ * - Single or dual column layout with reduced motion support
+ *
  * SEO Benefits:
  * - FAQ rich results in Google search
  * - "People Also Ask" eligibility
  * - Voice search optimization
+ *
+ * @example
+ * <FAQ
+ *   title="Frequently Asked Questions"
+ *   subtitle="Everything you need to know about Acme Corp"
+ *   showSearch={true}
+ *   showCategories={true}
+ *   allowMultiple={true}
+ *   columns={1}
+ *   faqs={[
+ *     { id: 'q1', question: 'What is Acme Platform?', answer: 'Acme Platform is a project management tool for teams of all sizes.', category: 'General' },
+ *     { id: 'q2', question: 'How much does it cost?', answer: 'Plans start at 9 EUR per month. A free trial is available.', category: 'Pricing' },
+ *     { id: 'q3', question: 'Can I cancel anytime?', answer: 'Yes, you can cancel your subscription at any time with no penalties.', category: 'Pricing' },
+ *   ]}
+ * />
+ *
+ * @example
+ * <FAQ
+ *   title="Support"
+ *   faqs={[
+ *     { id: 's1', question: 'How do I reset my password?', answer: 'Click "Forgot password" on the login page and follow the instructions.' },
+ *     { id: 's2', question: 'Where can I find the API docs?', answer: 'Visit docs.example.com for the full API reference.' },
+ *   ]}
+ *   showSchema={true}
+ *   defaultOpen={['s1']}
+ * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */
