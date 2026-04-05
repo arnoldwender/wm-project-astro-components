@@ -283,14 +283,14 @@ const productSchema = {
 
 <style>
   .product-card {
-    --pc-bg: #fff;
-    --pc-text: #111;
-    --pc-muted: #6b7280;
-    --pc-border: #e5e7eb;
-    --pc-primary: #3b82f6;
-    --pc-danger: #ef4444;
-    --pc-success: #10b981;
-    --pc-warning: #f59e0b;
+    --pc-bg: var(--color-bg, #fff);
+    --pc-text: var(--color-text, #111);
+    --pc-muted: var(--color-text-muted, #6b7280);
+    --pc-border: var(--color-border, #e5e7eb);
+    --pc-primary: var(--color-primary, #3b82f6);
+    --pc-danger: var(--color-error, #ef4444);
+    --pc-success: var(--color-success, #10b981);
+    --pc-warning: var(--color-warning, #f59e0b);
 
     position: relative;
     display: flex;
@@ -303,15 +303,15 @@ const productSchema = {
 
   @media (prefers-color-scheme: dark) {
     .product-card {
-      --pc-bg: #1a1a1a;
-      --pc-text: #f5f5f5;
-      --pc-muted: #9ca3af;
-      --pc-border: #374151;
+      --pc-bg: var(--color-bg-dark, #1a1a1a);
+      --pc-text: var(--color-text-dark, #f5f5f5);
+      --pc-muted: var(--color-text-muted-dark, #9ca3af);
+      --pc-border: var(--color-border-dark, #374151);
     }
   }
 
   .product-card:hover {
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    box-shadow: var(--shadow-lg, 0 8px 24px rgba(0, 0, 0, 0.12));
   }
 
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
@@ -362,7 +362,7 @@ const productSchema = {
     padding: 0.25rem 0.75rem;
     font-size: 0.75rem;
     font-weight: 600;
-    color: #fff;
+    color: var(--color-white, #fff);
     border-radius: 9999px;
     z-index: 2;
   }
@@ -380,7 +380,7 @@ const productSchema = {
   }
 
   .product-card__badge--limited {
-    background: #8b5cf6;
+    background: var(--color-accent, #8b5cf6);
   }
 
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
@@ -396,8 +396,8 @@ const productSchema = {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(0, 0, 0, 0.5);
-    color: #fff;
+    background: var(--color-overlay, rgba(0, 0, 0, 0.5));
+    color: var(--color-white, #fff);
     font-weight: 600;
     z-index: 2;
   }
@@ -434,7 +434,7 @@ const productSchema = {
     border-radius: 50%;
     cursor: pointer;
     color: var(--pc-muted);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-sm, 0 2px 8px rgba(0, 0, 0, 0.1));
     transition: all 0.15s;
   }
 
@@ -559,7 +559,7 @@ const productSchema = {
     margin-top: 0.5rem;
     font-size: 0.875rem;
     font-weight: 600;
-    color: #fff;
+    color: var(--color-white, #fff);
     background: var(--pc-primary);
     border: none;
     border-radius: 0.5rem;
@@ -568,7 +568,7 @@ const productSchema = {
   }
 
   .product-card__add-cart:hover {
-    background: #2563eb;
+    background: var(--color-primary-hover, #2563eb);
   }
 
   .product-card__add-cart svg {

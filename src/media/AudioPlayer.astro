@@ -320,12 +320,12 @@ const hasMultipleTracks = tracks.length > 1;
 
 <style>
   .audio-player {
-    --ap-bg: #fff;
-    --ap-text: #111;
-    --ap-muted: #6b7280;
-    --ap-border: #e5e7eb;
-    --ap-primary: #3b82f6;
-    --ap-primary-hover: #2563eb;
+    --ap-bg: var(--color-bg, #fff);
+    --ap-text: var(--color-text, #111);
+    --ap-muted: var(--color-text-muted, #6b7280);
+    --ap-border: var(--color-border, #e5e7eb);
+    --ap-primary: var(--color-primary, #3b82f6);
+    --ap-primary-hover: var(--color-primary-hover, #2563eb);
 
     background: var(--ap-bg);
     border: 1px solid var(--ap-border);
@@ -335,10 +335,10 @@ const hasMultipleTracks = tracks.length > 1;
 
   @media (prefers-color-scheme: dark) {
     .audio-player {
-      --ap-bg: #1a1a1a;
-      --ap-text: #f5f5f5;
-      --ap-muted: #9ca3af;
-      --ap-border: #374151;
+      --ap-bg: var(--color-bg-dark, #1a1a1a);
+      --ap-text: var(--color-text-dark, #f5f5f5);
+      --ap-muted: var(--color-text-muted-dark, #9ca3af);
+      --ap-border: var(--color-border-dark, #374151);
     }
   }
 
@@ -467,7 +467,7 @@ const hasMultipleTracks = tracks.length > 1;
     top: 0;
     left: 0;
     height: 100%;
-    background: rgba(59, 130, 246, 0.3);
+    background: var(--color-primary-muted, rgba(59, 130, 246, 0.3));
     border-radius: 9999px;
     z-index: 1;
   }
@@ -504,7 +504,7 @@ const hasMultipleTracks = tracks.length > 1;
   .audio-player__btn--primary {
     width: 2.5rem;
     height: 2.5rem;
-    color: #fff;
+    color: var(--color-white, #fff);
     background: var(--ap-primary);
     border-radius: 50%;
   }
@@ -646,7 +646,7 @@ const hasMultipleTracks = tracks.length > 1;
   }
 
   .audio-player__playlist-btn.active {
-    background: rgba(59, 130, 246, 0.1);
+    background: var(--color-primary-subtle, rgba(59, 130, 246, 0.1));
   }
 
   .audio-player__playlist-number {
