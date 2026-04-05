@@ -4,6 +4,13 @@
  *
  * Announcement banners, notifications, and promotional bars.
  *
+ * Features:
+ * - Six variants: top bar, inline alert, floating notification, promo, countdown, cookie consent
+ * - Dismissible with localStorage persistence (remembers dismissed state)
+ * - Countdown timer with live days/hours/minutes/seconds display
+ * - Cookie consent banner with accept/reject buttons and custom events
+ * - Six color themes: primary, success, warning, danger, info, dark
+ *
  * Variants:
  * - top: Fixed top announcement bar
  * - inline: Inline banner within content
@@ -15,9 +22,22 @@
  * @example
  * <BannerSection
  *   variant="top"
- *   message="Free shipping on orders over €50!"
+ *   message="Free shipping on orders over 50 EUR!"
  *   href="/shop"
+ *   linkText="Shop now"
+ *   theme="primary"
  *   dismissible
+ * />
+ *
+ * @example
+ * <BannerSection
+ *   variant="countdown"
+ *   message="Spring Sale ends in"
+ *   description="Save up to 40% on all Acme Corp products"
+ *   countdownDate="2026-05-01T00:00:00"
+ *   href="/sale"
+ *   linkText="View deals"
+ *   theme="dark"
  * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

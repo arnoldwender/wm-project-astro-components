@@ -4,6 +4,13 @@
  *
  * Display awards, certifications, and achievements.
  *
+ * Features:
+ * - Six layout variants: grid, carousel, badges, timeline, featured, showcase
+ * - Configurable column count (2-5) for grid-based layouts
+ * - Carousel with prev/next navigation buttons
+ * - Timeline variant with vertical connector line
+ * - Featured slot for highlighting a primary award
+ *
  * Variants:
  * - grid: Grid of award cards
  * - carousel: Horizontal scrolling
@@ -13,8 +20,22 @@
  * - showcase: Visual showcase style
  *
  * @example
- * <AwardsSection variant="grid" title="Awards & Recognition">
- *   <AwardItem title="Best Design" year="2024" />
+ * <AwardsSection
+ *   variant="grid"
+ *   columns={3}
+ *   eyebrow="Recognition"
+ *   title="Awards & Achievements"
+ *   description="Our work has been recognized by industry leaders."
+ * >
+ *   <AwardItem title="Best SaaS Product" organization="Acme Awards" year="2024" variant="card" />
+ *   <AwardItem title="Design Excellence" organization="Global UX Summit" year="2023" variant="card" />
+ * </AwardsSection>
+ *
+ * @example
+ * <AwardsSection variant="featured" title="Our Proudest Moments" background="subtle">
+ *   <AwardItem slot="featured" title="Company of the Year" organization="Tech Review" year="2025" variant="featured" />
+ *   <AwardItem title="Innovation Award" year="2024" variant="card" />
+ *   <AwardItem title="Customer Choice" year="2023" variant="card" />
  * </AwardsSection>
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

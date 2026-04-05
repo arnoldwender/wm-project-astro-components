@@ -4,6 +4,13 @@
  *
  * Compare features, plans, or products side by side.
  *
+ * Features:
+ * - Five comparison styles: table, cards, toggle, slider, checklist
+ * - Highlighted column support with optional badge label
+ * - Draggable image slider for before/after comparisons
+ * - Boolean values rendered as check/cross icons in table variant
+ * - Tooltip support per comparison row
+ *
  * Variants:
  * - table: Traditional comparison table
  * - cards: Side-by-side cards
@@ -12,9 +19,31 @@
  * - checklist: Feature checklist comparison
  *
  * @example
- * <ComparisonSection variant="table" title="Plan Comparison">
- *   <slot /> <!-- Comparison content -->
- * </ComparisonSection>
+ * <ComparisonSection
+ *   variant="table"
+ *   eyebrow="Plans"
+ *   title="Choose the right plan"
+ *   columns={[
+ *     { name: 'Starter' },
+ *     { name: 'Pro', highlighted: true, badge: 'Popular' },
+ *     { name: 'Enterprise' },
+ *   ]}
+ *   items={[
+ *     { label: 'Users', values: ['Up to 5', 'Unlimited', 'Unlimited'] },
+ *     { label: 'Storage', values: ['10 GB', '100 GB', '1 TB'] },
+ *     { label: 'Priority Support', values: [false, true, true] },
+ *   ]}
+ * />
+ *
+ * @example
+ * <ComparisonSection
+ *   variant="slider"
+ *   title="Before & After"
+ *   beforeLabel="Before Redesign"
+ *   afterLabel="After Redesign"
+ *   beforeImage="/images/before.jpg"
+ *   afterImage="/images/after.jpg"
+ * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */

@@ -4,6 +4,13 @@
  *
  * Display integrations, partners, or compatible tools.
  *
+ * Features:
+ * - Six layout variants: grid, categories, featured, marquee, searchable, compact
+ * - Configurable columns (2-5) for grid-based layouts
+ * - Search input for the searchable variant
+ * - Category grouping with icon support
+ * - Featured slot for highlighting primary integrations
+ *
  * Variants:
  * - grid: Standard grid of integration cards
  * - categories: Grouped by category
@@ -13,8 +20,30 @@
  * - compact: Dense listing
  *
  * @example
- * <IntegrationsSection variant="grid" title="Integrations">
- *   <IntegrationCard name="Slack" logo="/slack.svg" />
+ * <IntegrationsSection
+ *   variant="grid"
+ *   columns={4}
+ *   eyebrow="Ecosystem"
+ *   title="200+ Integrations"
+ *   description="Connect Acme Platform with the tools you already use."
+ * >
+ *   <IntegrationCard name="Slack" logo="/integrations/slack.svg" status="available" />
+ *   <IntegrationCard name="GitHub" logo="/integrations/github.svg" status="available" />
+ *   <IntegrationCard name="Figma" logo="/integrations/figma.svg" status="new" />
+ * </IntegrationsSection>
+ *
+ * @example
+ * <IntegrationsSection
+ *   variant="searchable"
+ *   title="Find an Integration"
+ *   searchPlaceholder="Search integrations..."
+ *   categories={[
+ *     { id: 'comms', name: 'Communication' },
+ *     { id: 'dev', name: 'Developer Tools' },
+ *   ]}
+ * >
+ *   <IntegrationCard name="Slack" logo="/integrations/slack.svg" category="comms" />
+ *   <IntegrationCard name="GitHub" logo="/integrations/github.svg" category="dev" />
  * </IntegrationsSection>
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

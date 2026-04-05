@@ -4,6 +4,13 @@
  *
  * Navigation breadcrumbs for page hierarchy.
  *
+ * Features:
+ * - Six separator styles: default chevron, arrows, pills, dots, slash, chevron
+ * - Schema.org BreadcrumbList structured data for SEO
+ * - Automatic truncation with ellipsis when maxItems is set
+ * - Home icon on first item (toggleable)
+ * - Responsive font sizing for mobile
+ *
  * Variants:
  * - default: Standard breadcrumb with separators
  * - arrows: Arrow-style separators
@@ -18,7 +25,21 @@
  *   items={[
  *     { label: 'Home', href: '/' },
  *     { label: 'Products', href: '/products' },
- *     { label: 'Current Page' }
+ *     { label: 'Acme Widget Pro' }
+ *   ]}
+ * />
+ *
+ * @example
+ * <BreadcrumbSection
+ *   variant="pills"
+ *   homeIcon={true}
+ *   maxItems={4}
+ *   items={[
+ *     { label: 'Home', href: '/' },
+ *     { label: 'Shop', href: '/shop' },
+ *     { label: 'Electronics', href: '/shop/electronics' },
+ *     { label: 'Laptops', href: '/shop/electronics/laptops' },
+ *     { label: 'Acme Notebook 15' }
  *   ]}
  * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.

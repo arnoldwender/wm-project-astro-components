@@ -4,6 +4,13 @@
  *
  * Display partner/client logos with various layouts.
  *
+ * Features:
+ * - Five layout variants: grid, marquee, centered, featured, minimal
+ * - Configurable columns (3-6) for the grid variant
+ * - Infinite marquee animation with speed control (slow, normal, fast)
+ * - Grayscale filter with hover color reveal (toggleable)
+ * - Dark background option for light logos
+ *
  * Variants:
  * - grid: Simple logo grid
  * - marquee: Infinite scrolling animation
@@ -12,9 +19,31 @@
  * - minimal: Simple inline logos
  *
  * @example
- * <LogoCloudSection variant="grid" title="Trusted by leading companies">
- *   <img src="/logos/company1.svg" alt="Company 1" />
- *   <img src="/logos/company2.svg" alt="Company 2" />
+ * <LogoCloudSection
+ *   variant="grid"
+ *   columns={5}
+ *   title="Trusted by Leading Companies"
+ *   description="Over 500 teams use Acme Platform every day."
+ *   grayscale={true}
+ * >
+ *   <img src="/logos/acme.svg" alt="Acme Corp" />
+ *   <img src="/logos/widgetco.svg" alt="WidgetCo" />
+ *   <img src="/logos/globex.svg" alt="Globex Inc" />
+ *   <img src="/logos/initech.svg" alt="Initech" />
+ *   <img src="/logos/umbrella.svg" alt="Umbrella Corp" />
+ * </LogoCloudSection>
+ *
+ * @example
+ * <LogoCloudSection
+ *   variant="marquee"
+ *   title="Our Partners"
+ *   speed="normal"
+ *   grayscale={true}
+ *   background="subtle"
+ * >
+ *   <img src="/logos/acme.svg" alt="Acme Corp" />
+ *   <img src="/logos/widgetco.svg" alt="WidgetCo" />
+ *   <img src="/logos/globex.svg" alt="Globex Inc" />
  * </LogoCloudSection>
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

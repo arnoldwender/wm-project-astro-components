@@ -4,6 +4,13 @@
  *
  * Display images, portfolio items, or project showcases.
  *
+ * Features:
+ * - Six layout variants: grid, masonry, carousel, lightbox, filterable, featured
+ * - Configurable columns (2-5) and gap sizes (none, small, medium, large)
+ * - Category filter buttons for the filterable variant
+ * - Featured slot for highlighting a primary gallery item
+ * - Dark background option for immersive gallery experiences
+ *
  * Variants:
  * - grid: Standard grid layout
  * - masonry: Pinterest-style masonry
@@ -13,9 +20,28 @@
  * - featured: Large featured item + grid
  *
  * @example
- * <GallerySection variant="masonry" columns={3}>
- *   <GalleryItem image="/img1.jpg" title="Project 1" />
- *   <GalleryItem image="/img2.jpg" title="Project 2" />
+ * <GallerySection
+ *   variant="filterable"
+ *   columns={3}
+ *   gap="medium"
+ *   eyebrow="Portfolio"
+ *   title="Our Work"
+ *   description="Selected projects from the Acme Corp design team."
+ *   categories={[
+ *     { id: 'web', label: 'Web Design' },
+ *     { id: 'brand', label: 'Branding' },
+ *     { id: 'photo', label: 'Photography' },
+ *   ]}
+ * >
+ *   <GalleryItem image="/portfolio/project1.jpg" title="Acme Redesign" category="web" />
+ *   <GalleryItem image="/portfolio/project2.jpg" title="Brand Identity" category="brand" />
+ * </GallerySection>
+ *
+ * @example
+ * <GallerySection variant="masonry" columns={4} title="Photo Gallery" background="dark">
+ *   <GalleryItem image="/gallery/img1.jpg" title="Sunset" aspectRatio="portrait" />
+ *   <GalleryItem image="/gallery/img2.jpg" title="Office" aspectRatio="landscape" />
+ *   <GalleryItem image="/gallery/img3.jpg" title="Team Event" aspectRatio="square" />
  * </GallerySection>
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

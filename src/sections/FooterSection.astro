@@ -4,6 +4,13 @@
  *
  * Website footer with various layouts.
  *
+ * Features:
+ * - Six layout variants: default, simple, minimal, mega, centered, dark
+ * - Logo, company name, and tagline display
+ * - Social media icon links
+ * - Optional newsletter signup form
+ * - Bottom links row for legal pages (Impressum, Datenschutz)
+ *
  * Variants:
  * - default: Standard multi-column footer
  * - simple: Simple centered footer
@@ -13,9 +20,34 @@
  * - dark: Dark background variant
  *
  * @example
- * <FooterSection variant="default" logo="/logo.svg">
- *   <FooterColumn title="Product" slot="columns">...</FooterColumn>
+ * <FooterSection
+ *   variant="default"
+ *   logo="/images/acme-logo.svg"
+ *   logoAlt="Acme Corp"
+ *   companyName="Acme Corp"
+ *   tagline="Building better tools for modern teams."
+ *   copyright="2025 Acme Corp. All rights reserved."
+ *   socials={[
+ *     { platform: 'Twitter', href: 'https://twitter.com/acmecorp', icon: '<svg>...</svg>' },
+ *     { platform: 'LinkedIn', href: 'https://linkedin.com/company/acmecorp', icon: '<svg>...</svg>' },
+ *   ]}
+ *   bottomLinks={[
+ *     { label: 'Impressum', href: '/impressum' },
+ *     { label: 'Datenschutz', href: '/datenschutz' },
+ *   ]}
+ * >
+ *   <div slot="columns"><!-- Footer link columns here --></div>
  * </FooterSection>
+ *
+ * @example
+ * <FooterSection
+ *   variant="simple"
+ *   companyName="Acme Corp"
+ *   copyright="2025 Acme Corp"
+ *   showNewsletter={true}
+ *   newsletterTitle="Stay updated"
+ *   newsletterDescription="Get the latest news from Acme Corp."
+ * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */

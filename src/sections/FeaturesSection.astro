@@ -4,6 +4,13 @@
  *
  * Multiple layouts for showcasing features and benefits.
  *
+ * Features:
+ * - Six layout variants: grid, alternating, icons, cards, list, bento
+ * - Configurable columns (2-4) with responsive breakpoints
+ * - Left or center text alignment for section header
+ * - Background options: transparent, subtle, muted, pattern
+ * - Composable with FeatureCard and FeatureAlternating children
+ *
  * Variants:
  * - grid: Simple grid of feature cards
  * - alternating: Zigzag layout with images
@@ -13,8 +20,29 @@
  * - bento: Bento-style asymmetric grid
  *
  * @example
- * <FeaturesSection variant="grid" columns={3}>
+ * <FeaturesSection
+ *   variant="grid"
+ *   columns={3}
+ *   eyebrow="Features"
+ *   title="Everything You Need"
+ *   description="Acme Platform comes with all the tools your team needs to succeed."
+ *   align="center"
+ * >
  *   <FeatureCard icon="⚡" title="Fast" description="Lightning fast performance" />
+ *   <FeatureCard icon="🔒" title="Secure" description="Enterprise-grade security" />
+ *   <FeatureCard icon="🌍" title="Global" description="CDN in 50+ regions" />
+ * </FeaturesSection>
+ *
+ * @example
+ * <FeaturesSection
+ *   variant="bento"
+ *   title="Platform Highlights"
+ *   background="subtle"
+ *   align="left"
+ * >
+ *   <FeatureCard icon="📊" title="Analytics" description="Real-time dashboards" />
+ *   <FeatureCard icon="🤝" title="Collaboration" description="Shared workspaces" />
+ *   <FeatureCard icon="🔄" title="Integrations" description="Connect 200+ tools" />
  * </FeaturesSection>
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

@@ -4,6 +4,13 @@
  *
  * Flexible content blocks for text, media, and mixed layouts.
  *
+ * Features:
+ * - Seven layout variants: prose, media-left, media-right, media-top, media-bottom, full-bleed, split
+ * - Configurable media aspect ratio: 1:1, 4:3, 16:9, 3:4, auto
+ * - Vertical alignment control: top, center, bottom
+ * - Optional rounded corners on media containers
+ * - Named "media" slot for images, videos, or custom content
+ *
  * Variants:
  * - prose: Long-form text content
  * - media-left: Image/video on left, text right
@@ -14,11 +21,25 @@
  * - split: 50/50 media and content split
  *
  * @example
- * <ContentSection variant="media-right" title="Our Story">
+ * <ContentSection
+ *   variant="media-right"
+ *   eyebrow="About Us"
+ *   title="Our Story"
+ *   mediaRatio="4:3"
+ *   mediaRounded={true}
+ *   verticalAlign="center"
+ * >
  *   <Fragment slot="media">
- *     <img src="/about.jpg" alt="Our office" />
+ *     <img src="/images/team-office.jpg" alt="The Acme Corp team at work" />
  *   </Fragment>
- *   <p>We started in 2020...</p>
+ *   <p>Founded in 2020, Acme Corp set out to simplify project management for small teams.</p>
+ * </ContentSection>
+ *
+ * @example
+ * <ContentSection variant="prose" title="Terms of Service" background="subtle">
+ *   <p>These terms govern your use of the Acme Corp platform...</p>
+ *   <h3>1. Acceptance</h3>
+ *   <p>By accessing our service, you agree to these terms.</p>
  * </ContentSection>
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

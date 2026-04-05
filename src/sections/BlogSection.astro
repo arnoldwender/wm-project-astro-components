@@ -4,6 +4,13 @@
  *
  * Display blog posts, news, or articles.
  *
+ * Features:
+ * - Six layout variants: grid, featured, list, magazine, minimal, cards
+ * - Configurable columns (2-4) for grid-based layouts
+ * - "View All" link with animated arrow for blog index pages
+ * - Magazine variant with large featured area and sidebar
+ * - Cards variant with hover lift animation and border styling
+ *
  * Variants:
  * - grid: Standard blog grid
  * - featured: Featured post + grid
@@ -13,9 +20,24 @@
  * - cards: Card-based grid
  *
  * @example
- * <BlogSection variant="featured" title="Latest Articles">
- *   <BlogCard slot="featured" title="..." featured />
- *   <BlogCard title="..." />
+ * <BlogSection
+ *   variant="grid"
+ *   columns={3}
+ *   eyebrow="Blog"
+ *   title="Latest Articles"
+ *   description="Insights from the Acme Corp team"
+ *   viewAllHref="/blog"
+ *   viewAllText="All articles"
+ * >
+ *   <BlogCard title="Getting Started with Astro" href="/blog/astro-intro" date="2025-02-10" />
+ *   <BlogCard title="Design System Best Practices" href="/blog/design-systems" date="2025-01-28" />
+ * </BlogSection>
+ *
+ * @example
+ * <BlogSection variant="magazine" title="Featured Stories">
+ *   <BlogCard slot="featured" title="Our 2025 Product Roadmap" href="/blog/roadmap" image="/blog/roadmap.jpg" featured />
+ *   <BlogCard title="Team Spotlight: Jane Doe" href="/blog/jane-spotlight" variant="horizontal" />
+ *   <BlogCard title="Q1 Results Summary" href="/blog/q1-results" variant="horizontal" />
  * </BlogSection>
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

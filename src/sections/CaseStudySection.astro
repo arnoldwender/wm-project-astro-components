@@ -4,6 +4,13 @@
  *
  * Case study and portfolio showcase sections.
  *
+ * Features:
+ * - Six layout variants: grid, featured, carousel, detail, minimal, stats
+ * - Metric display with prominent values (e.g., "+150% Revenue")
+ * - Client testimonial integration with avatar and role
+ * - Carousel with prev/next navigation controls
+ * - Tags, industry badges, and client logos per case study
+ *
  * Variants:
  * - grid: Case study cards in a grid
  * - featured: Single featured case study
@@ -13,9 +20,36 @@
  * - stats: Case study with prominent metrics
  *
  * @example
- * <CaseStudySection variant="grid" title="Our Work">
- *   <slot />
- * </CaseStudySection>
+ * <CaseStudySection
+ *   variant="grid"
+ *   columns={2}
+ *   eyebrow="Case Studies"
+ *   title="Our Work"
+ *   description="See how we helped our clients succeed."
+ *   showTags={true}
+ *   showMetrics={true}
+ *   caseStudies={[
+ *     {
+ *       id: '1', title: 'E-Commerce Redesign', slug: 'ecommerce-redesign',
+ *       client: 'Acme Corp', industry: 'Retail',
+ *       description: 'Complete platform overhaul resulting in 3x conversion rate.',
+ *       image: '/cases/acme.jpg', tags: ['UX', 'Shopify'],
+ *       metrics: [{ label: 'Conversion', value: '+200%' }, { label: 'Revenue', value: '+150%' }],
+ *     },
+ *   ]}
+ * />
+ *
+ * @example
+ * <CaseStudySection
+ *   variant="featured"
+ *   caseStudy={{
+ *     id: '2', title: 'Brand Identity Refresh', slug: 'brand-refresh',
+ *     client: 'WidgetCo', description: 'A complete visual identity overhaul.',
+ *     image: '/cases/widgetco.jpg', logo: '/logos/widgetco.svg',
+ *     metrics: [{ label: 'Brand Awareness', value: '+80%' }],
+ *     testimonial: { quote: 'The new brand exceeded all expectations.', author: 'Jane Doe', role: 'CMO' },
+ *   }}
+ * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */

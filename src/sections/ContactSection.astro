@@ -4,6 +4,13 @@
  *
  * Contact information and form layouts.
  *
+ * Features:
+ * - Five layout variants: split, centered, card, minimal, map
+ * - Structured contact info display (email, phone, address, hours)
+ * - Social media links with custom icons
+ * - Map embed support for the map variant
+ * - Named slot for custom contact form integration
+ *
  * Variants:
  * - split: Form and info side by side
  * - centered: Centered form with info above
@@ -14,12 +21,28 @@
  * @example
  * <ContactSection
  *   variant="split"
+ *   eyebrow="Contact"
  *   title="Get in Touch"
- *   email="hello@example.com"
- *   phone="+1 (555) 123-4567"
+ *   description="We would love to hear from you. Fill out the form or reach us directly."
+ *   contactInfo={[
+ *     { type: 'email', label: 'Email', value: 'john@example.com', href: 'mailto:john@example.com' },
+ *     { type: 'phone', label: 'Phone', value: '+49 345 1234567', href: 'tel:+493451234567' },
+ *     { type: 'address', label: 'Office', value: 'Marktplatz 1, 06108 Halle (Saale)' },
+ *     { type: 'hours', label: 'Hours', value: 'Mon-Fri 9:00-17:00' },
+ *   ]}
  * >
- *   <form slot="form">...</form>
+ *   <form slot="form"><!-- Your form fields here --></form>
  * </ContactSection>
+ *
+ * @example
+ * <ContactSection
+ *   variant="map"
+ *   title="Visit Our Office"
+ *   mapEmbed="https://www.google.com/maps/embed?pb=..."
+ *   contactInfo={[
+ *     { type: 'address', label: 'Address', value: '123 Main St, Berlin 10115' },
+ *   ]}
+ * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */

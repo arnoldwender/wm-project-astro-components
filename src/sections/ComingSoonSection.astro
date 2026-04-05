@@ -4,6 +4,13 @@
  *
  * Coming soon / launching soon pages.
  *
+ * Features:
+ * - Six layout variants: default, minimal, split, fullscreen, animated, card
+ * - Live countdown timer (days, hours, minutes, seconds)
+ * - Newsletter email signup form with customizable text
+ * - Background image/video support for fullscreen variant
+ * - Social media links display
+ *
  * Variants:
  * - default: Standard centered with countdown
  * - minimal: Simple text with email signup
@@ -15,9 +22,27 @@
  * @example
  * <ComingSoonSection
  *   variant="default"
- *   title="Coming Soon"
- *   launchDate="2025-03-01"
+ *   title="Something Amazing is Coming"
+ *   subtitle="Acme Corp"
+ *   description="We are building a new platform to help teams collaborate better."
+ *   launchDate="2026-06-01"
  *   showCountdown={true}
+ *   showNewsletter={true}
+ *   newsletterTitle="Get notified"
+ *   newsletterPlaceholder="john@example.com"
+ *   newsletterButtonText="Notify me"
+ * />
+ *
+ * @example
+ * <ComingSoonSection
+ *   variant="fullscreen"
+ *   title="Launching Soon"
+ *   backgroundImage="/images/launch-bg.jpg"
+ *   launchDate="2026-09-15"
+ *   showCountdown={true}
+ *   socials={[
+ *     { platform: 'Twitter', href: 'https://twitter.com/acmecorp', icon: '<svg>...</svg>' },
+ *   ]}
  * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
