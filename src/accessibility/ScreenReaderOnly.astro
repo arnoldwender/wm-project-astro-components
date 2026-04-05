@@ -11,6 +11,24 @@
  * - Skip link targets
  * - Table captions
  * - Live region announcements
+ *
+ * @example
+ * <!-- Hidden label for an icon-only button -->
+ * <button>
+ *   <svg aria-hidden="true">...</svg>
+ *   <ScreenReaderOnly>Close menu</ScreenReaderOnly>
+ * </button>
+ *
+ * @example
+ * <!-- Focusable skip link that becomes visible on focus -->
+ * <ScreenReaderOnly as="a" focusable id="skip-nav">
+ *   Skip to main content
+ * </ScreenReaderOnly>
+ *
+ * @example
+ * <!-- Hidden heading for a landmark region -->
+ * <ScreenReaderOnly as="h2">Navigation</ScreenReaderOnly>
+ *
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */

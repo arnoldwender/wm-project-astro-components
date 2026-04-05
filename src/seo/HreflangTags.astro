@@ -5,15 +5,33 @@
  * Generate hreflang tags for multilingual SEO.
  * Helps search engines serve the correct language version.
  *
+ * Features:
+ * - Generates one <link rel="alternate"> per locale
+ * - Automatically adds an x-default tag pointing to the default locale
+ * - Works with subdomain, subdirectory, or separate-domain strategies
+ *
  * @example
+ * <!-- Bilingual site (German default, English alternate) -->
  * <HreflangTags
  *   currentLocale="de"
  *   locales={[
- *     { lang: 'de', url: 'https://example.de/page' },
- *     { lang: 'en', url: 'https://example.com/page' },
+ *     { lang: 'de', url: 'https://example.com/de/seite' },
+ *     { lang: 'en', url: 'https://example.com/en/page' },
  *   ]}
  *   defaultLocale="de"
  * />
+ *
+ * @example
+ * <!-- Three locales with separate domains -->
+ * <HreflangTags
+ *   currentLocale="en"
+ *   locales={[
+ *     { lang: 'en', url: 'https://example.com/about' },
+ *     { lang: 'de', url: 'https://example.de/ueber-uns' },
+ *     { lang: 'es', url: 'https://example.es/sobre-nosotros' },
+ *   ]}
+ * />
+ *
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */

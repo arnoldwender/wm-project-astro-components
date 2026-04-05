@@ -5,13 +5,36 @@
  * Simple links to social profiles - no tracking, no external scripts.
  * Uses rel="noopener noreferrer" for security.
  *
- * Usage:
+ * Features:
+ * - 11 built-in platforms with brand colors and SVG icons
+ * - Four visual variants: default, filled, outline, minimal
+ * - Three sizes (sm, md, lg) and horizontal/vertical direction
+ * - Optional text labels alongside icons (hidden on mobile)
+ * - Platform-colour hover effects with focus-visible outlines
+ * - No external scripts, no tracking -- pure <a> links
+ *
+ * @example
+ * <!-- Default icon links -->
  * <SocialFollow
  *   links={[
- *     { platform: 'facebook', url: 'https://facebook.com/yourpage' },
- *     { platform: 'instagram', url: 'https://instagram.com/yourhandle' },
+ *     { platform: 'instagram', url: 'https://instagram.com/acme' },
+ *     { platform: 'linkedin', url: 'https://linkedin.com/company/acme' },
+ *     { platform: 'github', url: 'https://github.com/acme' },
  *   ]}
  * />
+ *
+ * @example
+ * <!-- Filled variant with labels, large size -->
+ * <SocialFollow
+ *   links={[
+ *     { platform: 'facebook', url: 'https://facebook.com/acme', label: 'Like us' },
+ *     { platform: 'youtube', url: 'https://youtube.com/@acme', label: 'Subscribe' },
+ *   ]}
+ *   variant="filled"
+ *   size="lg"
+ *   showLabels={true}
+ * />
+ *
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */

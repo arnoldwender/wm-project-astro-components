@@ -2,8 +2,41 @@
 /**
  * Breadcrumbs Component - WenderMedia Astro Components
  *
- * Semantic navigation with Schema.org BreadcrumbList
- * Accessible with proper ARIA attributes
+ * Accessible breadcrumb navigation with inline Schema.org BreadcrumbList
+ * structured data (JSON-LD + microdata). Renders a semantic <nav> with
+ * an ordered list, configurable separators, and active-page highlighting.
+ * Returns null when fewer than 2 items are supplied.
+ *
+ * Features:
+ * - Dual structured data: microdata attributes on HTML and a JSON-LD script block
+ * - Three separator styles: chevron (default), slash, or arrow
+ * - aria-label="Breadcrumb" and aria-current="page" on the last item
+ * - Keyboard-focusable links with visible focus ring
+ * - Automatically hides when the path is too short (1 item or less)
+ *
+ * @example
+ * ---
+ * import Breadcrumbs from '@components/seo/Breadcrumbs.astro';
+ * ---
+ * <Breadcrumbs
+ *   items={[
+ *     { name: 'Home', url: 'https://example.com/' },
+ *     { name: 'Services', url: 'https://example.com/services' },
+ *     { name: 'Web Design', url: 'https://example.com/services/web-design' },
+ *   ]}
+ * />
+ *
+ * @example
+ * <!-- With a different separator -->
+ * <Breadcrumbs
+ *   items={[
+ *     { name: 'Home', url: '/' },
+ *     { name: 'Blog', url: '/blog' },
+ *     { name: 'My Article', url: '/blog/my-article' },
+ *   ]}
+ *   separator="arrow"
+ * />
+ *
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */

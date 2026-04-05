@@ -5,18 +5,39 @@
  * Complete Open Graph meta tags for social media sharing.
  * Supports website, article, product, and profile types.
  *
+ * Features:
+ * - Supports website, article, product, and profile OG types
+ * - Article meta: published/modified/expiration times, authors, section, tags
+ * - Product meta: price, currency, availability, condition
+ * - Profile meta: first/last name, username, gender
+ * - Automatic absolute-URL resolution for images via Astro.site
+ *
  * @example
+ * <!-- Basic website OG tags -->
  * <OpenGraph
- *   title="Page Title"
- *   description="Page description"
- *   image="/og-image.jpg"
+ *   title="Acme Corp - Web Design"
+ *   description="Professional web design services for growing businesses."
+ *   image="/images/og-default.jpg"
+ *   siteName="Acme Corp"
+ * />
+ *
+ * @example
+ * <!-- Article with full metadata -->
+ * <OpenGraph
+ *   title="10 Tips for Better SEO"
+ *   description="Learn actionable SEO strategies for 2026."
+ *   image="/images/og-seo-tips.jpg"
  *   type="article"
  *   article={{
- *     publishedTime: new Date('2025-01-15'),
- *     author: 'John Doe',
- *     section: 'Technology',
+ *     publishedTime: new Date('2026-03-15'),
+ *     author: 'Jane Doe',
+ *     section: 'Marketing',
+ *     tags: ['SEO', 'Content Strategy', 'Google'],
  *   }}
+ *   locale="de_DE"
+ *   siteName="Acme Blog"
  * />
+ *
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */

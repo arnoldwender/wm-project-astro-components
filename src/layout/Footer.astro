@@ -2,7 +2,46 @@
 /**
  * Footer Component - WenderMedia Astro Components
  *
- * Multi-column footer with social links, contact info, and navigation
+ * Responsive multi-column site footer with brand section, quick links,
+ * contact details, social media icons, and copyright line. Use as the
+ * closing landmark on every page.
+ *
+ * Features:
+ * - Three-column grid: brand/description, quick links, contact info
+ * - Built-in SVG icons for 7 social platforms (Instagram, Facebook, Twitter, LinkedIn, Behance, GitHub, YouTube)
+ * - Logo image or text-based branding via the logo prop
+ * - Auto-generated copyright year when no custom text is provided
+ * - Semantic HTML with accessible aria-labels on social links
+ * - Fully responsive: collapses to single column on small screens
+ *
+ * @example
+ * ---
+ * import Footer from '@components/layout/Footer.astro';
+ * ---
+ * <Footer
+ *   siteName="Acme Corp"
+ *   description="Building innovative solutions since 2010."
+ *   links={[
+ *     { label: 'Impressum', href: '/impressum' },
+ *     { label: 'Datenschutz', href: '/datenschutz' },
+ *     { label: 'Blog', href: '/blog' },
+ *   ]}
+ *   socialLinks={[
+ *     { name: 'Instagram', href: 'https://instagram.com/acme', icon: 'instagram' },
+ *     { name: 'LinkedIn', href: 'https://linkedin.com/company/acme', icon: 'linkedin' },
+ *   ]}
+ *   contactEmail="info@example.com"
+ *   contactPhone="+49 345 12345"
+ *   address="123 Main St, 06108 Halle (Saale)"
+ * />
+ *
+ * @example
+ * <!-- Minimal footer with logo and custom copyright -->
+ * <Footer
+ *   logo={{ src: '/images/logo-white.svg', alt: 'Acme Corp' }}
+ *   copyright="2020-2026 Acme Corp. All rights reserved."
+ * />
+ *
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */
