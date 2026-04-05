@@ -212,7 +212,7 @@ const sizeClasses = {
   .consent-notice {
     margin: 0 0 0.75rem;
     font-size: 0.75rem;
-    color: #6b7280;
+    color: var(--color-text-muted, #6b7280);
     line-height: 1.4;
   }
 
@@ -232,10 +232,10 @@ const sizeClasses = {
     justify-content: center;
     gap: 0.5rem;
     padding: 0.625rem 1rem;
-    background: #f3f4f6;
-    border: 1px solid #e5e7eb;
+    background: var(--color-bg-alt, #f3f4f6);
+    border: 1px solid var(--color-border, #e5e7eb);
     border-radius: var(--share-radius);
-    color: #374151;
+    color: var(--color-text, #374151);
     font-size: inherit;
     font-weight: 500;
     cursor: pointer;
@@ -255,8 +255,8 @@ const sizeClasses = {
   }
 
   .share-button.copied {
-    background: #10b981;
-    border-color: #10b981;
+    background: var(--color-success, #10b981);
+    border-color: var(--color-success, #10b981);
     color: white;
   }
 
@@ -278,7 +278,7 @@ const sizeClasses = {
     padding: 0.5rem;
     background: transparent;
     border: none;
-    color: #6b7280;
+    color: var(--color-text-muted, #6b7280);
   }
 
   .social-share--minimal .share-button:hover {
