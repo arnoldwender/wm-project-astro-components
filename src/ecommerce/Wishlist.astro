@@ -17,6 +17,8 @@
  *
  * <!-- Full wishlist display -->
  * <Wishlist mode="list" />
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
  */
 
 export interface WishlistItem {
@@ -118,7 +120,7 @@ const isCount = mode === 'count';
       <div class="wishlist-item" data-wishlist-item>
         <a href="#" class="wishlist-item__link">
           <div class="wishlist-item__image">
-            <img src="" alt="" loading="lazy" />
+            <img src="" alt="Produktbild" loading="lazy" />
           </div>
           <div class="wishlist-item__details">
             <h3 class="wishlist-item__name"></h3>
@@ -167,6 +169,8 @@ const isCount = mode === 'count';
 )}
 
 <style>
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* Toggle Button */
   .wishlist-toggle {
     display: flex;
@@ -177,12 +181,12 @@ const isCount = mode === 'count';
     background: transparent;
     border: none;
     cursor: pointer;
-    color: var(--wishlist-color, #6b7280);
+    color: var(--wishlist-color, var(--color-text-muted, #6b7280));
     transition: all 0.2s;
   }
 
   .wishlist-toggle:hover {
-    color: var(--wishlist-active, #ef4444);
+    color: var(--wishlist-active, var(--color-error, #ef4444));
     transform: scale(1.1);
   }
 
@@ -193,7 +197,7 @@ const isCount = mode === 'count';
 
   .wishlist-toggle__icon--filled {
     display: none;
-    color: var(--wishlist-active, #ef4444);
+    color: var(--wishlist-active, var(--color-error, #ef4444));
   }
 
   .wishlist-toggle[aria-pressed="true"] .wishlist-toggle__icon--empty {
@@ -210,6 +214,8 @@ const isCount = mode === 'count';
     50% { transform: scale(1.2); }
   }
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* Count Badge */
   .wishlist-count {
     display: inline-flex;
@@ -220,8 +226,8 @@ const isCount = mode === 'count';
     padding: 0 0.25rem;
     font-size: 0.75rem;
     font-weight: 600;
-    color: #fff;
-    background: var(--wishlist-active, #ef4444);
+    color: var(--color-white, #fff);
+    background: var(--wishlist-active, var(--color-error, #ef4444));
     border-radius: 9999px;
   }
 
@@ -229,25 +235,29 @@ const isCount = mode === 'count';
     display: none;
   }
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* List Container */
   .wishlist-list {
-    --wishlist-bg: #fff;
-    --wishlist-text: #111;
-    --wishlist-muted: #6b7280;
-    --wishlist-border: #e5e7eb;
-    --wishlist-primary: #3b82f6;
-    --wishlist-active: #ef4444;
+    --wishlist-bg: var(--color-bg, #fff);
+    --wishlist-text: var(--color-text, #111);
+    --wishlist-muted: var(--color-text-muted, #6b7280);
+    --wishlist-border: var(--color-border, #e5e7eb);
+    --wishlist-primary: var(--color-primary, #3b82f6);
+    --wishlist-active: var(--color-error, #ef4444);
   }
 
   @media (prefers-color-scheme: dark) {
     .wishlist-list {
-      --wishlist-bg: #1a1a1a;
-      --wishlist-text: #f5f5f5;
-      --wishlist-muted: #9ca3af;
-      --wishlist-border: #374151;
+      --wishlist-bg: var(--color-bg-dark, #1a1a1a);
+      --wishlist-text: var(--color-text-dark, #f5f5f5);
+      --wishlist-muted: var(--color-text-muted-dark, #9ca3af);
+      --wishlist-border: var(--color-border-dark, #374151);
     }
   }
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* Empty State */
   .wishlist-list__empty {
     display: flex;
@@ -270,6 +280,8 @@ const isCount = mode === 'count';
     opacity: 0.5;
   }
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* Items Grid */
   .wishlist-list__items {
     display: grid;
@@ -277,6 +289,8 @@ const isCount = mode === 'count';
     gap: 1.5rem;
   }
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* Wishlist Item */
   .wishlist-item {
     position: relative;
@@ -290,7 +304,7 @@ const isCount = mode === 'count';
   }
 
   .wishlist-item:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-md, 0 4px 12px rgba(0, 0, 0, 0.1));
   }
 
   .wishlist-item__link {
@@ -364,7 +378,7 @@ const isCount = mode === 'count';
     padding: 0.625rem;
     font-size: 0.875rem;
     font-weight: 500;
-    color: #fff;
+    color: var(--color-white, #fff);
     background: var(--wishlist-primary);
     border: none;
     border-radius: 0.5rem;
@@ -373,7 +387,7 @@ const isCount = mode === 'count';
   }
 
   .wishlist-item__add-cart:hover {
-    background: #2563eb;
+    background: var(--color-primary-hover, #2563eb);
   }
 
   .wishlist-item__add-cart svg {
@@ -397,7 +411,7 @@ const isCount = mode === 'count';
 
   .wishlist-item__remove:hover {
     color: var(--wishlist-active);
-    background: rgba(239, 68, 68, 0.1);
+    background: var(--color-error-subtle, rgba(239, 68, 68, 0.1));
   }
 
   .wishlist-item__remove svg {
@@ -405,6 +419,8 @@ const isCount = mode === 'count';
     height: 1.25rem;
   }
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* List Actions */
   .wishlist-list__actions {
     display: flex;
@@ -440,7 +456,7 @@ const isCount = mode === 'count';
     padding: 0.75rem 1.5rem;
     font-size: 0.875rem;
     font-weight: 500;
-    color: #fff;
+    color: var(--color-white, #fff);
     background: var(--wishlist-primary);
     border: none;
     border-radius: 0.5rem;
@@ -449,7 +465,7 @@ const isCount = mode === 'count';
   }
 
   .wishlist-list__add-all:hover {
-    background: #2563eb;
+    background: var(--color-primary-hover, #2563eb);
   }
 </style>
 

@@ -1,21 +1,83 @@
 ---
 /**
- * TestimonialsSection Component
+ * TestimonialsSection Component - WenderMedia Astro Components
  *
- * Social proof section with customer testimonials.
+ * A social-proof section that displays customer testimonials in six layout variants.
+ * Pass TestimonialCard children into the default slot (or the "featured" named slot
+ * for the featured variant). Use it on landing pages, product pages, or case study
+ * sections to build trust and credibility.
  *
- * Variants:
- * - grid: Grid of testimonial cards
- * - carousel: Sliding carousel
- * - featured: Large featured testimonial
- * - masonry: Pinterest-style masonry
- * - quote: Single large quote
- * - wall: Twitter/social media wall style
+ * Features:
+ * - Six variants: grid, carousel (sliding), featured (large + grid), masonry
+ *   (Pinterest-style), quote (single large), and wall (social media style)
+ * - Configurable column count (2, 3, or 4) for grid, masonry, featured, and wall variants
+ * - Carousel includes previous/next navigation buttons with accessible aria-labels
+ * - Masonry layout uses CSS columns for a staggered, Pinterest-like appearance
+ * - Optional SectionHeader with eyebrow, title, and description
+ * - Background options: transparent, subtle (default), muted, or dark
+ * - Works with Astro view transitions (carousel re-initializes on astro:page-load)
+ *
+ * Named slots:
+ * - default    — TestimonialCard children displayed in the chosen layout
+ * - "featured" — A single highlighted testimonial (only in the "featured" variant),
+ *                rendered large and centered above the remaining grid
+ *
+ * Child components:
+ * - Use TestimonialCard inside the default slot for all variants
+ * - For the carousel, each TestimonialCard should have data-testimonial-card attribute
+ * - For the "featured" variant, place one TestimonialCard in slot="featured"
  *
  * @example
- * <TestimonialsSection variant="grid" columns={3}>
- *   <TestimonialCard name="John Doe" role="CEO" ... />
+ * ---
+ * import TestimonialsSection from '../sections/TestimonialsSection.astro';
+ * import TestimonialCard from '../content/TestimonialCard.astro';
+ * ---
+ * <!-- Standard 3-column grid -->
+ * <TestimonialsSection
+ *   variant="grid"
+ *   columns={3}
+ *   eyebrow="Testimonials"
+ *   title="What Our Customers Say"
+ *   description="Trusted by teams worldwide."
+ * >
+ *   <TestimonialCard name="Jane Doe" role="CEO, Acme Corp" quote="This tool saved us hours every week." rating={5} />
+ *   <TestimonialCard name="John Smith" role="CTO, Globex" quote="The best investment we made this year." rating={5} />
+ *   <TestimonialCard name="Maria Garcia" role="Designer, Initech" quote="Intuitive and beautiful. Highly recommended." rating={4} />
  * </TestimonialsSection>
+ *
+ * @example
+ * <!-- Sliding carousel -->
+ * <TestimonialsSection variant="carousel" title="Customer Stories" background="muted">
+ *   <TestimonialCard data-testimonial-card name="Jane Doe" role="CEO" quote="Incredible experience." />
+ *   <TestimonialCard data-testimonial-card name="John Smith" role="CTO" quote="A game changer." />
+ *   <TestimonialCard data-testimonial-card name="Maria Garcia" role="Designer" quote="Love the simplicity." />
+ *   <TestimonialCard data-testimonial-card name="Alex Chen" role="Engineer" quote="Solid and reliable." />
+ * </TestimonialsSection>
+ *
+ * @example
+ * <!-- Featured testimonial (one large + supporting grid) -->
+ * <TestimonialsSection variant="featured" columns={2} title="What People Think">
+ *   <TestimonialCard slot="featured" name="Jane Doe" role="CEO, Acme Corp" quote="This platform transformed our entire workflow." />
+ *   <TestimonialCard name="John Smith" role="CTO" quote="Fast and reliable." />
+ *   <TestimonialCard name="Maria Garcia" role="Designer" quote="Beautiful design system." />
+ * </TestimonialsSection>
+ *
+ * @example
+ * <!-- Masonry layout for varied-length testimonials -->
+ * <TestimonialsSection variant="masonry" columns={3} title="Wall of Love" background="subtle">
+ *   <TestimonialCard name="Jane Doe" quote="Short and sweet!" />
+ *   <TestimonialCard name="John Smith" quote="We have been using this for six months now and the results speak for themselves. Our team productivity went up 40%." />
+ *   <TestimonialCard name="Maria Garcia" quote="Highly recommended." />
+ * </TestimonialsSection>
+ *
+ * @example
+ * <!-- Single large quote -->
+ * <TestimonialsSection variant="quote" background="dark">
+ *   <TestimonialCard name="Jane Doe" role="CEO, Acme Corp" quote="The single best decision we made for our business this year." />
+ * </TestimonialsSection>
+ *
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
  */
 
 import SectionWrapper from './SectionWrapper.astro';

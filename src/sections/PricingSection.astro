@@ -1,20 +1,70 @@
 ---
 /**
- * PricingSection Component
+ * PricingSection Component - WenderMedia Astro Components
  *
- * Pricing plans display with comparison features.
+ * A flexible pricing display section that wraps PricingCard children in different
+ * layouts. Use it on landing pages, product pages, or SaaS marketing sites to
+ * present tiered plans side by side. Pass PricingCard components as children via
+ * the default slot.
  *
- * Variants:
- * - cards: Traditional pricing cards
- * - comparison: Feature comparison table
- * - toggle: Monthly/yearly toggle
- * - minimal: Simple pricing list
+ * Features:
+ * - Four layout variants: cards, comparison table, monthly/yearly toggle, and minimal list
+ * - Configurable grid columns (2, 3, or 4) for the cards and toggle variants
+ * - Optional SectionHeader with eyebrow, title, and description
+ * - Built-in billing-period toggle (monthly/yearly) that dispatches a "pricing:toggle"
+ *   custom event so child PricingCard components can react and swap prices
+ * - Accessible toggle: uses aria-pressed and keyboard-operable button
+ * - Background options: transparent, subtle, or muted
+ *
+ * Child components:
+ * - Use PricingCard inside the default <slot /> for the "cards" and "toggle" variants
+ * - Use a custom <table> or comparison markup for the "comparison" variant
+ * - Use simple list items or PricingCard (minimal style) for the "minimal" variant
+ *
+ * Variant-specific behavior:
+ * - "cards" / "toggle": Renders a responsive CSS grid. "toggle" adds the billing switch.
+ * - "comparison": Renders an overflow-x-auto wrapper for wide comparison tables.
+ * - "minimal": Renders a centered, stacked list (max-w-2xl) for simple pricing.
  *
  * @example
- * <PricingSection variant="cards">
- *   <PricingCard name="Starter" price={9} ... />
- *   <PricingCard name="Pro" price={29} featured ... />
+ * ---
+ * import PricingSection from '../sections/PricingSection.astro';
+ * import PricingCard from '../ecommerce/PricingCard.astro';
+ * ---
+ * <!-- Standard 3-column pricing cards -->
+ * <PricingSection
+ *   variant="cards"
+ *   columns={3}
+ *   eyebrow="Pricing"
+ *   title="Choose Your Plan"
+ *   description="No hidden fees. Cancel anytime."
+ * >
+ *   <PricingCard name="Starter" price={9} period="mo" features={['5 Projects', '10 GB Storage']} />
+ *   <PricingCard name="Pro" price={29} period="mo" featured features={['Unlimited Projects', '100 GB Storage']} />
+ *   <PricingCard name="Enterprise" price={99} period="mo" features={['Everything in Pro', 'Priority Support']} />
  * </PricingSection>
+ *
+ * @example
+ * <!-- Monthly/yearly toggle variant -->
+ * <PricingSection
+ *   variant="toggle"
+ *   showToggle={true}
+ *   columns={2}
+ *   title="Simple, Transparent Pricing"
+ * >
+ *   <PricingCard name="Basic" price={15} period="mo" />
+ *   <PricingCard name="Premium" price={45} period="mo" featured />
+ * </PricingSection>
+ *
+ * @example
+ * <!-- Minimal pricing list -->
+ * <PricingSection variant="minimal" title="Our Rates" background="subtle">
+ *   <PricingCard name="Consultation" price={150} period="hr" />
+ *   <PricingCard name="Workshop" price={500} period="day" />
+ * </PricingSection>
+ *
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
  */
 
 import SectionWrapper from './SectionWrapper.astro';

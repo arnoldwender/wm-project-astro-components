@@ -1,6 +1,6 @@
 ---
 /**
- * AuthSection Component
+ * AuthSection Component - WenderMedia Astro Components
  *
  * Authentication pages (login, signup, forgot password, etc.)
  *
@@ -18,6 +18,8 @@
  *   title="Welcome back"
  *   showSocials={true}
  * />
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
  */
 
 export interface SocialProvider {
@@ -103,7 +105,7 @@ const displaySubtitle = subtitle || defaultSubtitles[variant];
   {layout === 'split' && (
     <div class="auth-background">
       {backgroundImage ? (
-        <img src={backgroundImage} alt="" class="bg-image" />
+        <img src={backgroundImage} alt="" aria-hidden="true" class="bg-image" />
       ) : (
         <div class="bg-pattern" />
       )}

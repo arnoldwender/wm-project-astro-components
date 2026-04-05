@@ -1,6 +1,6 @@
 ---
 /**
- * ProductSection Component
+ * ProductSection Component - WenderMedia Astro Components
  *
  * E-commerce product display sections.
  *
@@ -16,6 +16,8 @@
  * <ProductSection variant="grid" title="Featured Products">
  *   <ProductCard ... />
  * </ProductSection>
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
  */
 
 import SectionWrapper from './SectionWrapper.astro';
@@ -227,11 +229,11 @@ function getDiscount(original: number, current: number): number {
         {product.images && product.images.length > 0 && (
           <div class="thumbnail-grid">
             <button type="button" class="thumbnail active">
-              <img src={product.image} alt="" />
+              <img src={product.image} alt={`${product.name} — Hauptbild`} />
             </button>
             {product.images.map((img, index) => (
               <button type="button" class="thumbnail" data-image={img}>
-                <img src={img} alt="" />
+                <img src={img} alt={`${product.name} — Bild ${index + 2}`} />
               </button>
             ))}
           </div>
@@ -365,11 +367,11 @@ function getDiscount(original: number, current: number): number {
         {product.images && (
           <div class="thumbnail-strip">
             <button type="button" class="thumbnail active">
-              <img src={product.image} alt="" />
+              <img src={product.image} alt={`${product.name} — Hauptbild`} />
             </button>
-            {product.images.map((img) => (
+            {product.images.map((img, index) => (
               <button type="button" class="thumbnail" data-image={img}>
-                <img src={img} alt="" />
+                <img src={img} alt={`${product.name} — Bild ${index + 2}`} />
               </button>
             ))}
           </div>

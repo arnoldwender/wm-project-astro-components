@@ -93,7 +93,19 @@
     "headless-cms"
   ],
   "author": "Arnold Wender <arnold.wender@gmail.com>",
-  "license": "PROPRIETARY",
+  "license": "MIT",
+  "homepage": "https://github.com/arnoldwender/wm-project-astro-components#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arnoldwender/wm-project-astro-components.git"
+  },
+  "bugs": {
+    "url": "https://github.com/arnoldwender/wm-project-astro-components/issues"
+  },
+  "funding": {
+    "type": "github",
+    "url": "https://github.com/sponsors/arnoldwender"
+  },
   "peerDependencies": {
     "astro": "^4.0.0 || ^5.0.0"
   },
@@ -110,6 +122,7 @@
   "devDependencies": {
     "@axe-core/playwright": "^4.11.1",
     "@changesets/cli": "^2.30.0",
+    "@eslint/js": "^10.0.1",
     "@storybook/addon-a11y": "^8.6.18",
     "@storybook/addon-essentials": "^8.6.14",
     "@storybook/addon-interactions": "^8.6.14",
@@ -118,14 +131,18 @@
     "@storybook/web-components": "^8.0.0",
     "@storybook/web-components-vite": "^8.6.18",
     "@testing-library/dom": "^10.4.1",
+    "@typescript-eslint/parser": "^8.58.0",
     "@vitest/coverage-v8": "^4.1.1",
     "@vitest/ui": "^2.1.9",
     "astro": "^5.18.1",
     "axe-core": "^4.11.1",
+    "eslint": "^10.2.0",
+    "eslint-plugin-astro": "^1.6.0",
     "happy-dom": "^20.8.8",
     "storybook": "^8.6.18",
     "style-dictionary": "^5.4.0",
     "typescript": "^5.9.3",
+    "typescript-eslint": "^8.58.0",
     "vitest": "^4.1.1"
   }
 }

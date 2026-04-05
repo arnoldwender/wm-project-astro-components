@@ -16,6 +16,8 @@
  *   currency="EUR"
  *   checkoutUrl="/checkout"
  * />
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
  */
 
 export interface Props {
@@ -138,7 +140,7 @@ const {
         <template data-cart-item-template>
           <div class="cart-item" data-cart-item>
             <div class="cart-item__image">
-              <img src="" alt="" loading="lazy" />
+              <img src="" alt="Produktbild" loading="lazy" />
             </div>
             <div class="cart-item__details">
               <h3 class="cart-item__name"></h3>
@@ -201,25 +203,27 @@ const {
 
 <style>
   .cart-container {
-    --cart-bg: #fff;
-    --cart-text: #111;
-    --cart-muted: #6b7280;
-    --cart-border: #e5e7eb;
-    --cart-primary: #3b82f6;
-    --cart-primary-hover: #2563eb;
-    --cart-danger: #ef4444;
-    --cart-success: #10b981;
+    --cart-bg: var(--color-bg, #fff);
+    --cart-text: var(--color-text, #111);
+    --cart-muted: var(--color-text-muted, #6b7280);
+    --cart-border: var(--color-border, #e5e7eb);
+    --cart-primary: var(--color-primary, #3b82f6);
+    --cart-primary-hover: var(--color-primary-hover, #2563eb);
+    --cart-danger: var(--color-error, #ef4444);
+    --cart-success: var(--color-success, #10b981);
   }
 
   @media (prefers-color-scheme: dark) {
     .cart-container {
-      --cart-bg: #1a1a1a;
-      --cart-text: #f5f5f5;
-      --cart-muted: #9ca3af;
-      --cart-border: #374151;
+      --cart-bg: var(--color-bg-dark, #1a1a1a);
+      --cart-text: var(--color-text-dark, #f5f5f5);
+      --cart-muted: var(--color-text-muted-dark, #9ca3af);
+      --cart-border: var(--color-border-dark, #374151);
     }
   }
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* Toggle Button */
   .cart-toggle {
     position: relative;
@@ -255,11 +259,13 @@ const {
     font-weight: 600;
     line-height: 1.25rem;
     text-align: center;
-    color: #fff;
+    color: var(--color-white, #fff);
     background: var(--cart-primary);
     border-radius: 9999px;
   }
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* Drawer */
   .cart-drawer {
     position: fixed;
@@ -283,7 +289,7 @@ const {
   .cart-drawer__backdrop {
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: var(--color-overlay, rgba(0, 0, 0, 0.5));
     animation: fadeIn 0.2s ease;
   }
 
@@ -295,13 +301,13 @@ const {
     max-width: 28rem;
     height: 100%;
     background: var(--cart-bg);
-    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--shadow-lg, -4px 0 20px rgba(0, 0, 0, 0.15));
     animation: slideIn 0.3s ease;
   }
 
   .cart-drawer--left .cart-drawer__content {
     animation: slideInLeft 0.3s ease;
-    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--shadow-lg, 4px 0 20px rgba(0, 0, 0, 0.15));
   }
 
   @keyframes fadeIn {
@@ -319,6 +325,8 @@ const {
     to { transform: translateX(0); }
   }
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* Header */
   .cart-drawer__header {
     display: flex;
@@ -361,12 +369,14 @@ const {
     height: 1.25rem;
   }
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* Shipping Progress */
   .shipping-progress__text {
     padding: 0.75rem 1.5rem;
     font-size: 0.875rem;
     color: var(--cart-muted);
-    background: rgba(0, 0, 0, 0.02);
+    background: var(--color-bg-alt, rgba(0, 0, 0, 0.02));
   }
 
   .shipping-progress__text[data-free-shipping="true"] {
@@ -384,6 +394,8 @@ const {
     transition: width 0.3s ease;
   }
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* Items Container */
   .cart-drawer__items {
     flex: 1;
@@ -391,6 +403,8 @@ const {
     padding: 1rem 1.5rem;
   }
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* Empty State */
   .cart-drawer__empty {
     display: flex;
@@ -432,9 +446,11 @@ const {
 
   .cart-drawer__continue:hover {
     background: var(--cart-primary);
-    color: #fff;
+    color: var(--color-white, #fff);
   }
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* Cart Item */
   .cart-item {
     display: grid;
@@ -504,7 +520,7 @@ const {
 
   .cart-item__qty-btn:hover {
     background: var(--cart-muted);
-    color: #fff;
+    color: var(--color-white, #fff);
   }
 
   .cart-item__qty-input {
@@ -558,6 +574,8 @@ const {
     height: 1rem;
   }
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* Footer */
   .cart-drawer__footer {
     padding: 1rem 1.5rem;
@@ -597,7 +615,7 @@ const {
     font-weight: 600;
     text-align: center;
     text-decoration: none;
-    color: #fff;
+    color: var(--color-white, #fff);
     background: var(--cart-primary);
     border: none;
     border-radius: 0.5rem;

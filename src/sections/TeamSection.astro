@@ -1,22 +1,74 @@
 ---
 /**
- * TeamSection Component
+ * TeamSection Component - WenderMedia Astro Components
  *
- * Showcase team members with various layouts.
+ * A section for showcasing team members, founders, or staff in six layout variants.
+ * Pass TeamMember child components into the default slot; this section handles the
+ * grid layout, column count, and optional section header. Use it on About pages,
+ * team pages, or anywhere you need to present people.
  *
- * Variants:
- * - grid: Standard grid layout
- * - cards: Card-based with shadows
- * - horizontal: Horizontal cards list
- * - overlay: Image with text overlay
- * - minimal: Compact minimal display
- * - featured: Large featured member + grid
+ * Features:
+ * - Six variants: grid, cards (with shadows), horizontal (2-col wide cards), overlay
+ *   (image with text overlay), minimal (compact), and featured (highlight one person)
+ * - Configurable column count: 2, 3, 4, 5, or 6 columns with responsive breakpoints
+ * - Optional SectionHeader with eyebrow, title, and description
+ * - "featured" variant provides a separate named "featured" slot for the highlighted
+ *   team member, rendered large and centered above the grid
+ * - Background options: transparent, subtle, or muted
+ *
+ * Named slots:
+ * - default    — TeamMember children shown in the grid
+ * - "featured" — A single highlighted TeamMember (only used in the "featured" variant)
+ *
+ * Child components:
+ * - Use TeamMember inside the default slot for all variants
+ * - For the "featured" variant, also provide one TeamMember in slot="featured"
  *
  * @example
- * <TeamSection variant="grid" columns={4}>
+ * ---
+ * import TeamSection from '../sections/TeamSection.astro';
+ * import TeamMember from '../content/TeamMember.astro';
+ * ---
+ * <!-- Standard 4-column grid -->
+ * <TeamSection
+ *   variant="grid"
+ *   columns={4}
+ *   eyebrow="Our Team"
+ *   title="Meet the People Behind Acme"
+ *   description="A passionate team dedicated to building great products."
+ * >
  *   <TeamMember name="Jane Doe" role="CEO" image="/team/jane.jpg" />
  *   <TeamMember name="John Smith" role="CTO" image="/team/john.jpg" />
+ *   <TeamMember name="Maria Garcia" role="Head of Design" image="/team/maria.jpg" />
+ *   <TeamMember name="Alex Chen" role="Lead Engineer" image="/team/alex.jpg" />
  * </TeamSection>
+ *
+ * @example
+ * <!-- Card-based layout with 3 columns and subtle background -->
+ * <TeamSection variant="cards" columns={3} title="Leadership" background="subtle">
+ *   <TeamMember name="Jane Doe" role="CEO" image="/team/jane.jpg" />
+ *   <TeamMember name="John Smith" role="CTO" image="/team/john.jpg" />
+ *   <TeamMember name="Maria Garcia" role="COO" image="/team/maria.jpg" />
+ * </TeamSection>
+ *
+ * @example
+ * <!-- Featured variant: one highlighted person + supporting grid -->
+ * <TeamSection variant="featured" columns={3} title="Our Founders">
+ *   <TeamMember slot="featured" name="Jane Doe" role="CEO & Founder" image="/team/jane.jpg" />
+ *   <TeamMember name="John Smith" role="CTO" image="/team/john.jpg" />
+ *   <TeamMember name="Maria Garcia" role="COO" image="/team/maria.jpg" />
+ *   <TeamMember name="Alex Chen" role="VP Engineering" image="/team/alex.jpg" />
+ * </TeamSection>
+ *
+ * @example
+ * <!-- Horizontal wide cards (always 2 columns) -->
+ * <TeamSection variant="horizontal" title="Advisory Board">
+ *   <TeamMember name="Dr. Sarah Lee" role="Advisor" image="/team/sarah.jpg" />
+ *   <TeamMember name="Prof. Tom Baker" role="Advisor" image="/team/tom.jpg" />
+ * </TeamSection>
+ *
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
  */
 
 import SectionWrapper from './SectionWrapper.astro';

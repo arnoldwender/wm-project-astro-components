@@ -65,4 +65,4 @@ We monitor dependencies for known vulnerabilities:
 
 ---
 
-**Last Updated**: March 2026
+**Last Updated**: April 2026
