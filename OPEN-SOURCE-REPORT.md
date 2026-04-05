@@ -22,7 +22,7 @@ The `wm-project-astro-components` repository has been fully prepared for open-so
 | **Legal Name** | Wender Media - Arnold Wender |
 | **Founded** | 2007 |
 | **Location** | Halle (Saale), Germany |
-| **Website** | [wendermedia.com](https://wendermedia.com) |
+| **Website** | [wendermedia.com](https://www.wendermedia.com) |
 | **Author** | Arnold Wender |
 | **Author Website** | [arnoldwender.com](https://arnoldwender.com) |
 | **GitHub** | [@arnoldwender](https://github.com/arnoldwender) |

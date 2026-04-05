@@ -1,12 +1,12 @@
 <p align="center">
-  <img src="https://wendermedia.com/favicon.svg" alt="WenderMedia Logo" width="64" height="64" />
+  <img src="https://www.wendermedia.com/favicon.svg" alt="WenderMedia Logo" width="64" height="64" />
 </p>
 
 <h1 align="center">@wendermedia/astro-components</h1>
 
 <p align="center">
   <strong>150+ production-ready, accessible, GDPR-compliant Astro components</strong><br />
-  Built by <a href="https://wendermedia.com">Wender Media</a> &mdash; Web Agency from Halle (Saale), Germany
+  Built by <a href="https://www.wendermedia.com">Wender Media</a> &mdash; Web Agency from Halle (Saale), Germany
 </p>
 
 <p align="center">
@@ -391,7 +391,7 @@ See [CHANGELOG.md](./CHANGELOG.md) for release history.
 
 **Arnold Wender**
 - Website: [arnoldwender.com](https://arnoldwender.com)
-- Agency: [Wender Media](https://wendermedia.com) - Web Agency, Halle (Saale), Germany
+- Agency: [Wender Media](https://www.wendermedia.com) - Web Agency, Halle (Saale), Germany
 - GitHub: [@arnoldwender](https://github.com/arnoldwender)
 - Twitter/X: [@arnoldwender](https://x.com/arnoldwender)
 - LinkedIn: [arnoldwender](https://linkedin.com/in/arnoldwender)
@@ -400,10 +400,10 @@ See [CHANGELOG.md](./CHANGELOG.md) for release history.
 
 This project is licensed under the [MIT License](./LICENSE).
 
-Copyright (c) 2007-2026 [Wender Media](https://wendermedia.com) - Arnold Wender.
+Copyright (c) 2007-2026 [Wender Media](https://www.wendermedia.com) - Arnold Wender.
 
 ---
 
 <p align="center">
-  Made with care by <a href="https://wendermedia.com">Wender Media</a> in Halle (Saale), Germany
+  Made with care by <a href="https://www.wendermedia.com">Wender Media</a> in Halle (Saale), Germany
 </p>
