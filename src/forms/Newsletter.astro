@@ -116,7 +116,7 @@ const formId = `newsletter-${Math.random().toString(36).substring(2, 9)}`;
           {incentive && (
             <div class="flex items-start gap-4 mb-6 pb-6 border-b border-gray-200 dark:border-gray-700">
               {incentive.image && (
-                <img src={incentive.image} alt="" class="w-16 h-16 rounded-lg object-cover" />
+                <img src={incentive.image} alt={incentive.title || 'Newsletter Incentive'} class="w-16 h-16 rounded-lg object-cover" />
               )}
               <div>
                 <h4 class="font-semibold text-gray-900 dark:text-white">{incentive.title}</h4>

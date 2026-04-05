@@ -189,7 +189,7 @@ const defaultEmptyDescription = `We couldn't find any results for "${query}". Tr
       {variant === 'cards' && results.map((result) => (
         <a href={result.url} class="result-card">
           {result.image && (
-            <img src={result.image} alt="" class="card-image" loading="lazy" />
+            <img src={result.image} alt={result.title} class="card-image" loading="lazy" />
           )}
           <div class="card-content">
             {result.category && (
@@ -226,7 +226,7 @@ const defaultEmptyDescription = `We couldn't find any results for "${query}". Tr
       {variant === 'grid' && results.map((result) => (
         <a href={result.url} class="result-grid-item">
           {result.image ? (
-            <img src={result.image} alt="" class="grid-image" loading="lazy" />
+            <img src={result.image} alt={result.title} class="grid-image" loading="lazy" />
           ) : (
             <div class="grid-placeholder">
               <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" width="32" height="32">

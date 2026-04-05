@@ -105,7 +105,7 @@ const displaySubtitle = subtitle || defaultSubtitles[variant];
   {layout === 'split' && (
     <div class="auth-background">
       {backgroundImage ? (
-        <img src={backgroundImage} alt="" class="bg-image" />
+        <img src={backgroundImage} alt="" aria-hidden="true" class="bg-image" />
       ) : (
         <div class="bg-pattern" />
       )}

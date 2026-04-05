@@ -120,7 +120,7 @@ const isCount = mode === 'count';
       <div class="wishlist-item" data-wishlist-item>
         <a href="#" class="wishlist-item__link">
           <div class="wishlist-item__image">
-            <img src="" alt="" loading="lazy" />
+            <img src="" alt="Produktbild" loading="lazy" />
           </div>
           <div class="wishlist-item__details">
             <h3 class="wishlist-item__name"></h3>
@@ -181,12 +181,12 @@ const isCount = mode === 'count';
     background: transparent;
     border: none;
     cursor: pointer;
-    color: var(--wishlist-color, #6b7280);
+    color: var(--wishlist-color, var(--color-text-muted, #6b7280));
     transition: all 0.2s;
   }
 
   .wishlist-toggle:hover {
-    color: var(--wishlist-active, #ef4444);
+    color: var(--wishlist-active, var(--color-error, #ef4444));
     transform: scale(1.1);
   }
 
@@ -197,7 +197,7 @@ const isCount = mode === 'count';
 
   .wishlist-toggle__icon--filled {
     display: none;
-    color: var(--wishlist-active, #ef4444);
+    color: var(--wishlist-active, var(--color-error, #ef4444));
   }
 
   .wishlist-toggle[aria-pressed="true"] .wishlist-toggle__icon--empty {
@@ -226,8 +226,8 @@ const isCount = mode === 'count';
     padding: 0 0.25rem;
     font-size: 0.75rem;
     font-weight: 600;
-    color: #fff;
-    background: var(--wishlist-active, #ef4444);
+    color: var(--color-white, #fff);
+    background: var(--wishlist-active, var(--color-error, #ef4444));
     border-radius: 9999px;
   }
 
