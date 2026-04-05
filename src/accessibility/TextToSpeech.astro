@@ -17,6 +17,20 @@
  * - Helps users with dyslexia, low vision
  * - Supports multiple languages
  * - Works with screen readers
+ *
+ * @example
+ * <!-- Full TTS toolbar targeting the main content -->
+ * <TextToSpeech targetSelector="main" variant="full" />
+ *
+ * @example
+ * <!-- Compact floating button for article reading -->
+ * <TextToSpeech
+ *   targetSelector="#article-body"
+ *   variant="floating"
+ *   defaultRate={1.2}
+ *   showVoiceSelect={false}
+ * />
+ *
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */

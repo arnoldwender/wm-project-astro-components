@@ -15,6 +15,18 @@
  * Use with CSS:
  * - --motion-duration: 0s (reduced) or normal value
  * - --motion-ok: 0 (reduced) or 1 (normal)
+ *
+ * @example
+ * <!-- Auto-detect system preference, no visible toggle -->
+ * <ReducedMotion />
+ *
+ * @example
+ * <!-- With visible toggle button for user override -->
+ * <ReducedMotion
+ *   showToggle={true}
+ *   labels={{ enable: 'Animationen aktivieren', disable: 'Animationen deaktivieren' }}
+ * />
+ *
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */
