@@ -4,13 +4,34 @@
  *
  * Visual article card for magazine layouts.
  *
+ * Features:
+ * - Four size presets (small, medium, large, hero) with automatic aspect ratios
+ * - Gradient or solid overlay for text contrast on background images
+ * - Category badge with customizable color, author name, and formatted date
+ * - Hover zoom animation on the background image
+ * - Full-card clickable link with accessible sr-only label
+ *
  * @example
  * <MagazineCard
- *   title="Article Title"
- *   href="/article"
- *   image="/image.jpg"
- *   category="Fashion"
- *   size="large"
+ *   title="How Acme Corp Transformed Digital Marketing"
+ *   href="/blog/acme-marketing"
+ *   image="/images/blog-hero.jpg"
+ *   category="Marketing"
+ *   author="Jane Doe"
+ *   date={new Date('2026-03-15')}
+ *   size="hero"
+ * />
+ *
+ * @example
+ * <MagazineCard
+ *   title="5 Tips for Better Web Design"
+ *   href="/blog/web-design-tips"
+ *   image="/images/design-tips.jpg"
+ *   imageAlt="Laptop showing design mockup"
+ *   category="Design"
+ *   categoryColor="#8b5cf6"
+ *   size="medium"
+ *   overlay="gradient"
  * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

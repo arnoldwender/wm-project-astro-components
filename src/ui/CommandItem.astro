@@ -4,9 +4,21 @@
  *
  * Individual command/action item for the Command Palette.
  *
+ * Features:
+ * - Supports navigation (href) and custom actions (data-action) modes
+ * - Optional leading icon with SVG or emoji support
+ * - Keyboard shortcut badge display for power-user discoverability
+ * - Searchable via keywords attribute for fuzzy command filtering
+ * - Disabled state with aria-disabled and visual opacity change
+ *
  * @example
  * <CommandItem value="home" href="/" icon="🏠">Home</CommandItem>
- * <CommandItem value="theme" action="toggleTheme" shortcut="⌘T">Toggle Theme</CommandItem>
+ * <CommandItem value="theme" action="toggleTheme" shortcut="Ctrl+T">Toggle Theme</CommandItem>
+ *
+ * @example
+ * <CommandItem value="docs" href="/docs" icon="📄" keywords="help documentation guide">
+ *   Documentation
+ * </CommandItem>
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */

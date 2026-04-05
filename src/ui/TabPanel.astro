@@ -4,10 +4,22 @@
  *
  * Content panel for use within Tabs component.
  *
+ * Features:
+ * - ARIA role="tabpanel" linked to its Tab via aria-labelledby
+ * - Hidden by default, shown when corresponding Tab is selected
+ * - Focusable with tabindex="0" for keyboard accessibility
+ * - Slot-based content supports any nested HTML or components
+ *
  * @example
  * <TabPanel id="overview">
  *   <h3>Overview Content</h3>
  *   <p>Panel content here...</p>
+ * </TabPanel>
+ *
+ * @example
+ * <TabPanel id="pricing">
+ *   <h3>Plans & Pricing</h3>
+ *   <p>Choose the plan that fits your needs at Acme Corp.</p>
  * </TabPanel>
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

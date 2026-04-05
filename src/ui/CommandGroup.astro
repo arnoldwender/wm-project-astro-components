@@ -4,10 +4,23 @@
  *
  * Groups related command items with an optional title.
  *
+ * Features:
+ * - ARIA role="group" with accessible label for screen readers
+ * - Uppercase styled section title for visual separation
+ * - Automatic border separator between consecutive groups
+ * - Hidden when no matching items via [hidden] attribute
+ * - Slot-based children for flexible CommandItem composition
+ *
  * @example
  * <CommandGroup title="Navigation">
  *   <CommandItem value="home" href="/">Home</CommandItem>
  *   <CommandItem value="about" href="/about">About</CommandItem>
+ * </CommandGroup>
+ *
+ * @example
+ * <CommandGroup title="Actions" name="actions">
+ *   <CommandItem value="search" action="openSearch" shortcut="Ctrl+K">Search</CommandItem>
+ *   <CommandItem value="settings" href="/settings">Settings</CommandItem>
  * </CommandGroup>
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

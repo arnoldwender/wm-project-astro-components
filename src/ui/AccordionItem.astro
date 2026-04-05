@@ -4,9 +4,21 @@
  *
  * Individual collapsible section for use within Accordion.
  *
+ * Features:
+ * - ARIA-compliant expand/collapse with aria-expanded and aria-controls
+ * - Optional leading icon and disabled state
+ * - Unique auto-generated IDs for trigger and content pairing
+ * - Slot-based content allows any nested HTML or components
+ * - Animated chevron indicator for open/closed state
+ *
  * @example
- * <AccordionItem title="Getting Started" icon="🚀" defaultOpen>
- *   <p>Content here...</p>
+ * <AccordionItem title="What does Acme Corp offer?" defaultOpen>
+ *   <p>We provide web design, SEO, and digital marketing services.</p>
+ * </AccordionItem>
+ *
+ * @example
+ * <AccordionItem title="How do I get started?" icon="?" disabled={false}>
+ *   <p>Contact us at hello@acme-corp.com for a free consultation.</p>
  * </AccordionItem>
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

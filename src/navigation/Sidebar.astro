@@ -5,14 +5,35 @@
  * Collapsible sidebar navigation with nested items support.
  * Perfect for dashboards, admin panels, and documentation sites.
  *
+ * Features:
+ * - Collapsible width with toggle button and localStorage persistence
+ * - Built-in icon set (home, box, cog, users, chart, document, folder, mail, calendar)
+ * - Color-coded badges (default, primary, success, warning, error)
+ * - Nested expandable groups with active-path detection
+ * - Optional logo slot and footer slot for user profile or actions
+ *
  * @example
  * <Sidebar
  *   items={[
  *     { label: 'Dashboard', href: '/', icon: 'home' },
  *     { label: 'Products', href: '/products', icon: 'box', badge: '12' },
- *     { label: 'Settings', icon: 'cog', children: [...] },
+ *     { label: 'Settings', icon: 'cog', children: [
+ *       { label: 'General', href: '/settings/general' },
+ *       { label: 'Security', href: '/settings/security' },
+ *     ]},
  *   ]}
- *   collapsed={false}
+ *   logo={{ src: '/logo.svg', alt: 'Acme Corp', href: '/' }}
+ * />
+ *
+ * @example
+ * <Sidebar
+ *   items={[
+ *     { label: 'Overview', href: '/admin', icon: 'chart' },
+ *     { label: 'Users', href: '/admin/users', icon: 'users', badge: '3', badgeColor: 'warning' },
+ *     { label: 'Documents', href: '/admin/docs', icon: 'document' },
+ *   ]}
+ *   collapsed={true}
+ *   collapsible={true}
  * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

@@ -5,18 +5,31 @@
  * Privacy-first video player supporting YouTube, Vimeo, and self-hosted videos.
  * GDPR-compliant with consent-based loading for third-party embeds.
  *
+ * Features:
+ * - Native HTML5 video, YouTube (youtube-nocookie.com), and Vimeo providers
+ * - GDPR consent overlay with customizable message and button text
+ * - LocalStorage-based consent persistence per provider
+ * - Configurable aspect ratio, autoplay, loop, and inline playback
+ * - Custom play button overlay for native videos
+ *
  * @example
- * <!-- Self-hosted video -->
+ * <!-- Self-hosted video with poster -->
  * <VideoPlayer
- *   src="/videos/intro.mp4"
- *   poster="/images/poster.jpg"
+ *   src="/videos/about-acme.mp4"
+ *   poster="/images/video-poster.jpg"
+ *   title="About Acme Corp"
+ *   aspectRatio="16/9"
  * />
  *
- * <!-- YouTube (GDPR-compliant) -->
+ * @example
+ * <!-- YouTube with GDPR consent -->
  * <VideoPlayer
  *   provider="youtube"
  *   videoId="dQw4w9WgXcQ"
- *   title="Video Title"
+ *   title="Acme Corp Product Demo"
+ *   requireConsent={true}
+ *   consentMessage="This video is hosted by YouTube. Playing it will transmit data to Google."
+ *   consentButtonText="Accept & Play"
  * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

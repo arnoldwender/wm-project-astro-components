@@ -4,12 +4,30 @@
  *
  * Individual portfolio/gallery item with hover effects.
  *
+ * Features:
+ * - Five aspect ratio options: square, video, portrait, landscape, auto
+ * - Hover overlay with title, category, description, and action indicator
+ * - Lightbox mode with zoom cursor and enlarge icon
+ * - Filterable by category via data-category attribute
+ * - Hover lift animation with shadow and reduced-motion support
+ *
  * @example
  * <PortfolioItem
- *   title="Project Name"
- *   image="/project.jpg"
- *   category="branding"
- *   href="/projects/name"
+ *   title="Acme Corp Rebrand"
+ *   image="/images/projects/acme-rebrand.jpg"
+ *   category="Branding"
+ *   description="Complete visual identity overhaul for Acme Corp."
+ *   href="/projects/acme-rebrand"
+ *   aspectRatio="landscape"
+ * />
+ *
+ * @example
+ * <PortfolioItem
+ *   title="Product Photography"
+ *   image="/images/projects/product-photo.jpg"
+ *   category="Photography"
+ *   enableLightbox={true}
+ *   aspectRatio="square"
  * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
