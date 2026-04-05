@@ -1,73 +1,98 @@
-![React](https://img.shields.io/badge/React-18.x-61DAFB?logo=react&logoColor=black)
-![Vue](https://img.shields.io/badge/Vue-3.x-4FC08D?logo=vuedotjs&logoColor=white)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)
-![Node.js](https://img.shields.io/badge/Node.js-20-339933?logo=nodedotjs&logoColor=white)
-![Vitest](https://img.shields.io/badge/Vitest-4.x-6E9F18?logo=vitest&logoColor=white)
-![Playwright](https://img.shields.io/badge/Playwright-1.x-2EAD33?logo=playwright&logoColor=white)
-![ESLint](https://img.shields.io/badge/ESLint-9.x-4B32C3?logo=eslint&logoColor=white)
-![License](https://img.shields.io/badge/License-Proprietary-red)
+<p align="center">
+  <img src="https://wendermedia.com/favicon.svg" alt="WenderMedia Logo" width="64" height="64" />
+</p>
 
-# @wendermedia/astro-components
+<h1 align="center">@wendermedia/astro-components</h1>
 
 <p align="center">
-  <strong>Complete Astro Development Resource</strong><br>
-  Production-ready, accessible, GDPR-compliant components for modern web development
+  <strong>150+ production-ready, accessible, GDPR-compliant Astro components</strong><br />
+  Built by <a href="https://wendermedia.com">Wender Media</a> &mdash; Web Agency from Halle (Saale), Germany
 </p>
 
 <p align="center">
-  <a href="#installation">Installation</a> •
-  <a href="#quick-start">Quick Start</a> •
-  <a href="#components">Components</a> •
-  <a href="#features">Features</a> •
-  <a href="#documentation">Docs</a>
+  <a href="https://github.com/arnoldwender/wm-project-astro-components/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="MIT License" /></a>
+  <img src="https://img.shields.io/badge/Astro-4.x%20%7C%205.x-BC52EE?logo=astro&logoColor=white" alt="Astro 4.x | 5.x" />
+  <img src="https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/WCAG_2.1-AA-green" alt="WCAG 2.1 AA" />
+  <img src="https://img.shields.io/badge/GDPR-Compliant-green" alt="GDPR Compliant" />
+  <img src="https://img.shields.io/badge/Components-150+-purple" alt="150+ Components" />
+</p>
+
+<p align="center">
+  <a href="#installation">Installation</a> &bull;
+  <a href="#quick-start">Quick Start</a> &bull;
+  <a href="#components">Components</a> &bull;
+  <a href="#design-tokens">Design Tokens</a> &bull;
+  <a href="#contributing">Contributing</a>
 </p>
 
 ---
 
 ## Features
 
-- **WCAG 2.1 AA Compliant** - Full accessibility support with BFSG compliance
-- **GDPR/DSGVO Ready** - Privacy-first design with consent management
-- **TypeScript First** - Complete type definitions for all components
-- **Zero Third-Party Tracking** - No external analytics by default
-- **Dark Mode Support** - CSS custom properties for theming
-- **Astro 5.x Compatible** - View transitions and content collections ready
+- **150+ Components** across 17 categories, ready for production
+- **WCAG 2.1 AA Compliant** with full accessibility support and BFSG 2025 readiness
+- **GDPR/DSGVO Ready** with privacy-first design and consent management
+- **TypeScript First** with complete type definitions for all components
+- **Design Token System** powered by Style Dictionary for consistent theming
+- **Dark Mode Support** via CSS custom properties
+- **Zero Third-Party Tracking** by default
+- **Astro 4.x & 5.x** compatible with View Transitions and Content Collections
+- **Framework Integrations** for React, Vue, Svelte, and Solid
+- **WordPress Headless CMS** integration included
 
 ## Installation
 
 ```bash
-# Create a new project with CLI
-npx @wendermedia/astro-components create my-project
-
-# Or add to existing project
 npm install @wendermedia/astro-components
 ```
 
-### From GitHub (private)
+Or install directly from GitHub:
 
 ```bash
-npm install git+ssh://git@github.com:arnoldwender/wm-project-astro-components.git
+npm install git+https://github.com/arnoldwender/wm-project-astro-components.git
 ```
+
+### CLI Scaffolding
+
+```bash
+# Create a new project with pre-configured templates
+npx @wendermedia/astro-components create my-project
+
+# With a specific template
+npx @wendermedia/astro-components create my-shop --template=ecommerce
+
+# List available templates
+npx @wendermedia/astro-components list
+```
+
+#### Available Templates
+
+| Template | Description |
+|----------|-------------|
+| `default` | Full-featured with all components |
+| `minimal` | Lightweight with core components |
+| `ecommerce` | Optimized for online shops |
+| `blog` | Content-focused with SEO |
+| `landing` | Single-page marketing sites |
 
 ## Quick Start
 
 ```astro
 ---
-// src/pages/index.astro
-import { SEOHead, SchemaOrg } from '@wendermedia/astro-components/seo';
+import { SEO } from '@wendermedia/astro-components/seo';
 import { Header, Footer } from '@wendermedia/astro-components/layout';
 import { CookieConsent } from '@wendermedia/astro-components/accessibility';
 ---
 
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
   <head>
-    <SEOHead
+    <SEO
       title="My Site"
-      description="Site description"
+      description="Built with @wendermedia/astro-components"
       siteName="My Site"
     />
-    <SchemaOrg type="WebSite" name="My Site" />
   </head>
   <body>
     <Header
@@ -90,100 +115,47 @@ import { CookieConsent } from '@wendermedia/astro-components/accessibility';
 
 ## Components
 
-### Layout Components
+### Overview (17 Categories, 150+ Components)
 
-| Component | Description | Import |
-|-----------|-------------|--------|
-| `Header` | Sticky navigation with mobile menu | `@wendermedia/astro-components/layout` |
-| `Footer` | Multi-column footer with social links | `@wendermedia/astro-components/layout` |
-| `Container` | Responsive content container | `@wendermedia/astro-components/layout` |
-| `Grid` | CSS Grid wrapper with variants | `@wendermedia/astro-components/layout` |
-| `Section` | Semantic section with spacing | `@wendermedia/astro-components/layout` |
+| Category | Components | Import Path |
+|----------|-----------|-------------|
+| **Layout** | Header, Footer, Container, Grid, Section | `@wendermedia/astro-components/layout` |
+| **Layouts** | Bento, Magazine, Dashboard, Portfolio, Newspaper, Split, Landing, Article, Docs, HeroLayout, ProductGrid | `@wendermedia/astro-components/layouts` |
+| **SEO** | SEOHead, SchemaOrg/JsonLD, OpenGraph, TwitterCard, Canonical, RichSnippets, HreflangTags, Breadcrumbs | `@wendermedia/astro-components/seo` |
+| **Accessibility** | CookieConsent, SkipLinks, FontResizer, ThemeToggle, BackToTop, FocusTrap, LanguageSwitcher, TextToSpeech, ScreenReaderOnly, LiveRegion, ReducedMotion, AccessibilityToolbar | `@wendermedia/astro-components/accessibility` |
+| **Navigation** | Breadcrumbs, Pagination, MobileNav, Sidebar | `@wendermedia/astro-components/navigation` |
+| **UI** | Accordion, Alert, Avatar, Badge, CommandPalette, Drawer, Dropdown, Modal, NewsTicker, Progress, Skeleton, Tabs, Toast, Tooltip | `@wendermedia/astro-components/ui` |
+| **Sections** | Hero, CTA, Pricing, Team, Testimonials, FAQ, Features, Stats, Blog, Gallery, Contact, Timeline, Awards, Careers, CaseStudy, Comparison, Integrations, LogoCloud, Maintenance, Newsletter, Search, Video, and more | `@wendermedia/astro-components/sections` |
+| **E-commerce** | Cart, ProductCard, ProductQuickView, Wishlist, AddToCartButton | `@wendermedia/astro-components/ecommerce` |
+| **Forms** | ContactForm, Contact, Newsletter | `@wendermedia/astro-components/forms` |
+| **Media** | VideoPlayer (YouTube/Vimeo/native), AudioPlayer, ImageGallery | `@wendermedia/astro-components/media` |
+| **Maps** | GoogleMap (GDPR), OpenStreetMap | `@wendermedia/astro-components/maps` |
+| **Gallery** | BeforeAfter (image comparison slider) | `@wendermedia/astro-components/gallery` |
+| **Images** | OptimizedImage | `@wendermedia/astro-components/images` |
+| **Products** | ProductCard (affiliate) | `@wendermedia/astro-components/products` |
+| **Social** | SocialShare, SocialFollow | `@wendermedia/astro-components/social` |
+| **Content** | ReadingProgress, ShareBar, TableOfContents | `@wendermedia/astro-components/content` |
+| **Design System** | DesignSystemProvider, tokens, base styles, utilities | `@wendermedia/astro-components/design-system` |
 
-### SEO Components
+### Component Examples
 
-| Component | Description | Import |
-|-----------|-------------|--------|
-| `SEOHead` | Meta tags, OpenGraph, Twitter Cards | `@wendermedia/astro-components/seo` |
-| `SchemaOrg` | JSON-LD structured data | `@wendermedia/astro-components/seo` |
-| `Canonical` | Canonical URL management | `@wendermedia/astro-components/seo` |
-| `RichSnippets` | FAQ, HowTo, Product schema | `@wendermedia/astro-components/seo` |
-| `Sitemap` | XML sitemap generation | `@wendermedia/astro-components/seo` |
-
-### Navigation Components
-
-| Component | Description | Import |
-|-----------|-------------|--------|
-| `Breadcrumbs` | Schema.org breadcrumb navigation | `@wendermedia/astro-components/navigation` |
-| `Pagination` | SEO-friendly pagination | `@wendermedia/astro-components/navigation` |
-| `TableOfContents` | Auto-generated TOC | `@wendermedia/astro-components/navigation` |
-| `ScrollToTop` | Animated scroll button | `@wendermedia/astro-components/navigation` |
-
-### Accessibility Components
-
-| Component | Description | Import |
-|-----------|-------------|--------|
-| `CookieConsent` | GDPR cookie banner | `@wendermedia/astro-components/accessibility` |
-| `SkipToContent` | Skip navigation link | `@wendermedia/astro-components/accessibility` |
-| `FontResizer` | BFSG text scaling | `@wendermedia/astro-components/accessibility` |
-| `ThemeToggle` | Dark/light mode switch | `@wendermedia/astro-components/accessibility` |
-| `BackToTop` | Focus-managed scroll | `@wendermedia/astro-components/accessibility` |
-
-### Content Components
-
-| Component | Description | Import |
-|-----------|-------------|--------|
-| `Accordion` | WCAG-compliant accordion | `@wendermedia/astro-components/content` |
-| `Tabs` | Accessible tab interface | `@wendermedia/astro-components/content` |
-| `Modal` | Focus-trapped dialog | `@wendermedia/astro-components/content` |
-
-### E-commerce Components
-
-| Component | Description | Import |
-|-----------|-------------|--------|
-| `Cart` | Shopping cart with localStorage | `@wendermedia/astro-components/ecommerce` |
-| `Wishlist` | Product wishlist | `@wendermedia/astro-components/ecommerce` |
-| `ProductCard` | Product display card | `@wendermedia/astro-components/ecommerce` |
-| `ProductQuickView` | Modal product preview | `@wendermedia/astro-components/ecommerce` |
-| `AddToCartButton` | Add to cart with states | `@wendermedia/astro-components/ecommerce` |
-
-### Media Components
-
-| Component | Description | Import |
-|-----------|-------------|--------|
-| `VideoPlayer` | Privacy-first video (YouTube, Vimeo, native) | `@wendermedia/astro-components/media` |
-| `AudioPlayer` | Custom HTML5 audio player | `@wendermedia/astro-components/media` |
-| `ImageGallery` | Lightbox gallery | `@wendermedia/astro-components/media` |
-
-### Other Components
-
-| Component | Description | Import |
-|-----------|-------------|--------|
-| `Hero` | Full-screen hero section | `@wendermedia/astro-components/sections` |
-| `BeforeAfter` | Image comparison slider | `@wendermedia/astro-components/gallery` |
-| `ContactForm` | GDPR-compliant form | `@wendermedia/astro-components/forms` |
-| `ProductCard` | Affiliate product card | `@wendermedia/astro-components/products` |
-| `OptimizedImage` | Responsive images | `@wendermedia/astro-components/images` |
-
-## Component Examples
-
-### VideoPlayer (GDPR-Compliant)
+#### GDPR-Compliant Video Player
 
 ```astro
 ---
 import { VideoPlayer } from '@wendermedia/astro-components/media';
 ---
 
-<!-- YouTube with consent -->
+<!-- YouTube with consent gate -->
 <VideoPlayer
   provider="youtube"
   videoId="dQw4w9WgXcQ"
   title="Video Title"
   requireConsent={true}
-  consentMessage="By playing, you agree to data processing."
+  consentMessage="By playing, you agree to data processing by YouTube."
 />
 
-<!-- Native video -->
+<!-- Self-hosted video -->
 <VideoPlayer
   src="/videos/intro.mp4"
   poster="/images/poster.jpg"
@@ -191,11 +163,11 @@ import { VideoPlayer } from '@wendermedia/astro-components/media';
 />
 ```
 
-### E-commerce Cart
+#### E-commerce Cart
 
 ```astro
 ---
-import { Cart, ProductCard, addToCart } from '@wendermedia/astro-components/ecommerce';
+import { Cart, ProductCard } from '@wendermedia/astro-components/ecommerce';
 ---
 
 <ProductCard
@@ -207,30 +179,10 @@ import { Cart, ProductCard, addToCart } from '@wendermedia/astro-components/ecom
   showQuickView={true}
 />
 
-<Cart
-  currency="EUR"
-  locale="de-DE"
-  checkoutUrl="/checkout"
-/>
+<Cart currency="EUR" locale="de-DE" checkoutUrl="/checkout" />
 ```
 
-### Cookie Consent
-
-```astro
----
-import { CookieConsent } from '@wendermedia/astro-components/accessibility';
----
-
-<CookieConsent
-  showSettings={true}
-  analyticsEnabled={false}
-  marketingEnabled={false}
-  privacyUrl="/datenschutz"
-  position="bottom"
-/>
-```
-
-### Breadcrumbs with Schema.org
+#### Breadcrumbs with Schema.org
 
 ```astro
 ---
@@ -247,37 +199,27 @@ import { Breadcrumbs } from '@wendermedia/astro-components/navigation';
 />
 ```
 
-## CLI Tool
+#### Cookie Consent (GDPR)
 
-Create new projects with pre-configured templates:
+```astro
+---
+import { CookieConsent } from '@wendermedia/astro-components/accessibility';
+---
 
-```bash
-# Interactive project creation
-npx @wendermedia/astro-components create my-project
-
-# With specific template
-npx @wendermedia/astro-components create my-shop --template=ecommerce
-
-# List available templates
-npx @wendermedia/astro-components list
+<CookieConsent
+  showSettings={true}
+  analyticsEnabled={false}
+  marketingEnabled={false}
+  privacyUrl="/datenschutz"
+  position="bottom"
+/>
 ```
-
-### Available Templates
-
-| Template | Description |
-|----------|-------------|
-| `default` | Full-featured with all components |
-| `minimal` | Lightweight with core components |
-| `ecommerce` | Optimized for online shops |
-| `blog` | Content-focused with SEO |
-| `landing` | Single-page marketing sites |
 
 ## Design Tokens
 
-Centralized design system with Style Dictionary:
+Centralized design system powered by [Style Dictionary](https://amzn.github.io/style-dictionary/):
 
 ```bash
-# Build tokens
 npm run tokens:build
 ```
 
@@ -289,43 +231,50 @@ npm run tokens:build
 
 .button {
   background: var(--color-brand-primary);
-  padding: var(--spacing-4) var(--spacing-8);
+  padding: var(--space-4) var(--space-8);
   border-radius: var(--border-radius-lg);
 }
 ```
 
-```ts
-// JavaScript
+```typescript
+// JavaScript / TypeScript
 import { tokens } from '@wendermedia/astro-components/tokens';
 
 const primaryColor = tokens.color.brand.primary.value;
 ```
 
+```scss
+// SCSS
+@use '@wendermedia/astro-components/tokens/dist/tokens';
+
+.button {
+  background: tokens.$color-brand-primary;
+}
+```
+
 ## Testing
 
 ```bash
-# Run unit tests
+# Unit tests
 npm run test
 
-# Run with coverage
+# With coverage
 npm run test:coverage
 
-# Run accessibility tests
+# Accessibility tests (axe-core)
 npm run test:a11y
 ```
 
 ### Testing Utilities
 
-```ts
+```typescript
 import {
   runA11yAudit,
   expectNoA11yViolations,
-  mockFetch,
-  userEvent,
 } from '@wendermedia/astro-components/testing';
 
 describe('MyComponent', () => {
-  it('should have no accessibility violations', async () => {
+  it('has no accessibility violations', async () => {
     const element = document.querySelector('.my-component');
     await expectNoA11yViolations(element);
   });
@@ -337,18 +286,15 @@ describe('MyComponent', () => {
 Interactive component documentation:
 
 ```bash
-# Start Storybook
-npm run storybook
-
-# Build static Storybook
-npm run build-storybook
+npm run storybook        # Start dev server on port 6006
+npm run build-storybook  # Build static site
 ```
 
 ## WordPress Integration
 
 Connect to WordPress as a headless CMS:
 
-```ts
+```typescript
 import {
   createWordPressClient,
   fetchPosts,
@@ -363,100 +309,101 @@ const posts = await fetchPosts(wp, { perPage: 10 });
 const menu = await fetchMenus(wp);
 ```
 
-See [WordPress Integration Guide](./integrations/wordpress/README.md) for full documentation.
-
-## Versioning & Changelog
-
-We use [Changesets](https://github.com/changesets/changesets) for version management:
-
-```bash
-# Add a changeset
-npm run changeset
-
-# Update versions
-npm run version
-
-# Publish release
-npm run release
-```
-
-See [CHANGELOG.md](./CHANGELOG.md) for release history.
+See the [WordPress Integration Guide](./integrations/wordpress/README.md) for full documentation.
 
 ## Project Structure
 
 ```
 @wendermedia/astro-components/
-├── src/
-│   ├── layout/          # Layout components
-│   ├── seo/             # SEO components
-│   ├── navigation/      # Navigation components
-│   ├── accessibility/   # A11y components
-│   ├── content/         # Content components
-│   ├── ecommerce/       # E-commerce components
-│   ├── media/           # Media components
-│   ├── sections/        # Section components
-│   ├── gallery/         # Gallery components
-│   ├── forms/           # Form components
-│   └── design-system/   # Base styles
-├── integrations/
-│   └── wordpress/       # WordPress headless CMS
-├── tokens/              # Design tokens (Style Dictionary)
-├── testing/             # Test utilities
-├── cli/                 # CLI scaffolding tool
-├── templates/           # Project templates
-└── docs/                # Documentation
+  src/
+    accessibility/     # A11y components
+    content/           # Content components
+    design-system/     # Base styles & tokens
+    ecommerce/         # E-commerce components
+    forms/             # Form components
+    gallery/           # Gallery components
+    images/            # Image optimization
+    layout/            # Layout components
+    layouts/           # Page layout templates
+    maps/              # Map components
+    media/             # Media players
+    navigation/        # Navigation components
+    products/          # Product display
+    sections/          # Section templates
+    seo/               # SEO components
+    social/            # Social components
+    ui/                # UI primitives
+  integrations/        # Framework integrations (React, Vue, Svelte, Solid, WordPress)
+  tokens/              # Design tokens (Style Dictionary)
+  testing/             # Test utilities
+  cli/                 # CLI scaffolding tool
+  templates/           # Project templates
+  docs/                # Documentation
 ```
 
 ## Requirements
 
-- **Astro**: 4.x or 5.x
-- **Node.js**: 18+
-- **TypeScript**: 5.x (recommended)
+- **Astro** 4.x or 5.x
+- **Node.js** 18+
+- **TypeScript** 5.x (recommended)
 
-### Optional Dependencies
+### Optional Peer Dependencies
 
-- **GSAP**: For Hero animations
-- **@astrojs/react**: React component support
-- **@astrojs/vue**: Vue component support
+- `@astrojs/react` - React island support
+- `@astrojs/vue` - Vue island support
+- `@astrojs/svelte` - Svelte island support
+- `@astrojs/solid-js` - Solid island support
+- `GSAP` - Hero animations
 
 ## Browser Support
 
-- Chrome/Edge 90+
+- Chrome / Edge 90+
 - Firefox 90+
 - Safari 14+
-- Mobile browsers (iOS Safari, Chrome Android)
+- iOS Safari / Chrome Android
 
 ## Contributing
 
-1. Create a feature branch
-2. Make changes
-3. Add a changeset (`npm run changeset`)
-4. Submit a pull request
+We welcome contributions! Please read our [Contributing Guide](./CONTRIBUTING.md) before submitting a Pull Request.
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feat/amazing-feature`
+3. Make your changes following the [coding standards](./CONTRIBUTING.md#coding-standards)
+4. Run tests: `npm run test`
+5. Add a changeset: `npm run changeset`
+6. Submit a Pull Request
+
+Please also review our [Code of Conduct](./CODE_OF_CONDUCT.md).
+
+## Versioning
+
+We use [Changesets](https://github.com/changesets/changesets) for version management:
+
+```bash
+npm run changeset       # Add a changeset
+npm run version         # Update versions
+npm run release         # Publish release
+```
+
+See [CHANGELOG.md](./CHANGELOG.md) for release history.
+
+## Author
+
+**Arnold Wender**
+- Website: [arnoldwender.com](https://arnoldwender.com)
+- Agency: [Wender Media](https://wendermedia.com) - Web Agency, Halle (Saale), Germany
+- GitHub: [@arnoldwender](https://github.com/arnoldwender)
+- Twitter/X: [@arnoldwender](https://x.com/arnoldwender)
+- LinkedIn: [arnoldwender](https://linkedin.com/in/arnoldwender)
 
 ## License
 
-PROPRIETARY - WenderMedia internal use only.
+This project is licensed under the [MIT License](./LICENSE).
+
+Copyright (c) 2007-2026 [Wender Media](https://wendermedia.com) - Arnold Wender.
 
 ---
 
 <p align="center">
-  Made with ❤️ by <a href="mailto:arnold.wender@gmail.com">Arnold Wender</a>
+  Made with care by <a href="https://wendermedia.com">Wender Media</a> in Halle (Saale), Germany
 </p>
-
-
----
-
-## Webentwicklung und Online-Marketing
-
-Entwickelt von **Werbeagentur Wender Media**
-
-| Attribut | Details |
-|----------|---------|
-| Agentur | Wender Media |
-| Adresse | Franckestraße 3a, 06110 Halle (Saale) |
-| Telefon | 0345 / 68676857 |
-| Website | [www.wendermedia.com](https://www.wendermedia.com) |
-
-## License
-
-Proprietary - © Wender Media. All rights reserved.

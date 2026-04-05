@@ -31,6 +31,8 @@
  *   alt="Product"
  *   aspectRatio="4/3"
  * />
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
  */
 
 export interface Props {
@@ -126,6 +128,8 @@ const containerStyle = [blurStyle, aspectStyle].filter(Boolean).join(' ');
   style={containerStyle || undefined}
   data-optimized-image
 >
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   {/* AVIF source - best compression, newest format */}
   {avifSrcset && (
     <source
@@ -135,6 +139,8 @@ const containerStyle = [blurStyle, aspectStyle].filter(Boolean).join(' ');
     />
   )}
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   {/* WebP source - good compression, wide support */}
   {webpSrcset && (
     <source
@@ -144,6 +150,8 @@ const containerStyle = [blurStyle, aspectStyle].filter(Boolean).join(' ');
     />
   )}
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   {/* Fallback image */}
   <img
     src={src}
@@ -178,6 +186,8 @@ const containerStyle = [blurStyle, aspectStyle].filter(Boolean).join(' ');
     height: 100%;
   }
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* Blur placeholder animation */
   .optimized-image.has-placeholder .optimized-image-img {
     opacity: 0;
@@ -202,6 +212,8 @@ const containerStyle = [blurStyle, aspectStyle].filter(Boolean).join(' ');
     opacity: 0;
   }
 
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
   /* Reduced motion */
   @media (prefers-reduced-motion: reduce) {
     .optimized-image.has-placeholder .optimized-image-img,
