@@ -3,8 +3,8 @@
 
 # TEAM
 
-    Arnold Wender -- Founder & CEO -- Halle (Saale), Germany
-    Victoria Wender -- Freelance PR & Operations -- Halle (Saale), Germany
+    Arnold Wender -- Creator -- https://arnoldwender.com
+    Wender Media -- Web Agency -- https://wendermedia.com
 
 # THANKS
 
@@ -56,9 +56,7 @@
 # CONTACT
 
     Website: https://www.wendermedia.com
-    Email: info@wendermedia.com
-    Phone: +49-151-4193-2856
-    Address: Franckestraße 3a, 06110 Halle (Saale), Germany
+    GitHub: https://github.com/arnoldwender/wm-project-astro-components
 
 # DEDICATION
 

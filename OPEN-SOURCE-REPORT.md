@@ -21,12 +21,11 @@ The `wm-project-astro-components` repository has been fully prepared for open-so
 | **Company** | Wender Media |
 | **Legal Name** | Wender Media - Arnold Wender |
 | **Founded** | 2007 |
-| **Location** | Franckestrasse 3a, 06110 Halle (Saale), Germany |
+| **Location** | Halle (Saale), Germany |
 | **Website** | [wendermedia.com](https://wendermedia.com) |
 | **Author** | Arnold Wender |
 | **Author Website** | [arnoldwender.com](https://arnoldwender.com) |
 | **GitHub** | [@arnoldwender](https://github.com/arnoldwender) |
-| **Email** | arnold.wender@gmail.com |
 | **Services** | Web Development, SEO, Accessibility (BFSG/WCAG), UX/Neuromarketing |
 | **Tech Stack** | Astro, WordPress, React, TypeScript |
 | **Credentials** | 150+ projects, 18+ years experience, Lighthouse 98+ scores |
