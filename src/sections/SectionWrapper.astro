@@ -5,9 +5,27 @@
  * Base wrapper for all section components with consistent spacing,
  * backgrounds, and container options.
  *
+ * Features:
+ * - Eight background themes (transparent, subtle, muted, surface, dark, gradient, primary, pattern)
+ * - Six padding presets (none through 2xl) with responsive scaling
+ * - Six container width options (sm through full) plus none for edge-to-edge
+ * - Optional section ID for anchor linking and in-page navigation
+ * - Dot-pattern background variant for visual texture
+ *
  * @example
  * <SectionWrapper background="subtle" padding="lg" container="md">
- *   <YourContent />
+ *   <h2>About Our Company</h2>
+ *   <p>Acme Corp was founded in 2010.</p>
+ * </SectionWrapper>
+ *
+ * @example
+ * <SectionWrapper
+ *   id="kontakt"
+ *   background="dark"
+ *   padding="xl"
+ *   container="lg"
+ * >
+ *   <ContactForm />
  * </SectionWrapper>
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

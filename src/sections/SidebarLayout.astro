@@ -4,10 +4,32 @@
  *
  * Layout with sidebar and main content area.
  *
+ * Features:
+ * - Left or right sidebar positioning with CSS Grid layout
+ * - Collapsible sidebar with mobile overlay and toggle button
+ * - Sticky sidebar and sticky header options for scroll persistence
+ * - Configurable sidebar width, gap size, and mobile breakpoint
+ * - Named slots for sidebar header, content, and footer sections
+ *
  * @example
- * <SidebarLayout sidebarPosition="left" sidebarWidth="280px">
- *   <nav slot="sidebar">Navigation</nav>
- *   <main>Content</main>
+ * <SidebarLayout sidebarPosition="left" sidebarWidth="260px" gap="lg">
+ *   <h3 slot="sidebar-header">Navigation</h3>
+ *   <nav slot="sidebar">
+ *     <a href="/dashboard">Dashboard</a>
+ *     <a href="/settings">Settings</a>
+ *   </nav>
+ *   <article>Main page content goes here.</article>
+ * </SidebarLayout>
+ *
+ * @example
+ * <SidebarLayout
+ *   sidebarPosition="right"
+ *   sidebarWidth="320px"
+ *   stickySidebar
+ *   sidebarCollapsible={false}
+ * >
+ *   <aside slot="sidebar">Related articles and filters</aside>
+ *   <div>Blog post content</div>
  * </SidebarLayout>
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

@@ -12,12 +12,30 @@
  * - rounded: Rounded page buttons
  * - dots: Dot indicators (for carousels)
  *
+ * Features:
+ * - Six display variants (default, simple, minimal, buttons, rounded, dots)
+ * - Smart ellipsis generation with configurable sibling count
+ * - First/Last page jump buttons for long lists
+ * - Three size options (sm, md, lg) and left/center/right alignment
+ * - Accessible aria-labels and aria-current for screen readers
+ *
  * @example
  * <PaginationSection
  *   variant="default"
- *   currentPage={1}
- *   totalPages={10}
+ *   currentPage={3}
+ *   totalPages={12}
  *   baseUrl="/blog"
+ *   size="md"
+ * />
+ *
+ * @example
+ * <PaginationSection
+ *   variant="simple"
+ *   currentPage={1}
+ *   totalPages={5}
+ *   baseUrl="/products"
+ *   prevLabel="Back"
+ *   nextLabel="Forward"
  * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

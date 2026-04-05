@@ -12,10 +12,25 @@
  * - cards: Steps in cards
  * - roadmap: Visual roadmap style
  *
+ * Features:
+ * - Six layout variants (vertical, horizontal, grid, alternating, cards, roadmap)
+ * - Configurable connector lines between steps for visual flow
+ * - Responsive grid with 2-5 column options
+ * - Alternating zigzag layout collapses to single column on mobile
+ * - Horizontal roadmap with scrollable overflow and fade edges
+ *
  * @example
- * <ProcessSection variant="horizontal" title="How It Works">
- *   <ProcessStep number={1} title="Sign Up" description="..." />
- *   <ProcessStep number={2} title="Configure" description="..." />
+ * <ProcessSection variant="horizontal" title="How It Works" columns={3}>
+ *   <ProcessStep number={1} title="Sign Up" description="Create your free account in seconds." />
+ *   <ProcessStep number={2} title="Configure" description="Set up your workspace and invite your team." />
+ *   <ProcessStep number={3} title="Launch" description="Go live and start tracking results." />
+ * </ProcessSection>
+ *
+ * @example
+ * <ProcessSection variant="alternating" eyebrow="Our Process" title="From Idea to Launch">
+ *   <ProcessStep number={1} title="Discovery" description="We learn about your goals." icon="🔍" />
+ *   <ProcessStep number={2} title="Design" description="We craft a tailored solution." icon="🎨" />
+ *   <ProcessStep number={3} title="Delivery" description="We build and ship on time." icon="🚀" />
  * </ProcessSection>
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

@@ -15,6 +15,35 @@
  * - Real names, job titles, and photos increase trust
  * - Video testimonials feel more authentic
  * - Third-party badges (G2, Trustpilot) add credibility
+ *
+ * Features:
+ * - Three layout modes (carousel, grid, masonry)
+ * - Carousel with autoplay, touch/swipe support, and dot navigation
+ * - Trust badge header with platform rating and review count
+ * - Schema.org Review structured data for SEO
+ * - Keyboard accessible carousel navigation (Arrow keys)
+ *
+ * @example
+ * <Testimonials
+ *   title="What our customers say"
+ *   layout="carousel"
+ *   autoplay
+ *   testimonials={[
+ *     { id: "1", quote: "Outstanding service and fast delivery.", author: "Jane Doe", role: "CTO", company: "Widget Inc", rating: 5 },
+ *     { id: "2", quote: "Transformed our entire workflow in weeks.", author: "John Smith", role: "CEO", company: "Acme Corp", rating: 5 }
+ *   ]}
+ * />
+ *
+ * @example
+ * <Testimonials
+ *   layout="grid"
+ *   showRating
+ *   testimonials={[
+ *     { id: "1", quote: "Reliable and easy to use.", author: "Alice Brown", role: "Designer", company: "Studio One", rating: 4 },
+ *     { id: "2", quote: "Great value for money.", author: "Bob Wilson", role: "Manager", company: "DataFlow", rating: 5 },
+ *     { id: "3", quote: "Support team is incredibly responsive.", author: "Carol Davis", role: "Lead Dev", company: "TechHub", rating: 5 }
+ *   ]}
+ * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */

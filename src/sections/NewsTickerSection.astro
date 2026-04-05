@@ -12,12 +12,32 @@
  * - logos: Scrolling logo/brand ticker
  * - social: Social media feed style
  *
+ * Features:
+ * - Six content variants (default, news, stocks, announcement, logos, social)
+ * - Seamless infinite CSS animation loop with configurable speed and direction
+ * - Pause-on-hover for improved readability
+ * - Dismissible announcement bar with localStorage persistence
+ * - Gradient fade overlays and multiple background themes
+ *
  * @example
  * <NewsTickerSection
- *   variant="stocks"
+ *   variant="news"
+ *   speed="normal"
+ *   background="dark"
  *   items={[
- *     { symbol: 'AAPL', price: 178.52, change: 2.34, changePercent: 1.33 }
+ *     { text: "Acme Corp acquires Widget Inc.", category: "Business", href: "/news/acquisition" },
+ *     { text: "Q4 earnings exceed expectations", category: "Finance", timestamp: "2h ago" }
  *   ]}
+ * />
+ *
+ * @example
+ * <NewsTickerSection
+ *   variant="announcement"
+ *   background="primary"
+ *   items={[{ text: "Free shipping on all orders this weekend!" }]}
+ *   ctaLabel="Shop Now"
+ *   ctaHref="/shop"
+ *   dismissible
  * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

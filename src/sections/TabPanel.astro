@@ -4,9 +4,21 @@
  *
  * Individual tab panel content wrapper.
  *
+ * Features:
+ * - Semantic tabpanel role with proper aria-labelledby linking
+ * - Controlled visibility via TabsSection parent component
+ * - Keyboard focusable with tabindex for accessibility compliance
+ * - Accepts any slotted content (text, components, forms, media)
+ *
  * @example
  * <TabPanel id="features">
- *   <p>Features content here...</p>
+ *   <h3>Platform Features</h3>
+ *   <p>Real-time analytics, team collaboration, and automated reports.</p>
+ * </TabPanel>
+ *
+ * @example
+ * <TabPanel id="pricing" class="p-8">
+ *   <PricingTable tiers={pricingTiers} />
  * </TabPanel>
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

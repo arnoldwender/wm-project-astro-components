@@ -12,11 +12,31 @@
  * - branded: Brand-focused design
  * - technical: Technical/developer style
  *
+ * Features:
+ * - Six visual variants (default, progress, scheduled, minimal, branded, technical)
+ * - Live countdown timer for scheduled maintenance windows
+ * - Progress bar with circular and linear indicators
+ * - Social media links and contact email integration
+ * - Terminal-style developer variant with animated cursor
+ *
  * @example
  * <MaintenanceSection
  *   variant="default"
  *   title="Under Maintenance"
+ *   description="We are upgrading our servers for better performance."
  *   estimatedTime="2 hours"
+ *   contactEmail="support@acmecorp.com"
+ *   statusUrl="https://status.acmecorp.com"
+ * />
+ *
+ * @example
+ * <MaintenanceSection
+ *   variant="scheduled"
+ *   title="Scheduled Downtime"
+ *   startTime="2026-04-10T02:00:00Z"
+ *   endTime="2026-04-10T06:00:00Z"
+ *   showCountdown
+ *   logo="/images/acme-logo.svg"
  * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

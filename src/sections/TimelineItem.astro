@@ -4,12 +4,28 @@
  *
  * Individual timeline entry.
  *
+ * Features:
+ * - Four display variants (default, card, minimal, detailed)
+ * - Emoji or SVG icon marker, or simple dot indicator
+ * - Optional badge label alongside the date
+ * - Detailed variant supports hero images above content
+ * - Vertical connector line auto-generated between items
+ *
  * @example
  * <TimelineItem
  *   date="2024"
  *   title="Company Founded"
  *   description="Started with a vision to change the industry."
  *   icon="🚀"
+ *   badge="Milestone"
+ * />
+ *
+ * @example
+ * <TimelineItem
+ *   variant="card"
+ *   date="March 2025"
+ *   title="Series A Funding"
+ *   description="Raised $10M to scale operations and expand the team."
  * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

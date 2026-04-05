@@ -4,12 +4,29 @@
  *
  * Individual statistic item.
  *
+ * Features:
+ * - Four layout variants (default, card, inline, centered)
+ * - Optional count-up animation triggered by IntersectionObserver
+ * - Prefix and suffix support for units (%, +, K, etc.)
+ * - Emoji or SVG icon display above the statistic value
+ * - Optional description text below the label
+ *
  * @example
  * <StatItem
  *   value="10K+"
  *   label="Happy Customers"
  *   icon="👥"
  *   description="And growing every day"
+ *   variant="card"
+ * />
+ *
+ * @example
+ * <StatItem
+ *   value={99.9}
+ *   label="Uptime"
+ *   suffix="%"
+ *   animated
+ *   variant="centered"
  * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

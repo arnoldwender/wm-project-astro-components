@@ -12,12 +12,32 @@
  * - background: Background video with content overlay
  * - split: Video with side content
  *
+ * Features:
+ * - Six display variants (hero, inline, modal, gallery, background, split)
+ * - YouTube, Vimeo, and HTML5 video provider support
+ * - Configurable aspect ratios (16:9, 4:3, 21:9, 1:1)
+ * - Poster image with play button overlay for lazy loading
+ * - Autoplay, muted, and loop options for background video
+ *
  * @example
  * <VideoSection
  *   variant="hero"
- *   videoUrl="https://youtube.com/watch?v=..."
- *   poster="/video-poster.jpg"
+ *   provider="youtube"
+ *   videoId="dQw4w9WgXcQ"
+ *   poster="/images/video-poster.jpg"
  *   title="Watch Our Demo"
+ *   description="See how Acme Corp helps teams ship faster."
+ * />
+ *
+ * @example
+ * <VideoSection
+ *   variant="split"
+ *   provider="html5"
+ *   videoUrl="/videos/product-tour.mp4"
+ *   eyebrow="Product Tour"
+ *   title="Built for Speed"
+ *   description="A 2-minute walkthrough of our core features."
+ *   aspectRatio="16:9"
  * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

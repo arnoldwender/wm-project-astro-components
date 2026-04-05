@@ -11,10 +11,25 @@
  * - compact: Condensed timeline
  * - cards: Card-based timeline
  *
+ * Features:
+ * - Five layout variants (vertical, alternating, horizontal, compact, cards)
+ * - Alternating zigzag layout with center line on desktop
+ * - Horizontal scrollable timeline with drag-to-scroll support
+ * - Compact variant for dense event listings
+ * - Fade-edge mask and hidden scrollbar for horizontal variant
+ *
  * @example
  * <TimelineSection variant="alternating" title="Our Journey">
- *   <TimelineItem date="2020" title="Founded" description="..." />
- *   <TimelineItem date="2021" title="First Product" description="..." />
+ *   <TimelineItem date="2020" title="Founded" description="Acme Corp launched from a small garage." icon="🚀" />
+ *   <TimelineItem date="2021" title="First Product" description="Shipped v1.0 to 100 beta users." icon="📦" />
+ *   <TimelineItem date="2023" title="Series A" description="Raised $10M to scale globally." icon="💰" />
+ * </TimelineSection>
+ *
+ * @example
+ * <TimelineSection variant="horizontal" eyebrow="Roadmap" title="What is Next">
+ *   <TimelineItem date="Q1 2026" title="Mobile App" description="Launch iOS and Android apps." />
+ *   <TimelineItem date="Q2 2026" title="API v2" description="New REST and GraphQL endpoints." />
+ *   <TimelineItem date="Q3 2026" title="Enterprise" description="SSO, audit logs, and SLA support." />
  * </TimelineSection>
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

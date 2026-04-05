@@ -4,10 +4,24 @@
  *
  * Pinterest-style masonry layout for mixed-height content.
  *
+ * Features:
+ * - CSS columns-based masonry layout (no JavaScript required)
+ * - Configurable column count (2-5) and gap sizes
+ * - Responsive breakpoints collapse to 2 columns on tablet, 1 on mobile
+ * - Prevents child element splitting with break-inside: avoid
+ *
  * @example
  * <MasonryGrid columns={3} gap="md">
- *   <div>Card 1</div>
- *   <div>Card 2</div>
+ *   <div>Short card content</div>
+ *   <div>Taller card with more text for variety</div>
+ *   <div>Another card item</div>
+ *   <div>Final card in the grid</div>
+ * </MasonryGrid>
+ *
+ * @example
+ * <MasonryGrid columns={4} gap="lg" class="portfolio-grid">
+ *   <img src="/images/project-1.jpg" alt="Project Alpha" />
+ *   <img src="/images/project-2.jpg" alt="Project Beta" />
  * </MasonryGrid>
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

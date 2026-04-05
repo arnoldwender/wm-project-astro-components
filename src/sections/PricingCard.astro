@@ -4,18 +4,41 @@
  *
  * Individual pricing plan card.
  *
+ * Features:
+ * - Monthly/yearly price toggle via custom event listener
+ * - Featured plan badge with automatic scale-up emphasis
+ * - Included/excluded feature list with check/cross icons
+ * - Three CTA button variants (primary, secondary, outline)
+ * - Yearly savings calculation displayed automatically
+ *
  * @example
  * <PricingCard
- *   name="Pro"
- *   description="For growing businesses"
- *   price={29}
- *   yearlyPrice={290}
+ *   name="Starter"
+ *   description="For individuals and small teams"
+ *   price={9}
+ *   yearlyPrice={89}
  *   currency="€"
- *   period="month"
- *   features={['Feature 1', 'Feature 2']}
- *   featured
+ *   period="Monat"
+ *   features={[
+ *     "5 projects",
+ *     "10 GB storage",
+ *     { text: "Priority support", included: false }
+ *   ]}
  *   ctaText="Get Started"
- *   ctaHref="/signup"
+ *   ctaHref="/signup/starter"
+ * />
+ *
+ * @example
+ * <PricingCard
+ *   name="Business"
+ *   description="For growing organizations"
+ *   price={49}
+ *   yearlyPrice={470}
+ *   features={["Unlimited projects", "100 GB storage", "Priority support"]}
+ *   featured
+ *   badge="Most Popular"
+ *   ctaText="Start Free Trial"
+ *   ctaHref="/signup/business"
  * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

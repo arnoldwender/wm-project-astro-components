@@ -4,13 +4,34 @@
  *
  * Individual downloadable resource or document card.
  *
+ * Features:
+ * - Four layout variants (default, card, compact, horizontal)
+ * - Automatic file type icon and color coding (PDF, DOC, XLS, PPT, ZIP, etc.)
+ * - Download count display with icon indicator
+ * - Featured ring highlight for promoted resources
+ * - Hover effects with smooth color and shadow transitions
+ *
  * @example
  * <ResourceCard
- *   title="Product Brochure"
- *   description="Learn about our products and services"
+ *   title="2026 Annual Report"
+ *   description="Full financial results and strategic outlook."
  *   fileType="pdf"
- *   fileSize="2.4 MB"
- *   href="/downloads/brochure.pdf"
+ *   fileSize="3.8 MB"
+ *   href="/downloads/annual-report-2026.pdf"
+ *   category="Finance"
+ *   downloadCount={1240}
+ * />
+ *
+ * @example
+ * <ResourceCard
+ *   variant="card"
+ *   title="Brand Guidelines"
+ *   description="Logos, colors, and typography standards."
+ *   fileType="zip"
+ *   fileSize="12 MB"
+ *   href="/downloads/brand-kit.zip"
+ *   image="/images/brand-preview.jpg"
+ *   featured
  * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
