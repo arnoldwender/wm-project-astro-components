@@ -2,24 +2,85 @@
 /**
  * CTASection Component - WenderMedia Astro Components
  *
- * Call-to-action section with multiple layout options.
+ * A conversion-focused call-to-action section designed to drive user action. Place it
+ * between content sections, at the bottom of a page, or as a sticky banner. Six layout
+ * variants let you match the CTA to its context -- from a subtle inline banner to a
+ * bold full-width background image.
  *
- * Variants:
- * - centered: Classic centered CTA
- * - split: Text left, form/buttons right
- * - banner: Full-width banner style
- * - card: Floating card style
- * - gradient: Gradient background
- * - image: Background image
+ * Features:
+ * - Six variants: centered, split, banner, card, gradient, image
+ * - Four background styles: primary brand color, dark, gradient, or transparent
+ * - Background image support with automatic 60% dark overlay (image variant)
+ * - Slot-based content: eyebrow, title, description, cta, and extra
+ * - "banner" variant is compact (py-6) for sticky or inline use
+ * - "card" variant renders a rounded, elevated card inside a transparent wrapper
+ * - "split" variant places text on the left and CTA buttons/forms on the right
+ *
+ * Named slots:
+ * - "eyebrow"     — Small label above the title (not available in "banner" variant)
+ * - "title"       — The main heading text (required)
+ * - "description" — Supporting copy below the title
+ * - "cta"         — Buttons, links, or a form
+ * - "extra"       — Additional content below the CTA (only in centered/gradient variants)
  *
  * @example
+ * ---
+ * import CTASection from '../sections/CTASection.astro';
+ * import Button from '../atoms/Button.astro';
+ * ---
+ * <!-- Centered CTA with primary background -->
  * <CTASection variant="centered" background="primary">
- *   <Fragment slot="title">Ready to get started?</Fragment>
- *   <Fragment slot="description">Join thousands of happy customers.</Fragment>
+ *   <Fragment slot="title">Ready to Get Started?</Fragment>
+ *   <Fragment slot="description">Join 10,000+ teams already using Acme Platform.</Fragment>
  *   <Fragment slot="cta">
- *     <Button>Start Free Trial</Button>
+ *     <Button href="/signup">Start Free Trial</Button>
+ *     <Button href="/demo" variant="outline">Book a Demo</Button>
  *   </Fragment>
  * </CTASection>
+ *
+ * @example
+ * <!-- Compact banner CTA (great for sticky bars or between sections) -->
+ * <CTASection variant="banner" background="dark">
+ *   <Fragment slot="title">Limited Offer: 30% Off All Plans</Fragment>
+ *   <Fragment slot="cta">
+ *     <Button href="/pricing" size="sm">Claim Discount</Button>
+ *   </Fragment>
+ * </CTASection>
+ *
+ * @example
+ * <!-- Split CTA with form or buttons on the right -->
+ * <CTASection variant="split">
+ *   <Fragment slot="eyebrow">Newsletter</Fragment>
+ *   <Fragment slot="title">Stay in the Loop</Fragment>
+ *   <Fragment slot="description">Get weekly tips on design and development.</Fragment>
+ *   <Fragment slot="cta">
+ *     <form class="flex gap-2">
+ *       <input type="email" placeholder="you@example.com" class="input" />
+ *       <Button type="submit">Subscribe</Button>
+ *     </form>
+ *   </Fragment>
+ * </CTASection>
+ *
+ * @example
+ * <!-- Card CTA floating on a transparent background -->
+ * <CTASection variant="card" background="gradient">
+ *   <Fragment slot="title">Upgrade Your Workflow</Fragment>
+ *   <Fragment slot="description">Go Pro and unlock all features today.</Fragment>
+ *   <Fragment slot="cta">
+ *     <Button href="/upgrade">Upgrade Now</Button>
+ *   </Fragment>
+ * </CTASection>
+ *
+ * @example
+ * <!-- Background image CTA -->
+ * <CTASection variant="image" backgroundImage="/images/cta-bg.jpg">
+ *   <Fragment slot="title">Let's Build Something Great</Fragment>
+ *   <Fragment slot="description">Our team is ready to help you succeed.</Fragment>
+ *   <Fragment slot="cta">
+ *     <Button href="/contact">Contact Us</Button>
+ *   </Fragment>
+ * </CTASection>
+ *
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */
