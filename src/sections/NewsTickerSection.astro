@@ -218,7 +218,7 @@ const duplicatedItems = [...items, ...items];
         {variant === 'social' && duplicatedItems.map((item, index) => (
           <div class="ticker-item ticker-item--social" key={index}>
             {item.avatar && (
-              <img src={item.avatar} alt="" class="social-avatar" loading="lazy" />
+              <img src={item.avatar} alt={item.author || 'Autor'} class="social-avatar" loading="lazy" />
             )}
             <div class="social-content">
               <span class="social-author">

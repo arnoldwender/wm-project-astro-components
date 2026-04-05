@@ -162,7 +162,7 @@ const menuId = `mega-menu-${Math.random().toString(36).slice(2, 9)}`;
           {/* Featured section */}
           <div class="featured-section">
             {featuredImage && (
-              <img src={featuredImage} alt="" class="featured-image" />
+              <img src={featuredImage} alt={featuredTitle || 'Featured'} class="featured-image" />
             )}
             <div class="featured-content">
               {featuredTitle && (

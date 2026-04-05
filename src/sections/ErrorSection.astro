@@ -239,7 +239,7 @@ const defaultIllustration = `
 
       <div class="split-image">
         {image ? (
-          <img src={image} alt="" />
+          <img src={image} alt={`Fehler ${code} — ${title}`} />
         ) : (
           <div class="split-placeholder" set:html={illustration || defaultIllustration} />
         )}

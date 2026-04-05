@@ -104,7 +104,7 @@ const servicesByCategory = categories.length > 0
           )}
           {service.image && (
             <div class="service-image">
-              <img src={service.image} alt="" loading="lazy" />
+              <img src={service.image} alt={service.title} loading="lazy" />
             </div>
           )}
           <h3 class="service-title">{service.title}</h3>
@@ -151,7 +151,7 @@ const servicesByCategory = categories.length > 0
         <article class:list={['service-list-item', index % 2 === 1 && 'service-list-item--reverse']}>
           {service.image && (
             <div class="list-item-image">
-              <img src={service.image} alt="" loading="lazy" />
+              <img src={service.image} alt={service.title} loading="lazy" />
             </div>
           )}
           <div class="list-item-content">
@@ -293,7 +293,7 @@ const servicesByCategory = categories.length > 0
         <article class="featured-card">
           {services[0].image && (
             <div class="featured-image">
-              <img src={services[0].image} alt="" loading="lazy" />
+              <img src={services[0].image} alt={services[0].title} loading="lazy" />
             </div>
           )}
           <div class="featured-content">

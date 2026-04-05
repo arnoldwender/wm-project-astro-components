@@ -176,7 +176,7 @@ const {
             <p>"{caseStudy.testimonial.quote}"</p>
             <footer>
               {caseStudy.testimonial.avatar && (
-                <img src={caseStudy.testimonial.avatar} alt="" class="quote-avatar" />
+                <img src={caseStudy.testimonial.avatar} alt={`${caseStudy.testimonial.author}, ${caseStudy.testimonial.role}`} class="quote-avatar" />
               )}
               <div class="quote-author">
                 <strong>{caseStudy.testimonial.author}</strong>
@@ -287,7 +287,7 @@ const {
             <p>"{caseStudy.testimonial.quote}"</p>
             <footer>
               {caseStudy.testimonial.avatar && (
-                <img src={caseStudy.testimonial.avatar} alt="" class="quote-avatar quote-avatar--lg" />
+                <img src={caseStudy.testimonial.avatar} alt={`${caseStudy.testimonial.author}, ${caseStudy.testimonial.role}`} class="quote-avatar quote-avatar--lg" />
               )}
               <div class="quote-author">
                 <strong>{caseStudy.testimonial.author}</strong>
