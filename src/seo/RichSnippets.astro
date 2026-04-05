@@ -2,8 +2,55 @@
 /**
  * RichSnippets Component - WenderMedia Astro Components
  *
- * Schema.org structured data generator for various content types
- * Supports: Service, Product, Article, FAQ, Review, Organization, LocalBusiness
+ * All-in-one Schema.org JSON-LD generator that outputs clean structured data
+ * for seven common content types. Automatically strips undefined properties
+ * so Google Search Console never sees empty fields.
+ *
+ * Supported types:
+ * - service   -- ServiceData: name, description, provider, area, pricing, rating
+ * - product   -- ProductData: name, description, brand, price, availability, rating
+ * - article   -- ArticleData: headline, author, publisher, dates, URL
+ * - faq       -- FAQData: array of question/answer pairs
+ * - review    -- ReviewData: item, rating, author, body, date
+ * - organization -- OrganizationData: name, URL, logo, contact, social profiles
+ * - localBusiness -- LocalBusinessData: extends Organization with geo, hours, price range
+ *
+ * Features:
+ * - Single component for all rich-result types -- no need to hand-write JSON-LD
+ * - Deep cleaning: recursively removes undefined values from nested objects
+ * - AggregateRating support on services and products
+ * - Proper @context / @type wrappers for every schema
+ *
+ * @example
+ * ---
+ * import RichSnippets from '@components/seo/RichSnippets.astro';
+ * ---
+ * <RichSnippets
+ *   type="localBusiness"
+ *   data={{
+ *     name: 'Acme Web Studio',
+ *     url: 'https://example.com',
+ *     phone: '+49 345 12345',
+ *     email: 'info@example.com',
+ *     address: { street: '123 Main St', city: 'Halle', postalCode: '06108', country: 'DE' },
+ *     geo: { latitude: 51.4828, longitude: 11.9700 },
+ *     openingHours: ['Mo-Fr 09:00-17:00'],
+ *     priceRange: '$$',
+ *   }}
+ * />
+ *
+ * @example
+ * <!-- FAQ rich snippet -->
+ * <RichSnippets
+ *   type="faq"
+ *   data={{
+ *     questions: [
+ *       { question: 'What services do you offer?', answer: 'We offer web design, SEO, and hosting.' },
+ *       { question: 'Where are you located?', answer: 'Our office is in Halle (Saale), Germany.' },
+ *     ],
+ *   }}
+ * />
+ *
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */

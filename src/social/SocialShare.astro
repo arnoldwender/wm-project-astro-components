@@ -7,13 +7,35 @@
  *
  * This follows the "Shariff" approach for privacy-friendly sharing.
  *
- * Usage:
+ * Features:
+ * - 10 share targets: Facebook, Twitter/X, LinkedIn, XING, WhatsApp, Telegram, Email, Pinterest, Reddit, Copy link
+ * - Two-click "Shariff" approach: consent notice shown before any data is sent
+ * - Popup window for social shares, mailto: for email, clipboard API for copy
+ * - "Copied!" feedback with auto-reset after 2 seconds
+ * - Three visual variants: buttons (labels), icons (icon-only), minimal (borderless)
+ * - Three sizes and horizontal/vertical direction
+ * - Platform brand colors on hover with focus-visible outlines
+ *
+ * @example
+ * <!-- Default share buttons for a blog post -->
+ * <SocialShare
+ *   url="https://example.com/blog/my-article"
+ *   title="10 Tips for Better SEO"
+ *   description="Learn actionable SEO strategies for 2026."
+ *   platforms={['facebook', 'twitter', 'linkedin', 'email', 'copy']}
+ * />
+ *
+ * @example
+ * <!-- Icon-only variant with WhatsApp and Telegram, no consent notice -->
  * <SocialShare
  *   url={Astro.url.href}
- *   title="Page Title"
- *   description="Page description"
- *   platforms={['facebook', 'twitter', 'linkedin', 'email']}
+ *   title="Check this out!"
+ *   platforms={['whatsapp', 'telegram', 'copy']}
+ *   variant="icons"
+ *   size="lg"
+ *   showConsent={false}
  * />
+ *
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */

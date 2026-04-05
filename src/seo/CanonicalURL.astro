@@ -5,12 +5,26 @@
  * Set the canonical URL to prevent duplicate content issues.
  * Automatically handles trailing slashes and query parameters.
  *
- * @example
- * <CanonicalURL />
- * <!-- Uses current URL as canonical -->
+ * Features:
+ * - Automatic URL normalization (strips query params and trailing slashes)
+ * - Falls back to the current page URL when no explicit url is provided
+ * - Configurable: keep query params or trailing slashes when needed
  *
- * <CanonicalURL url="https://example.com/specific-page" />
- * <!-- Uses specified URL -->
+ * @example
+ * <!-- Auto-detect canonical from the current page URL -->
+ * <CanonicalURL />
+ *
+ * @example
+ * <!-- Explicit canonical for a specific page -->
+ * <CanonicalURL url="https://example.com/services/web-design" />
+ *
+ * @example
+ * <!-- Keep query parameters (e.g. for paginated pages) -->
+ * <CanonicalURL
+ *   url="https://example.com/blog?page=2"
+ *   removeQueryParams={false}
+ * />
+ *
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */

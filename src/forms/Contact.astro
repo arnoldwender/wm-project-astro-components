@@ -16,6 +16,38 @@
  * - Privacy policy link
  * - Data minimization (only required fields)
  * - Clear purpose statement
+ *
+ * @example
+ * <!-- Default contact form with required privacy policy link -->
+ * <Contact
+ *   privacyPolicyUrl="/datenschutz"
+ *   action="/api/contact"
+ *   contactInfo={{
+ *     email: 'info@example.com',
+ *     phone: '+49 345 12345',
+ *     address: '123 Main St\n06108 Halle (Saale)',
+ *     hours: 'Mon-Fri: 9:00-17:00',
+ *   }}
+ * />
+ *
+ * @example
+ * <!-- Split layout with custom fields and sidebar -->
+ * <Contact
+ *   variant="split"
+ *   title="Let's talk"
+ *   subtitle="Contact us"
+ *   privacyPolicyUrl="/privacy"
+ *   fields={[
+ *     { name: 'name', label: 'Full Name', type: 'text', required: true },
+ *     { name: 'email', label: 'Email', type: 'email', required: true },
+ *     { name: 'service', label: 'Service', type: 'select', options: [
+ *       { value: 'design', label: 'Web Design' },
+ *       { value: 'seo', label: 'SEO' },
+ *     ]},
+ *     { name: 'message', label: 'Message', type: 'textarea', rows: 6, required: true },
+ *   ]}
+ * />
+ *
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */

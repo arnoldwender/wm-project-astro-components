@@ -5,14 +5,36 @@
  * Shows a placeholder until user consents to loading Google Maps.
  * No external requests are made without explicit consent.
  *
- * Usage:
+ * Features:
+ * - Consent-first: no external requests until the user clicks "Karte laden"
+ * - Optional "remember choice" checkbox persists consent in localStorage
+ * - Static map preview as blurred placeholder (when API key is provided)
+ * - Directions link overlay for quick route planning
+ * - Customisable consent text, button label, and privacy link
+ * - Supports roadmap, satellite, hybrid, and terrain map types
+ *
+ * @example
+ * <!-- Basic usage with API key -->
  * <GoogleMap
- *   lat={52.520008}
- *   lng={13.404954}
+ *   lat={51.4828}
+ *   lng={11.9700}
  *   zoom={15}
  *   apiKey={import.meta.env.PUBLIC_GOOGLE_MAPS_KEY}
- *   title="Unser Standort"
+ *   title="Our Office"
+ *   markerTitle="Acme Corp HQ"
  * />
+ *
+ * @example
+ * <!-- Without API key, custom dimensions and consent text -->
+ * <GoogleMap
+ *   lat={48.1351}
+ *   lng={11.5820}
+ *   height="500px"
+ *   consentText="Loading this map transfers data to Google."
+ *   buttonText="Load map"
+ *   privacyLinkUrl="/privacy#maps"
+ * />
+ *
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */

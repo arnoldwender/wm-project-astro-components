@@ -8,11 +8,32 @@
  * This script runs synchronously before the page renders, ensuring
  * the correct theme class is applied immediately.
  *
+ * Features:
+ * - Reads from localStorage first, then falls back to prefers-color-scheme
+ * - Applies the 'dark' class on <html> before any stylesheet loads
+ * - Stores the resolved theme back to localStorage for consistency
+ * - Zero dependencies, no external requests
+ *
  * @example
+ * <!-- Place before stylesheets in <head> to prevent FOUC -->
  * <head>
  *   <ThemeScript />
  *   <link rel="stylesheet" href="/styles/global.css" />
  * </head>
+ *
+ * @example
+ * <!-- Works with Astro BaseLayout pattern -->
+ * ---
+ * import ThemeScript from '@components/accessibility/ThemeScript.astro';
+ * ---
+ * <html lang="de">
+ *   <head>
+ *     <ThemeScript />
+ *     <slot name="head" />
+ *   </head>
+ *   <body><slot /></body>
+ * </html>
+ *
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */

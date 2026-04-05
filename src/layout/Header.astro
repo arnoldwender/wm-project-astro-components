@@ -2,8 +2,46 @@
 /**
  * Header Component - WenderMedia Astro Components
  *
- * Sticky navigation with blur backdrop, mobile menu toggle
- * Fully configurable via props
+ * Fixed-position site header with transparent-to-solid scroll behavior,
+ * responsive desktop/mobile navigation, and optional logo or text branding.
+ * Use this as the primary navigation header on every page.
+ *
+ * Features:
+ * - Fixed top position with smooth background transition on scroll
+ * - Transparent mode: starts see-through, gains backdrop blur after 100 px
+ * - Desktop horizontal nav with active-link detection (path matching)
+ * - Mobile full-screen overlay menu with animated hamburger/close icon
+ * - External link support (target="_blank" + rel="noopener noreferrer")
+ * - Optional contact info (email, phone) shown inside the mobile menu
+ * - Keyboard accessible: Escape closes the mobile menu
+ * - Astro View Transitions compatible (re-initialises on astro:page-load)
+ *
+ * @example
+ * ---
+ * import Header from '@components/layout/Header.astro';
+ *
+ * const navItems = [
+ *   { label: 'Home', href: '/' },
+ *   { label: 'Services', href: '/services' },
+ *   { label: 'About', href: '/about' },
+ *   { label: 'Contact', href: '/contact' },
+ * ];
+ * ---
+ * <Header
+ *   navItems={navItems}
+ *   siteName="Acme Corp"
+ *   contactEmail="hello@example.com"
+ *   contactPhone="+49 123 456789"
+ * />
+ *
+ * @example
+ * <!-- With a logo image instead of text -->
+ * <Header
+ *   navItems={navItems}
+ *   logo={{ src: '/images/logo.svg', alt: 'Acme Corp Logo', width: 180, height: 40 }}
+ *   transparent={false}
+ * />
+ *
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */

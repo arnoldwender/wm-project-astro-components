@@ -15,6 +15,32 @@
  * - lang attribute on each option
  * - Keyboard accessible
  * - No auto-redirect based on IP
+ *
+ * @example
+ * <!-- Dropdown language switcher with flags -->
+ * <LanguageSwitcher
+ *   currentLanguage="de"
+ *   languages={[
+ *     { code: 'de', name: 'German', nativeName: 'Deutsch', flag: '🇩🇪', url: '/de' },
+ *     { code: 'en', name: 'English', nativeName: 'English', flag: '🇬🇧', url: '/en' },
+ *     { code: 'es', name: 'Spanish', nativeName: 'Español', flag: '🇪🇸', url: '/es' },
+ *   ]}
+ *   mode="dropdown"
+ * />
+ *
+ * @example
+ * <!-- Inline mode without flags, persisted via localStorage -->
+ * <LanguageSwitcher
+ *   currentLanguage="en"
+ *   languages={[
+ *     { code: 'en', name: 'English', nativeName: 'English' },
+ *     { code: 'de', name: 'German', nativeName: 'Deutsch' },
+ *   ]}
+ *   mode="inline"
+ *   showFlag={false}
+ *   persistMethod="localStorage"
+ * />
+ *
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */

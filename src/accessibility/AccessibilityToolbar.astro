@@ -20,6 +20,33 @@
  *
  * Note: This is a user-preference tool, not a replacement for
  * building accessibility into the underlying HTML and design.
+ *
+ * @example
+ * <!-- Default toolbar with all features, positioned on the right -->
+ * <AccessibilityToolbar position="right" />
+ *
+ * @example
+ * <!-- Custom feature set with German labels, left-positioned -->
+ * <AccessibilityToolbar
+ *   position="left"
+ *   theme="dark"
+ *   features={{
+ *     fontSize: true,
+ *     contrast: true,
+ *     dyslexiaFont: true,
+ *     pauseAnimations: true,
+ *     highlightLinks: true,
+ *     readingGuide: false,
+ *     textToSpeech: false,
+ *   }}
+ *   labels={{
+ *     title: 'Barrierefreiheit',
+ *     reset: 'Zurücksetzen',
+ *     fontSize: 'Schriftgröße',
+ *     contrast: 'Kontrast',
+ *   }}
+ * />
+ *
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */

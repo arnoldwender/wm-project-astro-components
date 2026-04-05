@@ -4,14 +4,39 @@
  *
  * Twitter Card meta tags for rich social sharing on Twitter/X.
  *
+ * Features:
+ * - Four card types: summary, summary_large_image, app, and player
+ * - Automatic @-prefix handling for site and creator handles
+ * - Player card support with stream URL, width, and height
+ * - App card support for iOS (iPhone/iPad) and Google Play deep links
+ * - Absolute-URL resolution for images via Astro.site
+ *
  * @example
+ * <!-- Standard large-image card -->
  * <TwitterCard
- *   title="Page Title"
- *   description="Page description"
- *   image="/twitter-image.jpg"
- *   card="summary_large_image"
- *   site="@yourhandle"
+ *   title="Acme Corp - Web Design"
+ *   description="Professional web design services."
+ *   image="/images/twitter-card.jpg"
+ *   imageAlt="Acme Corp office workspace"
+ *   site="@acmecorp"
+ *   creator="@janedoe"
  * />
+ *
+ * @example
+ * <!-- Player card for embedded video -->
+ * <TwitterCard
+ *   title="Product Demo Video"
+ *   description="Watch our 2-minute product walkthrough."
+ *   card="player"
+ *   player={{
+ *     url: 'https://example.com/embed/demo',
+ *     width: 1280,
+ *     height: 720,
+ *     stream: 'https://example.com/video/demo.mp4',
+ *   }}
+ *   site="@acmecorp"
+ * />
+ *
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */

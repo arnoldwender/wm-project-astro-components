@@ -18,6 +18,30 @@
  * - Easy unsubscribe option mentioned
  * - Link to privacy policy
  * - No pre-ticked consent boxes
+ *
+ * @example
+ * <!-- Card variant with double opt-in (default) -->
+ * <Newsletter
+ *   privacyPolicyUrl="/datenschutz"
+ *   title="Stay in the loop"
+ *   description="Get weekly tips on web design and SEO."
+ *   action="/api/newsletter"
+ * />
+ *
+ * @example
+ * <!-- Inline banner variant with name field and incentive -->
+ * <Newsletter
+ *   variant="inline"
+ *   privacyPolicyUrl="/privacy"
+ *   showNameField={true}
+ *   buttonText="Join now"
+ *   incentive={{
+ *     title: 'Free SEO Checklist',
+ *     description: 'Download our 20-point checklist when you subscribe.',
+ *     image: '/images/checklist-thumb.jpg',
+ *   }}
+ * />
+ *
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */

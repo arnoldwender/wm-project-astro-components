@@ -5,15 +5,41 @@
  * Generate structured data (JSON-LD) for various schema.org types.
  * Improves SEO and enables rich results in search engines.
  *
+ * Features:
+ * - Supports 17 Schema.org types (Organization, LocalBusiness, Article, FAQPage, Product, etc.)
+ * - Automatically wraps data with @context and @type
+ * - Outputs minified JSON-LD via set:html for XSS-safe injection
+ *
  * @example
+ * <!-- Organization schema -->
  * <JsonLD
  *   type="Organization"
  *   data={{
- *     name: 'Company Name',
+ *     name: 'Acme Corp',
  *     url: 'https://example.com',
  *     logo: 'https://example.com/logo.png',
+ *     sameAs: [
+ *       'https://www.linkedin.com/company/acme',
+ *       'https://www.instagram.com/acme',
+ *     ],
  *   }}
  * />
+ *
+ * @example
+ * <!-- FAQPage schema for rich results -->
+ * <JsonLD
+ *   type="FAQPage"
+ *   data={{
+ *     mainEntity: [
+ *       {
+ *         '@type': 'Question',
+ *         name: 'What is your return policy?',
+ *         acceptedAnswer: { '@type': 'Answer', text: 'Returns within 30 days.' },
+ *       },
+ *     ],
+ *   }}
+ * />
+ *
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */
