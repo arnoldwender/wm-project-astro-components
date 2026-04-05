@@ -12,12 +12,31 @@
  * - banner: Full-width banner style
  * - minimal: Simple text + input
  *
+ * Features:
+ * - Six layout variants (inline, centered, card, split, banner, minimal)
+ * - Configurable form action, method, and input field name
+ * - Privacy policy text and link integration for DSGVO compliance
+ * - Multiple background themes including dark and gradient options
+ * - Media slot for custom illustrations in the split variant
+ *
  * @example
  * <NewsletterSection
- *   variant="centered"
- *   title="Stay Updated"
- *   description="Get the latest news and updates."
+ *   variant="card"
+ *   eyebrow="Newsletter"
+ *   title="Stay in the loop"
+ *   description="Join 5,000+ subscribers for weekly insights."
  *   buttonText="Subscribe"
+ *   privacyText="We respect your privacy."
+ *   privacyLink="/datenschutz"
+ * />
+ *
+ * @example
+ * <NewsletterSection
+ *   variant="banner"
+ *   title="Get product updates"
+ *   background="gradient"
+ *   formAction="/api/newsletter"
+ *   placeholder="you@example.com"
  * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

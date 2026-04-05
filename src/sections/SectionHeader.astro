@@ -4,12 +4,28 @@
  *
  * Reusable header for sections with eyebrow, title, and description.
  *
+ * Features:
+ * - Eyebrow label, title, and description in a single composable block
+ * - Three alignment options (left, center, right) with auto max-width
+ * - Three size presets (sm, md, lg) controlling all typography scales
+ * - Configurable heading tag (h1, h2, h3) for correct document hierarchy
+ * - Default slot for extra content like action buttons below the header
+ *
  * @example
  * <SectionHeader
  *   eyebrow="Features"
  *   title="Everything you need"
  *   description="Powerful features to help you succeed."
  *   align="center"
+ *   size="lg"
+ * />
+ *
+ * @example
+ * <SectionHeader
+ *   title="About Acme Corp"
+ *   description="We have been building great products since 2010."
+ *   align="left"
+ *   titleTag="h1"
  * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

@@ -12,10 +12,34 @@
  * - sticky: Sticky header with scroll effects
  * - mega: Navbar with mega menu support
  *
+ * Features:
+ * - Six layout variants (default, centered, minimal, transparent, sticky, mega)
+ * - Responsive mobile hamburger menu with animated toggle
+ * - Dropdown sub-navigation with hover and click support
+ * - Transparent-to-solid scroll effect for hero overlays
+ * - Slot-based architecture for logo, nav, actions, and mobile content
+ *
  * @example
- * <NavbarSection variant="default" logo="/logo.svg">
- *   <NavLink href="/" slot="nav">Home</NavLink>
- *   <Button href="/contact" slot="actions">Contact</Button>
+ * <NavbarSection
+ *   variant="default"
+ *   logo="/images/acme-logo.svg"
+ *   logoAlt="Acme Corp"
+ *   navItems={[
+ *     { label: "Home", href: "/" },
+ *     { label: "Services", href: "/services", children: [
+ *       { label: "Consulting", href: "/services/consulting" },
+ *       { label: "Development", href: "/services/development" }
+ *     ]},
+ *     { label: "About", href: "/about" },
+ *     { label: "Contact", href: "/contact" }
+ *   ]}
+ *   sticky
+ * />
+ *
+ * @example
+ * <NavbarSection variant="transparent" homeHref="/">
+ *   <a href="/pricing" slot="nav">Pricing</a>
+ *   <a href="/login" slot="actions">Log In</a>
  * </NavbarSection>
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

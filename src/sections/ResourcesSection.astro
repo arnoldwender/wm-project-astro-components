@@ -12,9 +12,36 @@
  * - compact: Dense listing
  * - cards: Visual card layout
  *
+ * Features:
+ * - Six layout variants (grid, list, categories, featured, compact, cards)
+ * - Client-side category filter buttons with active state management
+ * - Configurable 2-4 column responsive grid
+ * - Featured variant with prominent hero resource slot
+ * - Compact variant with unified card borders and rounded corners
+ *
  * @example
- * <ResourcesSection variant="grid" title="Downloads">
- *   <ResourceCard title="Brochure" href="/brochure.pdf" />
+ * <ResourcesSection
+ *   variant="grid"
+ *   title="Downloads & Resources"
+ *   description="Everything you need to get started."
+ *   columns={3}
+ * >
+ *   <ResourceCard title="Product Brochure" fileType="pdf" href="/brochure.pdf" />
+ *   <ResourceCard title="Price List" fileType="xls" href="/prices.xlsx" />
+ * </ResourcesSection>
+ *
+ * @example
+ * <ResourcesSection
+ *   variant="categories"
+ *   eyebrow="Resource Center"
+ *   title="Browse by Category"
+ *   showFilters
+ *   categories={[
+ *     { id: "guides", name: "Guides" },
+ *     { id: "templates", name: "Templates" }
+ *   ]}
+ * >
+ *   <ResourceCard title="Setup Guide" href="/guide.pdf" />
  * </ResourcesSection>
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

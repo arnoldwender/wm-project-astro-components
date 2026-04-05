@@ -12,10 +12,35 @@
  * - detail: Full product detail page
  * - quick-view: Quick view modal style
  *
+ * Features:
+ * - Six display variants (grid, carousel, featured, comparison, detail, quick-view)
+ * - Product cards with pricing, badges, ratings, and stock status
+ * - Sort and filter controls for browsable product catalogs
+ * - Product variant selectors (size, color, etc.) in detail view
+ * - Add-to-cart button with configurable label text
+ *
  * @example
- * <ProductSection variant="grid" title="Featured Products">
- *   <ProductCard ... />
- * </ProductSection>
+ * <ProductSection
+ *   variant="grid"
+ *   title="Featured Products"
+ *   columns={3}
+ *   showAddToCart
+ *   products={[
+ *     { id: "1", name: "Wireless Headphones", slug: "headphones", price: 79.99, image: "/images/headphones.jpg", rating: 4.5, reviewCount: 128, badge: "Bestseller", inStock: true },
+ *     { id: "2", name: "Desk Organizer", slug: "organizer", price: 34.99, image: "/images/organizer.jpg", inStock: true }
+ *   ]}
+ * />
+ *
+ * @example
+ * <ProductSection
+ *   variant="featured"
+ *   product={{
+ *     id: "3", name: "Premium Backpack", slug: "backpack", price: 149, originalPrice: 199,
+ *     image: "/images/backpack.jpg", description: "Built for everyday adventures.",
+ *     features: ["Water-resistant", "15-inch laptop sleeve", "Lifetime warranty"]
+ *   }}
+ *   ctaLabel="Add to Cart"
+ * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */

@@ -12,10 +12,34 @@
  * - featured: Featured service highlight
  * - pricing: Service with pricing tiers
  *
+ * Features:
+ * - Six display variants (grid, list, tabs, accordion, featured, pricing)
+ * - Category-based tab filtering with animated panel transitions
+ * - Accordion with expand/collapse for compact service details
+ * - Featured variant with hero card and sidebar supporting services
+ * - Pricing variant with highlighted plan and feature checklists
+ *
  * @example
- * <ServiceSection variant="grid" title="Our Services">
- *   <ServiceCard ... />
- * </ServiceSection>
+ * <ServiceSection
+ *   variant="grid"
+ *   eyebrow="What We Do"
+ *   title="Our Services"
+ *   columns={3}
+ *   services={[
+ *     { id: "web", title: "Web Development", description: "Custom websites built with modern frameworks.", icon: "<svg>...</svg>", href: "/services/web", features: ["Responsive design", "SEO optimized"] },
+ *     { id: "seo", title: "SEO Optimization", description: "Increase your organic traffic.", icon: "<svg>...</svg>", href: "/services/seo" }
+ *   ]}
+ * />
+ *
+ * @example
+ * <ServiceSection
+ *   variant="accordion"
+ *   title="Explore Our Offerings"
+ *   services={[
+ *     { id: "consulting", title: "Consulting", description: "Strategic advice for digital growth.", features: ["Market analysis", "Roadmap planning"] },
+ *     { id: "design", title: "UI/UX Design", description: "User-centered design that converts.", features: ["Wireframes", "Prototypes", "User testing"] }
+ *   ]}
+ * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */

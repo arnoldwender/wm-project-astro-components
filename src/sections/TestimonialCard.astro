@@ -4,13 +4,31 @@
  *
  * Individual testimonial card.
  *
+ * Features:
+ * - Four display variants (card, minimal, social, large)
+ * - Five-star rating display with filled/unfilled states
+ * - Source platform icon (Twitter, LinkedIn, Google, Trustpilot)
+ * - Initials fallback when no avatar image is provided
+ * - Large variant for featured hero-style testimonials
+ *
  * @example
  * <TestimonialCard
- *   quote="Amazing product!"
- *   name="John Doe"
- *   role="CEO"
- *   company="Acme Inc"
- *   avatar="/avatars/john.jpg"
+ *   quote="Acme Corp transformed our workflow. We shipped 3x faster after onboarding."
+ *   name="Jane Doe"
+ *   role="VP of Engineering"
+ *   company="Widget Inc"
+ *   avatar="/images/avatars/jane.jpg"
+ *   rating={5}
+ *   source="linkedin"
+ * />
+ *
+ * @example
+ * <TestimonialCard
+ *   variant="large"
+ *   quote="The best investment we made this year. Outstanding support and results."
+ *   name="John Smith"
+ *   role="Founder"
+ *   company="Acme Corp"
  *   rating={5}
  * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.

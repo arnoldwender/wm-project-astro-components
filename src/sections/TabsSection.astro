@@ -12,11 +12,41 @@
  * - cards: Tab cards with icons
  * - segmented: iOS-style segmented control
  *
+ * Features:
+ * - Six style variants (default, pills, underline, vertical, cards, segmented)
+ * - Full keyboard navigation (Arrow keys, Home, End)
+ * - Badge support on tabs for notification counts or labels
+ * - Optional icon display with card-style large icons or inline icons
+ * - Animated panel transitions with fade-in effect
+ *
  * @example
- * <TabsSection variant="default">
- *   <TabItem label="Features" id="features">
- *     <p>Features content...</p>
- *   </TabItem>
+ * <TabsSection
+ *   variant="pills"
+ *   tabs={[
+ *     { id: "features", label: "Features" },
+ *     { id: "pricing", label: "Pricing", badge: "New" },
+ *     { id: "faq", label: "FAQ" }
+ *   ]}
+ *   defaultTab="features"
+ * >
+ *   <TabPanel id="features">Feature details here.</TabPanel>
+ *   <TabPanel id="pricing">Pricing plans here.</TabPanel>
+ *   <TabPanel id="faq">Frequently asked questions.</TabPanel>
+ * </TabsSection>
+ *
+ * @example
+ * <TabsSection
+ *   variant="vertical"
+ *   title="Documentation"
+ *   tabs={[
+ *     { id: "getting-started", label: "Getting Started" },
+ *     { id: "api", label: "API Reference" },
+ *     { id: "examples", label: "Examples" }
+ *   ]}
+ * >
+ *   <TabPanel id="getting-started">Quick start guide.</TabPanel>
+ *   <TabPanel id="api">Endpoints and parameters.</TabPanel>
+ *   <TabPanel id="examples">Code samples and demos.</TabPanel>
  * </TabsSection>
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

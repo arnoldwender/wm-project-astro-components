@@ -4,6 +4,13 @@
  *
  * Individual team member card.
  *
+ * Features:
+ * - Five display variants (default, card, horizontal, minimal, overlay)
+ * - Built-in social icons for LinkedIn, Twitter/X, GitHub, Instagram, email, website
+ * - Initials fallback when no avatar image is provided
+ * - Overlay variant with hover-reveal bio and social links
+ * - Reduced motion support for overlay hover animations
+ *
  * @example
  * <TeamMember
  *   name="Jane Doe"
@@ -11,8 +18,20 @@
  *   image="/images/team/jane.jpg"
  *   bio="Passionate about building great products."
  *   socials={[
- *     { platform: 'linkedin', url: 'https://linkedin.com/in/jane' },
- *     { platform: 'twitter', url: 'https://twitter.com/jane' },
+ *     { platform: 'linkedin', url: 'https://linkedin.com/in/janedoe' },
+ *     { platform: 'twitter', url: 'https://x.com/janedoe' },
+ *   ]}
+ * />
+ *
+ * @example
+ * <TeamMember
+ *   variant="card"
+ *   name="John Smith"
+ *   role="Lead Engineer"
+ *   bio="Full-stack developer with 10 years of experience."
+ *   socials={[
+ *     { platform: 'github', url: 'https://github.com/johnsmith' },
+ *     { platform: 'email', url: 'mailto:john@acmecorp.com' }
  *   ]}
  * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.

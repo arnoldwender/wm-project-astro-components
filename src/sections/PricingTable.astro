@@ -15,6 +15,34 @@
  * - Sticky headers for easy comparison
  * - Clear tier differentiation
  * - Trust signals integration
+ *
+ * Features:
+ * - Monthly/yearly billing toggle with animated price transitions
+ * - Feature tooltips for detailed explanations on hover and focus
+ * - Schema.org Product structured data for each pricing tier
+ * - Savings percentage badges calculated automatically
+ * - Trust badge row for third-party credibility logos
+ *
+ * @example
+ * <PricingTable
+ *   title="Plans for every team"
+ *   subtitle="Start free, upgrade when you need to."
+ *   defaultBilling="yearly"
+ *   tiers={[
+ *     {
+ *       id: "starter", name: "Starter", description: "For individuals",
+ *       priceMonthly: 0, priceYearly: 0,
+ *       features: [{ name: "3 projects", included: true }, { name: "API access", included: false }],
+ *       ctaText: "Get Started", ctaHref: "/signup"
+ *     },
+ *     {
+ *       id: "pro", name: "Pro", description: "For growing teams",
+ *       priceMonthly: 29, priceYearly: 290, popular: true,
+ *       features: [{ name: "Unlimited projects", included: true }, { name: "API access", included: true }],
+ *       ctaText: "Start Trial", ctaHref: "/signup/pro"
+ *     }
+ *   ]}
+ * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */

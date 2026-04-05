@@ -4,12 +4,28 @@
  *
  * Individual step in a process/workflow.
  *
+ * Features:
+ * - Four display variants (default, card, minimal, detailed)
+ * - Flexible indicator: numbered circle, emoji/SVG icon, or simple dot
+ * - Optional duration badge for time estimates per step
+ * - Image support in detailed variant for visual explanations
+ * - Slot for additional custom content below the description
+ *
  * @example
  * <ProcessStep
  *   number={1}
  *   title="Discovery"
  *   description="We learn about your business and goals."
  *   icon="🔍"
+ *   duration="1 week"
+ * />
+ *
+ * @example
+ * <ProcessStep
+ *   variant="card"
+ *   number={2}
+ *   title="Implementation"
+ *   description="Our team builds your custom solution from scratch."
  * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

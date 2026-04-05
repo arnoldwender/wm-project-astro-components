@@ -11,10 +11,31 @@
  * - background: Stats over background image
  * - animated: Count-up animation
  *
+ * Features:
+ * - Five display variants (simple, cards, inline, background, animated)
+ * - Background image variant with dark overlay for contrast
+ * - Animated variant triggers StatItem count-up on scroll
+ * - Responsive 2-5 column grid with flexible alignment
+ * - Inline divider layout for compact horizontal stats
+ *
  * @example
- * <StatsSection variant="simple">
- *   <StatItem value="10K+" label="Happy Customers" />
- *   <StatItem value="99.9%" label="Uptime" />
+ * <StatsSection variant="cards" columns={4} title="By the Numbers">
+ *   <StatItem value="10K+" label="Happy Customers" icon="👥" />
+ *   <StatItem value="99.9%" label="Uptime" icon="⚡" />
+ *   <StatItem value="24/7" label="Support" icon="🎧" />
+ *   <StatItem value="50+" label="Integrations" icon="🔗" />
+ * </StatsSection>
+ *
+ * @example
+ * <StatsSection
+ *   variant="background"
+ *   backgroundImage="/images/office.jpg"
+ *   title="Our Impact"
+ *   columns={3}
+ * >
+ *   <StatItem value="500+" label="Projects Delivered" variant="centered" />
+ *   <StatItem value="98%" label="Client Satisfaction" variant="centered" />
+ *   <StatItem value="15" label="Years Experience" variant="centered" />
  * </StatsSection>
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

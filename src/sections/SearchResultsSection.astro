@@ -12,12 +12,33 @@
  * - table: Table-style results
  * - minimal: Minimal Google-style results
  *
+ * Features:
+ * - Six result layouts (default, cards, compact, grid, table, minimal)
+ * - Built-in pagination via PaginationSection component
+ * - Sort dropdown and filter button controls
+ * - Loading spinner and empty state with search suggestions
+ * - Highlighted search term matches in excerpts
+ *
  * @example
  * <SearchResultsSection
  *   variant="default"
- *   query="search term"
- *   results={results}
- *   totalResults={100}
+ *   query="project management"
+ *   totalResults={42}
+ *   currentPage={1}
+ *   results={[
+ *     { id: "1", title: "Getting Started with Projects", url: "/docs/projects", description: "Learn how to create and manage projects effectively.", category: "Documentation" },
+ *     { id: "2", title: "Advanced Workflows", url: "/docs/workflows", description: "Automate your team processes.", category: "Guides" }
+ *   ]}
+ * />
+ *
+ * @example
+ * <SearchResultsSection
+ *   variant="cards"
+ *   query="design"
+ *   totalResults={0}
+ *   results={[]}
+ *   emptyTitle="No matches found"
+ *   emptyDescription="Try searching for something else."
  * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

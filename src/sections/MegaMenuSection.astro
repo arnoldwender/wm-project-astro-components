@@ -12,10 +12,38 @@
  * - cards: Card-based menu items
  * - full: Full-width mega menu
  *
+ * Features:
+ * - Six layout variants (default, featured, tabs, columns, cards, full)
+ * - Hover and click toggle with smooth open/close animations
+ * - Keyboard navigation and Escape key dismiss
+ * - Featured content area with image, title, and CTA link
+ * - Mobile bottom-sheet fallback for smaller screens
+ *
  * @example
- * <MegaMenuSection variant="default" trigger="Products">
- *   <MegaMenuItem href="/feature-1">Feature 1</MegaMenuItem>
- * </MegaMenuSection>
+ * <MegaMenuSection
+ *   variant="columns"
+ *   trigger="Products"
+ *   columns={[
+ *     { title: "Platform", items: [
+ *       { label: "Analytics", href: "/analytics", description: "Real-time insights" },
+ *       { label: "Automation", href: "/automation", description: "Workflow tools" }
+ *     ]},
+ *     { title: "Solutions", items: [
+ *       { label: "Enterprise", href: "/enterprise", badge: "New" },
+ *       { label: "Startups", href: "/startups" }
+ *     ]}
+ *   ]}
+ * />
+ *
+ * @example
+ * <MegaMenuSection
+ *   variant="featured"
+ *   trigger="Resources"
+ *   columns={[{ title: "Learn", items: [{ label: "Blog", href: "/blog" }] }]}
+ *   featuredTitle="Getting Started Guide"
+ *   featuredDescription="Everything you need to launch in 10 minutes."
+ *   featuredLink="/guides/quickstart"
+ * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */
