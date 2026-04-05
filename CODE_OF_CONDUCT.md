@@ -47,7 +47,7 @@ an individual is officially representing the community in public spaces.
 ## Enforcement
 
 Instances of unacceptable behavior may be reported to the community leaders
-responsible for enforcement at **arnold.wender@gmail.com**.
+responsible for enforcement at **info@wendermedia.com**.
 
 All complaints will be reviewed and investigated promptly and fairly.
 
