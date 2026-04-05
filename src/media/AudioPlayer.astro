@@ -5,20 +5,32 @@
  * Custom styled audio player with playlist support.
  * Accessible and keyboard navigable.
  *
+ * Features:
+ * - Single track and multi-track playlist modes with cover art
+ * - Playback controls: play/pause, rewind/forward 10s, prev/next track
+ * - Variable speed (0.5x to 2x) and volume control with mute toggle
+ * - Keyboard shortcuts: Space (play), arrows (seek/volume)
+ * - Progress bar with buffered indicator and time display
+ *
  * @example
  * <!-- Single track -->
  * <AudioPlayer
  *   src="/audio/podcast-ep1.mp3"
  *   title="Episode 1: Introduction"
- *   artist="Podcast Name"
+ *   artist="Acme Corp Podcast"
+ *   cover="/images/podcast-cover.jpg"
  * />
  *
+ * @example
  * <!-- Playlist -->
  * <AudioPlayer
  *   playlist={[
- *     { src: '/audio/track1.mp3', title: 'Track 1', artist: 'Artist' },
- *     { src: '/audio/track2.mp3', title: 'Track 2', artist: 'Artist' },
+ *     { src: '/audio/track1.mp3', title: 'Welcome', artist: 'Acme Corp', duration: '3:42' },
+ *     { src: '/audio/track2.mp3', title: 'Our Mission', artist: 'Acme Corp', duration: '5:18' },
+ *     { src: '/audio/track3.mp3', title: 'Q&A Session', artist: 'Acme Corp', duration: '12:05' },
  *   ]}
+ *   showPlaylist={true}
+ *   loop={true}
  * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

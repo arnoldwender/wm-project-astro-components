@@ -4,11 +4,24 @@
  *
  * Individual card for the Bento Grid layout.
  *
+ * Features:
+ * - Four size options (1x1, 2x1, 1x2, 2x2) for flexible grid composition
+ * - Five visual variants: solid, gradient, glass, outline, and image
+ * - Named slots for icon, title, description, and default body content
+ * - Optional link mode with hover scale and "Mehr erfahren" indicator
+ * - Decorative blur effects and hover gradient overlays
+ *
  * @example
- * <BentoCard size="2x2" variant="gradient" href="/features/main">
+ * <BentoCard size="2x2" variant="gradient" color="primary" href="/about">
  *   <svg slot="icon">...</svg>
- *   <h3 slot="title">Feature Title</h3>
- *   <p slot="description">Feature description...</p>
+ *   <span slot="title">About Acme Corp</span>
+ *   <span slot="description">Learn more about our mission and values.</span>
+ * </BentoCard>
+ *
+ * @example
+ * <BentoCard size="1x1" variant="image" backgroundImage="/images/office.jpg">
+ *   <span slot="title">Our Office</span>
+ *   <span slot="description">Located in the heart of the city.</span>
  * </BentoCard>
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

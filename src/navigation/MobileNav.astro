@@ -5,14 +5,35 @@
  * Full-screen mobile navigation overlay with smooth animations.
  * Accessible and keyboard navigable.
  *
+ * Features:
+ * - Slide-in panel from right with backdrop overlay
+ * - Nested accordion submenus for grouped navigation items
+ * - Staggered entry animations per menu item
+ * - Escape key and backdrop click to close
+ * - Optional social links and contact info sections
+ *
  * @example
  * <MobileNav
  *   items={[
  *     { label: 'Home', href: '/' },
  *     { label: 'About', href: '/about' },
+ *     { label: 'Services', href: '/services', children: [
+ *       { label: 'Web Design', href: '/services/web-design' },
+ *       { label: 'SEO', href: '/services/seo' },
+ *     ]},
  *     { label: 'Contact', href: '/contact' },
  *   ]}
- *   socialLinks={[...]}
+ *   contactEmail="hello@acme-corp.com"
+ *   contactPhone="+49 123 456789"
+ * />
+ *
+ * @example
+ * <MobileNav
+ *   items={[
+ *     { label: 'Home', href: '/' },
+ *     { label: 'About', href: '/about' },
+ *     { label: 'Blog', href: '/blog', external: true },
+ *   ]}
  * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

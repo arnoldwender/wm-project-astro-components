@@ -5,11 +5,29 @@
  * SEO-friendly pagination with schema.org markup.
  * Supports numbered pages, prev/next, and ellipsis.
  *
+ * Features:
+ * - Automatic ellipsis for large page ranges with configurable sibling count
+ * - SEO rel="prev" / rel="next" on navigation links
+ * - Schema.org CollectionPage JSON-LD structured data
+ * - Disabled state for first/last page boundaries
+ * - Responsive labels hidden on mobile, icons always visible
+ *
  * @example
  * <Pagination
  *   currentPage={3}
  *   totalPages={10}
  *   baseUrl="/blog"
+ * />
+ *
+ * @example
+ * <Pagination
+ *   currentPage={1}
+ *   totalPages={25}
+ *   baseUrl="/products"
+ *   siblingCount={2}
+ *   prevLabel="Previous"
+ *   nextLabel="Next"
+ *   ariaLabel="Product pagination"
  * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

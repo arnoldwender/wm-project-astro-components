@@ -4,8 +4,19 @@
  *
  * Individual tab button for use within Tabs component.
  *
+ * Features:
+ * - ARIA role="tab" with aria-controls linked to corresponding TabPanel
+ * - Optional leading icon for visual tab identification
+ * - Disabled state via aria-disabled attribute
+ * - Managed tabindex for roving keyboard navigation within tab list
+ * - Slot-based label content for flexible tab text
+ *
  * @example
  * <Tab id="overview" icon="📊">Overview</Tab>
+ *
+ * @example
+ * <Tab id="pricing" disabled={false}>Pricing</Tab>
+ * <Tab id="reviews" icon="⭐">Reviews</Tab>
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */

@@ -5,6 +5,13 @@
  * SEO-optimized breadcrumb navigation with Schema.org markup.
  * Accessible and responsive design.
  *
+ * Features:
+ * - Schema.org BreadcrumbList JSON-LD structured data for rich snippets
+ * - Three separator styles: chevron, slash, and arrow
+ * - Auto-prepends Home link when showHome is enabled
+ * - Mobile-friendly truncation with ellipsis for intermediate items
+ * - Dark mode support via prefers-color-scheme
+ *
  * @example
  * <Breadcrumbs
  *   items={[
@@ -13,6 +20,17 @@
  *     { label: 'Category', href: '/products/category' },
  *     { label: 'Current Product' },
  *   ]}
+ * />
+ *
+ * @example
+ * <Breadcrumbs
+ *   items={[
+ *     { label: 'Acme Corp', href: '/' },
+ *     { label: 'Services', href: '/services' },
+ *     { label: 'Web Design' },
+ *   ]}
+ *   separator="slash"
+ *   showHome={false}
  * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

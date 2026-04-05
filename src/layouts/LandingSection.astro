@@ -4,12 +4,28 @@
  *
  * Pre-built section patterns for landing pages.
  *
+ * Features:
+ * - Ten section variants: hero, features, benefits, testimonials, pricing, faq, cta, stats, logos, content
+ * - Named slots for eyebrow, heading, and subheading with automatic centered layout
+ * - Configurable background (transparent, subtle, muted, gradient, dark, primary)
+ * - Scroll-triggered fade-in animation with prefers-reduced-motion support
+ * - Responsive grid columns (1-4) with container width options
+ *
  * @example
- * <LandingSection variant="features" columns={3}>
- *   <h2 slot="heading">Features</h2>
+ * <LandingSection variant="features" columns={3} background="subtle" id="leistungen">
+ *   <span slot="eyebrow">What We Do</span>
+ *   <span slot="heading">Our Services</span>
+ *   <span slot="subheading">Acme Corp delivers world-class solutions.</span>
  *   <FeatureCard />
  *   <FeatureCard />
  *   <FeatureCard />
+ * </LandingSection>
+ *
+ * @example
+ * <LandingSection variant="cta" background="primary" padding="xl" centered={true}>
+ *   <h2>Ready to get started?</h2>
+ *   <p>Contact Acme Corp today for a free consultation.</p>
+ *   <a href="/contact">Get in Touch</a>
  * </LandingSection>
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components

@@ -5,13 +5,35 @@
  * Responsive image gallery with lightbox support.
  * SEO-optimized with proper lazy loading and structured data.
  *
+ * Features:
+ * - Grid and masonry layout modes with 2-6 configurable columns
+ * - Full-screen lightbox with keyboard and touch-swipe navigation
+ * - Schema.org ImageGallery JSON-LD structured data
+ * - Lazy loading with thumbnail support for faster initial page load
+ * - Responsive column reduction on smaller viewports
+ *
  * @example
  * <ImageGallery
  *   images={[
- *     { src: '/images/1.jpg', alt: 'Image 1', caption: 'Caption' },
- *     { src: '/images/2.jpg', alt: 'Image 2' },
+ *     { src: '/images/office.jpg', alt: 'Acme Corp office', caption: 'Our headquarters' },
+ *     { src: '/images/team.jpg', alt: 'Acme Corp team' },
+ *     { src: '/images/product.jpg', alt: 'Latest product launch', caption: 'Product X' },
  *   ]}
  *   columns={3}
+ *   lightbox={true}
+ *   showCaptions={true}
+ * />
+ *
+ * @example
+ * <ImageGallery
+ *   images={[
+ *     { src: '/images/project-a.jpg', alt: 'Project A', thumbnail: '/images/thumbs/project-a.jpg' },
+ *     { src: '/images/project-b.jpg', alt: 'Project B', thumbnail: '/images/thumbs/project-b.jpg' },
+ *   ]}
+ *   columns={2}
+ *   layout="masonry"
+ *   gap="lg"
+ *   rounded={true}
  * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
