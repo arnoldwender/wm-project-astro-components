@@ -5,7 +5,7 @@
 <h1 align="center">@wendermedia/astro-components</h1>
 
 <p align="center">
-  <strong>150+ production-ready, accessible, GDPR-compliant Astro components</strong><br />
+  <strong>158 production-ready, accessible, GDPR-compliant Astro components</strong><br />
   Built by <a href="https://www.wendermedia.com">Wender Media</a> &mdash; Web Agency from Halle (Saale), Germany
 </p>
 
@@ -15,7 +15,7 @@
   <img src="https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/badge/WCAG_2.1-AA-green" alt="WCAG 2.1 AA" />
   <img src="https://img.shields.io/badge/GDPR-Compliant-green" alt="GDPR Compliant" />
-  <img src="https://img.shields.io/badge/Components-150+-purple" alt="150+ Components" />
+  <img src="https://img.shields.io/badge/Components-158-purple" alt="158 Components" />
 </p>
 
 <p align="center">
@@ -30,7 +30,7 @@
 
 ## Features
 
-- **150+ Components** across 17 categories, ready for production
+- **158 Components** across 17 categories, ready for production
 - **WCAG 2.1 AA Compliant** with full accessibility support and BFSG 2025 readiness
 - **GDPR/DSGVO Ready** with privacy-first design and consent management
 - **TypeScript First** with complete type definitions for all components
@@ -115,7 +115,7 @@ import { CookieConsent } from '@wendermedia/astro-components/accessibility';
 
 ## Components
 
-### Overview (17 Categories, 150+ Components)
+### Overview (17 Categories, 158 Components)
 
 | Category | Components | Import Path |
 |----------|-----------|-------------|
@@ -283,7 +283,7 @@ describe('MyComponent', () => {
 
 ## Storybook
 
-Browse all 150 components interactively at **[wm-astro-components.netlify.app](https://wm-astro-components.netlify.app)**.
+Browse all 158 components interactively at **[wm-astro-components.netlify.app](https://wm-astro-components.netlify.app)**.
 
 Run locally:
 

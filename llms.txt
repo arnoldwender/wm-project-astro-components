@@ -1,6 +1,6 @@
 # @wendermedia/astro-components
 
-> Complete Astro development resource — production-ready, accessible, GDPR-compliant components for modern web development. 150+ components across 17 categories.
+> Complete Astro development resource — production-ready, accessible, GDPR-compliant components for modern web development. 158 components across 17 categories.
 
 ## Tech Stack
 
@@ -54,6 +54,10 @@
 - GDPR/DSGVO ready (privacy-first, no third-party tracking)
 - TypeScript-first with complete type definitions
 - Dark mode support via CSS custom properties
+
+## Storybook
+
+Browse all 158 components interactively: https://wm-astro-components.netlify.app
 
 ## License
 

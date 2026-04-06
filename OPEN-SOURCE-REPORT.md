@@ -1,7 +1,7 @@
 # Open-Source Release Report
 
 **Project:** @wendermedia/astro-components
-**Version:** 2.0.0
+**Version:** 2.1.0
 **Date:** 2026-04-05
 **Author:** Arnold Wender (Wender Media)
 **License:** MIT
@@ -10,7 +10,7 @@
 
 ## Executive Summary
 
-The `wm-project-astro-components` repository has been fully prepared for open-source release. All 150+ Astro components across 17 categories now carry standardized copyright headers, and all necessary governance files have been created or updated.
+The `wm-project-astro-components` repository has been fully prepared for open-source release. All 158 Astro components across 17 categories now carry standardized copyright headers, and all necessary governance files have been created or updated.
 
 ---
 
@@ -28,7 +28,7 @@ The `wm-project-astro-components` repository has been fully prepared for open-so
 | **GitHub** | [@arnoldwender](https://github.com/arnoldwender) |
 | **Services** | Web Development, SEO, Accessibility (BFSG/WCAG), UX/Neuromarketing |
 | **Tech Stack** | Astro, WordPress, React, TypeScript |
-| **Credentials** | 150+ projects, 18+ years experience, Lighthouse 98+ scores |
+| **Credentials** | 158+ projects, 18+ years experience, Lighthouse 98+ scores |
 
 ---
 
@@ -51,7 +51,7 @@ The `wm-project-astro-components` repository has been fully prepared for open-so
 
 ### Component Content Analysis
 
-All 150 components contain only:
+All 158 components contain only:
 - Generic, reusable UI/UX code
 - Design token references (CSS custom properties)
 - TypeScript interfaces and props
@@ -65,11 +65,11 @@ All 150 components contain only:
 
 ## Changes Made
 
-### 1. Copyright Headers (150 .astro files + 18 index.ts files)
+### 1. Copyright Headers (158 .astro files + 18 index.ts files)
 
 **Before:** 35 files had "WenderMedia Astro Components" brand, 115 had no branding.
 
-**After:** All 150 .astro files and 18 index.ts files now include:
+**After:** All 158 .astro files and 18 index.ts files now include:
 ```
 @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
 @see https://github.com/arnoldwender/wm-project-astro-components
@@ -105,7 +105,7 @@ All 150 components contain only:
 | `SECURITY.md` | Updated date |
 | `index.ts` | Added copyright + repository link |
 | `src/**/index.ts` (18 files) | Added copyright header block |
-| `src/**/*.astro` (150 files) | Added brand name + copyright + repo link |
+| `src/**/*.astro` (158 files) | Added brand name + copyright + repo link |
 
 ### 4. Files Already Present (Unchanged)
 
@@ -118,7 +118,7 @@ All 150 components contain only:
 
 ---
 
-## Component Inventory (150 Components)
+## Component Inventory (158 Components)
 
 ### By Category
 
@@ -158,10 +158,10 @@ All 150 components contain only:
 ## Completed Deployment Steps
 
 1. **GitHub repository visibility**: Public (completed 2026-04-06)
-2. **npm publish**: Published as `@wendermedia/astro-components@2.0.0` (completed 2026-04-06)
+2. **npm publish**: Published as `@wendermedia/astro-components@2.1.0` (completed 2026-04-06)
 3. **GitHub Topics**: Added astro, components, accessibility, gdpr, design-system, typescript, wcag, astro-components, design-tokens, seo
 4. **GitHub Description**: Updated
-5. **Storybook deployment**: Live at https://wm-astro-components.netlify.app (150 stories)
+5. **Storybook deployment**: Live at https://wm-astro-components.netlify.app (158 stories)
 
 ## Remaining Steps (Optional)
 
@@ -186,8 +186,8 @@ All 150 components contain only:
 - [x] .gitignore excludes sensitive files
 - [x] Change GitHub repo to public (completed 2026-04-06)
 - [x] Publish to npm as @wendermedia/astro-components (completed 2026-04-06)
-- [x] Storybook deployed to https://wm-astro-components.netlify.app (150 stories)
+- [x] Storybook deployed to https://wm-astro-components.netlify.app (158 stories)
 
 ---
 
-*Report generated on 2026-04-05, updated 2026-04-06 after full public release of @wendermedia/astro-components v2.0.0*
+*Report generated on 2026-04-05, updated 2026-04-06 after full public release of @wendermedia/astro-components v2.1.0*
