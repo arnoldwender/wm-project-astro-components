@@ -2,19 +2,29 @@ import { Meta } from '@storybook/blocks';
 
 <Meta title="Welcome" />
 
+<div style={{ textAlign: 'center', padding: '2rem 0 1rem' }}>
+
 # @wendermedia/astro-components
 
 **158 production-ready, accessible, GDPR-compliant Astro components.**
 
-Built by [Wender Media](https://www.wendermedia.com) — Web Agency from Halle (Saale), Germany.
+Built by [Wender Media](https://www.wendermedia.com) — Web Agency from Halle (Saale), Germany since 2007.
+
+[![npm](https://img.shields.io/npm/v/@wendermedia/astro-components?color=2563eb&label=npm)](https://www.npmjs.com/package/@wendermedia/astro-components)
+[![GitHub](https://img.shields.io/github/stars/arnoldwender/wm-project-astro-components?style=flat&color=2563eb)](https://github.com/arnoldwender/wm-project-astro-components)
+[![License](https://img.shields.io/badge/License-MIT-2563eb)](https://github.com/arnoldwender/wm-project-astro-components/blob/main/LICENSE)
+
+</div>
 
 ---
 
-## Getting Started
+## Installation
 
 ```bash
 npm install @wendermedia/astro-components
 ```
+
+## Quick Start
 
 ```astro
 ---
@@ -36,47 +46,57 @@ import { Header, Footer } from '@wendermedia/astro-components/layout';
 
 ---
 
-## Component Categories
+## 158 Components across 17 Categories
 
-| Category | Components | Description |
-|----------|-----------|-------------|
-| **Accessibility** | 12 | SkipLinks, ThemeToggle, FocusTrap, FontResizer, CookieConsent, ... |
-| **Content** | 5 | ReadingProgress, ShareBar, TableOfContents, RelatedContent, ReadingTime |
-| **Design System** | 1 | DesignSystemProvider with tokens |
-| **E-commerce** | 5 | Cart, ProductCard, Wishlist, QuickView, AddToCart |
-| **Forms** | 3 | ContactForm, Contact, Newsletter |
-| **Gallery** | 1 | BeforeAfter slider |
-| **Images** | 1 | OptimizedImage with blur-up LQIP |
-| **Layout** | 2 | Header, Footer |
-| **Layouts** | 15 | Bento, Magazine, Dashboard, Portfolio, Newspaper, ... |
-| **Maps** | 2 | GoogleMap (GDPR), OpenStreetMap |
-| **Media** | 3 | VideoPlayer, AudioPlayer, ImageGallery |
-| **Navigation** | 5 | Breadcrumbs, Pagination, MobileNav, Sidebar, AccessibleLoadMore |
-| **Products** | 1 | ProductCard (affiliate) |
-| **Sections** | 70+ | Hero, CTA, Pricing, Team, FAQ, Testimonials, TrustBar, TopBar, ... |
-| **SEO** | 9 | SEO, OpenGraph, TwitterCard, JsonLD, RichSnippets, TitleTagEditor, ... |
-| **Social** | 2 | SocialShare, SocialFollow |
-| **UI** | 21 | Modal, Tabs, Badge, Toast, Accordion, ProgressTracker, StatCard, ... |
+<div style={{ overflowX: 'auto' }}>
+
+| Category | Count | Highlights |
+|:---------|------:|:-----------|
+| UI | 21 | Modal, Tabs, Badge, Toast, Accordion, ProgressTracker, StatCard, CommandPalette |
+| Sections | 70+ | Hero, CTA, Pricing, Team, FAQ, Testimonials, TrustBar, TopBar, Timeline |
+| Layouts | 15 | Bento, Magazine, Dashboard, Portfolio, Newspaper, Docs, Split |
+| Accessibility | 12 | SkipLinks, ThemeToggle, FocusTrap, FontResizer, AccessibilityToolbar |
+| SEO | 9 | SEO, OpenGraph, TwitterCard, JsonLD, RichSnippets, TitleTagEditor |
+| E-commerce | 5 | Cart, ProductCard, Wishlist, QuickView, AddToCartButton |
+| Content | 5 | ReadingProgress, ShareBar, TableOfContents, RelatedContent, ReadingTime |
+| Navigation | 5 | Breadcrumbs, Pagination, MobileNav, Sidebar, AccessibleLoadMore |
+| Forms | 3 | ContactForm, Contact, Newsletter |
+| Media | 3 | VideoPlayer (GDPR), AudioPlayer, ImageGallery |
+| Layout | 2 | Header, Footer |
+| Maps | 2 | GoogleMap (GDPR consent), OpenStreetMap |
+| Social | 2 | SocialShare, SocialFollow |
+| Design System | 1 | DesignSystemProvider with CSS custom property tokens |
+| Gallery | 1 | BeforeAfter image comparison slider |
+| Images | 1 | OptimizedImage with blur-up LQIP |
+| Products | 1 | ProductCard (affiliate) |
+
+</div>
 
 ---
 
-## Key Features
+## Why This Library?
 
-- **WCAG 2.1 AA** — Full accessibility with BFSG 2025 compliance
-- **GDPR/DSGVO** — Privacy-first, consent-based third-party loading
-- **TypeScript** — Complete type definitions for all components
-- **Design Tokens** — CSS custom properties for theming and dark mode
-- **Zero Tracking** — No third-party analytics by default
-- **Astro 4.x & 5.x** — View Transitions and Content Collections ready
+- **WCAG 2.1 AA** — Full accessibility with BFSG 2025 compliance, keyboard navigation, ARIA labels, screen reader support
+- **GDPR/DSGVO Ready** — Privacy-first design, consent gates on YouTube, Google Maps, analytics, zero tracking by default
+- **TypeScript First** — Complete type definitions, full IntelliSense, `export interface Props` on every component
+- **Design Token System** — CSS custom properties for colors, spacing, typography, shadows, dark mode built in
+- **Astro 4.x & 5.x** — View Transitions, Content Collections, zero client JS, React/Vue/Svelte/Solid integrations
+- **SEO Optimized** — Schema.org structured data, Open Graph, Twitter Cards, hreflang, canonical URLs, semantic HTML
 
 ---
 
 ## Links
 
-- [GitHub](https://github.com/arnoldwender/wm-project-astro-components)
-- [npm](https://www.npmjs.com/package/@wendermedia/astro-components)
+- [GitHub Repository](https://github.com/arnoldwender/wm-project-astro-components)
+- [npm Package](https://www.npmjs.com/package/@wendermedia/astro-components)
+- [Contributing Guide](https://github.com/arnoldwender/wm-project-astro-components/blob/main/CONTRIBUTING.md)
 - [Wender Media](https://www.wendermedia.com)
+- [Arnold Wender](https://arnoldwender.com)
 
 ---
 
-*Made with care by [Arnold Wender](https://arnoldwender.com) in Halle (Saale), Germany.*
+<div style={{ textAlign: 'center', padding: '2rem 0', color: '#64748b', fontSize: '0.875rem', borderTop: '1px solid #e2e8f0', marginTop: '2rem' }}>
+
+**@wendermedia/astro-components** v2.1.0 — Copyright &copy; 2007–2026 [Wender Media](https://www.wendermedia.com) — Arnold Wender. MIT License.
+
+</div>

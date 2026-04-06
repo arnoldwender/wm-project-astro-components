@@ -1,14 +1,16 @@
 /**
  * Storybook Main Configuration - WenderMedia Astro Components
+ *
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  */
 
 import type { StorybookConfig } from '@storybook/web-components-vite';
 
 const config: StorybookConfig = {
   stories: [
+    '../src/Welcome.mdx',
     '../src/**/*.mdx',
     '../src/**/*.stories.@(js|jsx|mjs|ts|tsx)',
-    '../docs/**/*.mdx',
   ],
   addons: [
     '@storybook/addon-links',
@@ -22,18 +24,20 @@ const config: StorybookConfig = {
   },
   docs: {
     autodocs: 'tag',
+    defaultName: 'Documentation',
   },
   staticDirs: ['../public'],
+  core: {
+    disableTelemetry: true,
+  },
   viteFinal: async (config) => {
-    // Add custom Vite configuration
     return {
       ...config,
-      css: {
-        preprocessorOptions: {
-          scss: {
-            additionalData: `@use "../src/design-system/tokens/index" as *;`,
-          },
-        },
+      build: {
+        ...config.build,
+        // Improve build performance
+        sourcemap: false,
+        chunkSizeWarningLimit: 1500,
       },
     };
   },
