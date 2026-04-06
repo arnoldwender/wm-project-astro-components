@@ -18,6 +18,7 @@ export { default as HreflangTags } from './HreflangTags.astro';
 export { default as CanonicalURL } from './CanonicalURL.astro';
 export { default as OpenGraph } from './OpenGraph.astro';
 export { default as TwitterCard } from './TwitterCard.astro';
+export { default as TitleTagEditor } from './TitleTagEditor.astro';
 
 export type { Props as SEOProps, HreflangLink } from './SEO.astro';
 export type {
@@ -36,3 +37,4 @@ export type { Props as HreflangTagsProps, LocaleLink } from './HreflangTags.astr
 export type { Props as CanonicalURLProps } from './CanonicalURL.astro';
 export type { Props as OpenGraphProps, ArticleMeta, ProductMeta, ProfileMeta } from './OpenGraph.astro';
 export type { Props as TwitterCardProps } from './TwitterCard.astro';
+export type { Props as TitleTagEditorProps } from './TitleTagEditor.astro';

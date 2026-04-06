@@ -1,0 +1,557 @@
+---
+/**
+ * TitleTagEditor Component - WenderMedia Astro Components
+ *
+ * Interactive SERP preview tool for SEO title tag optimization. Provides
+ * a real-time Google-style search result preview with character counting,
+ * pixel-width approximation, and a quality score based on SEO best practices.
+ *
+ * Features:
+ * - Editable title input with live Google SERP preview
+ * - Character counter (max 60) with color-coded warnings (green/yellow/red)
+ * - Pixel width approximation (max 580px) using average character widths
+ * - Quality score (0-100) based on length, keyword presence, and power words
+ * - Locale-aware placeholder text (de/en/es)
+ * - Dark mode support
+ * - Fully keyboard accessible
+ *
+ * @example
+ * <TitleTagEditor
+ *   initialTitle="SEO Agentur Halle | Webdesign & Online Marketing"
+ *   targetKeyword="SEO Agentur Halle"
+ * />
+ *
+ * @example
+ * <TitleTagEditor
+ *   initialTitle="Best Coffee Shops in Berlin"
+ *   targetKeyword="coffee shops berlin"
+ *   maxChars={55}
+ *   locale="en"
+ * />
+ *
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
+ */
+
+export interface Props {
+  /** Pre-filled title for the editor */
+  initialTitle?: string;
+  /** Target SEO keyword to check for in the title */
+  targetKeyword?: string;
+  /** Maximum character count before warning (default: 60) */
+  maxChars?: number;
+  /** Maximum pixel width before truncation in SERP (default: 580) */
+  maxPixels?: number;
+  /** Locale for placeholder text and power words dictionary */
+  locale?: 'de' | 'en' | 'es';
+  /** Additional CSS classes */
+  class?: string;
+}
+
+const {
+  initialTitle = '',
+  targetKeyword = '',
+  maxChars = 60,
+  maxPixels = 580,
+  locale = 'de',
+  class: className = '',
+} = Astro.props;
+
+/* Locale-specific labels */
+const labels: Record<string, Record<string, string>> = {
+  de: {
+    placeholder: 'Seitentitel eingeben...',
+    chars: 'Zeichen',
+    pixels: 'Pixel (ca.)',
+    score: 'Qualitaet',
+    keyword: 'Keyword',
+    found: 'gefunden',
+    missing: 'fehlt',
+    tooLong: 'Zu lang',
+    good: 'Gut',
+    short: 'Zu kurz',
+    serpTitle: 'Google SERP Vorschau',
+    url: 'www.beispiel.de › seite',
+    description: 'Dies ist eine beispielhafte Meta-Beschreibung fuer die SERP-Vorschau.',
+  },
+  en: {
+    placeholder: 'Enter page title...',
+    chars: 'Characters',
+    pixels: 'Pixels (approx.)',
+    score: 'Quality',
+    keyword: 'Keyword',
+    found: 'found',
+    missing: 'missing',
+    tooLong: 'Too long',
+    good: 'Good',
+    short: 'Too short',
+    serpTitle: 'Google SERP Preview',
+    url: 'www.example.com › page',
+    description: 'This is an example meta description for the SERP preview.',
+  },
+  es: {
+    placeholder: 'Ingresa el titulo de la pagina...',
+    chars: 'Caracteres',
+    pixels: 'Pixeles (aprox.)',
+    score: 'Calidad',
+    keyword: 'Keyword',
+    found: 'encontrado',
+    missing: 'falta',
+    tooLong: 'Muy largo',
+    good: 'Bien',
+    short: 'Muy corto',
+    serpTitle: 'Vista previa SERP de Google',
+    url: 'www.ejemplo.com › pagina',
+    description: 'Esta es una meta descripcion de ejemplo para la vista previa SERP.',
+  },
+};
+
+const l = labels[locale] || labels.de;
+
+/* Unique instance ID for ARIA relationships */
+const instanceId = `tte-${Math.random().toString(36).slice(2, 9)}`;
+---
+
+<section
+  class:list={['title-tag-editor', className]}
+  data-title-tag-editor
+  data-max-chars={maxChars}
+  data-max-pixels={maxPixels}
+  data-target-keyword={targetKeyword}
+  data-locale={locale}
+  aria-label={l.serpTitle}
+>
+  <!-- Title input -->
+  <label class="title-tag-editor__label" for={`${instanceId}-input`}>
+    {l.serpTitle}
+  </label>
+  <input
+    id={`${instanceId}-input`}
+    class="title-tag-editor__input"
+    type="text"
+    value={initialTitle}
+    placeholder={l.placeholder}
+    maxlength="200"
+    aria-describedby={`${instanceId}-status`}
+    data-tte-input
+  />
+
+  <!-- Status indicators -->
+  <div class="title-tag-editor__indicators" id={`${instanceId}-status`} role="status" aria-live="polite">
+    <!-- Character counter -->
+    <div class="title-tag-editor__indicator" data-tte-chars>
+      <span class="title-tag-editor__indicator-label">{l.chars}:</span>
+      <span class="title-tag-editor__indicator-value" data-tte-char-count>
+        {initialTitle.length}
+      </span>
+      <span class="title-tag-editor__indicator-max">/ {maxChars}</span>
+      <span class="title-tag-editor__indicator-badge" data-tte-char-badge>
+        {initialTitle.length === 0 ? l.short : initialTitle.length <= maxChars ? l.good : l.tooLong}
+      </span>
+    </div>
+
+    <!-- Pixel width -->
+    <div class="title-tag-editor__indicator" data-tte-pixels>
+      <span class="title-tag-editor__indicator-label">{l.pixels}:</span>
+      <span class="title-tag-editor__indicator-value" data-tte-pixel-count>0</span>
+      <span class="title-tag-editor__indicator-max">/ {maxPixels}px</span>
+    </div>
+
+    <!-- Keyword presence -->
+    {targetKeyword && (
+      <div class="title-tag-editor__indicator" data-tte-keyword>
+        <span class="title-tag-editor__indicator-label">{l.keyword}:</span>
+        <span class="title-tag-editor__indicator-badge" data-tte-keyword-badge>
+          {initialTitle.toLowerCase().includes(targetKeyword.toLowerCase()) ? l.found : l.missing}
+        </span>
+      </div>
+    )}
+
+    <!-- Quality score -->
+    <div class="title-tag-editor__indicator title-tag-editor__indicator--score" data-tte-score>
+      <span class="title-tag-editor__indicator-label">{l.score}:</span>
+      <div class="title-tag-editor__score-bar">
+        <div class="title-tag-editor__score-fill" data-tte-score-fill style="width: 0%"></div>
+      </div>
+      <span class="title-tag-editor__indicator-value" data-tte-score-value>0</span>
+      <span class="title-tag-editor__indicator-max">/ 100</span>
+    </div>
+  </div>
+
+  <!-- SERP Preview -->
+  <div class="title-tag-editor__serp" aria-label={l.serpTitle}>
+    <div class="title-tag-editor__serp-title" data-tte-serp-title>
+      {initialTitle || l.placeholder}
+    </div>
+    <div class="title-tag-editor__serp-url">{l.url}</div>
+    <div class="title-tag-editor__serp-description">{l.description}</div>
+  </div>
+</section>
+
+<style>
+  /* Container */
+  .title-tag-editor {
+    font-family: var(--font-family-body, system-ui, -apple-system, sans-serif);
+    background: var(--color-bg, #ffffff);
+    border: 1px solid var(--color-border, #e2e8f0);
+    border-radius: var(--radius-lg, 1rem);
+    padding: var(--space-xl, 2rem);
+    max-width: 40rem;
+  }
+
+  /* Label */
+  .title-tag-editor__label {
+    display: block;
+    font-size: var(--font-size-sm, 0.875rem);
+    font-weight: var(--font-weight-bold, 700);
+    color: var(--color-text, #1a202c);
+    margin-bottom: var(--space-sm, 0.5rem);
+    letter-spacing: 0.02em;
+  }
+
+  /* Input */
+  .title-tag-editor__input {
+    width: 100%;
+    padding: var(--space-sm, 0.5rem) var(--space-md, 1rem);
+    font-size: var(--font-size-base, 1rem);
+    font-family: inherit;
+    color: var(--color-text, #1a202c);
+    background: var(--color-bg-alt, #f7fafc);
+    border: 2px solid var(--color-border, #e2e8f0);
+    border-radius: var(--radius-md, 0.5rem);
+    outline: none;
+    transition: border-color var(--transition-fast, 150ms ease),
+                box-shadow var(--transition-fast, 150ms ease);
+    box-sizing: border-box;
+  }
+
+  .title-tag-editor__input:focus {
+    border-color: var(--color-primary, #3b82f6);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary, #3b82f6) 25%, transparent);
+  }
+
+  .title-tag-editor__input::placeholder {
+    color: var(--color-text-light, #a0aec0);
+  }
+
+  /* Indicators row */
+  .title-tag-editor__indicators {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-md, 1rem);
+    margin-top: var(--space-md, 1rem);
+    padding: var(--space-sm, 0.5rem) 0;
+  }
+
+  .title-tag-editor__indicator {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs, 0.25rem);
+    font-size: var(--font-size-sm, 0.875rem);
+    color: var(--color-text-light, #718096);
+  }
+
+  .title-tag-editor__indicator--score {
+    flex-basis: 100%;
+  }
+
+  .title-tag-editor__indicator-label {
+    font-weight: var(--font-weight-medium, 500);
+    color: var(--color-text, #1a202c);
+  }
+
+  .title-tag-editor__indicator-value {
+    font-weight: var(--font-weight-bold, 700);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .title-tag-editor__indicator-max {
+    color: var(--color-text-light, #a0aec0);
+  }
+
+  /* Badge (green/yellow/red) */
+  .title-tag-editor__indicator-badge {
+    display: inline-block;
+    padding: 0.0625rem var(--space-xs, 0.25rem);
+    font-size: var(--font-size-xs, 0.75rem);
+    font-weight: var(--font-weight-bold, 700);
+    border-radius: var(--radius-sm, 0.25rem);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  /* Status colors — set via JS data attributes */
+  [data-status="green"] { color: var(--color-success, #22c55e); }
+  [data-status="green"].title-tag-editor__indicator-badge {
+    background: color-mix(in srgb, var(--color-success, #22c55e) 15%, transparent);
+    color: var(--color-success, #22c55e);
+  }
+  [data-status="yellow"] { color: var(--color-warning, #f59e0b); }
+  [data-status="yellow"].title-tag-editor__indicator-badge {
+    background: color-mix(in srgb, var(--color-warning, #f59e0b) 15%, transparent);
+    color: var(--color-warning, #f59e0b);
+  }
+  [data-status="red"] { color: var(--color-error, #ef4444); }
+  [data-status="red"].title-tag-editor__indicator-badge {
+    background: color-mix(in srgb, var(--color-error, #ef4444) 15%, transparent);
+    color: var(--color-error, #ef4444);
+  }
+
+  /* Score bar */
+  .title-tag-editor__score-bar {
+    flex: 1;
+    height: 0.5rem;
+    background: var(--color-bg-alt, #edf2f7);
+    border-radius: var(--radius-full, 9999px);
+    overflow: hidden;
+    min-width: 6rem;
+  }
+
+  .title-tag-editor__score-fill {
+    height: 100%;
+    border-radius: var(--radius-full, 9999px);
+    background: var(--color-success, #22c55e);
+    transition: width var(--transition-base, 300ms ease),
+                background var(--transition-base, 300ms ease);
+  }
+
+  /* SERP Preview */
+  .title-tag-editor__serp {
+    margin-top: var(--space-lg, 1.5rem);
+    padding: var(--space-md, 1rem) var(--space-lg, 1.5rem);
+    background: var(--color-bg, #ffffff);
+    border: 1px solid var(--color-border, #e2e8f0);
+    border-radius: var(--radius-md, 0.5rem);
+    font-family: Arial, sans-serif;
+  }
+
+  .title-tag-editor__serp-title {
+    font-size: 1.25rem;
+    line-height: var(--line-height-tight, 1.2);
+    color: #1a0dab;
+    cursor: pointer;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 36.25rem;
+  }
+
+  .title-tag-editor__serp-title:hover {
+    text-decoration: underline;
+  }
+
+  .title-tag-editor__serp-url {
+    font-size: var(--font-size-sm, 0.875rem);
+    color: #006621;
+    margin-top: var(--space-xs, 0.25rem);
+  }
+
+  .title-tag-editor__serp-description {
+    font-size: var(--font-size-sm, 0.875rem);
+    color: #545454;
+    margin-top: var(--space-xs, 0.25rem);
+    line-height: var(--line-height-base, 1.5);
+  }
+
+  /* Dark mode */
+  :global(.dark) .title-tag-editor,
+  @media (prefers-color-scheme: dark) {
+    .title-tag-editor {
+      background: var(--color-bg, #1a202c);
+      border-color: var(--color-border, #2d3748);
+    }
+  }
+
+  :global(.dark) .title-tag-editor__serp,
+  @media (prefers-color-scheme: dark) {
+    .title-tag-editor__serp {
+      background: var(--color-bg, #1a202c);
+      border-color: var(--color-border, #2d3748);
+    }
+
+    .title-tag-editor__serp-title {
+      color: #8ab4f8;
+    }
+
+    .title-tag-editor__serp-url {
+      color: #bdc1c6;
+    }
+
+    .title-tag-editor__serp-description {
+      color: #bdc1c6;
+    }
+  }
+
+  :global(.dark) .title-tag-editor__input,
+  @media (prefers-color-scheme: dark) {
+    .title-tag-editor__input {
+      background: var(--color-bg-alt, #2d3748);
+      border-color: var(--color-border, #4a5568);
+      color: var(--color-text, #e2e8f0);
+    }
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .title-tag-editor__score-fill,
+    .title-tag-editor__input {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  /**
+   * TitleTagEditor client-side logic.
+   * Handles live preview, character counting, pixel approximation, and quality scoring.
+   */
+  function initTitleTagEditors() {
+    document.querySelectorAll<HTMLElement>('[data-title-tag-editor]').forEach((editor) => {
+      const input = editor.querySelector<HTMLInputElement>('[data-tte-input]');
+      if (!input) return;
+
+      const maxChars = parseInt(editor.dataset.maxChars || '60', 10);
+      const maxPixels = parseInt(editor.dataset.maxPixels || '580', 10);
+      const targetKeyword = (editor.dataset.targetKeyword || '').toLowerCase();
+      const locale = editor.dataset.locale || 'de';
+
+      /* UI elements */
+      const charCount = editor.querySelector('[data-tte-char-count]');
+      const charBadge = editor.querySelector('[data-tte-char-badge]');
+      const pixelCount = editor.querySelector('[data-tte-pixel-count]');
+      const keywordBadge = editor.querySelector('[data-tte-keyword-badge]');
+      const scoreFill = editor.querySelector<HTMLElement>('[data-tte-score-fill]');
+      const scoreValue = editor.querySelector('[data-tte-score-value]');
+      const serpTitle = editor.querySelector('[data-tte-serp-title]');
+
+      /* Locale labels */
+      const statusLabels: Record<string, Record<string, string>> = {
+        de: { tooLong: 'Zu lang', good: 'Gut', short: 'Zu kurz', found: 'gefunden', missing: 'fehlt' },
+        en: { tooLong: 'Too long', good: 'Good', short: 'Too short', found: 'found', missing: 'missing' },
+        es: { tooLong: 'Muy largo', good: 'Bien', short: 'Muy corto', found: 'encontrado', missing: 'falta' },
+      };
+      const sl = statusLabels[locale] || statusLabels.de;
+
+      /* Power words for quality scoring */
+      const powerWords: Record<string, string[]> = {
+        de: ['kostenlos', 'gratis', 'jetzt', 'beste', 'top', 'neu', 'exklusiv', 'sofort', 'garantiert', 'professionell', 'guenstig', 'schnell', 'einfach', 'sicher'],
+        en: ['free', 'best', 'top', 'new', 'exclusive', 'ultimate', 'proven', 'guaranteed', 'easy', 'fast', 'instant', 'powerful', 'essential', 'complete'],
+        es: ['gratis', 'mejor', 'nuevo', 'exclusivo', 'garantizado', 'facil', 'rapido', 'profesional', 'completo', 'seguro'],
+      };
+
+      /**
+       * Approximate pixel width using average character widths in Arial 20px (Google SERP font).
+       * Uppercase letters are wider, lowercase narrower, spaces narrow.
+       */
+      function approximatePixelWidth(text: string): number {
+        let width = 0;
+        for (const char of text) {
+          if (char === ' ') width += 5;
+          else if (char === char.toUpperCase() && char !== char.toLowerCase()) width += 11;
+          else if ('mwMW'.includes(char)) width += 13;
+          else if ('iltI'.includes(char)) width += 5;
+          else width += 8.5;
+        }
+        return Math.round(width);
+      }
+
+      /** Calculate quality score 0-100 */
+      function calculateScore(title: string): number {
+        if (!title.trim()) return 0;
+        let score = 0;
+        const len = title.length;
+
+        /* Length scoring (40 pts max) */
+        if (len >= 30 && len <= maxChars) score += 40;
+        else if (len >= 20 && len < 30) score += 25;
+        else if (len > maxChars && len <= maxChars + 10) score += 20;
+        else if (len > 0 && len < 20) score += 10;
+
+        /* Keyword presence (30 pts) */
+        if (targetKeyword && title.toLowerCase().includes(targetKeyword)) {
+          score += 30;
+          /* Bonus if keyword is near the beginning */
+          if (title.toLowerCase().indexOf(targetKeyword) < 10) score += 5;
+        } else if (!targetKeyword) {
+          score += 15;
+        }
+
+        /* Power words (15 pts) */
+        const words = (powerWords[locale] || powerWords.de);
+        const titleLower = title.toLowerCase();
+        const hasPowerWord = words.some((w) => titleLower.includes(w));
+        if (hasPowerWord) score += 15;
+
+        /* Separator usage — pipes or dashes improve readability (10 pts) */
+        if (title.includes('|') || title.includes(' - ') || title.includes(' – ')) score += 10;
+
+        return Math.min(100, score);
+      }
+
+      function update() {
+        const title = input.value;
+        const len = title.length;
+        const px = approximatePixelWidth(title);
+        const score = calculateScore(title);
+
+        /* Character counter */
+        if (charCount) charCount.textContent = String(len);
+        if (charBadge) {
+          if (len === 0) {
+            charBadge.textContent = sl.short;
+            charBadge.setAttribute('data-status', 'red');
+          } else if (len <= maxChars - 10) {
+            charBadge.textContent = sl.good;
+            charBadge.setAttribute('data-status', 'green');
+          } else if (len <= maxChars) {
+            charBadge.textContent = sl.good;
+            charBadge.setAttribute('data-status', 'yellow');
+          } else {
+            charBadge.textContent = sl.tooLong;
+            charBadge.setAttribute('data-status', 'red');
+          }
+        }
+
+        /* Pixel width */
+        if (pixelCount) {
+          pixelCount.textContent = String(px);
+          pixelCount.setAttribute('data-status', px <= maxPixels ? 'green' : 'red');
+        }
+
+        /* Keyword */
+        if (keywordBadge && targetKeyword) {
+          const found = title.toLowerCase().includes(targetKeyword);
+          keywordBadge.textContent = found ? sl.found : sl.missing;
+          keywordBadge.setAttribute('data-status', found ? 'green' : 'red');
+        }
+
+        /* Score */
+        if (scoreFill) {
+          scoreFill.style.width = `${score}%`;
+          if (score >= 70) scoreFill.style.background = 'var(--color-success, #22c55e)';
+          else if (score >= 40) scoreFill.style.background = 'var(--color-warning, #f59e0b)';
+          else scoreFill.style.background = 'var(--color-error, #ef4444)';
+        }
+        if (scoreValue) scoreValue.textContent = String(score);
+
+        /* SERP Preview */
+        if (serpTitle) {
+          serpTitle.textContent = title || input.placeholder;
+        }
+      }
+
+      /* Bind events */
+      input.addEventListener('input', update);
+      /* Initial calculation */
+      update();
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTitleTagEditors);
+  } else {
+    initTitleTagEditors();
+  }
+
+  document.addEventListener('astro:page-load', initTitleTagEditors);
+</script>

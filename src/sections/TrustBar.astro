@@ -1,0 +1,249 @@
+---
+/**
+ * TrustBar Component - WenderMedia Astro Components
+ *
+ * Horizontal social-proof bar displaying trust signals such as years in business,
+ * project counts, certifications, and location info. Ideal for placement below the
+ * hero section or above the footer to reinforce credibility.
+ *
+ * Features:
+ * - Displays trust items with icon, label, and value
+ * - Three visual variants: light, dark, gradient
+ * - Compact mode for tighter spaces
+ * - Responsive: horizontal scroll on desktop, 2-column grid on mobile
+ * - Dark mode support
+ * - Semantic HTML with proper ARIA
+ * - Design token based styling
+ *
+ * @example
+ * <TrustBar items={[
+ *   { icon: '🏢', label: 'Seit', value: '2007' },
+ *   { icon: '📊', label: 'Projekte', value: '500+' },
+ *   { icon: '📍', label: 'Standort', value: 'Halle (Saale)' },
+ *   { icon: '♿', label: 'Zertifiziert', value: 'WCAG AA' },
+ * ]} />
+ *
+ * @example
+ * <TrustBar
+ *   items={[{ icon: '🔒', label: 'DSGVO', value: 'konform' }]}
+ *   variant="dark"
+ *   compact
+ * />
+ *
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
+ */
+
+export interface TrustItem {
+  /** Icon — emoji, SVG string, or slot-friendly text */
+  icon: string;
+  /** Short label describing the metric */
+  label: string;
+  /** The value or badge text */
+  value: string;
+}
+
+export interface Props {
+  /** Array of trust signal items to display */
+  items: TrustItem[];
+  /** Visual variant */
+  variant?: 'light' | 'dark' | 'gradient';
+  /** Use compact spacing */
+  compact?: boolean;
+  /** Additional CSS classes */
+  class?: string;
+}
+
+const {
+  items = [],
+  variant = 'light',
+  compact = false,
+  class: className = '',
+} = Astro.props;
+---
+
+<section
+  class:list={[
+    'trust-bar',
+    `trust-bar--${variant}`,
+    compact && 'trust-bar--compact',
+    className,
+  ]}
+  aria-label="Trust signals"
+>
+  <div class="trust-bar__inner">
+    <ul class="trust-bar__list" role="list">
+      {items.map((item) => (
+        <li class="trust-bar__item">
+          <span class="trust-bar__icon" aria-hidden="true" set:html={item.icon} />
+          <span class="trust-bar__text">
+            <span class="trust-bar__label">{item.label}</span>
+            <span class="trust-bar__value">{item.value}</span>
+          </span>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  /* Container */
+  .trust-bar {
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .trust-bar__inner {
+    max-width: 80rem;
+    margin: 0 auto;
+    padding: var(--space-md, 1rem) var(--space-lg, 1.5rem);
+  }
+
+  .trust-bar--compact .trust-bar__inner {
+    padding: var(--space-sm, 0.5rem) var(--space-lg, 1.5rem);
+  }
+
+  /* List layout */
+  .trust-bar__list {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xl, 2rem);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .trust-bar__list::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Individual item */
+  .trust-bar__item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm, 0.5rem);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* Icon */
+  .trust-bar__icon {
+    font-size: var(--font-size-xl, 1.5rem);
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    flex-shrink: 0;
+  }
+
+  .trust-bar--compact .trust-bar__icon {
+    font-size: var(--font-size-lg, 1.25rem);
+    width: 2rem;
+    height: 2rem;
+  }
+
+  /* Text block */
+  .trust-bar__text {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .trust-bar__label {
+    font-size: var(--font-size-xs, 0.75rem);
+    font-weight: var(--font-weight-medium, 500);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    line-height: var(--line-height-tight, 1.2);
+  }
+
+  .trust-bar__value {
+    font-size: var(--font-size-base, 1rem);
+    font-weight: var(--font-weight-bold, 700);
+    line-height: var(--line-height-tight, 1.2);
+  }
+
+  .trust-bar--compact .trust-bar__value {
+    font-size: var(--font-size-sm, 0.875rem);
+  }
+
+  /* ---- Variant: light ---- */
+  .trust-bar--light {
+    background: var(--color-bg-alt, #f7fafc);
+    border-top: 1px solid var(--color-border, #e2e8f0);
+    border-bottom: 1px solid var(--color-border, #e2e8f0);
+  }
+
+  .trust-bar--light .trust-bar__label {
+    color: var(--color-text-light, #718096);
+  }
+
+  .trust-bar--light .trust-bar__value {
+    color: var(--color-text, #1a202c);
+  }
+
+  /* ---- Variant: dark ---- */
+  .trust-bar--dark {
+    background: var(--color-text, #1a202c);
+  }
+
+  .trust-bar--dark .trust-bar__label {
+    color: var(--color-bg-alt, #a0aec0);
+  }
+
+  .trust-bar--dark .trust-bar__value {
+    color: var(--color-bg, #ffffff);
+  }
+
+  /* ---- Variant: gradient ---- */
+  .trust-bar--gradient {
+    background: linear-gradient(
+      135deg,
+      var(--color-primary, #3b82f6),
+      var(--color-secondary, #8b5cf6)
+    );
+  }
+
+  .trust-bar--gradient .trust-bar__label {
+    color: rgba(255, 255, 255, 0.75);
+  }
+
+  .trust-bar--gradient .trust-bar__value {
+    color: var(--color-bg, #ffffff);
+  }
+
+  /* ---- Responsive: 2-column grid on mobile ---- */
+  @media (max-width: 640px) {
+    .trust-bar__list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-md, 1rem);
+      overflow-x: visible;
+    }
+
+    .trust-bar__item {
+      white-space: normal;
+    }
+  }
+
+  /* ---- Dark mode overrides for light variant ---- */
+  :global(.dark) .trust-bar--light {
+    background: var(--color-bg-alt, #2d3748);
+    border-color: var(--color-border, #4a5568);
+  }
+
+  :global(.dark) .trust-bar--light .trust-bar__label {
+    color: var(--color-text-light, #a0aec0);
+  }
+
+  :global(.dark) .trust-bar--light .trust-bar__value {
+    color: var(--color-text, #e2e8f0);
+  }
+</style>

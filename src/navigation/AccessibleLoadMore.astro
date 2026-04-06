@@ -1,0 +1,393 @@
+---
+/**
+ * AccessibleLoadMore Component - WenderMedia Astro Components
+ *
+ * Progressive "Load More" button as an accessible alternative to traditional
+ * pagination. Announces content updates to screen readers via aria-live region,
+ * shows remaining item count, and emits a custom DOM event on click.
+ *
+ * Features:
+ * - WCAG 2.2 AA compliant with aria-live announcements for screen readers
+ * - Shows "Load more" button with remaining item count
+ * - Loading state with animated spinner
+ * - Custom 'loadmore' event dispatched on click for JS integration
+ * - Three visual variants: primary, outline, ghost
+ * - Minimum 44x44px touch target
+ * - Keyboard accessible (Enter/Space)
+ * - Dark mode support
+ * - Design token based styling
+ *
+ * @example
+ * <AccessibleLoadMore
+ *   totalItems={120}
+ *   loadedItems={20}
+ *   batchSize={20}
+ * />
+ *
+ * @example
+ * <AccessibleLoadMore
+ *   totalItems={50}
+ *   loadedItems={30}
+ *   batchSize={10}
+ *   label="Weitere Projekte laden"
+ *   loadingText="Projekte werden geladen..."
+ *   variant="outline"
+ * />
+ *
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
+ */
+
+export interface Props {
+  /** Total number of items available */
+  totalItems: number;
+  /** Number of items currently loaded/visible */
+  loadedItems: number;
+  /** Number of items to load per batch */
+  batchSize?: number;
+  /** Button label text */
+  label?: string;
+  /** Text shown during loading state */
+  loadingText?: string;
+  /** Visual variant */
+  variant?: 'primary' | 'outline' | 'ghost';
+  /** Additional CSS classes */
+  class?: string;
+}
+
+const {
+  totalItems,
+  loadedItems,
+  batchSize = 10,
+  label = 'Mehr laden',
+  loadingText = 'Wird geladen...',
+  variant = 'primary',
+  class: className = '',
+} = Astro.props;
+
+/* Calculate remaining items */
+const remaining = Math.max(0, totalItems - loadedItems);
+const nextBatch = Math.min(batchSize, remaining);
+const allLoaded = remaining <= 0;
+
+/* Unique ID for ARIA relationship */
+const instanceId = `alm-${Math.random().toString(36).slice(2, 9)}`;
+---
+
+<div
+  class:list={['load-more', className]}
+  data-load-more
+  data-total={totalItems}
+  data-loaded={loadedItems}
+  data-batch={batchSize}
+>
+  {/* Screen reader live region — announces when new content is loaded */}
+  <div
+    id={`${instanceId}-live`}
+    class="load-more__sr-live"
+    role="status"
+    aria-live="polite"
+    aria-atomic="true"
+    data-alm-live
+  >
+    {`${loadedItems} von ${totalItems} Eintraegen geladen.`}
+  </div>
+
+  {/* Progress info */}
+  <p class="load-more__progress" aria-hidden="true">
+    <span data-alm-loaded>{loadedItems}</span> / <span data-alm-total>{totalItems}</span>
+  </p>
+
+  {/* Progress bar */}
+  <div class="load-more__bar" role="progressbar" aria-valuenow={loadedItems} aria-valuemin={0} aria-valuemax={totalItems}>
+    <div
+      class="load-more__bar-fill"
+      data-alm-bar-fill
+      style={`width: ${totalItems > 0 ? Math.round((loadedItems / totalItems) * 100) : 0}%`}
+    />
+  </div>
+
+  {/* Load more button */}
+  <button
+    class:list={[
+      'load-more__button',
+      `load-more__button--${variant}`,
+    ]}
+    type="button"
+    disabled={allLoaded}
+    aria-describedby={`${instanceId}-live`}
+    data-alm-button
+    data-label={label}
+    data-loading-text={loadingText}
+  >
+    {/* Spinner (hidden by default) */}
+    <span class="load-more__spinner" aria-hidden="true" data-alm-spinner>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10" stroke-dasharray="31.416" stroke-dashoffset="10" stroke-linecap="round" />
+      </svg>
+    </span>
+
+    {/* Button text */}
+    <span data-alm-text>
+      {allLoaded
+        ? 'Alle geladen'
+        : `${label} (${nextBatch} weitere)`}
+    </span>
+  </button>
+</div>
+
+<style>
+  /* Container */
+  .load-more {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-sm, 0.5rem);
+    padding: var(--space-md, 1rem) 0;
+    font-family: var(--font-family-body, system-ui, -apple-system, sans-serif);
+  }
+
+  /* Screen reader only live region */
+  .load-more__sr-live {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Progress text */
+  .load-more__progress {
+    font-size: var(--font-size-sm, 0.875rem);
+    color: var(--color-text-light, #718096);
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Progress bar */
+  .load-more__bar {
+    width: 100%;
+    max-width: 16rem;
+    height: 0.375rem;
+    background: var(--color-bg-alt, #edf2f7);
+    border-radius: var(--radius-full, 9999px);
+    overflow: hidden;
+  }
+
+  .load-more__bar-fill {
+    height: 100%;
+    background: var(--color-primary, #3b82f6);
+    border-radius: var(--radius-full, 9999px);
+    transition: width var(--transition-base, 300ms ease);
+  }
+
+  /* Button base */
+  .load-more__button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm, 0.5rem);
+    min-height: 2.75rem;
+    min-width: 2.75rem;
+    padding: var(--space-sm, 0.5rem) var(--space-xl, 2rem);
+    font-size: var(--font-size-base, 1rem);
+    font-weight: var(--font-weight-medium, 500);
+    font-family: inherit;
+    border-radius: var(--radius-md, 0.5rem);
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: background var(--transition-fast, 150ms ease),
+                color var(--transition-fast, 150ms ease),
+                border-color var(--transition-fast, 150ms ease),
+                box-shadow var(--transition-fast, 150ms ease);
+  }
+
+  .load-more__button:focus-visible {
+    outline: 2px solid var(--color-primary, #3b82f6);
+    outline-offset: 2px;
+  }
+
+  .load-more__button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Variant: primary */
+  .load-more__button--primary {
+    background: var(--color-primary, #3b82f6);
+    color: var(--color-bg, #ffffff);
+    border-color: var(--color-primary, #3b82f6);
+  }
+
+  .load-more__button--primary:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--color-primary, #3b82f6) 85%, black);
+    border-color: color-mix(in srgb, var(--color-primary, #3b82f6) 85%, black);
+  }
+
+  /* Variant: outline */
+  .load-more__button--outline {
+    background: transparent;
+    color: var(--color-primary, #3b82f6);
+    border-color: var(--color-primary, #3b82f6);
+  }
+
+  .load-more__button--outline:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--color-primary, #3b82f6) 10%, transparent);
+  }
+
+  /* Variant: ghost */
+  .load-more__button--ghost {
+    background: transparent;
+    color: var(--color-text, #1a202c);
+    border-color: transparent;
+  }
+
+  .load-more__button--ghost:hover:not(:disabled) {
+    background: var(--color-bg-alt, #f7fafc);
+  }
+
+  /* Spinner */
+  .load-more__spinner {
+    display: none;
+    animation: alm-spin 1s linear infinite;
+  }
+
+  .load-more__button[data-loading] .load-more__spinner {
+    display: inline-flex;
+  }
+
+  @keyframes alm-spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Loading state */
+  .load-more__button[data-loading] {
+    pointer-events: none;
+    opacity: 0.7;
+  }
+
+  /* Dark mode */
+  :global(.dark) .load-more__progress {
+    color: var(--color-text-light, #a0aec0);
+  }
+
+  :global(.dark) .load-more__bar {
+    background: var(--color-bg-alt, #2d3748);
+  }
+
+  :global(.dark) .load-more__button--ghost {
+    color: var(--color-text, #e2e8f0);
+  }
+
+  :global(.dark) .load-more__button--ghost:hover:not(:disabled) {
+    background: var(--color-bg-alt, #2d3748);
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .load-more__bar-fill,
+    .load-more__button {
+      transition: none;
+    }
+
+    .load-more__spinner {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  /**
+   * AccessibleLoadMore client-side logic.
+   * Dispatches 'loadmore' custom event and manages loading/aria states.
+   */
+  function initLoadMore() {
+    document.querySelectorAll<HTMLElement>('[data-load-more]').forEach((container) => {
+      const button = container.querySelector<HTMLButtonElement>('[data-alm-button]');
+      if (!button) return;
+
+      const liveRegion = container.querySelector<HTMLElement>('[data-alm-live]');
+      const textEl = container.querySelector<HTMLElement>('[data-alm-text]');
+      const loadedEl = container.querySelector<HTMLElement>('[data-alm-loaded]');
+      const barFill = container.querySelector<HTMLElement>('[data-alm-bar-fill]');
+      const progressbar = container.querySelector<HTMLElement>('[role="progressbar"]');
+
+      let total = parseInt(container.dataset.total || '0', 10);
+      let loaded = parseInt(container.dataset.loaded || '0', 10);
+      const batch = parseInt(container.dataset.batch || '10', 10);
+      const label = button.dataset.label || 'Mehr laden';
+      const loadingText = button.dataset.loadingText || 'Wird geladen...';
+
+      function updateUI() {
+        const remaining = Math.max(0, total - loaded);
+        const nextBatch = Math.min(batch, remaining);
+
+        /* Update text */
+        if (textEl) {
+          textEl.textContent = remaining <= 0
+            ? 'Alle geladen'
+            : `${label} (${nextBatch} weitere)`;
+        }
+
+        /* Update progress */
+        if (loadedEl) loadedEl.textContent = String(loaded);
+        const pct = total > 0 ? Math.round((loaded / total) * 100) : 0;
+        if (barFill) barFill.style.width = `${pct}%`;
+        if (progressbar) progressbar.setAttribute('aria-valuenow', String(loaded));
+
+        /* Update live region for screen readers */
+        if (liveRegion) {
+          liveRegion.textContent = `${loaded} von ${total} Eintraegen geladen.`;
+        }
+
+        /* Disable if all loaded */
+        if (remaining <= 0) {
+          button.disabled = true;
+        }
+      }
+
+      button.addEventListener('click', () => {
+        if (button.disabled || button.hasAttribute('data-loading')) return;
+
+        /* Enter loading state */
+        button.setAttribute('data-loading', '');
+        if (textEl) textEl.textContent = loadingText;
+
+        /* Dispatch custom event — consumer handles actual data loading */
+        const event = new CustomEvent('loadmore', {
+          bubbles: true,
+          detail: {
+            loaded,
+            total,
+            batchSize: batch,
+            /** Call done() from your handler to exit loading state */
+            done: (newLoaded?: number) => {
+              button.removeAttribute('data-loading');
+              if (typeof newLoaded === 'number') {
+                loaded = newLoaded;
+              } else {
+                loaded = Math.min(total, loaded + batch);
+              }
+              container.dataset.loaded = String(loaded);
+              updateUI();
+            },
+          },
+        });
+
+        container.dispatchEvent(event);
+      });
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initLoadMore);
+  } else {
+    initLoadMore();
+  }
+
+  document.addEventListener('astro:page-load', initLoadMore);
+</script>
