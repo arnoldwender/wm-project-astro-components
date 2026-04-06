@@ -409,3 +409,10 @@ Copyright (c) 2007-2026 [Wender Media](https://www.wendermedia.com) - Arnold Wen
 <p align="center">
   Made with care by <a href="https://www.wendermedia.com">Wender Media</a> in Halle (Saale), Germany
 </p>
+
+
+---
+
+## Disclaimer
+
+If you are a racist, fascist, or extremist of any kind or have another kind of mental disability that makes you discriminate against other human beings — please don't use my software.
