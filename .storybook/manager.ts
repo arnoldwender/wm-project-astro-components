@@ -1,7 +1,8 @@
 /**
  * Storybook Manager Configuration - WenderMedia Astro Components
+ * Custom branding, theme, and sidebar configuration.
  *
- * UI customization and branding.
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  */
 
 import { addons } from '@storybook/manager-api';
@@ -11,42 +12,52 @@ const wmTheme = create({
   base: 'light',
 
   // Brand
-  brandTitle: 'WenderMedia Astro Components',
-  brandUrl: 'https://github.com/arnoldwender/wm-astro-components-2025',
+  brandTitle: '@wendermedia/astro-components',
+  brandUrl: 'https://www.wendermedia.com',
   brandTarget: '_blank',
 
-  // Colors
-  colorPrimary: '#ef4444',
-  colorSecondary: '#0ea5e9',
+  // Colors — WenderMedia brand
+  colorPrimary: '#2563eb',
+  colorSecondary: '#2563eb',
 
   // UI
   appBg: '#f8fafc',
   appContentBg: '#ffffff',
+  appPreviewBg: '#ffffff',
   appBorderColor: '#e2e8f0',
   appBorderRadius: 8,
 
-  // Text colors
-  textColor: '#1e293b',
+  // Text
+  textColor: '#0f172a',
   textInverseColor: '#ffffff',
   textMutedColor: '#64748b',
 
   // Toolbar
-  barTextColor: '#64748b',
-  barSelectedColor: '#0ea5e9',
+  barTextColor: '#475569',
+  barSelectedColor: '#2563eb',
+  barHoverColor: '#1d4ed8',
   barBg: '#ffffff',
 
-  // Form colors
+  // Forms
   inputBg: '#ffffff',
-  inputBorder: '#e2e8f0',
-  inputTextColor: '#1e293b',
+  inputBorder: '#cbd5e1',
+  inputTextColor: '#0f172a',
   inputBorderRadius: 6,
+
+  // Typography
+  fontBase: '"Inter", "Segoe UI", system-ui, -apple-system, sans-serif',
+  fontCode: '"JetBrains Mono", "Fira Code", "Cascadia Code", monospace',
 });
 
 addons.setConfig({
   theme: wmTheme,
   sidebar: {
     showRoots: true,
-    collapsedRoots: ['other'],
+    collapsedRoots: [],
+    renderLabel: ({ name, type }) => {
+      if (type === 'root') return name;
+      return name;
+    },
   },
   toolbar: {
     title: { hidden: false },
@@ -55,4 +66,6 @@ addons.setConfig({
     copy: { hidden: false },
     fullscreen: { hidden: false },
   },
+  panelPosition: 'bottom',
+  enableShortcuts: true,
 });

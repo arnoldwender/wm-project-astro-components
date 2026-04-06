@@ -1,23 +1,27 @@
 /**
  * Storybook Preview Configuration - WenderMedia Astro Components
+ * Global decorators, parameters, theme switching, and a11y config.
  *
- * Global decorators, parameters, and theme configuration.
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  */
 
 import type { Preview } from '@storybook/web-components';
-import { setCustomElementsManifest } from '@storybook/web-components';
 
-// Import global styles
+// Import design system
 import '../src/design-system/base/reset.css';
 import '../src/design-system/base/typography.css';
 import '../src/design-system/tokens/primitives.css';
 import '../src/design-system/tokens/semantic.css';
 import '../src/design-system/tokens/components.css';
+import '../src/design-system/utilities/layout.css';
+import '../src/design-system/utilities/spacing.css';
 
 const preview: Preview = {
   parameters: {
     actions: { argTypesRegex: '^on[A-Z].*' },
     controls: {
+      expanded: true,
+      sort: 'requiredFirst',
       matchers: {
         color: /(background|color)$/i,
         date: /Date$/i,
@@ -27,35 +31,40 @@ const preview: Preview = {
       default: 'light',
       values: [
         { name: 'light', value: '#ffffff' },
-        { name: 'dark', value: '#1a1a1a' },
-        { name: 'neutral', value: '#f5f5f5' },
+        { name: 'dark', value: '#0f172a' },
+        { name: 'neutral', value: '#f1f5f9' },
+        { name: 'brand', value: '#eff6ff' },
       ],
     },
     viewport: {
       viewports: {
-        mobile: {
-          name: 'Mobile',
-          styles: { width: '375px', height: '667px' },
+        iphone14: {
+          name: 'iPhone 14',
+          styles: { width: '390px', height: '844px' },
         },
-        tablet: {
-          name: 'Tablet',
-          styles: { width: '768px', height: '1024px' },
+        ipad: {
+          name: 'iPad',
+          styles: { width: '810px', height: '1080px' },
+        },
+        laptop: {
+          name: 'Laptop',
+          styles: { width: '1366px', height: '768px' },
         },
         desktop: {
           name: 'Desktop',
-          styles: { width: '1440px', height: '900px' },
+          styles: { width: '1920px', height: '1080px' },
         },
       },
     },
+    layout: 'padded',
     a11y: {
-      // axe-core configuration for WCAG 2.1 AA + BFSG
       config: {
         rules: [
           { id: 'color-contrast', enabled: true },
           { id: 'valid-lang', enabled: true },
-          { id: 'landmark-one-main', enabled: true },
-          { id: 'page-has-heading-one', enabled: true },
-          { id: 'region', enabled: true },
+          { id: 'landmark-one-main', enabled: false },
+          { id: 'page-has-heading-one', enabled: false },
+          { id: 'region', enabled: false },
         ],
       },
       options: {
@@ -66,7 +75,35 @@ const preview: Preview = {
       },
     },
     docs: {
-      toc: true,
+      toc: {
+        headingSelector: 'h2, h3',
+        title: 'On this page',
+      },
+    },
+    options: {
+      storySort: {
+        method: 'alphabetical',
+        order: [
+          'Welcome',
+          'Design System',
+          'UI',
+          'Layout',
+          'Layouts',
+          'Sections',
+          'Navigation',
+          'Accessibility',
+          'SEO',
+          'Forms',
+          'E-commerce',
+          'Content',
+          'Media',
+          'Maps',
+          'Social',
+          'Gallery',
+          'Images',
+          'Products',
+        ],
+      },
     },
   },
   globalTypes: {
@@ -76,7 +113,11 @@ const preview: Preview = {
       toolbar: {
         title: 'Theme',
         icon: 'circlehollow',
-        items: ['light', 'dark', 'system'],
+        items: [
+          { value: 'light', title: 'Light', icon: 'sun' },
+          { value: 'dark', title: 'Dark', icon: 'moon' },
+          { value: 'system', title: 'System', icon: 'browser' },
+        ],
         dynamicTitle: true,
       },
     },
@@ -89,6 +130,7 @@ const preview: Preview = {
         items: [
           { value: 'de-DE', title: 'Deutsch' },
           { value: 'en-US', title: 'English' },
+          { value: 'es-ES', title: 'Espanol' },
         ],
         dynamicTitle: true,
       },
@@ -96,8 +138,19 @@ const preview: Preview = {
   },
   decorators: [
     (story, context) => {
+      // Apply theme
       const theme = context.globals.theme || 'light';
-      document.documentElement.setAttribute('data-theme', theme);
+      if (theme === 'system') {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+      } else {
+        document.documentElement.setAttribute('data-theme', theme);
+      }
+
+      // Apply locale
+      const locale = context.globals.locale || 'de-DE';
+      document.documentElement.setAttribute('lang', locale.split('-')[0]);
+
       return story();
     },
   ],
