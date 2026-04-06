@@ -57,4 +57,4 @@
 
 ## License
 
-PROPRIETARY — WenderMedia internal use only.
+MIT License — Copyright (c) 2007-2026 Wender Media - Arnold Wender.
