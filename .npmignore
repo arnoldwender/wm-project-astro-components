@@ -1,0 +1,15 @@
+# Exclude from npm package (keep package size small)
+**/*.stories.ts
+**/*.stories.js
+**/*.test.ts
+**/*.test.js
+**/*.spec.ts
+**/*.spec.js
+.storybook/
+storybook-static/
+testing/__tests__/
+vitest.config.ts
+vitest.a11y.config.ts
+eslint.config.mjs
+OPEN-SOURCE-REPORT.md
+TODO.md
