@@ -2,13 +2,15 @@
 /**
  * Premium Pricing Table Component - WenderMedia Astro Components
  *
- * High-converting pricing table with:
- * - Annual/Monthly toggle with savings highlight
+ * High-converting pricing table with generic comparison mode:
+ * - Two modes: 'pricing' (default) and 'comparison' (generic feature comparison)
+ * - Annual/Monthly toggle with savings highlight (pricing mode)
  * - Feature tooltips for clarity
  * - Popular plan badge
- * - Schema.org Product markup
+ * - Schema.org Product markup (pricing mode)
  * - Mobile-responsive card stacking
  * - Accessible keyboard navigation
+ * - Comparison mode: full-width feature table with boolean/text values per column
  *
  * Conversion optimizations based on 2025 best practices:
  * - 47% higher conversions with interactive elements
@@ -43,6 +45,21 @@
  *     }
  *   ]}
  * />
+ *
+ * @example Comparison mode
+ * <PricingTable
+ *   mode="comparison"
+ *   title="Compare our plans"
+ *   comparisonColumns={[
+ *     { id: 'basic', name: 'Basic' },
+ *     { id: 'pro', name: 'Pro', highlighted: true, badge: 'Recommended', ctaText: 'Choose Pro', ctaHref: '/pro' },
+ *     { id: 'enterprise', name: 'Enterprise', ctaText: 'Contact Us', ctaHref: '/contact' },
+ *   ]}
+ *   comparisonItems={[
+ *     { name: 'Users', values: { basic: '1', pro: '10', enterprise: 'Unlimited' } },
+ *     { name: 'API access', values: { basic: false, pro: true, enterprise: true } },
+ *   ]}
+ * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */
@@ -68,25 +85,53 @@ export interface PricingTier {
   badge?: string;
 }
 
+/** A column in comparison mode (not pricing-specific) */
+export interface ComparisonColumn {
+  id: string;
+  name: string;
+  description?: string;
+  highlighted?: boolean;
+  badge?: string;
+  ctaText?: string;
+  ctaHref?: string;
+}
+
+/** A feature row in comparison mode */
+export interface ComparisonRow {
+  name: string;
+  tooltip?: string;
+  /** Values per column id: true/false for check/cross, or a string for custom text */
+  values: Record<string, boolean | string>;
+}
+
 export interface Props {
   title?: string;
   subtitle?: string;
-  tiers: PricingTier[];
+  /** Display mode: 'pricing' (default) shows billing toggle + prices, 'comparison' shows a generic feature comparison table */
+  mode?: 'pricing' | 'comparison';
+  /* Pricing mode props */
+  tiers?: PricingTier[];
   defaultBilling?: 'monthly' | 'yearly';
   savingsLabel?: string;
   showSchema?: boolean;
   trustBadges?: Array<{ src: string; alt: string }>;
+  /* Comparison mode props */
+  comparisonColumns?: ComparisonColumn[];
+  comparisonItems?: ComparisonRow[];
   class?: string;
 }
 
 const {
   title = 'Simple, transparent pricing',
   subtitle = 'Choose the plan that fits your needs. No hidden fees.',
-  tiers,
+  mode = 'pricing',
+  tiers = [],
   defaultBilling = 'yearly',
   savingsLabel = 'Save up to {percent}%',
   showSchema = true,
   trustBadges = [],
+  comparisonColumns = [],
+  comparisonItems = [],
   class: className = '',
 } = Astro.props;
 
@@ -117,8 +162,8 @@ const savingsText = savingsLabel.replace('{percent}', maxSavings.toString());
       </p>
     </div>
 
-    <!-- Billing Toggle -->
-    <div class="flex items-center justify-center gap-4 mb-12">
+    <!-- Billing Toggle (pricing mode only) -->
+    <div class:list={["flex items-center justify-center gap-4 mb-12", mode !== 'pricing' && 'hidden']}
       <span
         class="text-sm font-medium transition-colors"
         data-billing-label="monthly"
@@ -154,9 +199,9 @@ const savingsText = savingsLabel.replace('{percent}', maxSavings.toString());
       </span>
     </div>
 
-    <!-- Pricing Cards -->
+    <!-- Pricing Cards (pricing mode only) -->
     <div
-      class="grid gap-8 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto"
+      class:list={["grid gap-8 md:grid-cols-2 lg:grid-cols-3 max-w-6xl mx-auto", mode !== 'pricing' && 'hidden']}
       role="list"
       aria-label="Pricing plans"
     >
@@ -289,8 +334,8 @@ const savingsText = savingsLabel.replace('{percent}', maxSavings.toString());
       })}
     </div>
 
-    {/* Trust Badges */}
-    {trustBadges.length > 0 && (
+    {/* Trust Badges (pricing mode only) */}
+    {mode === 'pricing' && trustBadges.length > 0 && (
       <div class="flex items-center justify-center gap-6 mt-12 pt-12 border-t border-gray-200 dark:border-gray-700">
         <span class="text-sm text-gray-500 dark:text-gray-400">Trusted by:</span>
         {trustBadges.map((badge) => (
@@ -303,11 +348,125 @@ const savingsText = savingsLabel.replace('{percent}', maxSavings.toString());
         ))}
       </div>
     )}
+
+    {/* ===== Comparison Mode ===== */}
+    {mode === 'comparison' && comparisonColumns.length > 0 && (
+      <div class="comparison-table overflow-x-auto max-w-6xl mx-auto">
+        <table class="w-full border-collapse text-left" role="table">
+          {/* Column headers */}
+          <thead>
+            <tr>
+              <th class="p-4 text-sm font-medium text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700 min-w-[200px]">
+                Feature
+              </th>
+              {comparisonColumns.map((col) => (
+                <th
+                  class:list={[
+                    'p-4 text-center border-b min-w-[160px]',
+                    col.highlighted
+                      ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                      : 'border-gray-200 dark:border-gray-700',
+                  ]}
+                >
+                  <div class="relative">
+                    {col.badge && (
+                      <span class="inline-block mb-2 px-3 py-0.5 text-xs font-semibold text-white bg-blue-500 rounded-full">
+                        {col.badge}
+                      </span>
+                    )}
+                    <div class="text-lg font-bold">{col.name}</div>
+                    {col.description && (
+                      <div class="text-sm text-gray-500 dark:text-gray-400 mt-1">{col.description}</div>
+                    )}
+                  </div>
+                </th>
+              ))}
+            </tr>
+          </thead>
+
+          {/* Feature rows */}
+          <tbody>
+            {comparisonItems.map((row) => (
+              <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                <td class="p-4 text-sm font-medium border-b border-gray-100 dark:border-gray-800">
+                  {row.name}
+                  {row.tooltip && (
+                    <button
+                      type="button"
+                      class="ml-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                      aria-label={`More info about ${row.name}`}
+                      data-tooltip={row.tooltip}
+                    >
+                      <svg class="w-4 h-4 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </button>
+                  )}
+                </td>
+                {comparisonColumns.map((col) => {
+                  const val = row.values[col.id];
+                  return (
+                    <td
+                      class:list={[
+                        'p-4 text-center text-sm border-b',
+                        col.highlighted
+                          ? 'bg-blue-50/50 dark:bg-blue-900/10 border-blue-100 dark:border-blue-900/30'
+                          : 'border-gray-100 dark:border-gray-800',
+                      ]}
+                    >
+                      {typeof val === 'boolean' ? (
+                        val ? (
+                          <svg class="w-5 h-5 text-green-500 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                          </svg>
+                        ) : (
+                          <svg class="w-5 h-5 text-gray-300 dark:text-gray-600 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        )
+                      ) : (
+                        <span class="text-gray-700 dark:text-gray-300 font-medium">{val}</span>
+                      )}
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+
+          {/* CTA row at the bottom */}
+          {comparisonColumns.some(c => c.ctaText) && (
+            <tfoot>
+              <tr>
+                <td class="p-4"></td>
+                {comparisonColumns.map((col) => (
+                  <td class:list={['p-4 text-center', col.highlighted && 'bg-blue-50/50 dark:bg-blue-900/10']}>
+                    {col.ctaText && col.ctaHref && (
+                      <a
+                        href={col.ctaHref}
+                        class:list={[
+                          'inline-flex items-center justify-center px-6 py-2.5 rounded-lg font-semibold text-sm transition-all duration-200',
+                          col.highlighted
+                            ? 'bg-blue-500 text-white hover:bg-blue-600 shadow-lg'
+                            : 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100',
+                        ]}
+                      >
+                        {col.ctaText}
+                      </a>
+                    )}
+                  </td>
+                ))}
+              </tr>
+            </tfoot>
+          )}
+        </table>
+      </div>
+    )}
   </div>
 </section>
 
-{/* Schema.org Product markup */}
-{showSchema && tiers.map((tier) => (
+{/* Schema.org Product markup (pricing mode only) */}
+{mode === 'pricing' && showSchema && tiers.map((tier) => (
   <script type="application/ld+json" set:html={JSON.stringify({
     "@context": "https://schema.org",
     "@type": "Product",

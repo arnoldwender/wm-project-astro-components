@@ -5,10 +5,11 @@
  * Dark/Light mode toggle with localStorage persistence and NO FLASH.
  *
  * Features:
+ * - Three variants: 'button' (icon toggle), 'switch' (iOS-style), 'dropdown' (light/dark/system)
  * - Inline script to prevent FOUC (Flash of Unstyled Content)
  * - System preference detection
- * - localStorage persistence
- * - Accessible labels
+ * - localStorage persistence (including 'system' preference for dropdown)
+ * - Accessible labels, ARIA switch role for switch variant
  * - Smooth transitions
  * - View Transitions API support
  *
@@ -18,7 +19,16 @@
  * </head>
  *
  * @example
+ * <!-- Default icon button toggle -->
  * <ThemeToggle size="md" />
+ *
+ * @example
+ * <!-- iOS-style switch toggle -->
+ * <ThemeToggle variant="switch" size="md" />
+ *
+ * @example
+ * <!-- Dropdown with light/dark/system options -->
+ * <ThemeToggle variant="dropdown" size="md" />
  *
  * @example
  * <!-- Small toggle in a header bar -->
@@ -31,9 +41,11 @@
 export interface Props {
   class?: string;
   size?: 'sm' | 'md' | 'lg';
+  /** Rendering style: 'button' (icon toggle), 'switch' (iOS-style), 'dropdown' (light/dark/system select) */
+  variant?: 'button' | 'switch' | 'dropdown';
 }
 
-const { class: className = '', size = 'md' } = Astro.props;
+const { class: className = '', size = 'md', variant = 'button' } = Astro.props;
 
 const sizeClasses = {
   sm: 'p-1.5',
@@ -47,60 +59,151 @@ const iconSizes = {
   lg: 'w-6 h-6',
 } as const;
 
+/* Switch track dimensions per size */
+const switchTrackSizes = {
+  sm: 'w-10 h-5',
+  md: 'w-12 h-6',
+  lg: 'w-14 h-7',
+} as const;
+
+const switchThumbSizes = {
+  sm: 'w-3.5 h-3.5',
+  md: 'w-4.5 h-4.5',
+  lg: 'w-5.5 h-5.5',
+} as const;
+
+const switchThumbTranslate = {
+  sm: 'translate-x-5',
+  md: 'translate-x-6',
+  lg: 'translate-x-7',
+} as const;
+
 const sizeClass = sizeClasses[size] || sizeClasses.md;
 const iconSizeClass = iconSizes[size] || iconSizes.md;
 ---
 
-<button
-  type="button"
-  class:list={[
-    'theme-toggle rounded-lg transition-colors duration-200',
-    'text-text-tertiary hover:text-text-primary',
-    'hover:bg-background-subtle',
-    'focus:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2',
-    sizeClass,
-    className,
-  ]}
-  aria-label="Toggle theme"
-  title="Toggle theme"
-  data-theme-toggle
->
-  <!-- Sun icon (shown in dark mode, click to go light) -->
-  <svg
-    class:list={['theme-icon-sun', iconSizeClass]}
-    fill="none"
-    stroke="currentColor"
-    viewBox="0 0 24 24"
-    aria-hidden="true"
+{/* ---- Variant: button (default — icon toggle) ---- */}
+{variant === 'button' && (
+  <button
+    type="button"
+    class:list={[
+      'theme-toggle rounded-lg transition-colors duration-200',
+      'text-text-tertiary hover:text-text-primary',
+      'hover:bg-background-subtle',
+      'focus:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2',
+      sizeClass,
+      className,
+    ]}
+    aria-label="Toggle theme"
+    title="Toggle theme"
+    data-theme-toggle
   >
-    <path
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      stroke-width="2"
-      d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
-    />
-  </svg>
-  <!-- Moon icon (shown in light mode, click to go dark) -->
-  <svg
-    class:list={['theme-icon-moon', iconSizeClass]}
-    fill="none"
-    stroke="currentColor"
-    viewBox="0 0 24 24"
-    aria-hidden="true"
+    <!-- Sun icon (shown in dark mode, click to go light) -->
+    <svg
+      class:list={['theme-icon-sun', iconSizeClass]}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
+      />
+    </svg>
+    <!-- Moon icon (shown in light mode, click to go dark) -->
+    <svg
+      class:list={['theme-icon-moon', iconSizeClass]}
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+      />
+    </svg>
+  </button>
+)}
+
+{/* ---- Variant: switch (iOS-style toggle) ---- */}
+{variant === 'switch' && (
+  <button
+    type="button"
+    role="switch"
+    aria-checked="false"
+    class:list={[
+      'theme-toggle-switch relative inline-flex items-center rounded-full',
+      'bg-background-muted transition-colors duration-200',
+      'focus:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2',
+      switchTrackSizes[size],
+      className,
+    ]}
+    aria-label="Toggle dark mode"
+    title="Toggle dark mode"
+    data-theme-toggle
+    data-theme-variant="switch"
   >
-    <path
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      stroke-width="2"
-      d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
+    <span
+      class:list={[
+        'theme-switch-thumb inline-block rounded-full bg-white shadow-md transform transition-transform duration-200',
+        switchThumbSizes[size],
+      ]}
+      aria-hidden="true"
+      data-switch-thumb
     />
-  </svg>
-</button>
+    <!-- Sun micro icon inside track (left side) -->
+    <svg class="theme-switch-icon-sun absolute left-1 w-3 h-3 text-amber-500" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+      <path fill-rule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clip-rule="evenodd"/>
+    </svg>
+    <!-- Moon micro icon inside track (right side) -->
+    <svg class="theme-switch-icon-moon absolute right-1 w-3 h-3 text-indigo-300" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+      <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/>
+    </svg>
+  </button>
+)}
+
+{/* ---- Variant: dropdown (select menu with light/dark/system) ---- */}
+{variant === 'dropdown' && (
+  <div class:list={['theme-toggle-dropdown relative inline-block', className]}>
+    <select
+      class:list={[
+        'theme-dropdown-select appearance-none rounded-lg border border-border-default bg-background-default',
+        'text-text-primary transition-colors duration-200 cursor-pointer pr-8',
+        'focus:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2',
+        sizeClass,
+        size === 'sm' && 'text-xs',
+        size === 'md' && 'text-sm',
+        size === 'lg' && 'text-base',
+      ]}
+      aria-label="Select color theme"
+      data-theme-toggle
+      data-theme-variant="dropdown"
+    >
+      <option value="light">Light</option>
+      <option value="dark">Dark</option>
+      <option value="system">System</option>
+    </select>
+    <!-- Dropdown chevron icon -->
+    <svg
+      class="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-text-tertiary"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+    >
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+    </svg>
+  </div>
+)}
 
 <style>
- * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
- * @see https://github.com/arnoldwender/wm-project-astro-components
-  /* Default: show moon (light mode), hide sun */
+  /* --- Button variant: icon visibility --- */
   .theme-icon-sun {
     display: none;
   }
@@ -108,14 +211,51 @@ const iconSizeClass = iconSizes[size] || iconSizes.md;
     display: block;
   }
 
- * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
- * @see https://github.com/arnoldwender/wm-project-astro-components
-  /* Dark mode: show sun, hide moon */
   :global(.dark) .theme-icon-sun {
     display: block;
   }
   :global(.dark) .theme-icon-moon {
     display: none;
+  }
+
+  /* --- Switch variant --- */
+  .theme-toggle-switch {
+    cursor: pointer;
+    border: none;
+  }
+
+  /* Light mode: thumb sits left */
+  .theme-switch-thumb {
+    transform: translateX(2px);
+  }
+
+  /* Dark mode: thumb slides right + track color changes */
+  :global(.dark) .theme-toggle-switch {
+    background-color: var(--color-primary, #6366f1);
+  }
+
+  :global(.dark) .theme-toggle-switch .theme-switch-thumb {
+    /* Translate distance matches track width minus thumb + padding */
+    transform: translateX(calc(100% + 4px));
+  }
+
+  /* Icon visibility inside the switch track */
+  .theme-switch-icon-sun {
+    opacity: 1;
+  }
+  .theme-switch-icon-moon {
+    opacity: 0.4;
+  }
+  :global(.dark) .theme-switch-icon-sun {
+    opacity: 0.4;
+  }
+  :global(.dark) .theme-switch-icon-moon {
+    opacity: 1;
+  }
+
+  /* --- Dropdown variant --- */
+  .theme-dropdown-select {
+    min-width: 5rem;
   }
 </style>
 
@@ -123,75 +263,128 @@ const iconSizeClass = iconSizes[size] || iconSizes.md;
   function initThemeToggle() {
     const toggles = document.querySelectorAll('[data-theme-toggle]');
 
+    function getSystemTheme(): 'light' | 'dark' {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+
     function getTheme(): 'light' | 'dark' {
       if (typeof localStorage !== 'undefined') {
         const stored = localStorage.getItem('theme');
         if (stored === 'light' || stored === 'dark') return stored;
       }
-      if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        return 'dark';
+      return getSystemTheme();
+    }
+
+    /** Returns the raw preference: 'light', 'dark', or 'system' */
+    function getPreference(): string {
+      if (typeof localStorage !== 'undefined') {
+        return localStorage.getItem('theme-preference') || localStorage.getItem('theme') || 'system';
       }
-      return 'light';
+      return 'system';
     }
 
     function setTheme(theme: 'light' | 'dark'): void {
-      // Update DOM
+      /* Update DOM */
       if (theme === 'dark') {
         document.documentElement.classList.add('dark');
       } else {
         document.documentElement.classList.remove('dark');
       }
 
-      // Update ARIA labels
+      /* Update ARIA on button and switch variants */
       toggles.forEach(toggle => {
+        const variant = toggle.getAttribute('data-theme-variant');
+        if (variant === 'dropdown') return; // dropdown uses <select>, no ARIA label swap
+        if (variant === 'switch') {
+          toggle.setAttribute('aria-checked', (theme === 'dark').toString());
+        }
         toggle.setAttribute(
           'aria-label',
           theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'
         );
       });
 
-      // Persist
+      /* Sync dropdown selects to reflect resolved theme */
+      document.querySelectorAll<HTMLSelectElement>('[data-theme-variant="dropdown"]').forEach(sel => {
+        const pref = getPreference();
+        sel.value = pref;
+      });
+
+      /* Persist resolved theme */
       if (typeof localStorage !== 'undefined') {
         localStorage.setItem('theme', theme);
       }
 
-      // Dispatch event for other components
+      /* Dispatch event for other components */
       window.dispatchEvent(new CustomEvent('theme-change', { detail: { theme } }));
     }
 
-    // Update ARIA labels on init (theme is already set by inline script)
+    /** Apply preference (may be 'system') and persist it */
+    function applyPreference(pref: string): void {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('theme-preference', pref);
+      }
+      if (pref === 'system') {
+        localStorage.removeItem('theme');
+        setTheme(getSystemTheme());
+      } else {
+        setTheme(pref as 'light' | 'dark');
+      }
+    }
+
+    /* --- Initial state --- */
     const currentTheme = getTheme();
     toggles.forEach(toggle => {
-      toggle.setAttribute(
-        'aria-label',
-        currentTheme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'
-      );
+      const variant = toggle.getAttribute('data-theme-variant');
+
+      if (variant === 'switch') {
+        toggle.setAttribute('aria-checked', (currentTheme === 'dark').toString());
+      } else if (variant === 'dropdown') {
+        (toggle as HTMLSelectElement).value = getPreference();
+      } else {
+        toggle.setAttribute(
+          'aria-label',
+          currentTheme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'
+        );
+      }
     });
 
-    // Add click handlers
+    /* --- Event handlers per variant --- */
     toggles.forEach(toggle => {
-      toggle.addEventListener('click', () => {
-        const current = getTheme();
-        const next = current === 'light' ? 'dark' : 'light';
-        setTheme(next);
-      });
+      const variant = toggle.getAttribute('data-theme-variant');
+
+      if (variant === 'dropdown') {
+        /* Dropdown: listen for change on <select> */
+        toggle.addEventListener('change', () => {
+          const val = (toggle as HTMLSelectElement).value;
+          applyPreference(val);
+        });
+      } else {
+        /* Button & Switch: click toggles light <-> dark */
+        toggle.addEventListener('click', () => {
+          const current = getTheme();
+          const next = current === 'light' ? 'dark' : 'light';
+          applyPreference(next);
+        });
+      }
     });
 
-    // Listen for system theme changes (only if no stored preference)
+    /* Listen for system theme changes (only when preference is 'system') */
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
-      if (!localStorage.getItem('theme')) {
+      const pref = getPreference();
+      if (pref === 'system' || (!localStorage.getItem('theme') && !localStorage.getItem('theme-preference'))) {
         setTheme(e.matches ? 'dark' : 'light');
       }
     });
   }
 
-  // Initialize
+  /* Initialize */
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initThemeToggle);
   } else {
     initThemeToggle();
   }
 
-  // Support Astro View Transitions
+  /* Support Astro View Transitions */
   document.addEventListener('astro:page-load', initThemeToggle);
 </script>
