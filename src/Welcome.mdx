@@ -1,0 +1,82 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Welcome" />
+
+# @wendermedia/astro-components
+
+**158 production-ready, accessible, GDPR-compliant Astro components.**
+
+Built by [Wender Media](https://www.wendermedia.com) — Web Agency from Halle (Saale), Germany.
+
+---
+
+## Getting Started
+
+```bash
+npm install @wendermedia/astro-components
+```
+
+```astro
+---
+import { SEO } from '@wendermedia/astro-components/seo';
+import { Header, Footer } from '@wendermedia/astro-components/layout';
+---
+
+<html lang="en">
+  <head>
+    <SEO title="My Site" description="Built with @wendermedia/astro-components" />
+  </head>
+  <body>
+    <Header siteName="My Site" navItems={[{ label: 'Home', href: '/' }]} />
+    <main><slot /></main>
+    <Footer siteName="My Site" />
+  </body>
+</html>
+```
+
+---
+
+## Component Categories
+
+| Category | Components | Description |
+|----------|-----------|-------------|
+| **Accessibility** | 12 | SkipLinks, ThemeToggle, FocusTrap, FontResizer, CookieConsent, ... |
+| **Content** | 5 | ReadingProgress, ShareBar, TableOfContents, RelatedContent, ReadingTime |
+| **Design System** | 1 | DesignSystemProvider with tokens |
+| **E-commerce** | 5 | Cart, ProductCard, Wishlist, QuickView, AddToCart |
+| **Forms** | 3 | ContactForm, Contact, Newsletter |
+| **Gallery** | 1 | BeforeAfter slider |
+| **Images** | 1 | OptimizedImage with blur-up LQIP |
+| **Layout** | 2 | Header, Footer |
+| **Layouts** | 15 | Bento, Magazine, Dashboard, Portfolio, Newspaper, ... |
+| **Maps** | 2 | GoogleMap (GDPR), OpenStreetMap |
+| **Media** | 3 | VideoPlayer, AudioPlayer, ImageGallery |
+| **Navigation** | 5 | Breadcrumbs, Pagination, MobileNav, Sidebar, AccessibleLoadMore |
+| **Products** | 1 | ProductCard (affiliate) |
+| **Sections** | 70+ | Hero, CTA, Pricing, Team, FAQ, Testimonials, TrustBar, TopBar, ... |
+| **SEO** | 9 | SEO, OpenGraph, TwitterCard, JsonLD, RichSnippets, TitleTagEditor, ... |
+| **Social** | 2 | SocialShare, SocialFollow |
+| **UI** | 21 | Modal, Tabs, Badge, Toast, Accordion, ProgressTracker, StatCard, ... |
+
+---
+
+## Key Features
+
+- **WCAG 2.1 AA** — Full accessibility with BFSG 2025 compliance
+- **GDPR/DSGVO** — Privacy-first, consent-based third-party loading
+- **TypeScript** — Complete type definitions for all components
+- **Design Tokens** — CSS custom properties for theming and dark mode
+- **Zero Tracking** — No third-party analytics by default
+- **Astro 4.x & 5.x** — View Transitions and Content Collections ready
+
+---
+
+## Links
+
+- [GitHub](https://github.com/arnoldwender/wm-project-astro-components)
+- [npm](https://www.npmjs.com/package/@wendermedia/astro-components)
+- [Wender Media](https://www.wendermedia.com)
+
+---
+
+*Made with care by [Arnold Wender](https://arnoldwender.com) in Halle (Saale), Germany.*
