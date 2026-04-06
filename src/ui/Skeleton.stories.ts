@@ -17,6 +17,7 @@ Premium loading placeholder with smooth animations.
 
 Features:
 - Seven variants (text, circle, rect, avatar, card, image, button)
+- Four compound layouts (profile, post, comment, product)
 - Four sizes (sm, md, lg, xl)
 - Shimmer and pulse animation options
 - Multi-line text skeleton
@@ -43,6 +44,11 @@ Features:
       control: { type: 'select' },
       options: ['shimmer', 'pulse', 'none'],
       description: 'Loading animation type',
+    },
+    compound: {
+      control: { type: 'select' },
+      options: [false, 'profile', 'post', 'comment', 'product'],
+      description: 'Compound layout combining multiple skeleton types',
     },
     lines: { control: { type: 'range', min: 1, max: 6 }, description: 'Number of text lines (text variant)' },
   },
@@ -151,4 +157,112 @@ export const Avatar: Story = {
 export const Pulse: Story = {
   args: { variant: 'rect', size: 'md', animation: 'pulse', lines: 1 },
   render: (args) => renderSkeleton(args),
+};
+
+/* ---- Compound layout stories ---- */
+
+const renderCompound = (args: Record<string, unknown>) => {
+  const animation = (args.animation as string) || 'shimmer';
+  const compound = args.compound as string;
+
+  if (compound === 'profile') {
+    return html`
+      ${skeletonStyles}
+      <div style="display:flex; align-items:center; gap:1rem; max-width:400px;">
+        <div class="skeleton-demo ${animation}" style="width:3rem; height:3rem; border-radius:50%; flex-shrink:0;"></div>
+        <div style="flex:1; display:flex; flex-direction:column; gap:0.5rem;">
+          <div class="skeleton-demo ${animation}" style="height:1rem; width:33%; border-radius:0.25rem;"></div>
+          <div class="skeleton-demo ${animation}" style="height:0.75rem; width:50%; border-radius:0.25rem;"></div>
+        </div>
+      </div>
+    `;
+  }
+
+  if (compound === 'post') {
+    return html`
+      ${skeletonStyles}
+      <div style="max-width:400px; display:flex; flex-direction:column; gap:1rem;">
+        <div style="display:flex; align-items:center; gap:0.75rem;">
+          <div class="skeleton-demo ${animation}" style="width:2.5rem; height:2.5rem; border-radius:50%;"></div>
+          <div style="flex:1; display:flex; flex-direction:column; gap:0.375rem;">
+            <div class="skeleton-demo ${animation}" style="height:0.75rem; width:6rem; border-radius:0.25rem;"></div>
+            <div class="skeleton-demo ${animation}" style="height:0.625rem; width:4rem; border-radius:0.25rem;"></div>
+          </div>
+        </div>
+        <div class="skeleton-demo ${animation}" style="aspect-ratio:16/9; width:100%; border-radius:0.5rem;"></div>
+        <div style="display:flex; flex-direction:column; gap:0.5rem;">
+          <div class="skeleton-demo ${animation}" style="height:1rem; width:75%; border-radius:0.25rem;"></div>
+          <div class="skeleton-demo ${animation}" style="height:0.75rem; width:100%; border-radius:0.25rem;"></div>
+          <div class="skeleton-demo ${animation}" style="height:0.75rem; width:85%; border-radius:0.25rem;"></div>
+        </div>
+        <div style="display:flex; gap:0.75rem;">
+          <div class="skeleton-demo ${animation}" style="height:2rem; width:4rem; border-radius:0.375rem;"></div>
+          <div class="skeleton-demo ${animation}" style="height:2rem; width:4rem; border-radius:0.375rem;"></div>
+          <div class="skeleton-demo ${animation}" style="height:2rem; width:4rem; border-radius:0.375rem;"></div>
+        </div>
+      </div>
+    `;
+  }
+
+  if (compound === 'comment') {
+    return html`
+      ${skeletonStyles}
+      <div style="max-width:400px; display:flex; gap:0.75rem;">
+        <div class="skeleton-demo ${animation}" style="width:2rem; height:2rem; border-radius:50%; flex-shrink:0;"></div>
+        <div style="flex:1; display:flex; flex-direction:column; gap:0.5rem;">
+          <div style="display:flex; align-items:center; gap:0.5rem;">
+            <div class="skeleton-demo ${animation}" style="height:0.75rem; width:5rem; border-radius:0.25rem;"></div>
+            <div class="skeleton-demo ${animation}" style="height:0.625rem; width:3rem; border-radius:0.25rem;"></div>
+          </div>
+          <div class="skeleton-demo ${animation}" style="height:0.75rem; width:100%; border-radius:0.25rem;"></div>
+          <div class="skeleton-demo ${animation}" style="height:0.75rem; width:80%; border-radius:0.25rem;"></div>
+        </div>
+      </div>
+    `;
+  }
+
+  if (compound === 'product') {
+    return html`
+      ${skeletonStyles}
+      <div style="max-width:280px; border:1px solid #e2e8f0; border-radius:0.5rem; overflow:hidden;">
+        <div class="skeleton-demo ${animation}" style="aspect-ratio:1/1; width:100%;"></div>
+        <div style="padding:1rem; display:flex; flex-direction:column; gap:0.75rem;">
+          <div class="skeleton-demo ${animation}" style="height:1rem; width:75%; border-radius:0.25rem;"></div>
+          <div style="display:flex; gap:0.25rem;">
+            ${Array.from({ length: 5 }).map(() => html`
+              <div class="skeleton-demo ${animation}" style="width:1rem; height:1rem; border-radius:0.25rem;"></div>
+            `)}
+          </div>
+          <div class="skeleton-demo ${animation}" style="height:1.25rem; width:25%; border-radius:0.25rem;"></div>
+          <div class="skeleton-demo ${animation}" style="height:2.5rem; width:100%; border-radius:0.375rem;"></div>
+        </div>
+      </div>
+    `;
+  }
+
+  return html`<p>Select a compound layout.</p>`;
+};
+
+export const CompoundProfile: Story = {
+  args: { compound: 'profile', animation: 'shimmer' },
+  render: (args) => renderCompound(args),
+  name: 'Compound — Profile',
+};
+
+export const CompoundPost: Story = {
+  args: { compound: 'post', animation: 'shimmer' },
+  render: (args) => renderCompound(args),
+  name: 'Compound — Post',
+};
+
+export const CompoundComment: Story = {
+  args: { compound: 'comment', animation: 'shimmer' },
+  render: (args) => renderCompound(args),
+  name: 'Compound — Comment',
+};
+
+export const CompoundProduct: Story = {
+  args: { compound: 'product', animation: 'shimmer' },
+  render: (args) => renderCompound(args),
+  name: 'Compound — Product',
 };

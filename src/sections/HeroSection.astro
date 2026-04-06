@@ -9,7 +9,7 @@
  * showcase with a subtle 3D hover effect.
  *
  * Features:
- * - Six variants: centered, split, background, gradient, minimal, product
+ * - Eight variants: centered, split, background, gradient, minimal, product, feature-grid, split-visual
  * - Four size presets controlling minimum height (sm/md/lg/full-screen)
  * - Background image or video support with configurable dark overlay
  * - Decorative gradient blobs for the "gradient" variant
@@ -24,6 +24,8 @@
  * - "cta"         — Call-to-action buttons or links
  * - "media"       — Image, video, or illustration (used by centered, split, product, gradient)
  * - "extra"       — Additional content below the CTA (only in the "split" variant)
+ * - "features"    — Feature icons/cards grid (used by "feature-grid" variant)
+ * - "benefits"    — Benefits list items (used by "split-visual" variant)
  *
  * @example
  * ---
@@ -99,7 +101,7 @@
 import SectionWrapper from './SectionWrapper.astro';
 
 export interface Props {
-  variant?: 'centered' | 'split' | 'background' | 'gradient' | 'minimal' | 'product';
+  variant?: 'centered' | 'split' | 'background' | 'gradient' | 'minimal' | 'product' | 'feature-grid' | 'split-visual';
   size?: 'sm' | 'md' | 'lg' | 'full';
   backgroundImage?: string;
   backgroundVideo?: string;
@@ -350,6 +352,78 @@ const sizeClasses = {
                 <slot name="media" />
               </div>
             )}
+          </div>
+        )}
+
+        {/* Feature Grid Variant — centered headline with feature icons grid below the CTA */}
+        {variant === 'feature-grid' && (
+          <div class="text-center max-w-5xl mx-auto">
+            {Astro.slots.has('eyebrow') && (
+              <div class="hero-eyebrow text-sm font-semibold uppercase tracking-wider text-primary mb-4">
+                <slot name="eyebrow" />
+              </div>
+            )}
+            <h1 class="hero-title text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold text-text-primary mb-6 leading-tight">
+              <slot name="title" />
+            </h1>
+            {Astro.slots.has('description') && (
+              <p class="hero-description text-lg sm:text-xl lg:text-2xl text-text-secondary mb-8 max-w-2xl mx-auto">
+                <slot name="description" />
+              </p>
+            )}
+            {Astro.slots.has('cta') && (
+              <div class="hero-cta flex flex-wrap justify-center gap-4 mb-12 lg:mb-16">
+                <slot name="cta" />
+              </div>
+            )}
+            {/* Feature icons grid — expects 3-4 items via the "features" slot */}
+            {Astro.slots.has('features') && (
+              <div class="hero-features grid grid-cols-2 md:grid-cols-4 gap-6 lg:gap-8 pt-8 border-t border-border-subtle">
+                <slot name="features" />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Split Visual Variant — 50/50 content left, large visual right with benefits list */}
+        {variant === 'split-visual' && (
+          <div class:list={[
+            'grid lg:grid-cols-2 gap-12 lg:gap-16 items-center',
+            reverse && 'lg:[&>*:first-child]:order-2',
+          ]}>
+            <div class="hero-content">
+              {Astro.slots.has('eyebrow') && (
+                <div class="hero-eyebrow text-sm font-semibold uppercase tracking-wider text-primary mb-4">
+                  <slot name="eyebrow" />
+                </div>
+              )}
+              <h1 class="hero-title text-4xl sm:text-5xl lg:text-5xl font-bold text-text-primary mb-6 leading-tight">
+                <slot name="title" />
+              </h1>
+              {Astro.slots.has('description') && (
+                <p class="hero-description text-lg lg:text-xl text-text-secondary mb-6">
+                  <slot name="description" />
+                </p>
+              )}
+              {/* Benefits list — expects list items via the "benefits" slot */}
+              {Astro.slots.has('benefits') && (
+                <ul class="hero-benefits space-y-3 mb-8 text-text-secondary">
+                  <slot name="benefits" />
+                </ul>
+              )}
+              {Astro.slots.has('cta') && (
+                <div class="hero-cta flex flex-wrap gap-4">
+                  <slot name="cta" />
+                </div>
+              )}
+            </div>
+            <div class="hero-media relative">
+              {Astro.slots.has('media') && (
+                <div class="hero-split-visual-media rounded-2xl overflow-hidden shadow-2xl">
+                  <slot name="media" />
+                </div>
+              )}
+            </div>
           </div>
         )}
 

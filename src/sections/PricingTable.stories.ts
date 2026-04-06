@@ -8,9 +8,10 @@ import { html } from 'lit';
 const meta: Meta = {
   title: 'Sections/PricingTable',
   tags: ['autodocs'],
-  parameters: { docs: { description: { component: 'Premium pricing table with monthly/yearly billing toggle, feature tooltips, Schema.org Product markup, savings badges, and trust signals.' } } },
+  parameters: { docs: { description: { component: 'Premium pricing table with monthly/yearly billing toggle, feature tooltips, Schema.org Product markup, savings badges, trust signals, and a generic comparison mode for feature tables.' } } },
   argTypes: {
     defaultBilling: { control: 'select', options: ['monthly', 'yearly'], description: 'Default billing period' },
+    mode: { control: 'select', options: ['pricing', 'comparison'], description: 'Display mode' },
   },
 };
 export default meta;
@@ -67,4 +68,79 @@ export const MonthlyView: Story = {
       </div>
     </section>
   `,
+};
+
+/* ---- Comparison Mode story ---- */
+
+export const ComparisonMode: Story = {
+  render: () => html`
+    <section style="padding:4rem 2rem;font-family:system-ui,sans-serif;">
+      <div style="text-align:center;max-width:48rem;margin:0 auto 2rem;">
+        <h2 style="font-size:2.5rem;font-weight:700;margin:0 0 1rem;">Compare Plans</h2>
+        <p style="font-size:1.125rem;color:#64748b;">See which plan is right for your team.</p>
+      </div>
+      <div style="overflow-x:auto;max-width:72rem;margin:0 auto;">
+        <table style="width:100%;border-collapse:collapse;text-align:left;">
+          <thead>
+            <tr>
+              <th style="padding:1rem;font-size:0.875rem;color:#6b7280;border-bottom:1px solid #e5e7eb;min-width:200px;">Feature</th>
+              <th style="padding:1rem;text-align:center;border-bottom:1px solid #e5e7eb;min-width:140px;">Basic</th>
+              <th style="padding:1rem;text-align:center;border-bottom:2px solid #3b82f6;background:#eff6ff;min-width:140px;">
+                <span style="display:inline-block;margin-bottom:0.5rem;padding:0.125rem 0.75rem;font-size:0.75rem;font-weight:600;color:white;background:#3b82f6;border-radius:9999px;">Best Value</span>
+                <div style="font-size:1.125rem;font-weight:700;">Pro</div>
+              </th>
+              <th style="padding:1rem;text-align:center;border-bottom:1px solid #e5e7eb;min-width:140px;">Enterprise</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${[
+              { name: 'Users', basic: '1', pro: '10', enterprise: 'Unlimited' },
+              { name: 'Storage', basic: '1 GB', pro: '100 GB', enterprise: '1 TB' },
+              { name: 'API Access', basic: false, pro: true, enterprise: true },
+              { name: 'SSO/SAML', basic: false, pro: false, enterprise: true },
+              { name: 'Priority Support', basic: false, pro: true, enterprise: true },
+              { name: 'Custom SLA', basic: false, pro: false, enterprise: true },
+            ].map(row => html`
+              <tr style="transition:background 150ms;">
+                <td style="padding:0.75rem 1rem;font-size:0.875rem;font-weight:500;border-bottom:1px solid #f1f5f9;">${row.name}</td>
+                <td style="padding:0.75rem 1rem;text-align:center;border-bottom:1px solid #f1f5f9;">
+                  ${typeof row.basic === 'boolean'
+                    ? row.basic
+                      ? html`<svg width="20" height="20" fill="none" stroke="#22c55e" viewBox="0 0 24 24" style="margin:0 auto;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>`
+                      : html`<svg width="20" height="20" fill="none" stroke="#d1d5db" viewBox="0 0 24 24" style="margin:0 auto;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>`
+                    : html`<span style="font-weight:500;color:#374151;">${row.basic}</span>`
+                  }
+                </td>
+                <td style="padding:0.75rem 1rem;text-align:center;background:#fafbff;border-bottom:1px solid #eff6ff;">
+                  ${typeof row.pro === 'boolean'
+                    ? row.pro
+                      ? html`<svg width="20" height="20" fill="none" stroke="#22c55e" viewBox="0 0 24 24" style="margin:0 auto;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>`
+                      : html`<svg width="20" height="20" fill="none" stroke="#d1d5db" viewBox="0 0 24 24" style="margin:0 auto;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>`
+                    : html`<span style="font-weight:500;color:#374151;">${row.pro}</span>`
+                  }
+                </td>
+                <td style="padding:0.75rem 1rem;text-align:center;border-bottom:1px solid #f1f5f9;">
+                  ${typeof row.enterprise === 'boolean'
+                    ? row.enterprise
+                      ? html`<svg width="20" height="20" fill="none" stroke="#22c55e" viewBox="0 0 24 24" style="margin:0 auto;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>`
+                      : html`<svg width="20" height="20" fill="none" stroke="#d1d5db" viewBox="0 0 24 24" style="margin:0 auto;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>`
+                    : html`<span style="font-weight:500;color:#374151;">${row.enterprise}</span>`
+                  }
+                </td>
+              </tr>
+            `)}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td style="padding:1rem;"></td>
+              <td style="padding:1rem;text-align:center;"><a href="#" style="display:inline-block;padding:0.625rem 1.5rem;background:#1e293b;color:white;border-radius:0.5rem;font-weight:600;font-size:0.875rem;text-decoration:none;">Get Started</a></td>
+              <td style="padding:1rem;text-align:center;background:#fafbff;"><a href="#" style="display:inline-block;padding:0.625rem 1.5rem;background:#3b82f6;color:white;border-radius:0.5rem;font-weight:600;font-size:0.875rem;text-decoration:none;box-shadow:0 4px 12px rgba(59,130,246,0.3);">Choose Pro</a></td>
+              <td style="padding:1rem;text-align:center;"><a href="#" style="display:inline-block;padding:0.625rem 1.5rem;background:#1e293b;color:white;border-radius:0.5rem;font-weight:600;font-size:0.875rem;text-decoration:none;">Contact Sales</a></td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </section>
+  `,
+  name: 'Comparison Mode',
 };

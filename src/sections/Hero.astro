@@ -2,10 +2,14 @@
 /**
  * Hero Component - WenderMedia Astro Components
  *
- * Full-screen hero with optional GSAP animations, parallax, and CTA
- * Features: scroll indicator, overlay, responsive text sizing
+ * Full-screen hero with optional GSAP animations, parallax, and CTA.
  *
- * @example
+ * Features:
+ * - Three variants: 'default' (background image), 'minimal' (clean centered, no bg), 'tool' (dark gradient + breadcrumb + stats)
+ * - Scroll indicator, overlay, responsive text sizing
+ * - GSAP animations and parallax (default variant)
+ *
+ * @example Default variant with background image
  * <Hero
  *   title="Welcome to Our Agency"
  *   subtitle="Digital Solutions"
@@ -14,6 +18,26 @@
  *   imageAlt="Office workspace"
  *   ctaPrimary={{ label: 'Get Started', href: '/contact' }}
  *   ctaSecondary={{ label: 'Learn More', href: '/about' }}
+ * />
+ *
+ * @example Minimal variant (no background)
+ * <Hero
+ *   variant="minimal"
+ *   title="Build Something Amazing"
+ *   description="Ship faster with our platform."
+ *   ctaPrimary={{ label: 'Start Free', href: '/signup' }}
+ *   minHeight="60vh"
+ * />
+ *
+ * @example Tool variant (dark, breadcrumbs, stats)
+ * <Hero
+ *   variant="tool"
+ *   title="API Documentation"
+ *   subtitle="Developer Tools"
+ *   description="Everything you need to integrate our API."
+ *   breadcrumbs={[{ label: 'Home', href: '/' }, { label: 'Docs', href: '/docs' }, { label: 'API' }]}
+ *   stats={[{ value: '99.9%', label: 'Uptime' }, { value: '<50ms', label: 'Latency' }, { value: '10M+', label: 'Requests/day' }]}
+ *   ctaPrimary={{ label: 'Get API Key', href: '/signup' }}
  * />
  *
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
@@ -25,12 +49,24 @@ export interface CTA {
   href: string;
 }
 
+/** Breadcrumb item for the 'tool' variant */
+export interface BreadcrumbItem {
+  label: string;
+  href?: string;
+}
+
+/** Stat item for the 'tool' variant stats grid */
+export interface StatItem {
+  value: string;
+  label: string;
+}
+
 export interface Props {
   title: string;
   subtitle?: string;
   description?: string;
-  image: string;
-  imageAlt: string;
+  image?: string;
+  imageAlt?: string;
   ctaPrimary?: CTA;
   ctaSecondary?: CTA;
   overlay?: boolean;
@@ -38,6 +74,12 @@ export interface Props {
   scrollIndicator?: boolean;
   scrollLabel?: string;
   minHeight?: string;
+  /** Layout variant: default (background image), 'minimal' (clean centered, no bg), 'tool' (dark gradient, breadcrumb, stats) */
+  variant?: 'default' | 'minimal' | 'tool';
+  /** Breadcrumb trail for the 'tool' variant */
+  breadcrumbs?: BreadcrumbItem[];
+  /** Stats grid displayed below the CTA in the 'tool' variant */
+  stats?: StatItem[];
   class?: string;
 }
 
@@ -46,7 +88,7 @@ const {
   subtitle,
   description,
   image,
-  imageAlt,
+  imageAlt = '',
   ctaPrimary,
   ctaSecondary,
   overlay = true,
@@ -54,10 +96,15 @@ const {
   scrollIndicator = true,
   scrollLabel = 'Scroll',
   minHeight = '100vh',
+  variant = 'default',
+  breadcrumbs = [],
+  stats = [],
   class: className = '',
 } = Astro.props;
 ---
 
+{/* ===== Default variant: full-screen hero with background image ===== */}
+{variant === 'default' && (
 <section
   class:list={["hero relative flex items-center justify-center overflow-hidden", className]}
   style={`min-height: ${minHeight};`}
@@ -84,7 +131,6 @@ const {
   <!-- Content -->
   <div class="relative z-10 container mx-auto px-4 text-center">
     <div class="max-w-5xl mx-auto space-y-8">
-      <!-- Subtitle -->
       {subtitle && (
         <div data-hero-subtitle class="opacity-0">
           <p class="text-sm md:text-base uppercase tracking-widest font-medium opacity-70">
@@ -93,7 +139,6 @@ const {
         </div>
       )}
 
-      <!-- Main Title -->
       <h1
         data-hero-title
         class="text-4xl md:text-6xl lg:text-7xl xl:text-8xl font-bold leading-none tracking-tight opacity-0"
@@ -101,7 +146,6 @@ const {
         {title}
       </h1>
 
-      <!-- Description -->
       {description && (
         <div data-hero-description class="opacity-0">
           <p class="text-lg md:text-xl lg:text-2xl max-w-3xl mx-auto leading-relaxed opacity-80">
@@ -110,7 +154,6 @@ const {
         </div>
       )}
 
-      <!-- CTA Buttons -->
       {(ctaPrimary || ctaSecondary) && (
         <div
           data-hero-cta
@@ -140,7 +183,6 @@ const {
       )}
     </div>
 
-    <!-- Scroll Indicator -->
     {scrollIndicator && (
       <div
         data-hero-scroll
@@ -160,6 +202,171 @@ const {
     )}
   </div>
 </section>
+)}
+
+{/* ===== Minimal variant: clean centered, no background image ===== */}
+{variant === 'minimal' && (
+<section
+  class:list={["hero hero-minimal relative flex items-center justify-center", className]}
+  style={`min-height: ${minHeight};`}
+  data-hero
+>
+  <div class="container mx-auto px-4 text-center">
+    <div class="max-w-3xl mx-auto space-y-6">
+      {subtitle && (
+        <p class="text-sm md:text-base uppercase tracking-widest font-medium text-text-tertiary">
+          {subtitle}
+        </p>
+      )}
+
+      <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight tracking-tight text-text-primary">
+        {title}
+      </h1>
+
+      {description && (
+        <p class="text-lg md:text-xl text-text-secondary max-w-2xl mx-auto leading-relaxed">
+          {description}
+        </p>
+      )}
+
+      {(ctaPrimary || ctaSecondary) && (
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+          {ctaPrimary && (
+            <a
+              href={ctaPrimary.href}
+              class="inline-flex items-center gap-2 px-8 py-4 bg-primary text-white font-semibold rounded-lg hover:opacity-90 transition-all"
+            >
+              {ctaPrimary.label}
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </a>
+          )}
+
+          {ctaSecondary && (
+            <a
+              href={ctaSecondary.href}
+              class="inline-flex items-center gap-2 px-8 py-4 border-2 border-border-default text-text-primary font-semibold rounded-lg hover:bg-background-subtle transition-all"
+            >
+              {ctaSecondary.label}
+            </a>
+          )}
+        </div>
+      )}
+    </div>
+  </div>
+</section>
+)}
+
+{/* ===== Tool variant: dark gradient, breadcrumb, stats grid, scroll indicator ===== */}
+{variant === 'tool' && (
+<section
+  class:list={["hero hero-tool relative flex items-center justify-center overflow-hidden", className]}
+  style={`min-height: ${minHeight};`}
+  data-hero
+>
+  {/* Dark gradient background */}
+  <div class="absolute inset-0 z-0 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900" aria-hidden="true">
+    {/* Subtle grid pattern overlay */}
+    <div class="absolute inset-0 opacity-5" style="background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.3) 1px, transparent 0); background-size: 40px 40px;" />
+  </div>
+
+  <div class="relative z-10 container mx-auto px-4 text-white">
+    {/* Breadcrumb navigation */}
+    {breadcrumbs.length > 0 && (
+      <nav class="mb-8" aria-label="Breadcrumb">
+        <ol class="flex items-center gap-2 text-sm text-gray-400">
+          {breadcrumbs.map((crumb: BreadcrumbItem, i: number) => (
+            <li class="flex items-center gap-2">
+              {i > 0 && (
+                <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              )}
+              {crumb.href ? (
+                <a href={crumb.href} class="hover:text-white transition-colors">{crumb.label}</a>
+              ) : (
+                <span class="text-gray-300">{crumb.label}</span>
+              )}
+            </li>
+          ))}
+        </ol>
+      </nav>
+    )}
+
+    <div class="max-w-4xl space-y-6">
+      {subtitle && (
+        <p class="text-sm uppercase tracking-widest font-medium text-blue-400">
+          {subtitle}
+        </p>
+      )}
+
+      <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight tracking-tight">
+        {title}
+      </h1>
+
+      {description && (
+        <p class="text-lg md:text-xl text-gray-300 max-w-2xl leading-relaxed">
+          {description}
+        </p>
+      )}
+
+      {(ctaPrimary || ctaSecondary) && (
+        <div class="flex flex-col sm:flex-row items-start gap-4 pt-2">
+          {ctaPrimary && (
+            <a
+              href={ctaPrimary.href}
+              class="inline-flex items-center gap-2 px-8 py-4 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-500 transition-all"
+            >
+              {ctaPrimary.label}
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </a>
+          )}
+
+          {ctaSecondary && (
+            <a
+              href={ctaSecondary.href}
+              class="inline-flex items-center gap-2 px-8 py-4 border-2 border-gray-600 text-gray-300 font-semibold rounded-lg hover:border-gray-400 hover:text-white transition-all"
+            >
+              {ctaSecondary.label}
+            </a>
+          )}
+        </div>
+      )}
+
+      {/* Stats grid */}
+      {stats.length > 0 && (
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 pt-8 mt-8 border-t border-gray-700/50">
+          {stats.map((stat: StatItem) => (
+            <div class="text-center md:text-left">
+              <div class="text-2xl md:text-3xl font-bold text-white">{stat.value}</div>
+              <div class="text-sm text-gray-400 mt-1">{stat.label}</div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+
+    {/* Scroll indicator */}
+    {scrollIndicator && (
+      <div class="absolute bottom-8 left-1/2 -translate-x-1/2">
+        <button
+          class="flex flex-col items-center gap-2 text-gray-500 hover:text-gray-300 transition-colors animate-bounce"
+          aria-label="Scroll to see more"
+          data-scroll-to-content
+        >
+          <span class="text-xs uppercase tracking-wider">{scrollLabel}</span>
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+          </svg>
+        </button>
+      </div>
+    )}
+  </div>
+</section>
+)}
 
 <script>
   async function initHero() {

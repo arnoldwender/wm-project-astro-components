@@ -10,6 +10,7 @@
  * - Lazy loading with native browser support
  * - Priority loading for LCP images
  * - Blur-up placeholder option
+ * - Progressive LQIP (Low Quality Image Placeholder) with blur-up crossfade
  * - Aspect ratio preservation
  * - Art direction support
  * - Reduced motion support for animations
@@ -31,6 +32,16 @@
  *   alt="Product"
  *   aspectRatio="4/3"
  * />
+ *
+ * @example Blur-up LQIP progressive loading
+ * <OptimizedImage
+ *   src="/images/hero.jpg"
+ *   alt="Hero"
+ *   blurUp
+ *   blurDataUrl="data:image/jpeg;base64,/9j/4AAQ..."
+ *   width={1200}
+ *   height={630}
+ * />
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */
@@ -50,6 +61,10 @@ export interface Props {
   // Placeholder
   placeholder?: 'blur' | 'none';
   blurDataURL?: string;
+  /** Enable progressive blur-up LQIP loading: show a tiny blurred image first, then crossfade */
+  blurUp?: boolean;
+  /** Base64-encoded tiny image (e.g. 20x20px) used as the LQIP source when blurUp=true */
+  blurDataUrl?: string;
   // Layout
   aspectRatio?: string;
   objectFit?: 'contain' | 'cover' | 'fill' | 'none' | 'scale-down';
@@ -72,6 +87,8 @@ const {
   avifSrc,
   placeholder = 'none',
   blurDataURL,
+  blurUp = false,
+  blurDataUrl,
   aspectRatio,
   objectFit = 'cover',
   objectPosition = 'center',
@@ -109,9 +126,13 @@ const fallbackSrcset = generateSrcset(src);
 const avifSrcset = avifSource ? generateSrcset(avifSource) : undefined;
 const webpSrcset = webpSource ? generateSrcset(webpSource) : undefined;
 
+// Resolve LQIP source: blurUp mode uses blurDataUrl, legacy placeholder uses blurDataURL
+const resolvedLqipSrc = blurUp ? blurDataUrl : blurDataURL;
+const hasBlurPlaceholder = (placeholder === 'blur' && blurDataURL) || blurUp;
+
 // Blur placeholder styling
-const blurStyle = placeholder === 'blur' && blurDataURL
-  ? `background-image: url(${blurDataURL}); background-size: cover;`
+const blurStyle = hasBlurPlaceholder && resolvedLqipSrc
+  ? `background-image: url(${resolvedLqipSrc}); background-size: cover;`
   : '';
 
 // Aspect ratio styling
@@ -122,7 +143,8 @@ const containerStyle = [blurStyle, aspectStyle].filter(Boolean).join(' ');
 <picture
   class:list={[
     'optimized-image',
-    placeholder === 'blur' && 'has-placeholder',
+    hasBlurPlaceholder && 'has-placeholder',
+    blurUp && 'blur-up',
     className,
   ]}
   style={containerStyle || undefined}
@@ -167,9 +189,9 @@ const containerStyle = [blurStyle, aspectStyle].filter(Boolean).join(' ');
       imgClass,
     ]}
     style={`object-fit: ${objectFit}; object-position: ${objectPosition};`}
-    data-placeholder={placeholder}
+    data-placeholder={blurUp ? 'blur-up' : placeholder}
     data-priority={priority ? 'high' : undefined}
-    onload={placeholder === 'blur' ? "this.parentElement.classList.add('loaded')" : undefined}
+    onload={hasBlurPlaceholder ? "this.parentElement.classList.add('loaded')" : undefined}
   />
 </picture>
 
@@ -212,20 +234,54 @@ const containerStyle = [blurStyle, aspectStyle].filter(Boolean).join(' ');
     opacity: 0;
   }
 
- * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
- * @see https://github.com/arnoldwender/wm-project-astro-components
+  /* --- Blur-up LQIP mode ---
+   * Shows the tiny base64 image with blur(20px), then crossfades to the
+   * full-resolution image once it has loaded. */
+  .optimized-image.blur-up .optimized-image-img {
+    opacity: 0;
+    filter: blur(0);
+    transition:
+      opacity var(--duration-500, 500ms) var(--ease-out, ease-out),
+      filter var(--duration-500, 500ms) var(--ease-out, ease-out);
+  }
+
+  .optimized-image.blur-up::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: inherit;
+    background-size: cover;
+    filter: blur(20px);
+    transform: scale(1.1); /* prevent blurred edges showing */
+    transition: opacity var(--duration-500, 500ms) var(--ease-out, ease-out);
+  }
+
+  .optimized-image.blur-up.loaded .optimized-image-img {
+    opacity: 1;
+    filter: blur(0);
+  }
+
+  .optimized-image.blur-up.loaded::before {
+    opacity: 0;
+  }
+
   /* Reduced motion */
   @media (prefers-reduced-motion: reduce) {
     .optimized-image.has-placeholder .optimized-image-img,
-    .optimized-image.has-placeholder::before {
+    .optimized-image.has-placeholder::before,
+    .optimized-image.blur-up .optimized-image-img,
+    .optimized-image.blur-up::before {
       transition: none;
     }
 
-    .optimized-image.has-placeholder .optimized-image-img {
+    .optimized-image.has-placeholder .optimized-image-img,
+    .optimized-image.blur-up .optimized-image-img {
       opacity: 1;
+      filter: none;
     }
 
-    .optimized-image.has-placeholder::before {
+    .optimized-image.has-placeholder::before,
+    .optimized-image.blur-up::before {
       display: none;
     }
   }
