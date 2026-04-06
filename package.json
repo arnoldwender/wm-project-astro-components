@@ -1,5 +1,5 @@
 {
-  "name": "wm-project-astro-components",
+  "name": "@wendermedia/astro-components",
   "version": "2.0.0",
   "description": "Complete Astro development resource - components, bundles, integrations, and utilities",
   "type": "module",
