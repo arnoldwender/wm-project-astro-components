@@ -257,6 +257,12 @@ export { default as CaseStudySection } from './CaseStudySection.astro';
 // News Ticker Sections
 export { default as NewsTickerSection } from './NewsTickerSection.astro';
 
+// Trust Bar Section
+export { default as TrustBar } from './TrustBar.astro';
+
+// Top Bar Section
+export { default as TopBar } from './TopBar.astro';
+
 // Types - Layout
 export type { Props as MasonryGridProps } from './MasonryGrid.astro';
 export type { Props as SidebarLayoutProps } from './SidebarLayout.astro';
@@ -288,3 +294,9 @@ export type { Props as CaseStudySectionProps, CaseStudy } from './CaseStudySecti
 
 // Types - News Ticker
 export type { Props as NewsTickerSectionProps, TickerItem } from './NewsTickerSection.astro';
+
+// Types - Trust Bar
+export type { Props as TrustBarProps, TrustItem } from './TrustBar.astro';
+
+// Types - Top Bar
+export type { Props as TopBarProps, SocialLink as TopBarSocialLink } from './TopBar.astro';
