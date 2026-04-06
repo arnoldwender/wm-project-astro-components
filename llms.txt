@@ -11,24 +11,25 @@
 - Style Dictionary (Design tokens)
 - Changesets (Versioning)
 
-## Component Categories
+## Component Categories (17)
 
-- `src/layout/` — Header, Footer, Container, Grid, Section
-- `src/seo/` — SEOHead, SchemaOrg, Canonical, RichSnippets, Sitemap
-- `src/accessibility/` — CookieConsent, SkipToContent, FontResizer, ThemeToggle, BackToTop
-- `src/navigation/` — Breadcrumbs, Pagination, TableOfContents, ScrollToTop
-- `src/sections/` — Hero and other section components (68 components)
-- `src/content/` — Accordion, Tabs, Modal
-- `src/ecommerce/` — Cart, Wishlist, ProductCard, ProductQuickView, AddToCartButton
-- `src/media/` — VideoPlayer, AudioPlayer, ImageGallery
-- `src/forms/` — ContactForm
-- `src/gallery/` — BeforeAfter slider
-- `src/ui/` — UI primitives (19 components)
-- `src/images/` — OptimizedImage
-- `src/products/` — Product cards
-- `src/maps/` — Map components
-- `src/social/` — Social sharing
-- `src/design-system/` — Base styles, tokens, utilities
+- `src/ui/` (21) — Modal, Tabs, Badge, Toast, Accordion, ProgressTracker, StatCard, CommandPalette, Drawer, Dropdown, Skeleton, Progress, Tooltip
+- `src/sections/` (70+) — Hero, CTA, Pricing, Team, FAQ, Testimonials, TrustBar, TopBar, Timeline, Stats, Blog, Gallery, Contact, Newsletter, Awards, Careers
+- `src/layouts/` (15) — Bento, Magazine, Dashboard, Portfolio, Newspaper, Docs, Split, Article, Landing, HeroLayout, ProductGrid
+- `src/accessibility/` (12) — SkipLinks, ThemeToggle, FocusTrap, FontResizer, AccessibilityToolbar, LanguageSwitcher, TextToSpeech, ScreenReaderOnly, LiveRegion
+- `src/seo/` (9) — SEO, OpenGraph, TwitterCard, JsonLD, RichSnippets, TitleTagEditor, HreflangTags, CanonicalURL, Breadcrumbs
+- `src/ecommerce/` (5) — Cart, ProductCard, Wishlist, ProductQuickView, AddToCartButton
+- `src/content/` (5) — ReadingProgress, ShareBar, TableOfContents, RelatedContent, ReadingTime
+- `src/navigation/` (5) — Breadcrumbs, Pagination, MobileNav, Sidebar, AccessibleLoadMore
+- `src/forms/` (3) — ContactForm, Contact, Newsletter
+- `src/media/` (3) — VideoPlayer, AudioPlayer, ImageGallery
+- `src/layout/` (2) — Header, Footer
+- `src/maps/` (2) — GoogleMap (GDPR), OpenStreetMap
+- `src/social/` (2) — SocialShare, SocialFollow
+- `src/design-system/` (1) — DesignSystemProvider with CSS custom property tokens
+- `src/gallery/` (1) — BeforeAfter image comparison slider
+- `src/images/` (1) — OptimizedImage with blur-up LQIP
+- `src/products/` (1) — ProductCard (affiliate)
 
 ## Additional Features
 

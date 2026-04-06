@@ -5,7 +5,7 @@
  * @package @wendermedia/astro-components
  * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
  * @see https://github.com/arnoldwender/wm-project-astro-components
- * @version 2.0.0
+ * @version 2.1.0
  */
 
 // ============================================================================
