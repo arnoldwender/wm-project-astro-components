@@ -155,15 +155,18 @@ All 150 components contain only:
 
 ---
 
-## Remaining Steps (Manual)
+## Completed Deployment Steps
 
-1. **GitHub repository visibility**: Change from private to public via GitHub Settings
-2. **npm publish**: Run `npm publish` to publish to npm registry
-3. **GitHub Sponsors**: Set up at github.com/sponsors/arnoldwender (optional)
-4. **GitHub Topics**: Add topics: `astro`, `components`, `accessibility`, `gdpr`, `design-system`
-5. **GitHub Description**: Update to "150+ production-ready, accessible, GDPR-compliant Astro components"
-6. **Social announcement**: Share on X, LinkedIn, Dev.to, etc.
-7. **Storybook deployment**: Deploy to a public URL for interactive docs (e.g., Netlify/Vercel)
+1. **GitHub repository visibility**: Public (completed 2026-04-06)
+2. **npm publish**: Published as `@wendermedia/astro-components@2.0.0` (completed 2026-04-06)
+3. **GitHub Topics**: Added astro, components, accessibility, gdpr, design-system, typescript, wcag, astro-components, design-tokens, seo
+4. **GitHub Description**: Updated
+5. **Storybook deployment**: Live at https://wm-astro-components.netlify.app (150 stories)
+
+## Remaining Steps (Optional)
+
+1. **GitHub Sponsors**: Set up at github.com/sponsors/arnoldwender
+2. **Social announcement**: Share on X, LinkedIn, Dev.to, etc.
 
 ---
 
@@ -181,9 +184,10 @@ All 150 components contain only:
 - [x] No secrets, credentials, or PII in codebase
 - [x] No client-specific data
 - [x] .gitignore excludes sensitive files
-- [ ] Change GitHub repo to public (manual step)
-- [ ] Publish to npm (manual step)
+- [x] Change GitHub repo to public (completed 2026-04-06)
+- [x] Publish to npm as @wendermedia/astro-components (completed 2026-04-06)
+- [x] Storybook deployed to https://wm-astro-components.netlify.app (150 stories)
 
 ---
 
-*Report generated on 2026-04-05 for the open-source release of @wendermedia/astro-components v2.0.0*
+*Report generated on 2026-04-05, updated 2026-04-06 after full public release of @wendermedia/astro-components v2.0.0*
