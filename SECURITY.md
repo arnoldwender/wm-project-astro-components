@@ -17,7 +17,7 @@ We take security seriously. If you discover a security vulnerability, please rep
 
 **Please DO NOT create public GitHub issues for security vulnerabilities.**
 
-1. **Email**: arnold.wender@gmail.com
+1. **Email**: info@wendermedia.com
 2. **Subject**: `[SECURITY] Brief description of the issue`
 
 ### What to Include
@@ -60,7 +60,7 @@ We monitor dependencies for known vulnerabilities:
 
 ## Contact
 
-**Email**: arnold.wender@gmail.com
+**Email**: info@wendermedia.com
 **Website**: https://www.wendermedia.com
 
 ---

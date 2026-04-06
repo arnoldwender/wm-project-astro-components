@@ -92,7 +92,7 @@
     "wordpress",
     "headless-cms"
   ],
-  "author": "Arnold Wender <arnold.wender@gmail.com>",
+  "author": "Arnold Wender <info@wendermedia.com> (https://www.wendermedia.com)",
   "license": "MIT",
   "homepage": "https://github.com/arnoldwender/wm-project-astro-components#readme",
   "repository": {

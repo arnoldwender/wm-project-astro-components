@@ -225,7 +225,7 @@ Output formats:
 ## Questions?
 
 - Open an [issue](https://github.com/arnoldwender/wm-project-astro-components/issues)
-- Email: arnold.wender@gmail.com
+- Email: info@wendermedia.com
 - Website: [wendermedia.com](https://www.wendermedia.com)
 
 ## License
