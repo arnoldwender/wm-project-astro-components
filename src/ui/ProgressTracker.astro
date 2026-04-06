@@ -1,0 +1,517 @@
+---
+/**
+ * ProgressTracker Component - WenderMedia Astro Components
+ *
+ * Multi-step progress indicator for checkout flows, wizards, and onboarding.
+ * Displays steps with their completion status and connecting lines.
+ *
+ * Features:
+ * - Horizontal and vertical orientation
+ * - Three variants (dots, numbers, icons)
+ * - Three sizes (sm, md, lg)
+ * - Step status tracking (completed, current, upcoming)
+ * - Animated connecting lines with progress fill
+ * - aria-current="step" on active step for screen readers
+ * - Full keyboard navigation support
+ * - Dark mode support
+ * - Reduced motion support
+ *
+ * @example
+ * <ProgressTracker
+ *   steps={[
+ *     { label: "Cart", status: "completed" },
+ *     { label: "Shipping", status: "current" },
+ *     { label: "Payment", status: "upcoming" },
+ *     { label: "Confirm", status: "upcoming" },
+ *   ]}
+ * />
+ *
+ * @example
+ * <ProgressTracker steps={steps} orientation="vertical" variant="numbers" size="lg" />
+ *
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
+ */
+
+export interface Step {
+  /** Step label text */
+  label: string;
+  /** Optional step description */
+  description?: string;
+  /** Completion status of this step */
+  status: 'completed' | 'current' | 'upcoming';
+}
+
+export interface Props {
+  /** Array of step definitions */
+  steps: Step[];
+  /** Layout orientation */
+  orientation?: 'horizontal' | 'vertical';
+  /** Visual variant for step indicators */
+  variant?: 'dots' | 'numbers' | 'icons';
+  /** Component size */
+  size?: 'sm' | 'md' | 'lg';
+  /** Additional CSS classes */
+  class?: string;
+}
+
+const {
+  steps = [],
+  orientation = 'horizontal',
+  variant = 'dots',
+  size = 'md',
+  class: className = '',
+} = Astro.props;
+
+/* Determine current step index for aria-valuenow */
+const currentIndex = steps.findIndex((s) => s.status === 'current');
+const completedCount = steps.filter((s) => s.status === 'completed').length;
+---
+
+<nav
+  class:list={[
+    'progress-tracker',
+    `progress-tracker--${orientation}`,
+    `progress-tracker--${variant}`,
+    `progress-tracker--${size}`,
+    className,
+  ]}
+  aria-label="Progress"
+  data-progress-tracker
+>
+  <ol class="progress-tracker__list" role="list">
+    {steps.map((step, index) => (
+      <li
+        class:list={[
+          'progress-tracker__step',
+          `progress-tracker__step--${step.status}`,
+        ]}
+        aria-current={step.status === 'current' ? 'step' : undefined}
+      >
+        {/* Connecting line (not for the first step) */}
+        {index > 0 && (
+          <span
+            class:list={[
+              'progress-tracker__connector',
+              step.status === 'completed' || step.status === 'current'
+                ? 'progress-tracker__connector--filled'
+                : '',
+            ]}
+            aria-hidden="true"
+          >
+            <span class="progress-tracker__connector-fill" />
+          </span>
+        )}
+
+        {/* Step indicator (dot, number, or icon) */}
+        <span class="progress-tracker__indicator" aria-hidden="true">
+          {variant === 'numbers' && (
+            <span class="progress-tracker__number">
+              {step.status === 'completed' ? (
+                <svg class="progress-tracker__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 6L9 17l-5-5" />
+                </svg>
+              ) : (
+                index + 1
+              )}
+            </span>
+          )}
+          {variant === 'dots' && (
+            <span class="progress-tracker__dot">
+              {step.status === 'completed' && (
+                <svg class="progress-tracker__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 6L9 17l-5-5" />
+                </svg>
+              )}
+            </span>
+          )}
+          {variant === 'icons' && (
+            <span class="progress-tracker__icon-wrapper">
+              {step.status === 'completed' ? (
+                <svg class="progress-tracker__check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 6L9 17l-5-5" />
+                </svg>
+              ) : step.status === 'current' ? (
+                <span class="progress-tracker__pulse" />
+              ) : (
+                <span class="progress-tracker__empty-circle" />
+              )}
+            </span>
+          )}
+        </span>
+
+        {/* Step text content */}
+        <span class="progress-tracker__content">
+          <span class="progress-tracker__label">{step.label}</span>
+          {step.description && (
+            <span class="progress-tracker__description">{step.description}</span>
+          )}
+        </span>
+      </li>
+    ))}
+  </ol>
+
+  {/* Hidden live region for screen readers */}
+  <span class="sr-only" aria-live="polite">
+    Step {currentIndex + 1} of {steps.length}: {steps[currentIndex >= 0 ? currentIndex : 0]?.label}
+  </span>
+</nav>
+
+<style>
+  /* === Screen reader only utility === */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  /* === Base layout === */
+  .progress-tracker {
+    width: 100%;
+  }
+
+  .progress-tracker__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+  }
+
+  /* === Horizontal orientation === */
+  .progress-tracker--horizontal .progress-tracker__list {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+
+  .progress-tracker--horizontal .progress-tracker__step {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    text-align: center;
+  }
+
+  .progress-tracker--horizontal .progress-tracker__connector {
+    position: absolute;
+    top: var(--tracker-indicator-center);
+    left: calc(-50% + var(--tracker-indicator-half));
+    right: calc(50% + var(--tracker-indicator-half));
+    height: 2px;
+    background: var(--color-border, #e2e8f0);
+    z-index: 0;
+  }
+
+  .progress-tracker--horizontal .progress-tracker__connector-fill {
+    display: block;
+    height: 100%;
+    width: 0%;
+    background: var(--color-primary, #3b82f6);
+    transition: width var(--transition-base, 300ms ease);
+  }
+
+  .progress-tracker--horizontal .progress-tracker__connector--filled .progress-tracker__connector-fill {
+    width: 100%;
+  }
+
+  /* === Vertical orientation === */
+  .progress-tracker--vertical .progress-tracker__list {
+    flex-direction: column;
+  }
+
+  .progress-tracker--vertical .progress-tracker__step {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    position: relative;
+    padding-bottom: var(--space-lg, 1.5rem);
+  }
+
+  .progress-tracker--vertical .progress-tracker__step:last-child {
+    padding-bottom: 0;
+  }
+
+  .progress-tracker--vertical .progress-tracker__connector {
+    position: absolute;
+    left: var(--tracker-indicator-center);
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--color-border, #e2e8f0);
+    z-index: 0;
+    transform: translateX(-50%);
+  }
+
+  .progress-tracker--vertical .progress-tracker__connector-fill {
+    display: block;
+    width: 100%;
+    height: 0%;
+    background: var(--color-primary, #3b82f6);
+    transition: height var(--transition-base, 300ms ease);
+  }
+
+  .progress-tracker--vertical .progress-tracker__connector--filled .progress-tracker__connector-fill {
+    height: 100%;
+  }
+
+  .progress-tracker--vertical .progress-tracker__content {
+    margin-left: var(--space-md, 1rem);
+    text-align: left;
+  }
+
+  /* === Indicator base === */
+  .progress-tracker__indicator {
+    position: relative;
+    z-index: 1;
+    flex-shrink: 0;
+  }
+
+  /* === Size tokens — sm === */
+  .progress-tracker--sm {
+    --tracker-indicator-size: 1.5rem;
+    --tracker-indicator-center: 0.75rem;
+    --tracker-indicator-half: 0.75rem;
+    --tracker-font-label: var(--font-size-xs, 0.75rem);
+    --tracker-font-desc: var(--font-size-xs, 0.75rem);
+    --tracker-font-number: var(--font-size-xs, 0.75rem);
+    --tracker-check-size: 0.75rem;
+  }
+
+  /* === Size tokens — md === */
+  .progress-tracker--md {
+    --tracker-indicator-size: 2rem;
+    --tracker-indicator-center: 1rem;
+    --tracker-indicator-half: 1rem;
+    --tracker-font-label: var(--font-size-sm, 0.875rem);
+    --tracker-font-desc: var(--font-size-xs, 0.75rem);
+    --tracker-font-number: var(--font-size-sm, 0.875rem);
+    --tracker-check-size: 1rem;
+  }
+
+  /* === Size tokens — lg === */
+  .progress-tracker--lg {
+    --tracker-indicator-size: 2.75rem;
+    --tracker-indicator-center: 1.375rem;
+    --tracker-indicator-half: 1.375rem;
+    --tracker-font-label: var(--font-size-base, 1rem);
+    --tracker-font-desc: var(--font-size-sm, 0.875rem);
+    --tracker-font-number: var(--font-size-base, 1rem);
+    --tracker-check-size: 1.25rem;
+  }
+
+  /* === Dot indicator === */
+  .progress-tracker__dot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--tracker-indicator-size);
+    height: var(--tracker-indicator-size);
+    border-radius: var(--radius-full, 9999px);
+    border: 2px solid var(--color-border, #e2e8f0);
+    background: var(--color-bg, #ffffff);
+    transition: background-color var(--transition-base, 300ms ease),
+                border-color var(--transition-base, 300ms ease);
+  }
+
+  .progress-tracker__step--completed .progress-tracker__dot {
+    background: var(--color-primary, #3b82f6);
+    border-color: var(--color-primary, #3b82f6);
+    color: #ffffff;
+  }
+
+  .progress-tracker__step--current .progress-tracker__dot {
+    border-color: var(--color-primary, #3b82f6);
+    background: var(--color-bg, #ffffff);
+    box-shadow: 0 0 0 3px var(--color-primary-muted, rgba(59, 130, 246, 0.2));
+  }
+
+  /* === Number indicator === */
+  .progress-tracker__number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--tracker-indicator-size);
+    height: var(--tracker-indicator-size);
+    border-radius: var(--radius-full, 9999px);
+    border: 2px solid var(--color-border, #e2e8f0);
+    background: var(--color-bg, #ffffff);
+    font-size: var(--tracker-font-number);
+    font-weight: var(--font-weight-bold, 700);
+    color: var(--color-text-light, #64748b);
+    transition: background-color var(--transition-base, 300ms ease),
+                border-color var(--transition-base, 300ms ease),
+                color var(--transition-base, 300ms ease);
+  }
+
+  .progress-tracker__step--completed .progress-tracker__number {
+    background: var(--color-primary, #3b82f6);
+    border-color: var(--color-primary, #3b82f6);
+    color: #ffffff;
+  }
+
+  .progress-tracker__step--current .progress-tracker__number {
+    border-color: var(--color-primary, #3b82f6);
+    color: var(--color-primary, #3b82f6);
+    box-shadow: 0 0 0 3px var(--color-primary-muted, rgba(59, 130, 246, 0.2));
+  }
+
+  /* === Icon indicator === */
+  .progress-tracker__icon-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--tracker-indicator-size);
+    height: var(--tracker-indicator-size);
+    border-radius: var(--radius-full, 9999px);
+    border: 2px solid var(--color-border, #e2e8f0);
+    background: var(--color-bg, #ffffff);
+    transition: background-color var(--transition-base, 300ms ease),
+                border-color var(--transition-base, 300ms ease);
+  }
+
+  .progress-tracker__step--completed .progress-tracker__icon-wrapper {
+    background: var(--color-primary, #3b82f6);
+    border-color: var(--color-primary, #3b82f6);
+    color: #ffffff;
+  }
+
+  .progress-tracker__step--current .progress-tracker__icon-wrapper {
+    border-color: var(--color-primary, #3b82f6);
+    box-shadow: 0 0 0 3px var(--color-primary-muted, rgba(59, 130, 246, 0.2));
+  }
+
+  /* Pulse dot for current step in icon variant */
+  .progress-tracker__pulse {
+    display: block;
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-full, 9999px);
+    background: var(--color-primary, #3b82f6);
+    animation: pulse-ring 2s ease-in-out infinite;
+  }
+
+  .progress-tracker__empty-circle {
+    display: block;
+    width: 8px;
+    height: 8px;
+    border-radius: var(--radius-full, 9999px);
+    background: var(--color-border, #e2e8f0);
+  }
+
+  @keyframes pulse-ring {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.4); }
+  }
+
+  /* === Checkmark icon === */
+  .progress-tracker__check {
+    width: var(--tracker-check-size);
+    height: var(--tracker-check-size);
+  }
+
+  /* === Text content === */
+  .progress-tracker__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs, 0.25rem);
+    margin-top: var(--space-sm, 0.5rem);
+  }
+
+  .progress-tracker--vertical .progress-tracker__content {
+    margin-top: 0;
+    padding-top: 0.25rem;
+  }
+
+  .progress-tracker__label {
+    font-size: var(--tracker-font-label);
+    font-weight: var(--font-weight-medium, 500);
+    color: var(--color-text-light, #64748b);
+    line-height: var(--line-height-tight, 1.2);
+    transition: color var(--transition-fast, 150ms ease);
+  }
+
+  .progress-tracker__step--completed .progress-tracker__label,
+  .progress-tracker__step--current .progress-tracker__label {
+    color: var(--color-text, #1a1a2e);
+    font-weight: var(--font-weight-bold, 700);
+  }
+
+  .progress-tracker__description {
+    font-size: var(--tracker-font-desc);
+    color: var(--color-text-light, #64748b);
+    line-height: var(--line-height-base, 1.5);
+  }
+
+  /* === Dark mode === */
+  @media (prefers-color-scheme: dark) {
+    .progress-tracker__dot,
+    .progress-tracker__number,
+    .progress-tracker__icon-wrapper {
+      background: var(--color-bg, #1e293b);
+      border-color: var(--color-border, #475569);
+    }
+
+    .progress-tracker__step--completed .progress-tracker__dot,
+    .progress-tracker__step--completed .progress-tracker__number,
+    .progress-tracker__step--completed .progress-tracker__icon-wrapper {
+      background: var(--color-primary, #3b82f6);
+      border-color: var(--color-primary, #3b82f6);
+    }
+
+    .progress-tracker__step--current .progress-tracker__dot,
+    .progress-tracker__step--current .progress-tracker__number,
+    .progress-tracker__step--current .progress-tracker__icon-wrapper {
+      border-color: var(--color-primary, #3b82f6);
+    }
+
+    .progress-tracker__number {
+      color: var(--color-text-light, #94a3b8);
+    }
+
+    .progress-tracker__step--current .progress-tracker__number {
+      color: var(--color-primary, #3b82f6);
+    }
+
+    .progress-tracker__label {
+      color: var(--color-text-light, #94a3b8);
+    }
+
+    .progress-tracker__step--completed .progress-tracker__label,
+    .progress-tracker__step--current .progress-tracker__label {
+      color: var(--color-text, #f1f5f9);
+    }
+
+    .progress-tracker__description {
+      color: var(--color-text-light, #94a3b8);
+    }
+
+    .progress-tracker__connector {
+      background: var(--color-border, #475569);
+    }
+
+    .progress-tracker__empty-circle {
+      background: var(--color-border, #475569);
+    }
+  }
+
+  /* === Reduced motion === */
+  @media (prefers-reduced-motion: reduce) {
+    .progress-tracker__dot,
+    .progress-tracker__number,
+    .progress-tracker__icon-wrapper,
+    .progress-tracker__connector-fill,
+    .progress-tracker__label {
+      transition: none;
+    }
+
+    .progress-tracker__pulse {
+      animation: none;
+    }
+  }
+</style>

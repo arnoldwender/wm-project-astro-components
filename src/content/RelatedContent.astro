@@ -1,0 +1,391 @@
+---
+/**
+ * RelatedContent Component - WenderMedia Astro Components
+ *
+ * Internal linking grid for SEO topic clustering. Displays related
+ * content cards to strengthen site architecture and improve internal linking.
+ *
+ * Features:
+ * - Grid of related content cards with title, description, category badge, and icon
+ * - Three display variants (cards, list, minimal)
+ * - Configurable column count (2, 3, or 4)
+ * - Schema.org ItemList structured data for SEO
+ * - Dark mode support
+ * - Fully accessible with semantic HTML
+ * - Responsive layout with mobile-first design
+ *
+ * @example
+ * <RelatedContent
+ *   heading="Related Articles"
+ *   items={[
+ *     { title: "Getting Started", description: "Learn the basics", href: "/guides/start", category: "Guide" },
+ *     { title: "Advanced Tips", description: "Deep dive into features", href: "/guides/advanced", category: "Tutorial", icon: "📚" },
+ *   ]}
+ * />
+ *
+ * @example
+ * <RelatedContent items={items} variant="list" columns={2} />
+ *
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
+ */
+
+export interface RelatedItem {
+  /** Card title */
+  title: string;
+  /** Short description text */
+  description: string;
+  /** Link URL for the card */
+  href: string;
+  /** Category label displayed as badge */
+  category: string;
+  /** Optional icon (emoji or text) displayed before the title */
+  icon?: string;
+}
+
+export interface Props {
+  /** Array of related content items */
+  items: RelatedItem[];
+  /** Number of grid columns */
+  columns?: 2 | 3 | 4;
+  /** Display variant */
+  variant?: 'cards' | 'list' | 'minimal';
+  /** Section heading text */
+  heading?: string;
+  /** Additional CSS classes */
+  class?: string;
+}
+
+const {
+  items = [],
+  columns = 3,
+  variant = 'cards',
+  heading = 'Related Content',
+  class: className = '',
+} = Astro.props;
+
+/* Schema.org ItemList for SEO structured data */
+const schemaData = {
+  '@context': 'https://schema.org',
+  '@type': 'ItemList',
+  name: heading,
+  numberOfItems: items.length,
+  itemListElement: items.map((item, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    name: item.title,
+    url: new URL(item.href, Astro.site || Astro.url).href,
+    description: item.description,
+  })),
+};
+---
+
+<section
+  class:list={[
+    'related-content',
+    `related-content--${variant}`,
+    `related-content--cols-${columns}`,
+    className,
+  ]}
+  aria-labelledby="related-content-heading"
+  data-related-content
+>
+  {/* Section heading */}
+  <h2 id="related-content-heading" class="related-content__heading">
+    {heading}
+  </h2>
+
+  {/* Content grid/list */}
+  <div class="related-content__grid" role="list">
+    {items.map((item) => (
+      <article class="related-content__item" role="listitem">
+        <a href={item.href} class="related-content__link">
+          {/* Category badge */}
+          <span class="related-content__category">{item.category}</span>
+
+          {/* Title row with optional icon */}
+          <h3 class="related-content__title">
+            {item.icon && (
+              <span class="related-content__icon" aria-hidden="true">{item.icon}</span>
+            )}
+            <span>{item.title}</span>
+          </h3>
+
+          {/* Description — hidden in minimal variant via CSS */}
+          {variant !== 'minimal' && (
+            <p class="related-content__description">{item.description}</p>
+          )}
+
+          {/* Arrow indicator for navigation affordance */}
+          <span class="related-content__arrow" aria-hidden="true">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14" />
+              <path d="m12 5 7 7-7 7" />
+            </svg>
+          </span>
+        </a>
+      </article>
+    ))}
+  </div>
+
+  {/* Schema.org structured data */}
+  <script type="application/ld+json" set:html={JSON.stringify(schemaData)} />
+</section>
+
+<style>
+  /* === Base section styles === */
+  .related-content {
+    width: 100%;
+  }
+
+  /* === Heading === */
+  .related-content__heading {
+    font-size: var(--font-size-xl, 1.5rem);
+    font-weight: var(--font-weight-bold, 700);
+    color: var(--color-text, #1a1a2e);
+    margin-bottom: var(--space-lg, 1.5rem);
+    line-height: var(--line-height-tight, 1.2);
+  }
+
+  /* === Grid layout === */
+  .related-content__grid {
+    display: grid;
+    gap: var(--space-md, 1rem);
+  }
+
+  /* Column variants — mobile-first single column */
+  .related-content--cols-2 .related-content__grid {
+    grid-template-columns: 1fr;
+  }
+  .related-content--cols-3 .related-content__grid {
+    grid-template-columns: 1fr;
+  }
+  .related-content--cols-4 .related-content__grid {
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 640px) {
+    .related-content--cols-2 .related-content__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .related-content--cols-3 .related-content__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .related-content--cols-4 .related-content__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .related-content--cols-3 .related-content__grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    .related-content--cols-4 .related-content__grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  /* === Cards variant === */
+  .related-content--cards .related-content__link {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm, 0.5rem);
+    padding: var(--space-lg, 1.5rem);
+    background: var(--color-bg, #ffffff);
+    border: 1px solid var(--color-border, #e2e8f0);
+    border-radius: var(--radius-lg, 1rem);
+    text-decoration: none;
+    color: inherit;
+    transition: box-shadow var(--transition-base, 300ms ease),
+                border-color var(--transition-base, 300ms ease),
+                transform var(--transition-base, 300ms ease);
+    height: 100%;
+  }
+
+  .related-content--cards .related-content__link:hover {
+    box-shadow: var(--shadow-md, 0 4px 6px rgba(0, 0, 0, 0.1));
+    border-color: var(--color-primary, #3b82f6);
+    transform: translateY(-2px);
+  }
+
+  .related-content--cards .related-content__link:focus-visible {
+    outline: 2px solid var(--color-primary, #3b82f6);
+    outline-offset: 2px;
+  }
+
+  /* === List variant === */
+  .related-content--list .related-content__grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .related-content--list .related-content__link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md, 1rem);
+    padding: var(--space-md, 1rem) var(--space-lg, 1.5rem);
+    border-bottom: 1px solid var(--color-border, #e2e8f0);
+    text-decoration: none;
+    color: inherit;
+    transition: background-color var(--transition-fast, 150ms ease);
+  }
+
+  .related-content--list .related-content__link:hover {
+    background: var(--color-bg-alt, #f8fafc);
+  }
+
+  .related-content--list .related-content__link:focus-visible {
+    outline: 2px solid var(--color-primary, #3b82f6);
+    outline-offset: -2px;
+  }
+
+  .related-content--list .related-content__item:first-child .related-content__link {
+    border-top: 1px solid var(--color-border, #e2e8f0);
+  }
+
+  .related-content--list .related-content__description {
+    flex: 1;
+    margin: 0;
+  }
+
+  .related-content--list .related-content__title {
+    min-width: max-content;
+  }
+
+  /* === Minimal variant === */
+  .related-content--minimal .related-content__link {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm, 0.5rem);
+    padding: var(--space-sm, 0.5rem) var(--space-md, 1rem);
+    text-decoration: none;
+    color: inherit;
+    border-radius: var(--radius-md, 0.5rem);
+    transition: background-color var(--transition-fast, 150ms ease);
+  }
+
+  .related-content--minimal .related-content__link:hover {
+    background: var(--color-bg-alt, #f8fafc);
+  }
+
+  .related-content--minimal .related-content__link:focus-visible {
+    outline: 2px solid var(--color-primary, #3b82f6);
+    outline-offset: 2px;
+  }
+
+  /* === Shared element styles === */
+  .related-content__category {
+    display: inline-block;
+    font-size: var(--font-size-xs, 0.75rem);
+    font-weight: var(--font-weight-medium, 500);
+    color: var(--color-primary, #3b82f6);
+    background: var(--color-primary-muted, #eff6ff);
+    padding: var(--space-xs, 0.25rem) var(--space-sm, 0.5rem);
+    border-radius: var(--radius-full, 9999px);
+    line-height: var(--line-height-tight, 1.2);
+    width: fit-content;
+  }
+
+  .related-content__title {
+    font-size: var(--font-size-base, 1rem);
+    font-weight: var(--font-weight-bold, 700);
+    color: var(--color-text, #1a1a2e);
+    margin: 0;
+    line-height: var(--line-height-tight, 1.2);
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs, 0.25rem);
+  }
+
+  .related-content__icon {
+    flex-shrink: 0;
+  }
+
+  .related-content__description {
+    font-size: var(--font-size-sm, 0.875rem);
+    color: var(--color-text-light, #64748b);
+    margin: 0;
+    line-height: var(--line-height-base, 1.5);
+    /* Clamp to 2 lines */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .related-content__arrow {
+    display: flex;
+    align-items: center;
+    color: var(--color-text-light, #64748b);
+    margin-left: auto;
+    flex-shrink: 0;
+    transition: transform var(--transition-fast, 150ms ease),
+                color var(--transition-fast, 150ms ease);
+  }
+
+  .related-content__link:hover .related-content__arrow {
+    transform: translateX(4px);
+    color: var(--color-primary, #3b82f6);
+  }
+
+  /* Cards variant: position arrow at bottom-right */
+  .related-content--cards .related-content__arrow {
+    align-self: flex-end;
+    margin-top: auto;
+  }
+
+  /* === Dark mode === */
+  @media (prefers-color-scheme: dark) {
+    .related-content__heading {
+      color: var(--color-text, #f1f5f9);
+    }
+
+    .related-content__title {
+      color: var(--color-text, #f1f5f9);
+    }
+
+    .related-content__description {
+      color: var(--color-text-light, #94a3b8);
+    }
+
+    .related-content--cards .related-content__link {
+      background: var(--color-bg, #1e293b);
+      border-color: var(--color-border, #334155);
+    }
+
+    .related-content--cards .related-content__link:hover {
+      border-color: var(--color-primary, #3b82f6);
+    }
+
+    .related-content--list .related-content__link:hover,
+    .related-content--minimal .related-content__link:hover {
+      background: var(--color-bg-alt, #1e293b);
+    }
+
+    .related-content--list .related-content__link,
+    .related-content--list .related-content__item:first-child .related-content__link {
+      border-color: var(--color-border, #334155);
+    }
+
+    .related-content__category {
+      background: var(--color-primary-muted, rgba(59, 130, 246, 0.15));
+    }
+  }
+
+  /* === Reduced motion === */
+  @media (prefers-reduced-motion: reduce) {
+    .related-content--cards .related-content__link,
+    .related-content__arrow {
+      transition: none;
+    }
+
+    .related-content--cards .related-content__link:hover {
+      transform: none;
+    }
+
+    .related-content__link:hover .related-content__arrow {
+      transform: none;
+    }
+  }
+</style>
