@@ -10,8 +10,9 @@ import { setCustomElementsManifest } from '@storybook/web-components';
 // Import global styles
 import '../src/design-system/base/reset.css';
 import '../src/design-system/base/typography.css';
-import '../src/design-system/tokens/colors.css';
-import '../src/design-system/tokens/spacing.css';
+import '../src/design-system/tokens/primitives.css';
+import '../src/design-system/tokens/semantic.css';
+import '../src/design-system/tokens/components.css';
 
 const preview: Preview = {
   parameters: {
