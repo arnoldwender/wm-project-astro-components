@@ -1,0 +1,188 @@
+---
+/**
+ * ReadingTime Component - WenderMedia Astro Components
+ *
+ * Displays an estimated reading time calculated from word count.
+ * Supports multiple display formats and locale-aware number formatting.
+ *
+ * Features:
+ * - Automatic reading time calculation from text content
+ * - Configurable words-per-minute rate
+ * - Three display variants (inline, badge, detailed)
+ * - Optional clock icon
+ * - Locale-aware word count formatting via Intl.NumberFormat
+ * - Dark mode support
+ * - Semantic time element for machine readability
+ *
+ * @example
+ * <ReadingTime content={post.body} />
+ * <!-- Output: "5 min read" -->
+ *
+ * @example
+ * <ReadingTime content={post.body} variant="detailed" icon locale="de-DE" />
+ * <!-- Output: "🕐 5 min read · 1.200 words" -->
+ *
+ * @example
+ * <ReadingTime content={post.body} variant="badge" />
+ * <!-- Output: pill-shaped badge "5 min" -->
+ *
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
+ */
+
+export interface Props {
+  /** Text content to calculate reading time from */
+  content: string;
+  /** Reading speed in words per minute (default: 200) */
+  wordsPerMinute?: number;
+  /** Display variant */
+  variant?: 'inline' | 'badge' | 'detailed';
+  /** Whether to show a clock icon */
+  icon?: boolean;
+  /** BCP 47 locale for number formatting (e.g. "de-DE", "en-US") */
+  locale?: string;
+  /** Additional CSS classes */
+  class?: string;
+}
+
+const {
+  content = '',
+  wordsPerMinute = 200,
+  variant = 'inline',
+  icon = false,
+  locale = 'en-US',
+  class: className = '',
+} = Astro.props;
+
+/* Strip HTML tags and count words */
+const plainText = content.replace(/<[^>]*>/g, '').trim();
+const wordCount = plainText.length > 0
+  ? plainText.split(/\s+/).filter(Boolean).length
+  : 0;
+
+/* Calculate reading time (minimum 1 minute) */
+const readingMinutes = Math.max(1, Math.ceil(wordCount / wordsPerMinute));
+
+/* Format word count with locale-aware separators */
+const formattedWordCount = new Intl.NumberFormat(locale).format(wordCount);
+
+/* ISO 8601 duration for machine-readable time element */
+const isoDuration = `PT${readingMinutes}M`;
+---
+
+{variant === 'inline' && (
+  <span
+    class:list={['reading-time', 'reading-time--inline', className]}
+    data-reading-time
+  >
+    {icon && (
+      <svg class="reading-time__icon" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <polyline points="12 6 12 12 16 14" />
+      </svg>
+    )}
+    <time datetime={isoDuration}>{readingMinutes} min read</time>
+  </span>
+)}
+
+{variant === 'badge' && (
+  <span
+    class:list={['reading-time', 'reading-time--badge', className]}
+    data-reading-time
+  >
+    {icon && (
+      <svg class="reading-time__icon" aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <polyline points="12 6 12 12 16 14" />
+      </svg>
+    )}
+    <time datetime={isoDuration}>{readingMinutes} min</time>
+  </span>
+)}
+
+{variant === 'detailed' && (
+  <span
+    class:list={['reading-time', 'reading-time--detailed', className]}
+    data-reading-time
+  >
+    {icon && (
+      <svg class="reading-time__icon" aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <polyline points="12 6 12 12 16 14" />
+      </svg>
+    )}
+    <time datetime={isoDuration}>{readingMinutes} min read</time>
+    <span class="reading-time__separator" aria-hidden="true">&middot;</span>
+    <span class="reading-time__words">{formattedWordCount} words</span>
+  </span>
+)}
+
+<style>
+  /* === Base styles === */
+  .reading-time {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs, 0.25rem);
+    font-family: inherit;
+    line-height: var(--line-height-tight, 1.2);
+  }
+
+  /* === Icon === */
+  .reading-time__icon {
+    flex-shrink: 0;
+    color: currentColor;
+    opacity: 0.7;
+  }
+
+  /* === Inline variant === */
+  .reading-time--inline {
+    font-size: var(--font-size-sm, 0.875rem);
+    color: var(--color-text-light, #64748b);
+    font-weight: var(--font-weight-normal, 400);
+  }
+
+  /* === Badge variant (pill-shaped) === */
+  .reading-time--badge {
+    font-size: var(--font-size-xs, 0.75rem);
+    font-weight: var(--font-weight-medium, 500);
+    color: var(--color-primary, #3b82f6);
+    background: var(--color-primary-muted, #eff6ff);
+    padding: var(--space-xs, 0.25rem) var(--space-sm, 0.5rem);
+    border-radius: var(--radius-full, 9999px);
+    white-space: nowrap;
+  }
+
+  /* === Detailed variant === */
+  .reading-time--detailed {
+    font-size: var(--font-size-sm, 0.875rem);
+    color: var(--color-text-light, #64748b);
+    font-weight: var(--font-weight-normal, 400);
+    gap: var(--space-sm, 0.5rem);
+  }
+
+  .reading-time__separator {
+    color: var(--color-border, #e2e8f0);
+    user-select: none;
+  }
+
+  .reading-time__words {
+    white-space: nowrap;
+  }
+
+  /* === Dark mode === */
+  @media (prefers-color-scheme: dark) {
+    .reading-time--inline,
+    .reading-time--detailed {
+      color: var(--color-text-light, #94a3b8);
+    }
+
+    .reading-time--badge {
+      color: var(--color-primary, #60a5fa);
+      background: var(--color-primary-muted, rgba(59, 130, 246, 0.15));
+    }
+
+    .reading-time__separator {
+      color: var(--color-border, #475569);
+    }
+  }
+</style>

@@ -1,0 +1,331 @@
+---
+/**
+ * StatCard Component - WenderMedia Astro Components
+ *
+ * Compact statistic display with optional trend indicator.
+ * Ideal for dashboards, analytics sections, and KPI displays.
+ *
+ * Features:
+ * - Displays value, label, and optional trend percentage
+ * - Three trend directions (up, down, neutral) with semantic colors
+ * - Three visual variants (default, outlined, filled)
+ * - Three sizes (sm, md, lg)
+ * - Optional icon slot
+ * - Green for positive, red for negative, gray for neutral trends
+ * - Dark mode support
+ * - Accessible with semantic markup and ARIA
+ *
+ * @example
+ * <StatCard value="12,345" label="Total Users" trend={12.5} trendDirection="up" />
+ *
+ * @example
+ * <StatCard value="$48.2K" label="Revenue" trend={-3.2} trendDirection="down" variant="filled" />
+ *
+ * @example
+ * <StatCard value="99.9%" label="Uptime" trendDirection="neutral" variant="outlined" size="lg" />
+ *
+ * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @see https://github.com/arnoldwender/wm-project-astro-components
+ */
+
+export interface Props {
+  /** The statistic value to display (pre-formatted string) */
+  value: string;
+  /** Descriptive label for the statistic */
+  label: string;
+  /** Trend percentage value (e.g. 12.5 for +12.5%) */
+  trend?: number;
+  /** Direction of the trend for color coding */
+  trendDirection?: 'up' | 'down' | 'neutral';
+  /** Optional icon text (emoji or symbol) displayed in the card */
+  icon?: string;
+  /** Visual variant */
+  variant?: 'default' | 'outlined' | 'filled';
+  /** Component size */
+  size?: 'sm' | 'md' | 'lg';
+  /** Additional CSS classes */
+  class?: string;
+}
+
+const {
+  value,
+  label,
+  trend,
+  trendDirection,
+  icon,
+  variant = 'default',
+  size = 'md',
+  class: className = '',
+} = Astro.props;
+
+/* Determine if we should show the trend indicator */
+const showTrend = trend !== undefined || trendDirection !== undefined;
+
+/* Resolve direction from trend number if not explicitly set */
+const resolvedDirection = trendDirection
+  || (trend !== undefined ? (trend > 0 ? 'up' : trend < 0 ? 'down' : 'neutral') : 'neutral');
+
+/* Format trend value for display */
+const trendDisplay = trend !== undefined ? `${Math.abs(trend)}%` : '';
+
+/* Accessible trend description */
+const trendLabel = resolvedDirection === 'up'
+  ? `Up ${trendDisplay}`
+  : resolvedDirection === 'down'
+    ? `Down ${trendDisplay}`
+    : `Neutral ${trendDisplay}`;
+---
+
+<article
+  class:list={[
+    'stat-card',
+    `stat-card--${variant}`,
+    `stat-card--${size}`,
+    className,
+  ]}
+  data-stat-card
+>
+  {/* Header row with icon and trend */}
+  <header class="stat-card__header">
+    {icon && (
+      <span class="stat-card__icon" aria-hidden="true">{icon}</span>
+    )}
+
+    {showTrend && (
+      <span
+        class:list={[
+          'stat-card__trend',
+          `stat-card__trend--${resolvedDirection}`,
+        ]}
+        aria-label={trendLabel}
+        title={trendLabel}
+      >
+        {/* Trend arrow icon */}
+        {resolvedDirection === 'up' && (
+          <svg class="stat-card__trend-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M18 15l-6-6-6 6" />
+          </svg>
+        )}
+        {resolvedDirection === 'down' && (
+          <svg class="stat-card__trend-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        )}
+        {resolvedDirection === 'neutral' && (
+          <svg class="stat-card__trend-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M5 12h14" />
+          </svg>
+        )}
+        {trendDisplay && (
+          <span class="stat-card__trend-value">{trendDisplay}</span>
+        )}
+      </span>
+    )}
+  </header>
+
+  {/* Main value */}
+  <span class="stat-card__value">{value}</span>
+
+  {/* Label */}
+  <span class="stat-card__label">{label}</span>
+</article>
+
+<style>
+  /* === Base card styles === */
+  .stat-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs, 0.25rem);
+    border-radius: var(--radius-lg, 1rem);
+    transition: box-shadow var(--transition-base, 300ms ease);
+  }
+
+  /* === Variant: default (subtle background) === */
+  .stat-card--default {
+    background: var(--color-bg, #ffffff);
+    padding: var(--stat-card-padding);
+    box-shadow: var(--shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.05));
+  }
+
+  .stat-card--default:hover {
+    box-shadow: var(--shadow-md, 0 4px 6px rgba(0, 0, 0, 0.1));
+  }
+
+  /* === Variant: outlined === */
+  .stat-card--outlined {
+    background: var(--color-bg, #ffffff);
+    border: 1px solid var(--color-border, #e2e8f0);
+    padding: var(--stat-card-padding);
+  }
+
+  .stat-card--outlined:hover {
+    border-color: var(--color-primary, #3b82f6);
+  }
+
+  /* === Variant: filled === */
+  .stat-card--filled {
+    background: var(--color-primary, #3b82f6);
+    padding: var(--stat-card-padding);
+    color: #ffffff;
+  }
+
+  /* === Size tokens === */
+  .stat-card--sm {
+    --stat-card-padding: var(--space-md, 1rem);
+    --stat-card-value-size: var(--font-size-xl, 1.5rem);
+    --stat-card-label-size: var(--font-size-xs, 0.75rem);
+    --stat-card-icon-size: var(--font-size-lg, 1.25rem);
+  }
+
+  .stat-card--md {
+    --stat-card-padding: var(--space-lg, 1.5rem);
+    --stat-card-value-size: var(--font-size-2xl, 2rem);
+    --stat-card-label-size: var(--font-size-sm, 0.875rem);
+    --stat-card-icon-size: var(--font-size-xl, 1.5rem);
+  }
+
+  .stat-card--lg {
+    --stat-card-padding: var(--space-xl, 2rem);
+    --stat-card-value-size: var(--font-size-3xl, 2.5rem);
+    --stat-card-label-size: var(--font-size-base, 1rem);
+    --stat-card-icon-size: var(--font-size-2xl, 2rem);
+  }
+
+  /* === Header with icon and trend === */
+  .stat-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-xs, 0.25rem);
+  }
+
+  .stat-card__icon {
+    font-size: var(--stat-card-icon-size);
+    line-height: 1;
+  }
+
+  /* === Trend indicator === */
+  .stat-card__trend {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    font-size: var(--font-size-xs, 0.75rem);
+    font-weight: var(--font-weight-medium, 500);
+    padding: var(--space-xs, 0.25rem) var(--space-sm, 0.5rem);
+    border-radius: var(--radius-full, 9999px);
+    white-space: nowrap;
+    margin-left: auto;
+  }
+
+  /* Trend colors — green for up, red for down, gray for neutral */
+  .stat-card__trend--up {
+    color: var(--color-success, #16a34a);
+    background: var(--color-success-muted, #f0fdf4);
+  }
+
+  .stat-card__trend--down {
+    color: var(--color-error, #dc2626);
+    background: var(--color-error-muted, #fef2f2);
+  }
+
+  .stat-card__trend--neutral {
+    color: var(--color-text-light, #64748b);
+    background: var(--color-bg-alt, #f1f5f9);
+  }
+
+  /* Override trend colors for filled variant (always white-ish) */
+  .stat-card--filled .stat-card__trend--up {
+    color: #dcfce7;
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  .stat-card--filled .stat-card__trend--down {
+    color: #fecaca;
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  .stat-card--filled .stat-card__trend--neutral {
+    color: rgba(255, 255, 255, 0.8);
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  .stat-card__trend-icon {
+    flex-shrink: 0;
+  }
+
+  .stat-card__trend-value {
+    line-height: 1;
+  }
+
+  /* === Value text === */
+  .stat-card__value {
+    font-size: var(--stat-card-value-size);
+    font-weight: var(--font-weight-bold, 700);
+    color: var(--color-text, #1a1a2e);
+    line-height: var(--line-height-tight, 1.2);
+    letter-spacing: -0.025em;
+  }
+
+  .stat-card--filled .stat-card__value {
+    color: #ffffff;
+  }
+
+  /* === Label text === */
+  .stat-card__label {
+    font-size: var(--stat-card-label-size);
+    color: var(--color-text-light, #64748b);
+    font-weight: var(--font-weight-normal, 400);
+    line-height: var(--line-height-base, 1.5);
+  }
+
+  .stat-card--filled .stat-card__label {
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  /* === Dark mode === */
+  @media (prefers-color-scheme: dark) {
+    .stat-card--default {
+      background: var(--color-bg, #1e293b);
+      box-shadow: var(--shadow-sm, 0 1px 2px rgba(0, 0, 0, 0.2));
+    }
+
+    .stat-card--default:hover {
+      box-shadow: var(--shadow-md, 0 4px 6px rgba(0, 0, 0, 0.3));
+    }
+
+    .stat-card--outlined {
+      background: var(--color-bg, #1e293b);
+      border-color: var(--color-border, #475569);
+    }
+
+    .stat-card__value {
+      color: var(--color-text, #f1f5f9);
+    }
+
+    .stat-card__label {
+      color: var(--color-text-light, #94a3b8);
+    }
+
+    .stat-card__trend--up {
+      color: var(--color-success, #4ade80);
+      background: rgba(74, 222, 128, 0.1);
+    }
+
+    .stat-card__trend--down {
+      color: var(--color-error, #f87171);
+      background: rgba(248, 113, 113, 0.1);
+    }
+
+    .stat-card__trend--neutral {
+      color: var(--color-text-light, #94a3b8);
+      background: rgba(148, 163, 184, 0.1);
+    }
+  }
+
+  /* === Reduced motion === */
+  @media (prefers-reduced-motion: reduce) {
+    .stat-card {
+      transition: none;
+    }
+  }
+</style>

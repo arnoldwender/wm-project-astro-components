@@ -63,3 +63,9 @@ export { default as Progress } from './Progress.astro';
 
 // News Ticker
 export { default as NewsTicker } from './NewsTicker.astro';
+
+// Progress Tracker
+export { default as ProgressTracker } from './ProgressTracker.astro';
+
+// Stat Card
+export { default as StatCard } from './StatCard.astro';
