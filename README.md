@@ -283,7 +283,9 @@ describe('MyComponent', () => {
 
 ## Storybook
 
-Interactive component documentation:
+Browse all 150 components interactively at **[wm-astro-components.netlify.app](https://wm-astro-components.netlify.app)**.
+
+Run locally:
 
 ```bash
 npm run storybook        # Start dev server on port 6006
