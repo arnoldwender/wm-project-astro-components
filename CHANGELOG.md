@@ -5,6 +5,22 @@ All notable changes to @wendermedia/astro-components will be documented in this 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2026-04-06
+
+### Added
+- 8 new section components (158 total, up from 150)
+- Storybook deployment at https://wm-astro-components.netlify.app
+- `llms.txt` for LLM context and discoverability
+- `OPEN-SOURCE-REPORT.md` with full release audit
+- `CONTRIBUTING.md` with coding standards and component guidelines
+- `CODE_OF_CONDUCT.md` (Contributor Covenant v2.1)
+
+### Changed
+- Open-source release: repository set to public, published to npm
+- All 158 components now carry standardized copyright headers
+- README rewritten for open-source audience with badges, examples, and full catalog
+- `package.json` license changed from PROPRIETARY to MIT with full metadata
+
 ## [2.0.0] - 2026-04-06
 
 ### Added
