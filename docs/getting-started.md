@@ -33,10 +33,10 @@ yarn add @wendermedia/astro-components
 pnpm add @wendermedia/astro-components
 ```
 
-### Method 3: GitHub Installation (Private)
+### Method 3: GitHub Installation
 
 ```bash
-npm install git+ssh://git@github.com:arnoldwender/wm-project-astro-components.git
+npm install git+https://github.com/arnoldwender/wm-project-astro-components.git
 ```
 
 Or add to `package.json`:
