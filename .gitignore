@@ -21,3 +21,11 @@ test-results/
 
 # Storybook build output
 storybook-static/
+
+# AI/internal docs — NEVER commit
+CLAUDE.md
+.claude/
+agents.md
+instructions.md
+docs/superpowers/
+docs/development/
