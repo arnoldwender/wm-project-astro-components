@@ -159,7 +159,7 @@ export async function createProject(projectName, flags) {
   log('  npm run test       Run tests', COLORS.dim);
   log('  npm run storybook  Open Storybook', COLORS.dim);
   console.log('');
-  log('Documentation: https://github.com/arnoldwender/wm-astro-components-2025', COLORS.blue);
+  log('Documentation: https://github.com/arnoldwender/wm-project-astro-components', COLORS.blue);
   console.log('');
 }
 
@@ -379,7 +379,7 @@ async function generateComponentSetup(targetDir, template) {
  * WenderMedia Components Setup
  *
  * Import components from @wendermedia/astro-components as needed.
- * See: https://github.com/arnoldwender/wm-astro-components-2025
+ * See: https://github.com/arnoldwender/wm-project-astro-components
  */
 
 ${imports}
