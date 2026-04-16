@@ -161,7 +161,7 @@ All 158 components contain only:
 2. **npm publish**: Published as `@wendermedia/astro-components@2.1.0` (completed 2026-04-06)
 3. **GitHub Topics**: Added astro, components, accessibility, gdpr, design-system, typescript, wcag, astro-components, design-tokens, seo
 4. **GitHub Description**: Updated
-5. **Storybook deployment**: Live at https://wm-astro-components.netlify.app (158 stories)
+5. **Storybook deployment**: Live at https://astro.wendermedia.com (158 stories)
 
 ## Remaining Steps (Optional)
 
@@ -186,7 +186,7 @@ All 158 components contain only:
 - [x] .gitignore excludes sensitive files
 - [x] Change GitHub repo to public (completed 2026-04-06)
 - [x] Publish to npm as @wendermedia/astro-components (completed 2026-04-06)
-- [x] Storybook deployed to https://wm-astro-components.netlify.app (158 stories)
+- [x] Storybook deployed to https://astro.wendermedia.com (158 stories)
 
 ---
 
