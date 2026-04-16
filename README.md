@@ -289,7 +289,7 @@ describe('MyComponent', () => {
 
 ## Storybook
 
-Browse all 158 components interactively at **[wm-astro-components.netlify.app](https://wm-astro-components.netlify.app)**.
+Browse all 158 components interactively at **[astro.wendermedia.com](https://astro.wendermedia.com)**.
 
 Run locally:
 

@@ -58,7 +58,7 @@
 
 ## Storybook
 
-Browse all 158 components interactively: https://wm-astro-components.netlify.app
+Browse all 158 components interactively: https://astro.wendermedia.com
 
 ## License
 
