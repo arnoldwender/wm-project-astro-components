@@ -19,11 +19,17 @@
 </p>
 
 <p align="center">
+  <a href="https://astro.wendermedia.com">Live Playbook</a> &bull;
   <a href="#installation">Installation</a> &bull;
   <a href="#quick-start">Quick Start</a> &bull;
   <a href="#components">Components</a> &bull;
   <a href="#design-tokens">Design Tokens</a> &bull;
   <a href="#contributing">Contributing</a>
+</p>
+
+<p align="center">
+  <strong>Interactive component playbook:</strong> <a href="https://astro.wendermedia.com">astro.wendermedia.com</a><br />
+  Browse all 158 components with live previews, props, and usage examples (Storybook).
 </p>
 
 ---
