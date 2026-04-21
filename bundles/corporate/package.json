@@ -9,7 +9,7 @@
     "preview": "astro preview"
   },
   "dependencies": {
-    "astro": "^5.0.0",
+    "astro": "^6.1.8",
     "@astrojs/mdx": "^4.0.0",
     "@astrojs/tailwind": "^5.0.0",
     "@astrojs/sitemap": "^3.0.0",
