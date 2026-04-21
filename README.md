@@ -12,6 +12,7 @@
 <p align="center">
   <a href="https://github.com/arnoldwender/wm-project-astro-components/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="MIT License" /></a>
   <img src="https://img.shields.io/badge/Astro-4.x%20%7C%205.x-BC52EE?logo=astro&logoColor=white" alt="Astro 4.x | 5.x" />
+  <img src="https://img.shields.io/badge/Astro_6-coming_soon-orange?logo=astro&logoColor=white" alt="Astro 6 coming soon" />
   <img src="https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/badge/WCAG_2.1-AA-green" alt="WCAG 2.1 AA" />
   <img src="https://img.shields.io/badge/GDPR-Compliant-green" alt="GDPR Compliant" />
