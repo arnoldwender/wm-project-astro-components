@@ -4,7 +4,7 @@
 
 ## Tech Stack
 
-- Astro 4.x / 5.x
+- Astro 4.x / 5.x (Astro 6 coming soon)
 - TypeScript 5.x
 - Vitest (Unit + A11y testing)
 - Storybook 8.x (Component docs)
