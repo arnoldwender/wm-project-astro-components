@@ -20,6 +20,15 @@
 </p>
 
 <p align="center">
+  <img src="./docs/images/gallery-01-hero.png" alt="158 Astro Components — Live Playbook" width="100%" />
+</p>
+
+<p align="center">
+  <img src="./docs/images/gallery-03-components.png" alt="17 categories, 158 components" width="49%" />
+  <img src="./docs/images/gallery-04-a11y-gdpr.png" alt="WCAG 2.1 AA and GDPR compliance" width="49%" />
+</p>
+
+<p align="center">
   <a href="https://astro.wendermedia.com">Live Playbook</a> &bull;
   <a href="#installation">Installation</a> &bull;
   <a href="#quick-start">Quick Start</a> &bull;
