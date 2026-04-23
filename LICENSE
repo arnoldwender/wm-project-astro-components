@@ -1,91 +1,21 @@
-Copyright © 2026 Arnold Wender / Wender Media. All rights reserved.
+MIT License
 
-WENDER MEDIA PROPRIETARY SOFTWARE LICENSE
+Copyright (c) 2007-2026 Wender Media - Arnold Wender
 
-This software and its associated documentation files (the "Software") are the
-exclusive intellectual property of Arnold Wender and Wender Media
-(Werbeagentur Wender Media, Franckestraße 3a, 06110 Halle (Saale), Germany).
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
 
-The Software is NOT open source. Files may carry a "Proprietäres Tool —
-nicht für die Öffentlichkeit bestimmt" notice that reflects the terms of
-this LICENSE.
-
----
-
-PERMITTED USES
-
-1. Internal use by Wender Media employees and contracted agents in the course
-   of delivering services to Wender Media clients.
-
-2. Evaluation by explicitly authorized third parties (prospective licensees,
-   code reviewers, auditors) under a written agreement.
-
-3. Academic or personal study of the code by individuals who obtained lawful
-   access to the repository, for non-commercial inspection only.
-
-PROHIBITED USES
-
-Without the prior written permission of Arnold Wender, the following are
-strictly prohibited:
-
-- Redistribution of the Software or any substantial portion thereof in source
-  or binary form.
-- Commercial use by any party other than Wender Media, including (but not
-  limited to) deployment to production in a third-party agency, resale as
-  a SaaS offering, bundling into a product, or use to provide paid services
-  to end clients.
-- Derivative works released under a different license.
-- Removal, modification, or obscuration of copyright notices or attribution
-  headers ("© Arnold Wender / Wender Media · https://www.wendermedia.com")
-  from any file.
-- Training of machine-learning models on the Software without an explicit
-  written data-use agreement.
-
----
-
-LICENSING & COMMERCIAL USE
-
-Commercial licensing for agencies, product integrators, and enterprise
-customers is available. Contact:
-
-  Arnold Wender
-  Wender Media
-  https://www.wendermedia.com
-  arnold.wender@gmail.com
-
-Terms are negotiated per engagement (seat-based, revenue-share, or flat
-agency-tier licenses).
-
----
-
-THIRD-PARTY COMPONENTS
-
-The Software may incorporate third-party open-source components listed in
-`package.json`, `pyproject.toml`, `requirements.txt`, or equivalent manifest
-files. Those components remain under their own licenses (primarily MIT /
-Apache 2.0 / BSD). Nothing in this LICENSE weakens or overrides those
-upstream terms for their respective source code.
-
----
-
-WARRANTY DISCLAIMER
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL
-ARNOLD WENDER OR WENDER MEDIA BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING
-FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-IN THE SOFTWARE.
-
----
-
-VERSION & REVIEW
-
-This LICENSE is versioned via the repository's git history. Changes require
-a new commit authored by Arnold Wender. If the Software is ever relicensed
-under different terms (e.g. Business Source License, AGPL, or MIT), the
-replacement will be committed to this same file, and prior versions remain
-under the terms in effect at the time of each release.
-
-Last updated: 2026-04-23.
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
