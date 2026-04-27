@@ -134,7 +134,7 @@
     "@typescript-eslint/parser": "^8.58.0",
     "@vitest/coverage-v8": "^4.1.1",
     "@vitest/ui": "^2.1.9",
-    "astro": "^5.18.1",
+    "astro": "^6.1.6",
     "axe-core": "^4.11.1",
     "eslint": "^10.2.0",
     "eslint-plugin-astro": "^1.6.0",
