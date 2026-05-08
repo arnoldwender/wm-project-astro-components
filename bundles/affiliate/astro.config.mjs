@@ -1,6 +1,6 @@
 import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
-import tailwind from '@astrojs/tailwind';
+import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
 import partytown from '@astrojs/partytown';
 import cloudflare from '@astrojs/cloudflare';
@@ -8,15 +8,13 @@ import cloudflare from '@astrojs/cloudflare';
 // https://astro.build/config
 export default defineConfig({
   site: 'https://your-affiliate-site.com', // CAMBIAR
-  output: 'hybrid',
+  // Astro 6: `output: 'static'` is the default. Per-route opt-in via
+  // `export const prerender = false` for SSR routes (replaces 'hybrid').
   adapter: cloudflare({
     imageService: 'cloudflare',
   }),
   integrations: [
     mdx(),
-    tailwind({
-      applyBaseStyles: false,
-    }),
     sitemap({
       filter: (page) => !page.includes('/preview/'),
       changefreq: 'weekly',
@@ -51,7 +49,7 @@ export default defineConfig({
     prefetchAll: true,
     defaultStrategy: 'viewport',
   },
-  experimental: {
-    contentLayer: true,
+  vite: {
+    plugins: [tailwindcss()],
   },
 });

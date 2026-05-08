@@ -1,5 +1,5 @@
 import { defineConfig } from 'astro/config';
-import tailwind from '@astrojs/tailwind';
+import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
 import partytown from '@astrojs/partytown';
 
@@ -7,9 +7,6 @@ import partytown from '@astrojs/partytown';
 export default defineConfig({
   site: 'https://your-landing.com', // CAMBIAR
   integrations: [
-    tailwind({
-      applyBaseStyles: false,
-    }),
     sitemap(),
     partytown({
       config: {
@@ -30,6 +27,7 @@ export default defineConfig({
     inlineStylesheets: 'auto',
   },
   vite: {
+    plugins: [tailwindcss()],
     build: {
       cssMinify: 'lightningcss',
     },

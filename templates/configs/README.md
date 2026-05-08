@@ -2,6 +2,21 @@
 
 Plantillas de `astro.config.mjs` optimizadas para diferentes tipos de proyectos.
 
+> **Astro 6 + Tailwind 4 Migration Notes**
+>
+> - **Tailwind 4** ya NO es una integración Astro: instala
+>   `@tailwindcss/vite` y agrégalo a `vite.plugins`. Configura tokens en CSS
+>   con `@theme { ... }` (no más `tailwind.config.js`).
+> - **`output: 'hybrid'`** fue removido en Astro 5+. Usa `output: 'server'`
+>   junto con `export const prerender = true` en las páginas que quieras
+>   estáticas.
+> - **Content Collections** ahora usan la **Content Layer API** (`loader:` con
+>   `glob()` o `file()` desde `astro/loaders`). El archivo de configuración
+>   se llama `src/content.config.ts` (no `src/content/config.ts`).
+> - **`ViewTransitions`** se renombró a **`ClientRouter`** (`import { ClientRouter } from 'astro:transitions'`).
+> - **zod 4** colapsa `z.string().email()` → `z.email()`,
+>   `z.string().url()` → `z.url()`, `z.string().uuid()` → `z.uuid()`.
+
 ## Configuraciones Disponibles
 
 ### Blog/Magazine (`astro.config.blog.mjs`)
@@ -11,39 +26,43 @@ Para sitios de contenido:
 - MDX + Syntax highlighting
 - Sitemap con i18n
 - Image optimization
-- Tailwind CSS
+- Tailwind 4 (Vite plugin)
 
 ```bash
-# Dependencias
-npm install @astrojs/mdx @astrojs/sitemap @astrojs/tailwind
+# Dependencias (Astro 6 + Tailwind 4)
+npm install astro @astrojs/mdx @astrojs/sitemap tailwindcss @tailwindcss/vite
 ```
 
 ### E-commerce (`astro.config.ecommerce.mjs`)
 
 Para tiendas online:
-- Output: Hybrid (SSG + SSR)
+
+- Output: Server (con `export const prerender = true` por página estática)
 - React para carrito/checkout
 - Vercel ISR
 - Partytown para tracking
 - Nanostores para estado
 
 ```bash
-# Dependencias
-npm install @astrojs/react @astrojs/tailwind @astrojs/sitemap @astrojs/partytown @astrojs/vercel nanostores @nanostores/react
+# Dependencias (Astro 6 + Tailwind 4)
+npm install astro @astrojs/react @astrojs/sitemap @astrojs/partytown @astrojs/vercel \
+  tailwindcss @tailwindcss/vite nanostores @nanostores/react
 ```
 
 ### SaaS Landing (`astro.config.saas.mjs`)
 
 Para landing pages de SaaS:
-- Output: Hybrid
+
+- Output: Server (con `export const prerender = true` por página estática)
 - React para pricing/forms
 - Vercel Web Analytics
 - Partytown optimizado
 - A/B testing ready
 
 ```bash
-# Dependencias
-npm install @astrojs/react @astrojs/tailwind @astrojs/mdx @astrojs/sitemap @astrojs/partytown @astrojs/vercel
+# Dependencias (Astro 6 + Tailwind 4)
+npm install astro @astrojs/react @astrojs/mdx @astrojs/sitemap @astrojs/partytown \
+  @astrojs/vercel tailwindcss @tailwindcss/vite
 ```
 
 ### Documentation (`astro.config.docs.mjs`)
@@ -57,7 +76,7 @@ Para documentación técnica con Starlight:
 
 ```bash
 # Dependencias
-npm install @astrojs/starlight
+npm install astro @astrojs/starlight
 ```
 
 ### Multi-language (`astro.config.i18n.mjs`)
@@ -70,8 +89,9 @@ Para sitios corporativos internacionales:
 - Fallback languages
 
 ```bash
-# Dependencias
-npm install @astrojs/tailwind @astrojs/mdx @astrojs/sitemap @astrojs/react @astrojs/netlify
+# Dependencias (Astro 6 + Tailwind 4)
+npm install astro @astrojs/mdx @astrojs/sitemap @astrojs/react @astrojs/netlify \
+  tailwindcss @tailwindcss/vite
 ```
 
 ## Personalización
@@ -90,11 +110,34 @@ export default defineConfig({
 // Static (default)
 output: 'static',
 
-// Server-side rendering
+// Server-side rendering (con prerender opt-in por página)
 output: 'server',
 
-// Hybrid (static + SSR where needed)
-output: 'hybrid',
+// 'hybrid' fue REMOVIDO en Astro 5+. Si lo ves en docs viejas, usa 'server'
+// + `export const prerender = true` en las páginas estáticas.
+```
+
+### Tailwind 4 (Vite plugin)
+
+```javascript
+import tailwindcss from '@tailwindcss/vite';
+
+export default defineConfig({
+  vite: {
+    plugins: [tailwindcss()],
+  },
+});
+```
+
+```css
+/* src/styles/global.css */
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --color-primary: #003263;
+  --font-sans: 'Inter', sans-serif;
+}
 ```
 
 ### Añadir Adapter
@@ -123,7 +166,6 @@ adapter: node({ mode: 'standalone' }),
 ```javascript
 image: {
   domains: [
-    'images.unsplash.com',
     'cdn.shopify.com',
     'images.ctfassets.net', // Contentful
     'cdn.sanity.io', // Sanity
@@ -208,22 +250,22 @@ redirects: {
 },
 ```
 
-## Ejemplo Completo
+## Ejemplo Completo (Astro 6 + Tailwind 4)
 
 ```javascript
 import { defineConfig } from 'astro/config';
-import tailwind from '@astrojs/tailwind';
+import tailwindcss from '@tailwindcss/vite';
 import react from '@astrojs/react';
 import sitemap from '@astrojs/sitemap';
 import vercel from '@astrojs/vercel';
 
 export default defineConfig({
   site: 'https://example.com',
-  output: 'hybrid',
+  // Astro 5+: 'hybrid' removido — usa 'server' + per-page prerender.
+  output: 'server',
   adapter: vercel(),
 
   integrations: [
-    tailwind(),
     react(),
     sitemap(),
   ],
@@ -242,6 +284,7 @@ export default defineConfig({
   },
 
   vite: {
+    plugins: [tailwindcss()],
     resolve: {
       alias: {
         '@': '/src',

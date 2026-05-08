@@ -5,14 +5,15 @@
 <h1 align="center">@wendermedia/astro-components</h1>
 
 <p align="center">
-  <strong>158 production-ready, accessible, GDPR-compliant Astro components</strong><br />
+  <strong>158 production-ready, accessible, GDPR-compliant Astro 6 components</strong><br />
   Built by <a href="https://www.wendermedia.com">Wender Media</a> &mdash; Web Agency from Halle (Saale), Germany
 </p>
 
 <p align="center">
-  <a href="https://github.com/arnoldwender/wm-project-astro-components/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="MIT License" /></a>
-  <img src="https://img.shields.io/badge/Astro-4.x%20%7C%205.x-BC52EE?logo=astro&logoColor=white" alt="Astro 4.x | 5.x" />
-  <img src="https://img.shields.io/badge/Astro_6-coming_soon-orange?logo=astro&logoColor=white" alt="Astro 6 coming soon" />
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-Wender%20Media%20Source%201.0-blue.svg" alt="Wender Media Source License v1.0" /></a>
+  <img src="https://img.shields.io/badge/Astro-6.x-BC52EE?logo=astro&logoColor=white" alt="Astro 6.x" />
+  <img src="https://img.shields.io/badge/Tailwind-4.x-06B6D4?logo=tailwindcss&logoColor=white" alt="Tailwind 4.x" />
+  <img src="https://img.shields.io/badge/Node-22.12%2B-339933?logo=nodedotjs&logoColor=white" alt="Node 22.12+" />
   <img src="https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/badge/WCAG_2.1-AA-green" alt="WCAG 2.1 AA" />
   <img src="https://img.shields.io/badge/GDPR-Compliant-green" alt="GDPR Compliant" />
@@ -34,13 +35,27 @@
   <a href="#quick-start">Quick Start</a> &bull;
   <a href="#components">Components</a> &bull;
   <a href="#design-tokens">Design Tokens</a> &bull;
-  <a href="#contributing">Contributing</a>
+  <a href="./docs/MIGRATION-2.x-to-3.0.md">Migrate from 2.x</a>
 </p>
 
 <p align="center">
   <strong>Interactive component playbook:</strong> <a href="https://astro.wendermedia.com">astro.wendermedia.com</a><br />
   Browse all 158 components with live previews, props, and usage examples (Storybook).
 </p>
+
+---
+
+## What's new in 3.0
+
+- **Astro 6 only** &mdash; full alignment with Astro 6 (`ClientRouter`, Content Layer API, native Vite 7/8).
+- **Tailwind 4** in templates via `@tailwindcss/vite` (`@astrojs/tailwind` was removed because it is EOL on Astro 6).
+- **Wender Media Source License v1.0** &mdash; source-available, free for commercial and non-commercial use, with an attribution recommendation (see [Attribution](#attribution-recommended)).
+- **Storybook 10** as the internal documentation runner.
+- **Node 22.12+** required.
+
+If you need the previous Astro 4/5 + MIT version, pin `@wendermedia/astro-components@2.1.0` &mdash; that release stays on npm.
+
+See [docs/MIGRATION-2.x-to-3.0.md](./docs/MIGRATION-2.x-to-3.0.md) for the full upgrade guide.
 
 ---
 
@@ -53,9 +68,24 @@
 - **Design Token System** powered by Style Dictionary for consistent theming
 - **Dark Mode Support** via CSS custom properties
 - **Zero Third-Party Tracking** by default
-- **Astro 4.x & 5.x** compatible with View Transitions and Content Collections
+- **Astro 6** compatible with `ClientRouter`, Content Layer API, and Tailwind 4
 - **Framework Integrations** for React, Vue, Svelte, and Solid
 - **WordPress Headless CMS** integration included
+
+## Requirements
+
+- **Astro** 6.0 or higher
+- **Node.js** 22.12 or higher
+- **TypeScript** 5.x (recommended)
+
+### Optional Peer Dependencies
+
+- `@astrojs/react` &mdash; React island support
+- `@astrojs/vue` &mdash; Vue island support
+- `@astrojs/svelte` &mdash; Svelte island support
+- `@astrojs/solid-js` &mdash; Solid island support
+- `@tailwindcss/vite` + `tailwindcss@^4` &mdash; styling for the templates
+- `GSAP` &mdash; Hero animations
 
 ## Installation
 
@@ -63,11 +93,19 @@
 npm install @wendermedia/astro-components
 ```
 
-Or install directly from GitHub:
+Make sure your project already has Astro 6 installed:
+
+```bash
+npm install astro@^6
+```
+
+Or install the components package directly from GitHub:
 
 ```bash
 npm install git+https://github.com/arnoldwender/wm-project-astro-components.git
 ```
+
+> **Upgrading from 2.x?** Read [docs/MIGRATION-2.x-to-3.0.md](./docs/MIGRATION-2.x-to-3.0.md) first &mdash; it covers the Astro 6, Tailwind 4 and license model changes.
 
 ### CLI Scaffolding
 
@@ -355,23 +393,10 @@ See the [WordPress Integration Guide](./integrations/wordpress/README.md) for fu
   tokens/              # Design tokens (Style Dictionary)
   testing/             # Test utilities
   cli/                 # CLI scaffolding tool
-  templates/           # Project templates
+  templates/           # Project templates (Astro 6 + Tailwind 4)
+  bundles/             # Pre-configured project bundles (blog, corporate, ecommerce, ...)
   docs/                # Documentation
 ```
-
-## Requirements
-
-- **Astro** 4.x or 5.x
-- **Node.js** 18+
-- **TypeScript** 5.x (recommended)
-
-### Optional Peer Dependencies
-
-- `@astrojs/react` - React island support
-- `@astrojs/vue` - Vue island support
-- `@astrojs/svelte` - Svelte island support
-- `@astrojs/solid-js` - Solid island support
-- `GSAP` - Hero animations
 
 ## Browser Support
 
@@ -382,7 +407,7 @@ See the [WordPress Integration Guide](./integrations/wordpress/README.md) for fu
 
 ## Contributing
 
-We welcome contributions! Please read our [Contributing Guide](./CONTRIBUTING.md) before submitting a Pull Request.
+We welcome contributions. Please read our [Contributing Guide](./CONTRIBUTING.md) before submitting a Pull Request.
 
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feat/amazing-feature`
@@ -390,6 +415,8 @@ We welcome contributions! Please read our [Contributing Guide](./CONTRIBUTING.md
 4. Run tests: `npm run test`
 5. Add a changeset: `npm run changeset`
 6. Submit a Pull Request
+
+By submitting a Contribution you agree to license it under the [Wender Media Source License v1.0](./LICENSE) (see Section 7 of the License).
 
 Please also review our [Code of Conduct](./CODE_OF_CONDUCT.md).
 
@@ -408,17 +435,41 @@ See [CHANGELOG.md](./CHANGELOG.md) for release history.
 ## Author
 
 **Arnold Wender**
+
 - Website: [arnoldwender.com](https://arnoldwender.com)
-- Agency: [Wender Media](https://www.wendermedia.com) - Web Agency, Halle (Saale), Germany
+- Agency: [Wender Media](https://www.wendermedia.com) &mdash; Web Agency, Halle (Saale), Germany
 - GitHub: [@arnoldwender](https://github.com/arnoldwender)
 - Twitter/X: [@arnoldwender](https://x.com/arnoldwender)
 - LinkedIn: [arnoldwender](https://linkedin.com/in/arnoldwender)
 
 ## License
 
-This project is licensed under the [MIT License](./LICENSE).
+This project is licensed under the [Wender Media Source License v1.0](./LICENSE) (SPDX: `LicenseRef-Wender-Media-Source-1.0`).
 
-Copyright (c) 2007-2026 [Wender Media](https://www.wendermedia.com) - Arnold Wender.
+The license is source-available proprietary with weak copyleft. In short:
+
+- Free commercial and non-commercial use, no tier limits.
+- You may modify, build with, and redistribute the Software.
+- Redistributions and Derivative Works must keep the LICENSE/NOTICE files and copyright headers, and must remain under this same License (no relicensing under MIT/Apache/BSD/etc.).
+- Attribution to Wender Media is recommended but not required &mdash; see below.
+
+For the full legal text, including the patent grant, termination conditions, and definitions, read [LICENSE](./LICENSE) and [NOTICE](./NOTICE).
+
+If you need an MIT-licensed version, pin `@wendermedia/astro-components@2.1.0` &mdash; that release stays on npm under MIT.
+
+Copyright (c) 2007-2026 Arnold Wender · [Wender Media](https://www.wendermedia.com). All Rights Reserved.
+
+### Attribution (Recommended)
+
+Attribution is **not required** by the license, but it is appreciated. If you build with this library, consider including the badge below in your README:
+
+```markdown
+[![Built with @wendermedia/astro-components](https://img.shields.io/badge/built%20with-wendermedia-blue)](https://github.com/arnoldwender/wm-project-astro-components)
+```
+
+Renders as: [![Built with @wendermedia/astro-components](https://img.shields.io/badge/built%20with-wendermedia-blue)](https://github.com/arnoldwender/wm-project-astro-components)
+
+Or simply mention "Components by [Wender Media](https://www.wendermedia.com)" in your project credits.
 
 ---
 
@@ -426,9 +477,8 @@ Copyright (c) 2007-2026 [Wender Media](https://www.wendermedia.com) - Arnold Wen
   Made with care by <a href="https://www.wendermedia.com">Wender Media</a> in Halle (Saale), Germany
 </p>
 
-
 ---
 
 ## Disclaimer
 
-If you are a racist, fascist, or extremist of any kind or have another kind of mental disability that makes you discriminate against other human beings — please don't use my software.
+If you are a racist, fascist, or extremist of any kind or have another kind of mental disability that makes you discriminate against other human beings &mdash; please don't use my software.

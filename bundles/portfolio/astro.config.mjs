@@ -1,7 +1,7 @@
 import { defineConfig } from 'astro/config';
 import svelte from '@astrojs/svelte';
 import sitemap from '@astrojs/sitemap';
-import tailwind from '@astrojs/tailwind';
+import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
@@ -9,9 +9,6 @@ export default defineConfig({
   integrations: [
     svelte(),
     sitemap(),
-    tailwind({
-      applyBaseStyles: false,
-    }),
   ],
   image: {
     domains: [],
@@ -22,6 +19,7 @@ export default defineConfig({
     defaultStrategy: 'viewport',
   },
   vite: {
+    plugins: [tailwindcss()],
     ssr: {
       noExternal: ['gsap'],
     },

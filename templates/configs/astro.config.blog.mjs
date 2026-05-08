@@ -1,5 +1,16 @@
 /**
- * Astro Configuration - Blog/Magazine Site
+ * Astro 6 + Tailwind 4 Configuration — Blog/Magazine Site
+ *
+ * Tailwind 4 is now a Vite plugin (no @astrojs/tailwind).
+ * Configure tokens in your CSS via @theme blocks (no tailwind.config.js).
+ *
+ * Example src/styles/global.css:
+ *   @import "tailwindcss";
+ *   @plugin "@tailwindcss/typography";
+ *   @theme {
+ *     --color-primary: #003263;
+ *     --font-sans: 'Inter', sans-serif;
+ *   }
  *
  * Optimized for:
  * - Content-heavy sites
@@ -11,7 +22,7 @@
 import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
-import tailwind from '@astrojs/tailwind';
+import tailwindcss from '@tailwindcss/vite';
 
 // Optional: Add React for interactive components
 // import react from '@astrojs/react';
@@ -55,12 +66,7 @@ export default defineConfig({
       },
     }),
 
-    tailwind({
-      // Apply base styles
-      applyBaseStyles: true,
-      // Nesting support
-      nesting: true,
-    }),
+    // Tailwind 4 lives in vite.plugins below — @astrojs/tailwind is no longer used.
 
     // react(),
 
@@ -90,8 +96,9 @@ export default defineConfig({
 
   // Image optimization
   image: {
-    // Remote image domains
-    domains: ['images.unsplash.com', 'cdn.example.com'],
+    // Remote image domains — replace with the domains you actually use.
+    // Avoid stock-photo CDNs as default; configure to your own asset host.
+    domains: ['cdn.example.com'],
     // Service configuration
     service: {
       entrypoint: 'astro/assets/services/sharp',
@@ -117,6 +124,7 @@ export default defineConfig({
 
   // Vite configuration
   vite: {
+    plugins: [tailwindcss()],
     build: {
       // CSS code splitting
       cssCodeSplit: true,
@@ -125,11 +133,5 @@ export default defineConfig({
     },
     // Environment variables prefix
     envPrefix: 'PUBLIC_',
-  },
-
-  // Experimental features
-  experimental: {
-    // Content layer (Astro 5)
-    // contentLayer: true,
   },
 });

@@ -15,7 +15,6 @@ import { getCollection } from 'astro:content';
 
 interface SearchResult {
   id: string;
-  slug: string;
   type: string;
   title: string;
   description?: string;
@@ -135,13 +134,13 @@ export const GET: APIRoute = async ({ url }) => {
           const totalScore = titleScore + descScore + tagScore;
 
           if (totalScore > 0) {
+            // Astro 6 Content Layer: entry.id IS the slug (glob loader); .slug removed.
             results.push({
               id: post.id,
-              slug: post.slug,
               type: 'blog',
               title: post.data.title,
               description: post.data.description,
-              url: `/blog/${post.slug}`,
+              url: `/blog/${post.id}`,
               score: totalScore,
               highlights: {
                 title: highlightText(post.data.title, query, 100),
@@ -176,13 +175,13 @@ export const GET: APIRoute = async ({ url }) => {
           const totalScore = nameScore + descScore + tagScore;
 
           if (totalScore > 0) {
+            // Astro 6 Content Layer: entry.id IS the slug.
             results.push({
               id: product.id,
-              slug: product.slug,
               type: 'products',
               title: product.data.name,
               description: product.data.shortDescription,
-              url: `/products/${product.slug}`,
+              url: `/products/${product.id}`,
               score: totalScore,
               highlights: {
                 title: highlightText(product.data.name, query, 100),
@@ -215,13 +214,13 @@ export const GET: APIRoute = async ({ url }) => {
           const totalScore = titleScore + descScore + tagScore;
 
           if (totalScore > 0) {
+            // Astro 6 Content Layer: entry.id IS the slug.
             results.push({
               id: doc.id,
-              slug: doc.slug,
               type: 'docs',
               title: doc.data.title,
               description: doc.data.description,
-              url: `/docs/${doc.slug}`,
+              url: `/docs/${doc.id}`,
               score: totalScore,
               highlights: {
                 title: highlightText(doc.data.title, query, 100),

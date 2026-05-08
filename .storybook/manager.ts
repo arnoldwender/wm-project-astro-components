@@ -2,11 +2,14 @@
  * Storybook Manager Configuration - WenderMedia Astro Components
  * Custom branding, theme, and sidebar configuration.
  *
- * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @copyright 2007-2026 Wender Media - Arnold Wender. Wender Media Source License v1.0.
  */
 
-import { addons } from '@storybook/manager-api';
-import { create } from '@storybook/theming/create';
+// Storybook 10: manager-api and theming were unified into the `storybook`
+// package with subpath exports. The legacy @storybook/manager-api and
+// @storybook/theming/create entry points are no longer published.
+import { addons } from 'storybook/manager-api';
+import { create } from 'storybook/theming/create';
 
 const wmTheme = create({
   base: 'light',

@@ -1,20 +1,27 @@
 /**
- * Documentation Content Collection Schema
+ * Documentation Content Collection Schema (Astro 6 — Content Layer API)
  *
  * For product documentation, API docs, guides, etc.
  * Note: For full docs sites, consider using Starlight instead.
  *
  * Usage:
- * 1. Copy this file to your project's src/content/config.ts
+ * 1. Copy this file to your project's src/content.config.ts
+ *    (Astro 6 moved the config from src/content/config.ts to src/content.config.ts)
  * 2. Create src/content/docs/ folder with subfolders for sections
- * 3. Add .mdx files with documentation content
+ * 3. Add .mdx files with documentation content + JSON files for doc-sections
+ *
+ * Notes (Astro 6):
+ * - `type: 'data' | 'content'` is removed; use `glob()` / `file()` from `astro/loaders`.
+ * - zod 4 collapses `z.string().url()` → `z.url()`.
  */
 
-import { defineCollection, z, reference } from 'astro:content';
+import { defineCollection, reference } from 'astro:content';
+import { z } from 'astro/zod';
+import { glob } from 'astro/loaders';
 
 // Documentation sections (sidebar groups)
 const docSectionCollection = defineCollection({
-  type: 'data',
+  loader: glob({ pattern: '**/[^_]*.json', base: './src/content/doc-sections' }),
   schema: z.object({
     title: z.string(),
     slug: z.string(),
@@ -33,7 +40,7 @@ const docSectionCollection = defineCollection({
 
 // Main documentation collection
 const docsCollection = defineCollection({
-  type: 'content',
+  loader: glob({ pattern: '**/[^_]*.{md,mdx}', base: './src/content/docs' }),
   schema: z.object({
     // Title and description
     title: z.string(),
@@ -77,7 +84,7 @@ const docsCollection = defineCollection({
       .default(true),
 
     // Edit page
-    editUrl: z.string().url().optional(),
+    editUrl: z.url().optional(),
     lastUpdated: z.coerce.date().optional(),
 
     // Page navigation
@@ -105,7 +112,7 @@ const docsCollection = defineCollection({
       .object({
         title: z.string().optional(),
         description: z.string().optional(),
-        canonical: z.string().url().optional(),
+        canonical: z.url().optional(),
         noindex: z.boolean().default(false),
       })
       .optional(),
@@ -139,7 +146,7 @@ const docsCollection = defineCollection({
 
 // Changelog collection
 const changelogCollection = defineCollection({
-  type: 'content',
+  loader: glob({ pattern: '**/[^_]*.{md,mdx}', base: './src/content/changelog' }),
   schema: z.object({
     version: z.string(),
     date: z.coerce.date(),

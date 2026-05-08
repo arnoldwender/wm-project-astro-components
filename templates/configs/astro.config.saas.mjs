@@ -1,5 +1,16 @@
 /**
- * Astro Configuration - SaaS Landing Page
+ * Astro 6 + Tailwind 4 Configuration — SaaS Landing Page
+ *
+ * Tailwind 4 is now a Vite plugin (no @astrojs/tailwind).
+ * Configure tokens in your CSS via @theme blocks (no tailwind.config.js).
+ *
+ * Example src/styles/global.css:
+ *   @import "tailwindcss";
+ *   @plugin "@tailwindcss/typography";
+ *   @theme {
+ *     --color-primary: #003263;
+ *     --font-sans: 'Inter', sans-serif;
+ *   }
  *
  * Optimized for:
  * - Marketing landing pages
@@ -7,11 +18,15 @@
  * - Analytics integration
  * - A/B testing ready
  * - Fast iteration
+ *
+ * Astro 5+ removed `output: 'hybrid'`. Use `output: 'server'` with
+ * `export const prerender = true` on individual pages that should be statically
+ * generated.
  */
 
 import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
-import tailwind from '@astrojs/tailwind';
+import tailwindcss from '@tailwindcss/vite';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import partytown from '@astrojs/partytown';
@@ -21,8 +36,8 @@ export default defineConfig({
   // Production URL
   site: 'https://www.example.com',
 
-  // Hybrid for API routes (waitlist, contact forms)
-  output: 'hybrid',
+  // Server output for API routes (waitlist, contact forms). Was 'hybrid' in Astro 4.
+  output: 'server',
 
   // Vercel deployment
   adapter: vercel({
@@ -40,12 +55,7 @@ export default defineConfig({
       include: ['**/react/**'],
     }),
 
-    tailwind({
-      applyBaseStyles: true,
-      nesting: true,
-      // Custom config path
-      configFile: './tailwind.config.mjs',
-    }),
+    // Tailwind 4 lives in vite.plugins below — @astrojs/tailwind is no longer used.
 
     mdx({
       // For changelog/blog
@@ -73,8 +83,9 @@ export default defineConfig({
   ],
 
   // Image optimization
+  // Replace these placeholder hosts with your own asset CDN.
   image: {
-    domains: ['images.unsplash.com', 'avatars.githubusercontent.com'],
+    domains: ['avatars.githubusercontent.com'],
   },
 
   // Prefetch for snappy navigation
@@ -91,6 +102,7 @@ export default defineConfig({
 
   // Vite configuration
   vite: {
+    plugins: [tailwindcss()],
     build: {
       rollupOptions: {
         output: {

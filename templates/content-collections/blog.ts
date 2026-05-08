@@ -1,20 +1,30 @@
 /**
- * Blog Content Collection Schema
+ * Blog Content Collection Schema (Astro 6 — Content Layer API)
  *
  * Usage:
- * 1. Copy this file to your project's src/content/config.ts
- * 2. Create src/content/blog/ folder
- * 3. Add .md or .mdx files with matching frontmatter
+ * 1. Copy this file to your project's src/content.config.ts
+ *    (Astro 6 moved the config from src/content/config.ts to src/content.config.ts)
+ * 2. Create src/content/blog/, src/content/authors/, src/content/categories/ folders
+ * 3. Add .md or .mdx files for blog posts and JSON files for authors/categories
+ *
+ * Notes (Astro 6):
+ * - `type: 'data' | 'content'` is removed; use loaders instead.
+ * - `glob()` and `file()` come from `astro/loaders`.
+ * - `z` lives at `astro/zod` (still re-exported from `astro:content`, but
+ *   importing from `astro/zod` matches the upstream zod 4 surface).
+ * - zod 4 collapses `z.string().email()` → `z.email()`, etc.
  */
 
-import { defineCollection, z, reference } from 'astro:content';
+import { defineCollection, reference } from 'astro:content';
+import { z } from 'astro/zod';
+import { glob, file } from 'astro/loaders';
 
-// Author collection - referenced by blog posts
+// Author collection — referenced by blog posts (one JSON file per author OR one combined file)
 const authorCollection = defineCollection({
-  type: 'data', // JSON/YAML files
+  loader: glob({ pattern: '**/[^_]*.json', base: './src/content/authors' }),
   schema: z.object({
     name: z.string(),
-    email: z.string().email().optional(),
+    email: z.email().optional(),
     avatar: z.string().optional(), // Path or URL
     bio: z.string().optional(),
     social: z
@@ -22,7 +32,7 @@ const authorCollection = defineCollection({
         twitter: z.string().optional(),
         github: z.string().optional(),
         linkedin: z.string().optional(),
-        website: z.string().url().optional(),
+        website: z.url().optional(),
       })
       .optional(),
   }),
@@ -30,7 +40,7 @@ const authorCollection = defineCollection({
 
 // Category collection
 const categoryCollection = defineCollection({
-  type: 'data',
+  loader: glob({ pattern: '**/[^_]*.json', base: './src/content/categories' }),
   schema: z.object({
     name: z.string(),
     slug: z.string(),
@@ -40,9 +50,9 @@ const categoryCollection = defineCollection({
   }),
 });
 
-// Main blog collection
+// Main blog collection (Markdown/MDX)
 const blogCollection = defineCollection({
-  type: 'content', // Markdown/MDX files
+  loader: glob({ pattern: '**/[^_]*.{md,mdx}', base: './src/content/blog' }),
   schema: ({ image }) =>
     z.object({
       // Required fields
@@ -54,13 +64,13 @@ const blogCollection = defineCollection({
       updatedDate: z.coerce.date().optional(),
       draft: z.boolean().default(false),
 
-      // Author - reference to authors collection
+      // Author — reference to authors collection
       author: reference('authors').optional(),
 
-      // Categories - references to categories collection
+      // Categories — references to categories collection
       categories: z.array(reference('categories')).optional(),
 
-      // Tags - simple strings
+      // Tags — simple strings
       tags: z.array(z.string()).default([]),
 
       // Cover image with Astro image optimization
@@ -72,7 +82,7 @@ const blogCollection = defineCollection({
         .object({
           title: z.string().optional(),
           description: z.string().optional(),
-          canonical: z.string().url().optional(),
+          canonical: z.url().optional(),
           noindex: z.boolean().default(false),
         })
         .optional(),
@@ -83,11 +93,11 @@ const blogCollection = defineCollection({
       // Featured post
       featured: z.boolean().default(false),
 
-      // Related posts - references to other blog posts
+      // Related posts — references to other blog posts
       relatedPosts: z.array(reference('blog')).optional(),
 
       // External link (for link posts)
-      externalUrl: z.string().url().optional(),
+      externalUrl: z.url().optional(),
 
       // Series support
       series: z
@@ -158,3 +168,13 @@ Content here...
   "icon": "code"
 }
 */
+
+// -----------------------------
+// Alternative: single JSON file with multiple records
+// -----------------------------
+// If you prefer one combined file (e.g. src/content/authors/_authors.json containing
+// an array or keyed object of authors), swap the `glob()` loader for `file()`:
+//
+//   loader: file('./src/content/authors/_authors.json'),
+//
+// The leading underscore prevents the file from being matched by the glob.

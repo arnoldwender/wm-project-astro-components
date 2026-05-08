@@ -1,10 +1,12 @@
-import { defineCollection, z } from 'astro:content';
+import { defineCollection } from 'astro:content';
+import { z } from 'astro/zod';
+import { glob } from 'astro/loaders';
 
 /**
  * Products Collection
  */
 const productsCollection = defineCollection({
-  type: 'content',
+  loader: glob({ pattern: '**/[^_]*.{md,mdx}', base: './src/content/products' }),
   schema: ({ image }) =>
     z.object({
       // Basic info
@@ -68,16 +70,16 @@ const productsCollection = defineCollection({
       order: z.number().default(0),
 
       // Affiliate (if applicable)
-      affiliateLink: z.string().url().optional(),
+      affiliateLink: z.url().optional(),
       affiliateId: z.string().optional(),
     }),
 });
 
 /**
- * Categories Collection
+ * Categories Collection (data files)
  */
 const categoriesCollection = defineCollection({
-  type: 'data',
+  loader: glob({ pattern: '**/[^_]*.json', base: './src/content/categories' }),
   schema: ({ image }) =>
     z.object({
       name: z.string(),
@@ -91,10 +93,10 @@ const categoriesCollection = defineCollection({
 });
 
 /**
- * Reviews Collection
+ * Reviews Collection (data files)
  */
 const reviewsCollection = defineCollection({
-  type: 'data',
+  loader: glob({ pattern: '**/[^_]*.json', base: './src/content/reviews' }),
   schema: z.object({
     productSlug: z.string(),
     author: z.string(),

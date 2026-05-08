@@ -16,7 +16,7 @@
  * </EcommerceLayout>
  */
 
-import { ViewTransitions } from 'astro:transitions';
+import { ClientRouter } from 'astro:transitions';
 
 export interface Product {
   name: string;
@@ -147,7 +147,7 @@ const breadcrumbSchema = breadcrumbs.length > 0 ? {
     {imageUrl && <meta name="twitter:image" content={imageUrl} />}
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <ViewTransitions />
+    <ClientRouter />
 
     <!-- Structured Data -->
     {productSchema && <script type="application/ld+json" set:html={JSON.stringify(productSchema)} />}

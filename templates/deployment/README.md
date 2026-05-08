@@ -42,7 +42,9 @@ import { defineConfig } from 'astro/config';
 import vercel from '@astrojs/vercel';
 
 export default defineConfig({
-  output: 'hybrid',
+  // Astro 5+ removed `output: 'hybrid'` — usa `output: 'server'` y marca las
+  // páginas estáticas con `export const prerender = true`.
+  output: 'server',
   adapter: vercel(),
 });
 ```
@@ -90,7 +92,9 @@ import { defineConfig } from 'astro/config';
 import netlify from '@astrojs/netlify';
 
 export default defineConfig({
-  output: 'hybrid',
+  // Astro 5+ removed `output: 'hybrid'` — usa `output: 'server'` y marca las
+  // páginas estáticas con `export const prerender = true`.
+  output: 'server',
   adapter: netlify(),
 });
 ```
@@ -241,7 +245,8 @@ jobs:
 ## Tips
 
 1. **Static First** - Usa `output: 'static'` si no necesitas SSR
-2. **Hybrid para APIs** - `output: 'hybrid'` permite SSG + API routes
+2. **Server + per-page prerender** - Astro 5+ reemplazó `output: 'hybrid'`. Usa
+   `output: 'server'` y marca las páginas estáticas con `export const prerender = true`.
 3. **Edge Middleware** - Úsalo para geo-redirects, A/B testing
 4. **Caching** - Configura headers de cache para assets estáticos
 5. **Secrets** - Nunca commits secrets, usa variables de entorno

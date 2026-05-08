@@ -25,7 +25,7 @@
  * </BaseLayout>
  */
 
-import { ViewTransitions } from 'astro:transitions';
+import { ClientRouter } from 'astro:transitions';
 
 export interface Props {
   title: string;
@@ -159,8 +159,8 @@ const defaultStructuredData = {
     <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
     <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
 
-    <!-- View Transitions -->
-    <ViewTransitions />
+    <!-- View Transitions (Astro 6: ClientRouter) -->
+    <ClientRouter />
 
     <!-- Structured Data -->
     <script

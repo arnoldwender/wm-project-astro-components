@@ -18,7 +18,7 @@
  * </BlogLayout>
  */
 
-import { ViewTransitions } from 'astro:transitions';
+import { ClientRouter } from 'astro:transitions';
 
 export interface Author {
   name: string;
@@ -178,8 +178,8 @@ const localeMap: Record<string, string> = {
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
-    <!-- View Transitions -->
-    <ViewTransitions />
+    <!-- View Transitions (Astro 6: ClientRouter) -->
+    <ClientRouter />
 
     <!-- Structured Data -->
     <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />

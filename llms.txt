@@ -1,15 +1,23 @@
 # @wendermedia/astro-components
 
-> Complete Astro development resource — production-ready, accessible, GDPR-compliant components for modern web development. 158 components across 17 categories.
+> Complete Astro 6 development resource — production-ready, accessible, GDPR-compliant components for modern web development. 158 components across 17 categories. Source-available under the Wender Media Source License v1.0.
+
+## Version
+
+- Current: 3.0.0 (2026-05-08, Astro 6 + Tailwind 4)
+- Legacy MIT release: 2.1.0 (Astro 4/5)
 
 ## Tech Stack
 
-- Astro 4.x / 5.x (Astro 6 coming soon)
+- Astro 6.x (peer dependency)
+- Tailwind CSS 4.x via `@tailwindcss/vite` (templates)
+- Node.js 22.12+
 - TypeScript 5.x
-- Vitest (Unit + A11y testing)
-- Storybook 8.x (Component docs)
+- Vitest 4 (Unit + A11y testing)
+- Storybook 10.x (Component docs)
 - Style Dictionary (Design tokens)
 - Changesets (Versioning)
+- Vite 7 / 8 (downstream)
 
 ## Component Categories (17)
 
@@ -36,8 +44,8 @@
 - `integrations/` — WordPress headless CMS, React, Vue, Svelte, Solid
 - `tokens/` — Design tokens via Style Dictionary
 - `cli/` — Project scaffolding tool (`create-wm-component`)
-- `bundles/` — Pre-configured component bundles
-- `templates/` — Project templates (default, minimal, ecommerce, blog, landing)
+- `bundles/` — Pre-configured component bundles (Astro 6 + Tailwind 4)
+- `templates/` — Project templates (default, minimal, ecommerce, blog, landing) using Astro 6 patterns (`ClientRouter`, Content Layer API)
 - `testing/` — A11y test utilities
 
 ## Commands
@@ -51,15 +59,28 @@
 
 ## Key Principles
 
-- WCAG 2.1 AA / BFSG compliant
+- WCAG 2.1 AA / BFSG 2025 compliant
 - GDPR/DSGVO ready (privacy-first, no third-party tracking)
 - TypeScript-first with complete type definitions
 - Dark mode support via CSS custom properties
+- Astro-component keyword in `package.json` for Astro integrations catalogue auto-discovery
 
 ## Storybook
 
 Browse all 158 components interactively: https://astro.wendermedia.com
 
+## Keywords
+
+astro-component, astro, astro6, components, ui, seo, accessibility, wcag, gdpr, dsgvo, bfsg, maps, social-share, react, vue, svelte, solid, content-collections, view-transitions, i18n, design-system, design-tokens, css-variables, theming, dark-mode, tailwind, tailwind4, wordpress, headless-cms
+
 ## License
 
-MIT License — Copyright (c) 2007-2026 Wender Media - Arnold Wender.
+Wender Media Source License v1.0 (SPDX: `LicenseRef-Wender-Media-Source-1.0`).
+Source-available proprietary with weak copyleft. Free for commercial and non-commercial use, no tier limits. Attribution recommended but not required.
+For an MIT-licensed alternative, pin `@wendermedia/astro-components@2.1.0`.
+
+Copyright (c) 2007-2026 Arnold Wender · Wender Media. All Rights Reserved.
+
+## Migration
+
+Upgrading from 2.x: see `docs/MIGRATION-2.x-to-3.0.md` in the repository for the full Astro 6 + Tailwind 4 + license-model upgrade guide.

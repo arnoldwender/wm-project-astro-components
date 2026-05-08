@@ -1,15 +1,30 @@
 /**
- * Astro Configuration - Multi-language Site
+ * Astro 6 + Tailwind 4 Configuration — Multi-language Site
+ *
+ * Tailwind 4 is now a Vite plugin (no @astrojs/tailwind).
+ * Configure tokens in your CSS via @theme blocks (no tailwind.config.js).
+ *
+ * Example src/styles/global.css:
+ *   @import "tailwindcss";
+ *   @plugin "@tailwindcss/typography";
+ *   @theme {
+ *     --color-primary: #003263;
+ *     --font-sans: 'Inter', sans-serif;
+ *   }
  *
  * Optimized for:
  * - International/Corporate sites
  * - Multiple languages (DE, EN, ES, etc.)
  * - SEO per locale
  * - CMS integration ready
+ *
+ * Astro 5+ removed `output: 'hybrid'`. Use `output: 'server'` with
+ * `export const prerender = true` on individual pages that should be statically
+ * generated (the inverse of the old hybrid mental model).
  */
 
 import { defineConfig } from 'astro/config';
-import tailwind from '@astrojs/tailwind';
+import tailwindcss from '@tailwindcss/vite';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import react from '@astrojs/react';
@@ -19,8 +34,8 @@ export default defineConfig({
   // Production URL
   site: 'https://www.example.com',
 
-  // Hybrid for forms/API
-  output: 'hybrid',
+  // Server output for forms/API (was 'hybrid' in Astro 4; replaced in 5+).
+  output: 'server',
 
   // Netlify adapter (good i18n redirect support)
   adapter: netlify({
@@ -50,7 +65,7 @@ export default defineConfig({
 
   // Integrations
   integrations: [
-    tailwind({ applyBaseStyles: true }),
+    // Tailwind 4 lives in vite.plugins below — @astrojs/tailwind is no longer used.
 
     mdx(),
 
@@ -104,6 +119,7 @@ export default defineConfig({
 
   // Vite configuration
   vite: {
+    plugins: [tailwindcss()],
     resolve: {
       alias: {
         '@i18n': '/src/i18n',

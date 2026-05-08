@@ -122,21 +122,26 @@ src/content/
     └── v2.0.0.mdx
 ```
 
-## Integración con src/content/config.ts
+## Integración con src/content.config.ts (Astro 6)
 
-Combina múltiples esquemas:
+Astro 6 movió la configuración de `src/content/config.ts` a `src/content.config.ts`
+y reemplazó el modo legacy `type: 'content' | 'data'` por la **Content Layer API**
+con `loader:` (`glob()` o `file()` desde `astro/loaders`). Combina múltiples
+esquemas así:
 
 ```typescript
-// src/content/config.ts
-import { defineCollection, z, reference } from 'astro:content';
+// src/content.config.ts
+import { defineCollection, reference } from 'astro:content';
+import { z } from 'astro/zod';
+import { glob } from 'astro/loaders';
 
-// Importa los esquemas que necesites y combínalos
 const blogCollection = defineCollection({
-  type: 'content',
-  schema: ({ image }) => z.object({
-    title: z.string(),
-    // ... tu esquema
-  }),
+  loader: glob({ pattern: '**/[^_]*.{md,mdx}', base: './src/content/blog' }),
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      // zod 4: usa z.email() / z.url() / z.uuid() en vez de z.string().email() etc.
+    }),
 });
 
 export const collections = {

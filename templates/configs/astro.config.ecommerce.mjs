@@ -1,8 +1,22 @@
 /**
- * Astro Configuration - E-commerce Site
+ * Astro 6 + Tailwind 4 Configuration — E-commerce Site
+ *
+ * Tailwind 4 is now a Vite plugin (no @astrojs/tailwind).
+ * Configure tokens in your CSS via @theme blocks (no tailwind.config.js).
+ *
+ * Example src/styles/global.css:
+ *   @import "tailwindcss";
+ *   @plugin "@tailwindcss/typography";
+ *   @theme {
+ *     --color-primary: #003263;
+ *     --font-sans: 'Inter', sans-serif;
+ *   }
  *
  * Optimized for:
- * - Hybrid rendering (SSG + SSR)
+ * - Server rendering with per-page prerender opt-in (Astro 5+ replaced
+ *   `output: 'hybrid'`; use `output: 'server'` and `export const prerender = true`
+ *   on pages that should be statically generated, OR `output: 'static'` with
+ *   `export const prerender = false` on the API routes only).
  * - React for cart/checkout interactivity
  * - API endpoints for cart operations
  * - Edge deployment
@@ -10,7 +24,7 @@
 
 import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
-import tailwind from '@astrojs/tailwind';
+import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
 import partytown from '@astrojs/partytown';
 import vercel from '@astrojs/vercel';
@@ -19,8 +33,9 @@ export default defineConfig({
   // Production URL
   site: 'https://shop.example.com',
 
-  // Hybrid output: Static by default, SSR where needed
-  output: 'hybrid',
+  // Server output with per-page `export const prerender = true` for product/static
+  // pages. Astro 5+ removed `output: 'hybrid'`; this is its replacement.
+  output: 'server',
 
   // Deployment adapter
   adapter: vercel({
@@ -44,10 +59,7 @@ export default defineConfig({
       include: ['**/react/**', '**/components/*.tsx'],
     }),
 
-    tailwind({
-      applyBaseStyles: true,
-      nesting: true,
-    }),
+    // Tailwind 4 lives in vite.plugins below — @astrojs/tailwind is no longer used.
 
     sitemap({
       filter: (page) => {
@@ -97,16 +109,19 @@ export default defineConfig({
   },
 
   // Security headers
+  // X-XSS-Protection has been removed: it is deprecated and the auditors flag
+  // it as actively harmful (it can introduce mXSS in older Chromium). Use a
+  // proper Content-Security-Policy on the platform/edge layer instead.
   server: {
     headers: {
       'X-Content-Type-Options': 'nosniff',
       'X-Frame-Options': 'DENY',
-      'X-XSS-Protection': '1; mode=block',
     },
   },
 
   // Vite configuration
   vite: {
+    plugins: [tailwindcss()],
     build: {
       rollupOptions: {
         output: {

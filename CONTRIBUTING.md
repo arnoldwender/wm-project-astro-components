@@ -1,6 +1,8 @@
 # Contributing to @wendermedia/astro-components
 
-Thank you for your interest in contributing! This guide will help you get started.
+Thank you for your interest in contributing. This guide will help you get started.
+
+> **License model (since v3.0.0):** This project is distributed under the [Wender Media Source License v1.0](./LICENSE) (SPDX: `LicenseRef-Wender-Media-Source-1.0`), a source-available proprietary license with weak copyleft. By submitting a Contribution you agree to license it to Arnold Wender · Wender Media under the same terms (see Section 7 of the [LICENSE](./LICENSE)). The previous MIT-licensed series (2.x) remains available on npm at `@wendermedia/astro-components@2.1.0`.
 
 ## Table of Contents
 
@@ -86,7 +88,7 @@ Every component MUST:
 
 1. **Have TypeScript Props interface** at the top of the frontmatter
 2. **Include a JSDoc header** with description, features, and `@example`
-3. **Include copyright notice**: `@copyright 2007-2026 Wender Media - Arnold Wender. MIT License.`
+3. **Include copyright + license header**: `@copyright 2007-2026 Arnold Wender · Wender Media. All Rights Reserved.` and `@license LicenseRef-Wender-Media-Source-1.0`
 4. **Be WCAG 2.1 AA compliant** (keyboard navigation, ARIA labels, focus management)
 5. **Use design tokens** - never hardcode colors, spacing, or typography values
 6. **Support dark mode** via CSS custom properties
@@ -107,7 +109,8 @@ Every component MUST:
  *
  * @example
  * <ComponentName prop="value" />
- * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @copyright 2007-2026 Arnold Wender · Wender Media. All Rights Reserved.
+ * @license LicenseRef-Wender-Media-Source-1.0
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */
 
@@ -230,4 +233,13 @@ Output formats:
 
 ## License
 
-By contributing, you agree that your contributions will be licensed under the [MIT License](./LICENSE).
+By submitting a Contribution, you agree that your Contribution will be licensed under the [Wender Media Source License v1.0](./LICENSE) (SPDX: `LicenseRef-Wender-Media-Source-1.0`), and you represent that you have the right to submit it under such terms (see Section 7 of the License).
+
+The Wender Media Source License is a source-available proprietary license with weak copyleft. Key points relevant to contributors:
+
+- Your Contribution will be freely usable by all consumers of the package, commercially and non-commercially, without fee.
+- The codebase cannot be relicensed under more permissive terms (such as MIT or Apache 2.0) by anyone &mdash; this protects both the original authorship and downstream contributors from having their work absorbed into incompatible licensing.
+- Copyright headers in source files (including any new files you author) must be preserved in derivatives.
+- Attribution to the project in consumer projects is recommended but not required.
+
+If you previously contributed to the 2.x MIT-licensed series of this project, those Contributions remain available under MIT in the npm package `@wendermedia/astro-components@2.1.0`. Future Contributions to the `main` branch (3.x and later) are licensed under the Wender Media Source License v1.0.

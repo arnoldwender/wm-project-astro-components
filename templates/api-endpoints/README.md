@@ -4,14 +4,21 @@ Plantillas de API endpoints para Astro SSR.
 
 ## Requisitos
 
-Para usar estos endpoints, necesitas SSR habilitado:
+Para usar estos endpoints, necesitas SSR habilitado. Astro 5+ removió
+`output: 'hybrid'`; ahora usas `output: 'server'` y marcas las páginas/rutas
+estáticas con `export const prerender = true`:
 
 ```javascript
 // astro.config.mjs
 export default defineConfig({
-  output: 'hybrid', // o 'server'
+  output: 'server',
   adapter: vercel(), // o netlify(), cloudflare(), etc.
 });
+```
+
+```ts
+// src/pages/index.astro o cualquier página estática
+export const prerender = true;
 ```
 
 ## Endpoints Disponibles

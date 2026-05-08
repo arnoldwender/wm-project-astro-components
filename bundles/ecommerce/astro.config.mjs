@@ -1,14 +1,15 @@
 import { defineConfig } from 'astro/config';
 import react from '@astrojs/react';
-import tailwind from '@astrojs/tailwind';
+import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
 import partytown from '@astrojs/partytown';
-import vercel from '@astrojs/vercel/serverless';
+import vercel from '@astrojs/vercel';
 
 // https://astro.build/config
 export default defineConfig({
   site: 'https://your-shop.com', // CAMBIAR
-  output: 'hybrid', // SSG por defecto, SSR para checkout
+  // Astro 6: SSG por defecto. Routes que necesitan SSR (checkout, cart)
+  // declaran `export const prerender = false`. Reemplaza 'hybrid'.
   adapter: vercel({
     imageService: true,
     isr: {
@@ -17,9 +18,6 @@ export default defineConfig({
   }),
   integrations: [
     react(),
-    tailwind({
-      applyBaseStyles: false,
-    }),
     sitemap({
       filter: (page) => !page.includes('/checkout') && !page.includes('/cart'),
     }),
@@ -38,6 +36,7 @@ export default defineConfig({
     defaultStrategy: 'viewport',
   },
   vite: {
+    plugins: [tailwindcss()],
     optimizeDeps: {
       exclude: ['@nanostores/react'],
     },
