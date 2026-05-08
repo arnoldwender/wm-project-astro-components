@@ -1,11 +1,13 @@
-import { defineCollection, z } from 'astro:content';
+import { defineCollection } from 'astro:content';
+import { z } from 'astro/zod';
+import { glob } from 'astro/loaders';
 
 /**
  * Blog Post Collection Schema
  * Tipado completo para posts de blog
  */
 const blogCollection = defineCollection({
-  type: 'content',
+  loader: glob({ pattern: '**/[^_]*.{md,mdx}', base: './src/content/blog' }),
   schema: ({ image }) =>
     z.object({
       // Required
@@ -30,7 +32,7 @@ const blogCollection = defineCollection({
       tags: z.array(z.string()).default([]),
 
       // SEO
-      canonicalUrl: z.string().url().optional(),
+      canonicalUrl: z.url().optional(),
       noindex: z.boolean().default(false),
 
       // Publishing
@@ -43,10 +45,10 @@ const blogCollection = defineCollection({
 });
 
 /**
- * Author Collection Schema
+ * Author Collection Schema (data files)
  */
 const authorCollection = defineCollection({
-  type: 'data',
+  loader: glob({ pattern: '**/[^_]*.json', base: './src/content/authors' }),
   schema: ({ image }) =>
     z.object({
       name: z.string(),
@@ -61,10 +63,10 @@ const authorCollection = defineCollection({
 });
 
 /**
- * Category Collection Schema
+ * Category Collection Schema (data files)
  */
 const categoryCollection = defineCollection({
-  type: 'data',
+  loader: glob({ pattern: '**/[^_]*.json', base: './src/content/categories' }),
   schema: z.object({
     name: z.string(),
     description: z.string(),

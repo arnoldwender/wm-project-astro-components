@@ -12,7 +12,7 @@ Permite transiciones suaves entre páginas sin JavaScript frameworks.
 ### BaseLayout.astro
 
 Layout base con:
-- `ViewTransitions` component
+- `ClientRouter` component (Astro 6 — antes `ViewTransitions`, deprecado desde Astro 4.5 y removido en Astro 6)
 - Estilos de transición globales
 - Elementos persistentes (header, footer)
 - Soporte para navegación hacia atrás
@@ -34,12 +34,13 @@ Card de producto con transiciones preparadas para página de detalle.
 ```astro
 ---
 // src/layouts/Layout.astro
-import { ViewTransitions } from 'astro:transitions';
+// Astro 6: usar ClientRouter (antes ViewTransitions). El prop handleForms ahora es default.
+import { ClientRouter } from 'astro:transitions';
 ---
 
 <html>
   <head>
-    <ViewTransitions />
+    <ClientRouter />
   </head>
   <body>
     <slot />

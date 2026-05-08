@@ -1,17 +1,25 @@
 /**
- * E-commerce Products Content Collection Schema
+ * E-commerce Products Content Collection Schema (Astro 6 — Content Layer API)
  *
  * Usage:
- * 1. Copy this file to your project's src/content/config.ts
- * 2. Create src/content/products/ folder
- * 3. Add .md, .mdx, or .json files with matching schema
+ * 1. Copy this file to your project's src/content.config.ts
+ *    (Astro 6 moved the config from src/content/config.ts to src/content.config.ts)
+ * 2. Create src/content/products/ + sibling JSON folders for product-categories,
+ *    brands, reviews
+ * 3. Add .md, .mdx for products and JSON files for entities
+ *
+ * Notes (Astro 6):
+ * - `type: 'data' | 'content'` is removed; use `glob()` / `file()` from `astro/loaders`.
+ * - zod 4 collapses `z.string().email()` → `z.email()`, `z.string().url()` → `z.url()`.
  */
 
-import { defineCollection, z, reference } from 'astro:content';
+import { defineCollection, reference } from 'astro:content';
+import { z } from 'astro/zod';
+import { glob } from 'astro/loaders';
 
 // Product categories
 const productCategoryCollection = defineCollection({
-  type: 'data',
+  loader: glob({ pattern: '**/[^_]*.json', base: './src/content/product-categories' }),
   schema: z.object({
     name: z.string(),
     slug: z.string(),
@@ -31,20 +39,20 @@ const productCategoryCollection = defineCollection({
 
 // Product brands
 const brandCollection = defineCollection({
-  type: 'data',
+  loader: glob({ pattern: '**/[^_]*.json', base: './src/content/brands' }),
   schema: z.object({
     name: z.string(),
     slug: z.string(),
     logo: z.string().optional(),
     description: z.string().optional(),
-    website: z.string().url().optional(),
+    website: z.url().optional(),
     featured: z.boolean().default(false),
   }),
 });
 
-// Main products collection
+// Main products collection (MDX for rich product descriptions)
 const productCollection = defineCollection({
-  type: 'content', // MDX for rich product descriptions
+  loader: glob({ pattern: '**/[^_]*.{md,mdx}', base: './src/content/products' }),
   schema: ({ image }) =>
     z.object({
       // Basic info
@@ -73,7 +81,7 @@ const productCollection = defineCollection({
       brand: reference('brands').optional(),
       tags: z.array(z.string()).default([]),
 
-      // Images - using Astro image optimization
+      // Images — using Astro image optimization
       images: z.array(image()).min(1),
       thumbnail: image().optional(), // Falls back to first image
 
@@ -87,7 +95,7 @@ const productCollection = defineCollection({
             sku: z.string(),
             price: z.number().positive().optional(), // Override base price
             image: z.string().optional(),
-            attributes: z.record(z.string()), // e.g., { size: 'L', color: 'Blue' }
+            attributes: z.record(z.string(), z.string()), // e.g., { size: 'L', color: 'Blue' }
             inStock: z.boolean().default(true),
             quantity: z.number().int().nonnegative().optional(),
           })
@@ -121,7 +129,7 @@ const productCollection = defineCollection({
         .object({
           title: z.string().optional(),
           description: z.string().optional(),
-          canonical: z.string().url().optional(),
+          canonical: z.url().optional(),
         })
         .optional(),
 
@@ -148,11 +156,11 @@ const productCollection = defineCollection({
 
 // Product reviews collection
 const reviewCollection = defineCollection({
-  type: 'data',
+  loader: glob({ pattern: '**/[^_]*.json', base: './src/content/reviews' }),
   schema: z.object({
     product: reference('products'),
     author: z.string(),
-    email: z.string().email().optional(),
+    email: z.email().optional(),
     rating: z.number().int().min(1).max(5),
     title: z.string().optional(),
     content: z.string(),

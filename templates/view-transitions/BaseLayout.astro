@@ -6,7 +6,7 @@
  * Copy to src/layouts/BaseLayout.astro
  */
 
-import { ViewTransitions } from 'astro:transitions';
+import { ClientRouter } from 'astro:transitions';
 
 interface Props {
   title: string;
@@ -39,7 +39,7 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
     <!-- View Transitions -->
-    <ViewTransitions />
+    <ClientRouter />
 
     <!-- Custom Transition Styles -->
     <style is:global>

@@ -2,7 +2,7 @@
  * Storybook Preview Configuration - WenderMedia Astro Components
  * Global decorators, parameters, theme switching, and a11y config.
  *
- * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @copyright 2007-2026 Wender Media - Arnold Wender. Wender Media Source License v1.0.
  */
 
 import type { Preview } from '@storybook/web-components';
@@ -18,7 +18,8 @@ import '../src/design-system/utilities/spacing.css';
 
 const preview: Preview = {
   parameters: {
-    actions: { argTypesRegex: '^on[A-Z].*' },
+    // Note: argTypesRegex was removed. Stories should use `fn()` from
+    // `storybook/test` for explicit action mocking when needed.
     controls: {
       expanded: true,
       sort: 'requiredFirst',
@@ -28,16 +29,17 @@ const preview: Preview = {
       },
     },
     backgrounds: {
-      default: 'light',
-      values: [
-        { name: 'light', value: '#ffffff' },
-        { name: 'dark', value: '#0f172a' },
-        { name: 'neutral', value: '#f1f5f9' },
-        { name: 'brand', value: '#eff6ff' },
-      ],
+      // Storybook 10: backgrounds use `options` (object) + `initialGlobals`.
+      options: {
+        light: { name: 'Light', value: '#ffffff' },
+        dark: { name: 'Dark', value: '#0f172a' },
+        neutral: { name: 'Neutral', value: '#f1f5f9' },
+        brand: { name: 'Brand', value: '#eff6ff' },
+      },
     },
     viewport: {
-      viewports: {
+      // Storybook 10: viewports use `options` (was `viewports`).
+      options: {
         iphone14: {
           name: 'iPhone 14',
           styles: { width: '390px', height: '844px' },
@@ -106,10 +108,15 @@ const preview: Preview = {
       },
     },
   },
+  // Storybook 10 default-globals replace toolbar.defaultValue.
+  initialGlobals: {
+    backgrounds: { value: 'light' },
+    theme: 'light',
+    locale: 'de-DE',
+  },
   globalTypes: {
     theme: {
       description: 'Global theme for components',
-      defaultValue: 'light',
       toolbar: {
         title: 'Theme',
         icon: 'circlehollow',
@@ -123,7 +130,6 @@ const preview: Preview = {
     },
     locale: {
       description: 'Internationalization locale',
-      defaultValue: 'de-DE',
       toolbar: {
         title: 'Locale',
         icon: 'globe',

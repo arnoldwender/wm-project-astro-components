@@ -1,10 +1,12 @@
-import { defineCollection, z } from 'astro:content';
+import { defineCollection } from 'astro:content';
+import { z } from 'astro/zod';
+import { glob } from 'astro/loaders';
 
 /**
  * Projects Collection
  */
 const projectsCollection = defineCollection({
-  type: 'content',
+  loader: glob({ pattern: '**/[^_]*.{md,mdx}', base: './src/content/projects' }),
   schema: ({ image }) =>
     z.object({
       title: z.string(),
@@ -38,8 +40,8 @@ const projectsCollection = defineCollection({
       tools: z.array(z.string()).default([]),
 
       // Links
-      liveUrl: z.string().url().optional(),
-      githubUrl: z.string().url().optional(),
+      liveUrl: z.url().optional(),
+      githubUrl: z.url().optional(),
       caseStudyUrl: z.string().optional(),
 
       // Display
@@ -50,10 +52,10 @@ const projectsCollection = defineCollection({
 });
 
 /**
- * Services Collection
+ * Services Collection (data files)
  */
 const servicesCollection = defineCollection({
-  type: 'data',
+  loader: glob({ pattern: '**/[^_]*.json', base: './src/content/services' }),
   schema: z.object({
     title: z.string(),
     shortDescription: z.string(),
@@ -72,10 +74,10 @@ const servicesCollection = defineCollection({
 });
 
 /**
- * Testimonials Collection
+ * Testimonials Collection (data files)
  */
 const testimonialsCollection = defineCollection({
-  type: 'data',
+  loader: glob({ pattern: '**/[^_]*.json', base: './src/content/testimonials' }),
   schema: ({ image }) =>
     z.object({
       name: z.string(),
@@ -84,7 +86,7 @@ const testimonialsCollection = defineCollection({
       avatar: image().optional(),
       quote: z.string(),
       rating: z.number().min(1).max(5).optional(),
-      projectSlug: z.string().optional(), // Link to project
+      projectSlug: z.string().optional(), // Link to project entry by ID
       featured: z.boolean().default(false),
     }),
 });

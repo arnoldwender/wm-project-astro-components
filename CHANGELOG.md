@@ -5,6 +5,75 @@ All notable changes to @wendermedia/astro-components will be documented in this 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.0] - 2026-05-08
+
+### Breaking Changes
+
+- **License changed:** MIT → Wender Media Source License v1.0 (source-available proprietary with weak copyleft and a recommended-only attribution requirement). v2.1.0 remains available on npm under MIT for legacy consumers.
+- **Astro 6 required:** Dropped Astro 4/5 peer-dependency support. Consumers must upgrade to Astro 6.0 or higher.
+- **Node 22.12+ required:** Dropped Node 18/20 support; `engines.node` now `>=22.12.0`.
+- **Templates:** All templates now use Astro 6 patterns (`ClientRouter`, Content Layer API, `@tailwindcss/vite`). Consumers copying templates will need to follow Astro 6 patterns.
+- **Storybook 10:** Internal dev-tool upgraded from 8.x to 10.3.x (does not affect consumers; Storybook is `devDependencies` only).
+- **`@astrojs/tailwind` removed** from `optionalDependencies` (deprecated, no Astro 6 support). Replaced with `@tailwindcss/vite` + `tailwindcss@^4`.
+
+### Added
+
+- `astro-component` keyword in `package.json` (enables Astro integrations catalogue auto-discovery).
+- `astro6`, `tailwind`, `tailwind4` keywords for discoverability.
+- `NOTICE` file with authorship, trademark and third-party-component disclaimers.
+- `LICENSE` and `NOTICE` added to the `files` array so they ship in the npm tarball.
+- `engines.node` field declaring the Node 22.12+ requirement.
+- `overrides.vite` field to defensively pin Vite to `^7 || ^8` across the dependency tree.
+- `optionalDependencies`: `@tailwindcss/vite@^4.2.4`, `tailwindcss@^4.2.4`.
+- [`docs/MIGRATION-2.x-to-3.0.md`](./docs/MIGRATION-2.x-to-3.0.md) &mdash; comprehensive consumer migration guide.
+
+### Changed
+
+- `peerDependencies.astro`: `^4.0.0 || ^5.0.0` → `^6.0.0`.
+- All `@astrojs/*` integrations bumped to Astro-6-compatible versions:
+  - `@astrojs/mdx`: `^3.1.9` → `^5.0.4`
+  - `@astrojs/partytown`: `^2.1.5` → `^2.1.7`
+  - `@astrojs/react`: `^3.6.3` → `^5.0.4`
+  - `@astrojs/sitemap`: `^3.7.1` → `^3.7.2`
+  - `@astrojs/solid-js`: `^4.4.4` → `^6.0.1`
+  - `@astrojs/svelte`: `^7.2.5` → `^8.1.0`
+  - `@astrojs/vue`: `^4.5.3` → `^6.0.1`
+- Dev tooling bumped:
+  - `astro`: `^5.18.1` → `^6.3.1`
+  - `vitest`: `^4.1.1` → `^4.1.5`
+  - `@vitest/coverage-v8`: `^4.1.1` → `^4.1.5`
+  - `@vitest/ui`: `^2.1.9` → `^4.1.5` (was on a stale major)
+  - `happy-dom`: `^20.8.8` → `^20.9.0`
+  - `eslint`: `^10.2.0` → `^10.3.0`
+  - `eslint-plugin-astro`: `^1.6.0` → `^1.7.0`
+  - `@axe-core/playwright`: `^4.11.1` → `^4.11.3`
+  - `axe-core`: `^4.11.1` → `^4.11.4`
+  - `@typescript-eslint/parser`, `typescript-eslint`: `^8.58.0` → `^8.59.2`
+  - `@changesets/cli`: `^2.30.0` → `^2.31.0`
+- Storybook stack upgraded to v10.3.x:
+  - `storybook`: `^8.6.18` → `^10.3.6`
+  - `@storybook/web-components`: `^8.0.0` → `^10.3.6`
+  - `@storybook/web-components-vite`: `^8.6.18` → `^10.3.6`
+  - `@storybook/addon-a11y`: `^8.6.18` → `^10.3.6`
+  - `@storybook/addon-links`: `^8.6.18` → `^10.3.6`
+- README rewritten for Astro 6: badges, install instructions, Requirements section, license framing, link to migration guide.
+- `CONTRIBUTING.md` updated to reference the Wender Media Source License v1.0 instead of MIT.
+- `OPEN-SOURCE-REPORT.md` renamed to `CONTRIBUTOR-REPORT.md` and reframed as a contributor-recognition document under the new license model.
+- `llms.txt` bumped to 3.0.0; updated tech-stack and license sections.
+
+### Removed
+
+- `@astrojs/tailwind` (use `@tailwindcss/vite` + `tailwindcss@^4` instead).
+- `@storybook/addon-essentials` (empty package since Storybook 9, removed in Storybook 10).
+- `@storybook/addon-interactions` (empty package since Storybook 9, removed in Storybook 10).
+- `@storybook/blocks` (empty package since Storybook 9, removed in Storybook 10).
+- `OPEN-SOURCE-REPORT.md` (replaced by `CONTRIBUTOR-REPORT.md`).
+- MIT License text from `LICENSE` (consumers needing the MIT-licensed version should pin `@wendermedia/astro-components@2.1.0`).
+
+### Migration Guide
+
+See [`docs/MIGRATION-2.x-to-3.0.md`](./docs/MIGRATION-2.x-to-3.0.md) for detailed upgrade instructions, including the `<ViewTransitions />` → `<ClientRouter />` swap, Content Layer API migration, Tailwind 4 setup, and the license-model explanation.
+
 ## [2.1.0] - 2026-04-06
 
 ### Added

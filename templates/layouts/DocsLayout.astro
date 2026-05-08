@@ -16,7 +16,7 @@
  * </DocsLayout>
  */
 
-import { ViewTransitions } from 'astro:transitions';
+import { ClientRouter } from 'astro:transitions';
 
 export interface SidebarItem {
   title: string;
@@ -72,7 +72,7 @@ const currentPath = Astro.url.pathname;
     <meta name="description" content={description} />
     <link rel="canonical" href={Astro.url.href} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <ViewTransitions />
+    <ClientRouter />
 
     <script is:inline>
       (function() {

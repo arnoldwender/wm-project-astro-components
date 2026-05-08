@@ -1,26 +1,33 @@
 /**
- * Portfolio/Projects Content Collection Schema
+ * Portfolio/Projects Content Collection Schema (Astro 6 — Content Layer API)
  *
  * For agencies, freelancers, and creative professionals.
  *
  * Usage:
- * 1. Copy this file to your project's src/content/config.ts
- * 2. Create src/content/projects/ folder
- * 3. Add .mdx files with case studies
+ * 1. Copy this file to your project's src/content.config.ts
+ *    (Astro 6 moved the config from src/content/config.ts to src/content.config.ts)
+ * 2. Create src/content/projects/ folder + sibling JSON folders for clients/services/team
+ * 3. Add .mdx files with case studies + JSON files for entities
+ *
+ * Notes (Astro 6):
+ * - `type: 'data' | 'content'` is removed; use `glob()` / `file()` from `astro/loaders`.
+ * - zod 4 collapses `z.string().url()` → `z.url()`.
  */
 
-import { defineCollection, z, reference } from 'astro:content';
+import { defineCollection, reference } from 'astro:content';
+import { z } from 'astro/zod';
+import { glob } from 'astro/loaders';
 
 // Client/Company collection
 const clientCollection = defineCollection({
-  type: 'data',
+  loader: glob({ pattern: '**/[^_]*.json', base: './src/content/clients' }),
   schema: z.object({
     name: z.string(),
     slug: z.string(),
     logo: z.string().optional(),
     logoLight: z.string().optional(), // For dark backgrounds
     logoDark: z.string().optional(), // For light backgrounds
-    website: z.string().url().optional(),
+    website: z.url().optional(),
     industry: z.string().optional(),
     size: z.enum(['startup', 'small', 'medium', 'enterprise']).optional(),
     testimonial: z
@@ -36,7 +43,7 @@ const clientCollection = defineCollection({
 
 // Service categories
 const serviceCollection = defineCollection({
-  type: 'data',
+  loader: glob({ pattern: '**/[^_]*.json', base: './src/content/services' }),
   schema: z.object({
     name: z.string(),
     slug: z.string(),
@@ -48,7 +55,7 @@ const serviceCollection = defineCollection({
 
 // Team members (for project attribution)
 const teamCollection = defineCollection({
-  type: 'data',
+  loader: glob({ pattern: '**/[^_]*.json', base: './src/content/team' }),
   schema: z.object({
     name: z.string(),
     slug: z.string(),
@@ -69,7 +76,7 @@ const teamCollection = defineCollection({
 
 // Main projects collection
 const projectCollection = defineCollection({
-  type: 'content',
+  loader: glob({ pattern: '**/[^_]*.{md,mdx}', base: './src/content/projects' }),
   schema: ({ image }) =>
     z.object({
       // Basic info
@@ -110,7 +117,7 @@ const projectCollection = defineCollection({
           })
         )
         .optional(),
-      video: z.string().url().optional(), // YouTube/Vimeo embed
+      video: z.url().optional(), // YouTube/Vimeo embed
 
       // Results/Impact
       results: z
@@ -138,9 +145,9 @@ const projectCollection = defineCollection({
       technologies: z.array(z.string()).optional(),
 
       // Links
-      liveUrl: z.string().url().optional(),
-      caseStudyUrl: z.string().url().optional(),
-      githubUrl: z.string().url().optional(),
+      liveUrl: z.url().optional(),
+      caseStudyUrl: z.url().optional(),
+      githubUrl: z.url().optional(),
 
       // Display options
       featured: z.boolean().default(false),
@@ -162,7 +169,7 @@ const projectCollection = defineCollection({
             name: z.string(),
             organization: z.string(),
             year: z.number(),
-            url: z.string().url().optional(),
+            url: z.url().optional(),
           })
         )
         .optional(),

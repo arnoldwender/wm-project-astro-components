@@ -11,7 +11,7 @@
  * </FullWidthLayout>
  */
 
-import { ViewTransitions } from 'astro:transitions';
+import { ClientRouter } from 'astro:transitions';
 
 export interface Props {
   title: string;
@@ -68,7 +68,7 @@ const imageUrl = image.startsWith('http') ? image : new URL(image, Astro.site).h
 
     <meta name="theme-color" content={themeColor} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <ViewTransitions />
+    <ClientRouter />
 
     <script is:inline>
       (function() {

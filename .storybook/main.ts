@@ -1,7 +1,7 @@
 /**
  * Storybook Main Configuration - WenderMedia Astro Components
  *
- * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @copyright 2007-2026 Wender Media - Arnold Wender. Wender Media Source License v1.0.
  */
 
 import type { StorybookConfig } from '@storybook/web-components-vite';
@@ -12,18 +12,16 @@ const config: StorybookConfig = {
     '../src/**/*.mdx',
     '../src/**/*.stories.@(js|jsx|mjs|ts|tsx)',
   ],
-  addons: [
-    '@storybook/addon-links',
-    '@storybook/addon-essentials',
-    '@storybook/addon-interactions',
-    '@storybook/addon-a11y',
-  ],
+  // Storybook 10: addon-essentials, addon-interactions, addon-links, blocks
+  // were absorbed into core in v9 and the empty packages will not be published
+  // going forward. Only standalone addons are listed here.
+  // addon-docs is required for MDX/Meta parsing in *.mdx story files.
+  addons: ['@storybook/addon-a11y', '@storybook/addon-docs'],
   framework: {
     name: '@storybook/web-components-vite',
     options: {},
   },
   docs: {
-    autodocs: 'tag',
     defaultName: 'Documentation',
   },
   staticDirs: ['../public'],
@@ -35,7 +33,6 @@ const config: StorybookConfig = {
       ...config,
       build: {
         ...config.build,
-        // Improve build performance
         sourcemap: false,
         chunkSizeWarningLimit: 1500,
       },

@@ -176,9 +176,9 @@ const { href, productId } = Astro.props;
 // Componente para links internos automáticos
 import { getCollection } from 'astro:content';
 
-const relatedProducts = await getCollection('products', ({ data }) => {
-  return data.category === currentProduct.category &&
-         data.slug !== currentProduct.slug;
+const relatedProducts = await getCollection('products', ({ data, id }) => {
+  return data.category === currentProduct.data.category &&
+         id !== currentProduct.id;
 });
 ---
 
@@ -187,7 +187,7 @@ const relatedProducts = await getCollection('products', ({ data }) => {
   <ul>
     {relatedProducts.slice(0, 5).map(p => (
       <li>
-        <a href={`/products/${p.slug}`}>{p.data.name}</a>
+        <a href={`/products/${p.id}`}>{p.data.name}</a>
       </li>
     ))}
   </ul>

@@ -1,6 +1,6 @@
 import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
-import tailwind from '@astrojs/tailwind';
+import tailwindcss from '@tailwindcss/vite';
 import sitemap from '@astrojs/sitemap';
 import react from '@astrojs/react';
 import netlify from '@astrojs/netlify';
@@ -8,16 +8,14 @@ import netlify from '@astrojs/netlify';
 // https://astro.build/config
 export default defineConfig({
   site: 'https://your-company.com', // CAMBIAR
-  output: 'hybrid',
+  // Astro 6: `output: 'static'` is the default. Per-route opt-in via
+  // `export const prerender = false` for SSR routes (replaces 'hybrid').
   adapter: netlify({
     imageCDN: true,
   }),
   integrations: [
     mdx(),
     react(),
-    tailwind({
-      applyBaseStyles: false,
-    }),
     sitemap({
       i18n: {
         defaultLocale: 'de',
@@ -46,5 +44,8 @@ export default defineConfig({
   prefetch: {
     prefetchAll: true,
     defaultStrategy: 'viewport',
+  },
+  vite: {
+    plugins: [tailwindcss()],
   },
 });

@@ -1,10 +1,12 @@
-import { defineCollection, z } from 'astro:content';
+import { defineCollection } from 'astro:content';
+import { z } from 'astro/zod';
+import { glob, file } from 'astro/loaders';
 
 /**
  * Products Collection - Para páginas de producto individual
  */
 const productsCollection = defineCollection({
-  type: 'content',
+  loader: glob({ pattern: '**/[^_]*.{md,mdx}', base: './src/content/products' }),
   schema: ({ image }) =>
     z.object({
       // SEO Critical
@@ -21,7 +23,7 @@ const productsCollection = defineCollection({
       // Pricing & Affiliate
       price: z.number(),
       currency: z.string().default('EUR'),
-      affiliateLink: z.string().url(),
+      affiliateLink: z.url(),
       affiliateId: z.string(),
       marketplace: z.enum(['amazon', 'ebay', 'other']).default('amazon'),
       asin: z.string().optional(), // Amazon ASIN
@@ -75,7 +77,7 @@ const productsCollection = defineCollection({
  * Reviews Collection - Para reviews comparativas
  */
 const reviewsCollection = defineCollection({
-  type: 'content',
+  loader: glob({ pattern: '**/[^_]*.{md,mdx}', base: './src/content/reviews' }),
   schema: ({ image }) =>
     z.object({
       title: z.string(),
@@ -91,14 +93,14 @@ const reviewsCollection = defineCollection({
         'guide',
       ]),
 
-      // Products reviewed
-      products: z.array(z.string()), // Slugs de productos
+      // Products reviewed (entry IDs)
+      products: z.array(z.string()),
 
       // Content
       heroImage: image(),
       heroImageAlt: z.string(),
       excerpt: z.string(),
-      winner: z.string().optional(), // Slug del ganador
+      winner: z.string().optional(), // Entry ID of the winner
 
       // Publishing
       pubDate: z.coerce.date(),
@@ -106,15 +108,15 @@ const reviewsCollection = defineCollection({
       author: z.string(),
 
       // SEO
-      canonicalUrl: z.string().url().optional(),
+      canonicalUrl: z.url().optional(),
     }),
 });
 
 /**
- * Categories Collection
+ * Categories Collection (data files)
  */
 const categoriesCollection = defineCollection({
-  type: 'data',
+  loader: glob({ pattern: '**/[^_]*.json', base: './src/content/categories' }),
   schema: ({ image }) =>
     z.object({
       name: z.string(),
@@ -128,10 +130,10 @@ const categoriesCollection = defineCollection({
 });
 
 /**
- * Authors Collection
+ * Authors Collection (data files)
  */
 const authorsCollection = defineCollection({
-  type: 'data',
+  loader: glob({ pattern: '**/[^_]*.json', base: './src/content/authors' }),
   schema: ({ image }) =>
     z.object({
       name: z.string(),

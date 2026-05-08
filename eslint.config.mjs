@@ -3,7 +3,8 @@
  *
  * Flat config for ESLint 9+ with Astro and TypeScript support.
  *
- * @copyright 2007-2026 Wender Media - Arnold Wender. MIT License.
+ * @copyright 2007-2026 Arnold Wender · Wender Media. All Rights Reserved.
+ * @license LicenseRef-Wender-Media-Source-1.0
  */
 
 import js from '@eslint/js';
@@ -21,6 +22,7 @@ export default tseslint.config(
       'dist/**',
       'node_modules/**',
       '.storybook/**',
+      'storybook-static/**',
       'tokens/dist/**',
       'public/**',
       'configs/**',

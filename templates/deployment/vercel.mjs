@@ -18,7 +18,9 @@ import { defineConfig } from 'astro/config';
 import vercel from '@astrojs/vercel';
 
 export default defineConfig({
-  output: 'hybrid', // or 'server' for full SSR
+  // Astro 5+ removed `output: 'hybrid'`. Use `output: 'server'` and mark
+  // statically prerendered pages with `export const prerender = true`.
+  output: 'server',
 
   adapter: vercel({
     // ================================
@@ -114,8 +116,7 @@ export default defineConfig({
       "source": "/(.*)",
       "headers": [
         { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "X-XSS-Protection", "value": "1; mode=block" }
+        { "key": "X-Frame-Options", "value": "DENY" }
       ]
     }
   ],
@@ -189,8 +190,9 @@ import { getCollection, getEntry } from 'astro:content';
 
 export async function getStaticPaths() {
   const products = await getCollection('products');
+  // Astro 6 Content Layer: entry.id IS the slug (glob loader).
   return products.map(product => ({
-    params: { slug: product.slug },
+    params: { slug: product.id },
   }));
 }
 

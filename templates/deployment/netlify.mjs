@@ -19,7 +19,9 @@ import { defineConfig } from 'astro/config';
 import netlify from '@astrojs/netlify';
 
 export default defineConfig({
-  output: 'hybrid', // or 'server' for full SSR
+  // Astro 5+ removed `output: 'hybrid'`. Use `output: 'server'` and mark
+  // statically prerendered pages with `export const prerender = true`.
+  output: 'server',
 
   adapter: netlify({
     // ================================
@@ -67,12 +69,13 @@ export default defineConfig({
   NODE_VERSION = "20"
 
 # Headers for all pages
+# Note: X-XSS-Protection is intentionally omitted — it is deprecated and can
+# introduce mXSS in older Chromium. Use a Content-Security-Policy instead.
 [[headers]]
   for = "/*"
   [headers.values]
     X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
-    X-XSS-Protection = "1; mode=block"
     Referrer-Policy = "strict-origin-when-cross-origin"
 
 # Cache static assets

@@ -1,7 +1,11 @@
 /**
- * Astro Configuration - Documentation Site
+ * Astro 6 Configuration — Documentation Site
  *
- * Using Starlight for full-featured docs.
+ * Using Starlight for full-featured docs (Starlight bundles its own styling
+ * pipeline, so Tailwind 4 is NOT required here — if you do add it, install
+ * `@tailwindcss/vite` and add it to `vite.plugins`, see other configs in this
+ * folder for the pattern).
+ *
  * For custom docs, see astro.config.custom-docs.mjs
  */
 
