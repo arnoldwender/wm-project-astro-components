@@ -6,7 +6,7 @@
  * @copyright 2007-2026 Arnold Wender · Wender Media. All Rights Reserved.
  * @license LicenseRef-Wender-Media-Source-1.0
  * @see https://github.com/arnoldwender/wm-project-astro-components
- * @version 3.0.0
+ * @version 3.0.1
  */
 
 // ============================================================================
