@@ -5,6 +5,20 @@ All notable changes to @wendermedia/astro-components will be documented in this 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.1] - 2026-05-08
+
+### Changed
+
+- **Keywords expanded** for Astro integrations catalogue auto-discovery. Added 9 keywords matching official Astro category taxonomy ([docs](https://docs.astro.build/en/guides/integrations/#categories)):
+  - **Images + Media** (new category match): `image`, `images`, `media`, `video`, `audio` — reflects existing `OptimizedImage` (with LQIP), `ImageGallery`, `VideoPlayer` (DSGVO consent gate), `AudioPlayer`, `BeforeAfter` slider components
+  - **CSS + UI** reinforcement: `css`
+  - **Performance + SEO** reinforcement: `performance`, `optimization`
+  - **Accessibility** reinforcement: `a11y` (synonym)
+
+The package now appears in 4 Astro integrations catalogue categories (was 3): Accessibility, CSS + UI, Images + Media, Performance + SEO.
+
+No code changes. No breaking changes. Pure metadata patch.
+
 ## [3.0.0] - 2026-05-08
 
 ### Breaking Changes
