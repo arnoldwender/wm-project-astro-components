@@ -663,14 +663,14 @@ const panelPositionClasses = position === 'left'
 
 <script>
 function initAccessibilityToolbar() {
-  const toolbar = document.querySelector('[data-a11y-toolbar]');
+  const toolbar = document.querySelector<HTMLElement>('[data-a11y-toolbar]');
   if (!toolbar) return;
 
-  const trigger = toolbar.querySelector('[data-a11y-trigger]');
-  const panel = toolbar.querySelector('[data-a11y-panel]');
+  const trigger = toolbar.querySelector<HTMLElement>('[data-a11y-trigger]');
+  const panel = toolbar.querySelector<HTMLElement>('[data-a11y-panel]');
   const closeBtn = toolbar.querySelector('[data-a11y-close]');
   const resetBtn = toolbar.querySelector('[data-a11y-reset]');
-  const readingGuideEl = document.querySelector('[data-a11y-reading-guide-el]');
+  const readingGuideEl = document.querySelector<HTMLElement>('[data-a11y-reading-guide-el]');
 
   const position = toolbar.getAttribute('data-position') || 'right';
   const storageKey = toolbar.getAttribute('data-storage-key') || 'a11y-settings';
@@ -703,6 +703,9 @@ function initAccessibilityToolbar() {
 
   // Apply all settings
   function applySettings() {
+    // toolbar is captured from the outer scope; TS cannot carry the outer
+    // null-guard into this closure, so re-assert it here (always present at runtime).
+    if (!toolbar) return;
     const body = document.body;
 
     // Font size

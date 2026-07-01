@@ -59,7 +59,6 @@ const gapClasses = {
   data-variant={variant}
 >
   {variant === 'editorial' && (
-    <!-- Editorial: Hero + 2 medium + row of small -->
     <div class="magazine-editorial grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- Featured/Hero Article -->
       <div class="magazine-featured lg:col-span-2 lg:row-span-2">
@@ -79,7 +78,6 @@ const gapClasses = {
   )}
 
   {variant === 'featured-left' && (
-    <!-- Featured Left: Large left + stacked right -->
     <div class="magazine-featured-left grid grid-cols-1 lg:grid-cols-2 gap-6">
       <div class="magazine-featured">
         <slot name="featured" />
@@ -91,7 +89,6 @@ const gapClasses = {
   )}
 
   {variant === 'featured-right' && (
-    <!-- Featured Right: Stacked left + large right -->
     <div class="magazine-featured-right grid grid-cols-1 lg:grid-cols-2 gap-6">
       <div class="magazine-stack grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-6 order-2 lg:order-1">
         <slot />
@@ -103,7 +100,6 @@ const gapClasses = {
   )}
 
   {variant === 'grid' && (
-    <!-- Standard Grid -->
     <div class:list={[
       'magazine-grid grid gap-6',
       columns === 2 && 'grid-cols-1 sm:grid-cols-2',
@@ -115,7 +111,6 @@ const gapClasses = {
   )}
 
   {variant === 'masonry' && (
-    <!-- CSS Masonry-like with columns -->
     <div class:list={[
       'magazine-masonry columns-1 sm:columns-2 lg:columns-3 gap-6',
       columns === 4 && 'xl:columns-4',

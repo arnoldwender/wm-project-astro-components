@@ -147,7 +147,7 @@ const {
 
       function updateProgress() {
         const scrollTop = window.scrollY;
-        let progress = 0;
+        let progress: number;
 
         if (targetSelector && targetElement) {
           // Calculate progress within target element

@@ -277,6 +277,7 @@ function initStats() {
       }
 
       function update(currentTime: number) {
+        if (!valueEl) return;
         const elapsed = currentTime - startTime;
         const progress = Math.min(elapsed / duration, 1);
         const easedProgress = easeOutExpo(progress);

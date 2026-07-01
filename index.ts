@@ -61,7 +61,7 @@ export type {
   SidebarProps,
   SidebarItem,
   MobileNavProps,
-  MobileNavItem,
+  NavItem as MobileNavItem,
   PaginationProps,
 } from './src/navigation';
 
@@ -210,12 +210,10 @@ export type { OptimizedImageProps } from './src/images';
 
 // i18n Utilities
 export {
-  t,
   createTranslator,
   addTranslations,
-  getTranslation,
-  hasTranslation,
-  getAllTranslations,
+  mergeTranslations,
+  getAvailableLocales,
   defaultTranslations,
 } from './utilities/i18n/translations';
 export {
@@ -249,18 +247,16 @@ export {
 } from './utilities/analytics';
 export type {
   CookieConsentProps,
-  ConsentSettings,
+  ConsentData as ConsentSettings,
+  CookieCategory,
   GoogleAnalyticsProps,
   PlausibleProps,
   MatomoProps,
 } from './utilities/analytics';
 export {
+  getConsent as getConsentSettings,
   hasConsent,
-  getConsentSettings,
-  setConsentSettings,
-  onConsentChange,
-  trackEvent,
-  trackPageView,
+  revokeConsent,
 } from './utilities/analytics';
 
 // ============================================================================
@@ -287,16 +283,16 @@ export type {
 
 // Page Templates
 export {
-  NotFoundPage,
-  ErrorPage,
+  Page404 as NotFoundPage,
+  Page500 as ErrorPage,
   MaintenancePage,
   ComingSoonPage,
   PrivacyPage,
   ImprintPage,
 } from './templates/pages';
 export type {
-  NotFoundPageProps,
-  ErrorPageProps,
+  Page404Props as NotFoundPageProps,
+  Page500Props as ErrorPageProps,
   MaintenancePageProps,
   ComingSoonPageProps,
   PrivacyPageProps,

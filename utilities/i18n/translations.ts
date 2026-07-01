@@ -379,3 +379,17 @@ export function mergeTranslations(
 
   return merged;
 }
+
+// ---------------------------------------------------------------------------
+// Public API aliases — stable names re-exported from the package barrel.
+// (Astro 7 / v4.0.0)
+// ---------------------------------------------------------------------------
+
+/** Alias of {@link mergeTranslations}. */
+export const addTranslations = mergeTranslations;
+
+/** A translation key path, dot-notated (e.g. "nav.home"). */
+export type TranslationKey = string;
+
+/** The translator function returned by {@link createTranslator}. */
+export type TranslatorFunction = ReturnType<typeof createTranslator>;
