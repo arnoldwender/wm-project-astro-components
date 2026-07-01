@@ -1,5 +1,22 @@
 # Changelog
 
+## 4.0.0
+
+### Major Changes
+
+- d7b9a3f: Migrate to **Astro 7 + Vite 8** (Node 22.12+). The peer range is now `astro@^6.0.0 || ^7.0.0` — every component compiles clean under both majors, so one v4 line serves Astro-6 and Astro-7 apps. Most consumers need no code changes.
+
+  **What changed**
+
+  - Bumped official integrations to their Astro-7 majors (`@astrojs/mdx` 7, `react` 6, `vue` 7, `svelte` 9, `solid-js` 7, `sitemap` 3.7.3); `eslint-plugin-astro` 2; added `@astrojs/check`.
+  - `gsap` is now an **optional peer** (only the `Hero` animated variant uses it, behind a graceful fallback).
+  - Whitespace between inline elements now follows Astro 7's `compressHTML: 'jsx'` default — shipped components are unaffected (they space via design tokens).
+  - **Removed 4 previously-broken i18n barrel exports** that were never implemented (`t`, `getTranslation`, `hasTranslation`, `getAllTranslations`) — they resolved to `undefined` in 3.x. Use `createTranslator()` / `getAvailableLocales()` instead. All other i18n helpers are preserved and now resolve to real implementations.
+  - Reconciled the public export surface (analytics, pages, navigation, i18n): advertised names like `NotFoundPage`, `ConsentSettings`, `getConsentSettings`, `MobileNavItem` are kept as aliases of their canonical implementations.
+  - Internal type-hardening across component `<script>` blocks and fixed two latent markup bugs; `astro check` and `lint` now pass with zero errors.
+
+  **License unchanged** — Wender Media Source License v1.0 (source-available). See `docs/MIGRATION-3.x-to-4.0.md`.
+
 All notable changes to @wendermedia/astro-components will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
@@ -91,6 +108,7 @@ See [`docs/MIGRATION-2.x-to-3.0.md`](./docs/MIGRATION-2.x-to-3.0.md) for detaile
 ## [2.1.0] - 2026-04-06
 
 ### Added
+
 - 8 new section components (158 total, up from 150)
 - Storybook deployment at https://wm-astro-components.netlify.app
 - `llms.txt` for LLM context and discoverability
@@ -99,6 +117,7 @@ See [`docs/MIGRATION-2.x-to-3.0.md`](./docs/MIGRATION-2.x-to-3.0.md) for detaile
 - `CODE_OF_CONDUCT.md` (Contributor Covenant v2.1)
 
 ### Changed
+
 - Open-source release: repository set to public, published to npm
 - All 158 components now carry standardized copyright headers
 - README rewritten for open-source audience with badges, examples, and full catalog
@@ -109,22 +128,26 @@ See [`docs/MIGRATION-2.x-to-3.0.md`](./docs/MIGRATION-2.x-to-3.0.md) for detaile
 ### Added
 
 #### Core Components
+
 - **Layout Components**: BaseLayout, Header, Footer, Container, Grid, Section
 - **SEO Components**: SEOHead, SchemaOrg, OpenGraph, TwitterCard, Canonical
 - **Accessibility Components**: CookieConsent, SkipToContent, FocusTrap, A11yAnnouncer
 
 #### Navigation Components
+
 - **Breadcrumbs**: Accessible breadcrumb navigation with Schema.org support
 - **Pagination**: Server-side pagination with SEO-friendly links
 - **TableOfContents**: Auto-generated table of contents for long content
 - **ScrollToTop**: Animated scroll-to-top button
 
 #### Content Components
+
 - **Accordion**: WCAG-compliant accordion with keyboard navigation
 - **Tabs**: Accessible tab interface with ARIA support
 - **Modal**: Focus-trapped modal dialogs with backdrop
 
 #### E-commerce Components
+
 - **Cart**: Shopping cart with localStorage persistence
 - **Wishlist**: Product wishlist with toggle functionality
 - **ProductCard**: Product display with hover effects and badges
@@ -132,22 +155,26 @@ See [`docs/MIGRATION-2.x-to-3.0.md`](./docs/MIGRATION-2.x-to-3.0.md) for detaile
 - **AddToCartButton**: Add to cart with loading states
 
 #### Media Components
+
 - **VideoPlayer**: Privacy-first video player (YouTube, Vimeo, native)
 - **AudioPlayer**: HTML5 audio player with custom controls
 - **ImageGallery**: Lightbox gallery with keyboard navigation
 
 ### Developer Experience
+
 - **CLI Tool**: `npx @wendermedia/astro-components create my-project`
 - **Design Tokens**: Style Dictionary integration for colors, spacing, typography
 - **Testing Utilities**: Vitest setup with axe-core for accessibility testing
 - **Storybook**: Component documentation and visual testing
 
 ### Changed
+
 - Upgraded to Astro 5.x compatibility
 - All components now use CSS custom properties for theming
 - Improved TypeScript definitions
 
 ### Security
+
 - GDPR-compliant video embeds with consent management
 - No third-party tracking by default
 - BFSG accessibility compliance
