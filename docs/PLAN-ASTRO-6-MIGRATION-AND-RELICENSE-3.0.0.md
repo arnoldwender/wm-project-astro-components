@@ -134,7 +134,7 @@ Major bump justificado por:
 
 ### Fase 1: Branch + Backup
 ```bash
-cd /Users/arnold/Development/wm-project-astro-components
+cd node_modules/@wendermedia/astro-components
 git checkout -b sprint/astro-6-and-relicense-3.0.0
 git tag pre-astro-6-v2.1.0
 tar -czf ../wm-project-astro-components-pre-3.0.0-backup.tar.gz --exclude='node_modules' --exclude='.git' .
@@ -238,8 +238,8 @@ mkdir /tmp/astro-6-test
 cd /tmp/astro-6-test
 npm create astro@latest -- --template minimal --typescript strict --yes
 # Copy a template del paquete y verificar que builds
-cp /Users/arnold/Development/wm-project-astro-components/templates/configs/astro.config.blog.mjs astro.config.mjs
-cp /Users/arnold/Development/wm-project-astro-components/templates/content-collections/blog.ts src/content.config.ts
+cp node_modules/@wendermedia/astro-components/templates/configs/astro.config.blog.mjs astro.config.mjs
+cp node_modules/@wendermedia/astro-components/templates/content-collections/blog.ts src/content.config.ts
 npm install
 npm run build
 # Esperamos: build success, no errors

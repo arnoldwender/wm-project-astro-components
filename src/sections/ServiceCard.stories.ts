@@ -2,7 +2,7 @@
  * ServiceCard Stories - WenderMedia Astro Components
  *
  * Individual service card: icon → title → description → feature checklist.
- * Ported from wm-source-site molecules/ServiceCard.astro.
+ * Ported from the Wender Media component network.
  *
  * @copyright 2007-2026 Wender Media
  */

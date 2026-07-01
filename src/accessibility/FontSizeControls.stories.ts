@@ -230,7 +230,7 @@ const meta: Meta = {
       description: {
         component: `
 **FontSizeControls** is the compact \`A− / size / A+\` toolbar bar ported from
-\`wm-source-site\` and \`wm-source-site\`, elevated to full
+\`the Wender Media network\` and \`the Wender Media network\`, elevated to full
 WCAG 2.2 AA / BFSG 2025 compliance.
 
 **Relationship to \`FontResizer\`:**
@@ -275,7 +275,7 @@ type Story = StoryObj;
 
 // ── Stories ───────────────────────────────────────────────────────────────────
 
-/** Default — German labels (matches wm-source-site / wm-source-site usage) */
+/** Default — German labels (matches the Wender Media production network usage) */
 export const Default: Story = {
   args: {
     label: 'Schriftgröße',

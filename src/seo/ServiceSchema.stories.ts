@@ -268,7 +268,7 @@ export const Minimal: Story = {
   args: {
     name: 'Webdesign',
     description: 'Professionelle Websites fuer kleine und mittelstaendische Unternehmen.',
-    site: 'https://www.wendermedia.com',
+    site: 'https://www.example.com',
     url: '/webdesign/',
   } satisfies ServiceSchemaArgs,
   render: (args) => renderPreview(args as ServiceSchemaArgs),
@@ -281,7 +281,7 @@ export const Full: Story = {
     description: 'Professionelle Suchmaschinenoptimierung fuer Unternehmen in Halle (Saale) und Umgebung.',
     serviceType: 'SearchEngineOptimizationService',
     url: '/suchmaschinenoptimierung/',
-    site: 'https://www.wendermedia.com',
+    site: 'https://www.example.com',
     image: '/images/seo-beratung.webp',
     areaServed: [
       { type: 'City', name: 'Halle (Saale)' },
@@ -289,15 +289,15 @@ export const Full: Story = {
       { type: 'Country', name: 'Deutschland' },
     ],
     provider: {
-      name: 'Wender Media',
-      url: 'https://www.wendermedia.com',
+      name: 'Example Agency',
+      url: 'https://www.example.com',
       telephone: '+49 30 1234567',
-      email: 'info@wendermedia.com',
+      email: 'info@example.com',
       address: {
         streetAddress: 'Example Street 1',
-        addressLocality: 'Halle (Saale)',
-        addressRegion: 'Sachsen-Anhalt',
-        postalCode: '06110',
+        addressLocality: 'Berlin',
+        addressRegion: 'Berlin',
+        postalCode: '10115',
         addressCountry: 'DE',
       },
     },
@@ -323,7 +323,7 @@ export const SingleArea: Story = {
     description: 'Individuelles Corporate-Identity-Design fuer Ihr Unternehmen.',
     serviceType: 'GraphicDesignService',
     url: '/logo-design/',
-    site: 'https://www.wendermedia.com',
+    site: 'https://www.example.com',
     areaServed: 'Deutschland',
     offers: {
       priceCurrency: 'EUR',
@@ -338,7 +338,7 @@ export const Empty: Story = {
   args: {
     name: '',
     description: '',
-    site: 'https://www.wendermedia.com',
+    site: 'https://www.example.com',
   } satisfies ServiceSchemaArgs,
   render: (args) => renderPreview(args as ServiceSchemaArgs),
 };
