@@ -5,7 +5,7 @@
 <h1 align="center">@wendermedia/astro-components</h1>
 
 <p align="center">
-  <strong>158 production-ready, accessible, GDPR-compliant Astro 7 components</strong><br />
+  <strong>183 production-ready, accessible, GDPR-compliant Astro 7 components</strong><br />
   Built by <a href="https://www.wendermedia.com">Wender Media</a> &mdash; Web Agency from Halle (Saale), Germany
 </p>
 
@@ -17,15 +17,15 @@
   <img src="https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/badge/WCAG_2.1-AA-green" alt="WCAG 2.1 AA" />
   <img src="https://img.shields.io/badge/GDPR-Compliant-green" alt="GDPR Compliant" />
-  <img src="https://img.shields.io/badge/Components-158-purple" alt="158 Components" />
+  <img src="https://img.shields.io/badge/Components-183-purple" alt="183 Components" />
 </p>
 
 <p align="center">
-  <img src="./docs/images/gallery-01-hero.png" alt="158 Astro Components — Live Playbook" width="100%" />
+  <img src="./docs/images/gallery-01-hero.png" alt="183 Astro Components — Live Playbook" width="100%" />
 </p>
 
 <p align="center">
-  <img src="./docs/images/gallery-03-components.png" alt="17 categories, 158 components" width="49%" />
+  <img src="./docs/images/gallery-03-components.png" alt="18 categories, 183 components" width="49%" />
   <img src="./docs/images/gallery-04-a11y-gdpr.png" alt="WCAG 2.1 AA and GDPR compliance" width="49%" />
 </p>
 
@@ -40,7 +40,7 @@
 
 <p align="center">
   <strong>Interactive component playbook:</strong> <a href="https://astro.wendermedia.com">astro.wendermedia.com</a><br />
-  Browse all 158 components with live previews, props, and usage examples (Storybook).
+  Browse all 183 components with live previews, props, and usage examples (Storybook).
 </p>
 
 ---
@@ -61,7 +61,7 @@ See [docs/MIGRATION-2.x-to-3.0.md](./docs/MIGRATION-2.x-to-3.0.md) for the full 
 
 ## Features
 
-- **158 Components** across 17 categories, ready for production
+- **183 Components** across 18 categories, ready for production
 - **WCAG 2.1 AA Compliant** with full accessibility support and BFSG 2025 readiness
 - **GDPR/DSGVO Ready** with privacy-first design and consent management
 - **TypeScript First** with complete type definitions for all components
@@ -169,7 +169,7 @@ import { CookieConsent } from '@wendermedia/astro-components/accessibility';
 
 ## Components
 
-### Overview (17 Categories, 158 Components)
+### Overview (18 Categories, 183 Components)
 
 | Category | Components | Import Path |
 |----------|-----------|-------------|
@@ -337,7 +337,7 @@ describe('MyComponent', () => {
 
 ## Storybook
 
-Browse all 158 components interactively at **[astro.wendermedia.com](https://astro.wendermedia.com)**.
+Browse all 183 components interactively at **[astro.wendermedia.com](https://astro.wendermedia.com)**.
 
 Run locally:
 
