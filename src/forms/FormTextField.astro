@@ -1,0 +1,386 @@
+---
+/**
+ * FormTextField — Single-line text input atom for the WM form system.
+ *
+ * Renders a labeled `<input>` of type text | email | tel | url with:
+ * - Visible label + required indicator (`*`)
+ * - Optional hint text rendered below the field (`${id}Hint`)
+ * - Inline validation icons (check / exclamation) wired by id (`${id}Valid`, `${id}Invalid`)
+ * - Live error container (`${id}Error`) for the FormValidation rules engine
+ * - Optional contextual help tooltip text shown below the label
+ *
+ * Form-system contract (hook IDs must never be renamed):
+ * - `${id}Hint`    — hint paragraph, referenced by `aria-describedby`
+ * - `${id}Error`   — live error container, `role="alert"`, referenced by `aria-describedby`
+ * - `${id}Valid`   — valid state icon, toggled `.hidden` by FormValidation
+ * - `${id}Invalid` — invalid state icon, toggled `.hidden` by FormValidation
+ *
+ * @example
+ * <!-- Basic required email field -->
+ * <FormTextField
+ *   id="email"
+ *   name="email"
+ *   label="Email address"
+ *   type="email"
+ *   required
+ *   autocomplete="email"
+ *   inputmode="email"
+ * />
+ *
+ * @example
+ * <!-- Optional field with hint and tooltip -->
+ * <FormTextField
+ *   id="phone"
+ *   name="phone"
+ *   label="Phone number"
+ *   type="tel"
+ *   hint="We will only call if absolutely necessary."
+ *   tooltip="International format: +49 345 …"
+ *   autocomplete="tel"
+ *   inputmode="tel"
+ * />
+ *
+ * @copyright 2007-2026 Arnold Wender · Wender Media. All Rights Reserved. License: LicenseRef-Wender-Media-Source-1.0
+ * @see https://github.com/arnoldwender/wm-project-astro-components
+ */
+
+export interface Props {
+  /** Unique HTML id — also seeds the form-system hook IDs (${id}Hint, ${id}Error, etc.) */
+  id: string;
+  /** Input name attribute submitted with the form */
+  name: string;
+  /** Visible label text */
+  label: string;
+  /** Input type — controls keyboard on mobile and browser validation */
+  type?: 'text' | 'email' | 'tel' | 'url';
+  /** When true, marks the field required and adds an ARIA hint */
+  required?: boolean;
+  /** Placeholder text (kept intentionally subtle — the label is the primary affordance) */
+  placeholder?: string;
+  /** Autocomplete token(s) passed to the browser */
+  autocomplete?: string;
+  /** Virtual keyboard hint for mobile browsers */
+  inputmode?: 'none' | 'text' | 'decimal' | 'numeric' | 'tel' | 'search' | 'email' | 'url';
+  /** Persistent hint rendered below the field (linked via aria-describedby) */
+  hint?: string;
+  /** Contextual tooltip text shown below the label — decorative only, not wired to ARIA */
+  tooltip?: string;
+  /** Additional CSS class(es) applied to the outer wrapper */
+  class?: string;
+  /** Screen-reader text for the required indicator — override for non-German locales */
+  requiredLabel?: string;
+}
+
+const {
+  id,
+  name,
+  label,
+  type = 'text',
+  required = false,
+  placeholder = '',
+  autocomplete,
+  inputmode,
+  hint,
+  tooltip,
+  class: className,
+  requiredLabel = '(required field)',
+} = Astro.props;
+
+// Build aria-describedby from the IDs that will actually be rendered.
+const describedBy = [hint ? `${id}Hint` : '', `${id}Error`].filter(Boolean).join(' ') || undefined;
+---
+
+<div class:list={['ftf-wrapper', className]}>
+  <!-- Label row: label + optional tooltip indicator -->
+  <div class="ftf-label-row">
+    <label for={id} class="ftf-label">
+      {label}
+      {required && (
+        <>
+          <span class="ftf-required" aria-hidden="true">*</span>
+          <span class="sr-only">{requiredLabel}</span>
+        </>
+      )}
+    </label>
+    {tooltip && (
+      <span class="ftf-tooltip-trigger" aria-label={tooltip} title={tooltip} tabindex="0">
+        <!-- Help icon (inline SVG — no external dependency) -->
+        <svg
+          class="ftf-tooltip-icon"
+          aria-hidden="true"
+          focusable="false"
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="12" cy="12" r="10" />
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+          <line x1="12" y1="17" x2="12.01" y2="17" />
+        </svg>
+      </span>
+    )}
+  </div>
+
+  <!-- Input wrapper with validation icons -->
+  <div class="ftf-input-wrapper">
+    <input
+      type={type}
+      id={id}
+      name={name}
+      required={required || undefined}
+      autocomplete={autocomplete}
+      inputmode={inputmode}
+      placeholder={placeholder}
+      aria-required={required ? 'true' : undefined}
+      aria-describedby={describedBy}
+      class="ftf-input"
+    />
+
+    <!-- Valid state icon — toggled by FormValidation rules engine -->
+    <span class="ftf-icon ftf-icon--valid hidden" id={`${id}Valid`} aria-hidden="true">
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        focusable="false"
+      >
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+        <polyline points="22 4 12 14.01 9 11.01" />
+      </svg>
+    </span>
+
+    <!-- Invalid state icon — toggled by FormValidation rules engine -->
+    <span class="ftf-icon ftf-icon--invalid hidden" id={`${id}Invalid`} aria-hidden="true">
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        focusable="false"
+      >
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="12" />
+        <line x1="12" y1="16" x2="12.01" y2="16" />
+      </svg>
+    </span>
+  </div>
+
+  <!-- Hint text — persists regardless of validation state -->
+  {hint && (
+    <p id={`${id}Hint`} class="ftf-hint">{hint}</p>
+  )}
+
+  <!-- Live error container — populated by FormValidation rules engine -->
+  <p id={`${id}Error`} class="ftf-error hidden" role="alert"></p>
+</div>
+
+<style>
+  /* ---------------------------------------------------------------
+   * FormTextField — scoped styles using WM design tokens only.
+   * Hardcoded hex/rem/px values are forbidden; use var(--*) tokens.
+   * --------------------------------------------------------------- */
+
+  .ftf-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-stack-xs, var(--spacing-1));
+  }
+
+  /* --- Label row --- */
+  .ftf-label-row {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-inline-xs, var(--spacing-1));
+  }
+
+  .ftf-label {
+    display: block;
+    font-size: var(--font-size-label, var(--font-size-sm));
+    font-weight: var(--font-weight-label, var(--font-weight-medium));
+    line-height: var(--line-height-label, var(--line-height-tight));
+    color: var(--color-text-primary);
+  }
+
+  .ftf-required {
+    color: var(--color-error);
+    margin-inline-start: var(--spacing-0-5, 0.125rem);
+  }
+
+  /* --- Tooltip trigger --- */
+  .ftf-tooltip-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    /* 44px touch target via negative padding trick */
+    padding: var(--spacing-2);
+    margin: calc(var(--spacing-2) * -1);
+    border-radius: var(--radius-full);
+    color: var(--color-text-tertiary);
+    cursor: help;
+    transition: color var(--transition-fast, var(--duration-150) var(--ease-out));
+  }
+
+  .ftf-tooltip-trigger:hover,
+  .ftf-tooltip-trigger:focus-visible {
+    color: var(--color-interactive);
+    outline: none;
+  }
+
+  .ftf-tooltip-trigger:focus-visible {
+    box-shadow: var(--focus-ring,
+      0 0 0 2px var(--color-focus-ring-offset, var(--color-white)),
+      0 0 0 4px var(--color-focus-ring));
+  }
+
+  .ftf-tooltip-icon {
+    width: var(--size-4, 1rem);
+    height: var(--size-4, 1rem);
+    flex-shrink: 0;
+  }
+
+  /* --- Input wrapper --- */
+  .ftf-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  /* --- Input --- */
+  .ftf-input {
+    display: block;
+    width: 100%;
+    /* Minimum 44px touch target height (WCAG 2.5.5) */
+    min-height: var(--touch-target-min, 44px);
+    padding-block: var(--spacing-stack-sm, var(--spacing-2));
+    padding-inline: var(--spacing-inline-lg, var(--spacing-4));
+    /* Reserve room for validation icon on the right */
+    padding-inline-end: var(--spacing-10, 2.5rem);
+    background-color: var(--color-surface);
+    border: var(--border-default,
+      var(--border-width-1, 1px) solid var(--color-border-default));
+    border-radius: var(--radius-input, var(--radius-md));
+    font-size: var(--font-size-body, var(--font-size-base));
+    font-family: var(--font-family-body, var(--font-family-sans));
+    color: var(--color-text-primary);
+    box-shadow: var(--shadow-xs);
+    transition: var(--transition-colors,
+      color var(--duration-150) var(--ease-out),
+      background-color var(--duration-150) var(--ease-out),
+      border-color var(--duration-150) var(--ease-out));
+
+    /* Suppress browser-default outline — replaced by focus-visible below */
+    outline: none;
+  }
+
+  .ftf-input::placeholder {
+    color: var(--color-text-muted);
+  }
+
+  .ftf-input:hover:not(:disabled) {
+    border-color: var(--color-border-strong);
+  }
+
+  .ftf-input:focus-visible {
+    border-color: var(--color-focus-ring);
+    box-shadow: var(--focus-ring,
+      0 0 0 2px var(--color-focus-ring-offset, var(--color-white)),
+      0 0 0 4px var(--color-focus-ring));
+  }
+
+  .ftf-input:disabled {
+    cursor: not-allowed;
+    opacity: var(--opacity-50, 0.5);
+    background-color: var(--color-background-muted);
+  }
+
+  /* Invalid state driven by [aria-invalid="true"] — set by FormValidation */
+  .ftf-input[aria-invalid="true"] {
+    border-color: var(--color-error);
+  }
+
+  .ftf-input[aria-invalid="true"]:focus-visible {
+    border-color: var(--color-error);
+    box-shadow:
+      0 0 0 2px var(--color-focus-ring-offset, var(--color-white)),
+      0 0 0 4px var(--color-error);
+  }
+
+  /* Valid state — FormValidation adds [aria-invalid="false"] when passing */
+  .ftf-input[aria-invalid="false"] {
+    border-color: var(--color-success);
+  }
+
+  /* --- Validation icons --- */
+  .ftf-icon {
+    position: absolute;
+    inset-inline-end: var(--spacing-3, 0.75rem);
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+    flex-shrink: 0;
+  }
+
+  .ftf-icon--valid {
+    color: var(--color-success);
+  }
+
+  .ftf-icon--invalid {
+    color: var(--color-error);
+  }
+
+  /* --- Hint text --- */
+  .ftf-hint {
+    margin: 0;
+    font-size: var(--font-size-caption, var(--font-size-xs));
+    color: var(--color-text-secondary);
+    line-height: var(--line-height-normal);
+  }
+
+  /* --- Error container --- */
+  .ftf-error {
+    margin: 0;
+    font-size: var(--font-size-caption, var(--font-size-xs));
+    color: var(--color-error);
+    line-height: var(--line-height-normal);
+  }
+
+  /* Utility: hidden — used by FormValidation to toggle icons/errors */
+  .hidden {
+    display: none !important;
+  }
+
+  /* Screen-reader only utility */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  /* --- Reduced-motion guard --- */
+  @media (prefers-reduced-motion: reduce) {
+    .ftf-input,
+    .ftf-tooltip-trigger {
+      transition: none;
+    }
+  }
+</style>

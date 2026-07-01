@@ -1,0 +1,339 @@
+---
+/**
+ * AccessibleAccordion Component - WenderMedia Astro Components
+ *
+ * a11y-first accordion with full WAI-ARIA APG keyboard support.
+ * Lives alongside ui/Accordion as the accessibility-first alternative
+ * with explicit roving tabindex, Arrow keys, Home/End, and
+ * aria-expanded/aria-controls contract per the ARIA APG Accordion Pattern.
+ *
+ * Features:
+ * - WAI-ARIA APG Accordion keyboard contract (Arrow keys, Home, End)
+ * - aria-expanded + aria-controls + role="region" + aria-labelledby
+ * - Roving focus — ArrowDown/ArrowUp/Home/End move between header buttons
+ * - allowMultiple mode — keep several panels open simultaneously
+ * - defaultOpenIndex — pre-opens one panel on first render (SSR-safe)
+ * - Chevron icon rotates on open; prefers-reduced-motion respected
+ * - :focus-visible ring; 44 × 44 px minimum touch targets
+ * - Zero upward imports — no dependency on other library components
+ *
+ * @example
+ * <!-- Single-open accordion, first panel pre-expanded -->
+ * <AccessibleAccordion
+ *   items={[
+ *     { id: 'q1', title: 'Was ist SEO?', content: 'SEO steht für ...' },
+ *     { id: 'q2', title: 'Wie lange dauert SEO?', content: 'In der Regel ...' },
+ *   ]}
+ *   defaultOpenIndex={0}
+ * />
+ *
+ * @example
+ * <!-- Multi-open FAQ accordion with custom aria-label -->
+ * <AccessibleAccordion
+ *   items={faqItems}
+ *   allowMultiple
+ *   ariaLabel="Häufige Fragen zu Webdesign"
+ * />
+ *
+ * @copyright 2007-2026 Arnold Wender · Wender Media. All Rights Reserved. License: LicenseRef-Wender-Media-Source-1.0
+ * @see https://github.com/arnoldwender/wm-project-astro-components
+ */
+
+export interface AccordionItem {
+  /** Unique identifier — used to build button id / panel id pairs */
+  id: string;
+  /** Visible heading text rendered inside the trigger button */
+  title: string;
+  /** Panel body — accepts HTML string (set:html) */
+  content: string;
+}
+
+export interface Props {
+  /** Array of accordion items */
+  items: AccordionItem[];
+  /**
+   * When false (default) only one panel may be open at a time.
+   * When true every panel can be toggled independently.
+   */
+  allowMultiple?: boolean;
+  /**
+   * Zero-based index of the item that should be expanded on first render.
+   * Pass -1 (default) to start all panels collapsed.
+   */
+  defaultOpenIndex?: number;
+  /** Accessible label for the accordion wrapper (aria-label on the root) */
+  ariaLabel?: string;
+  class?: string;
+}
+
+const {
+  items,
+  allowMultiple = false,
+  defaultOpenIndex = -1,
+  ariaLabel = 'Akkordeon',
+  class: className = '',
+} = Astro.props as Props;
+---
+
+<div
+  class:list={['wm-accordion', className]}
+  data-accordion
+  data-allow-multiple={String(allowMultiple)}
+  aria-label={ariaLabel}
+>
+  {items.map((item, index) => {
+    const isOpen = index === defaultOpenIndex;
+    return (
+      <div class="wm-accordion__item">
+        <h3 class="wm-accordion__heading">
+          <button
+            type="button"
+            id={`accordion-${item.id}-button`}
+            class="wm-accordion__trigger"
+            aria-expanded={isOpen ? 'true' : 'false'}
+            aria-controls={`accordion-${item.id}-panel`}
+            data-accordion-button
+          >
+            <span class="wm-accordion__title">{item.title}</span>
+            <!-- Chevron SVG — decorative, hidden from AT -->
+            <span class:list={['wm-accordion__icon', isOpen ? 'wm-accordion__icon--open' : '']} aria-hidden="true">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 20 20"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M5 8l5 5 5-5" />
+              </svg>
+            </span>
+          </button>
+        </h3>
+
+        <div
+          id={`accordion-${item.id}-panel`}
+          role="region"
+          aria-labelledby={`accordion-${item.id}-button`}
+          class="wm-accordion__panel"
+          hidden={!isOpen}
+          data-accordion-panel
+        >
+          <div class="wm-accordion__panel-body" set:html={item.content} />
+        </div>
+      </div>
+    );
+  })}
+</div>
+
+<script>
+  /**
+   * WAI-ARIA APG Accordion keyboard contract.
+   * Supports: click toggle, Arrow keys (up/down), Home, End.
+   * Manages aria-expanded, hidden attribute, and roving focus.
+   */
+  function initAccordions(): void {
+    const accordions = document.querySelectorAll<HTMLElement>('[data-accordion]');
+
+    accordions.forEach((accordion) => {
+      const allowMultiple = accordion.getAttribute('data-allow-multiple') === 'true';
+      const buttons = Array.from(
+        accordion.querySelectorAll<HTMLButtonElement>('[data-accordion-button]')
+      );
+
+      /** Open or close a single panel */
+      const setExpanded = (button: HTMLButtonElement, expanded: boolean): void => {
+        const panelId = button.getAttribute('aria-controls');
+        const panel = panelId ? (document.getElementById(panelId) as HTMLElement | null) : null;
+
+        button.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+
+        const icon = button.querySelector<HTMLElement>('.wm-accordion__icon');
+        if (icon) {
+          icon.classList.toggle('wm-accordion__icon--open', expanded);
+        }
+
+        if (panel) {
+          panel.hidden = !expanded;
+        }
+      };
+
+      /** Collapse all other panels when allowMultiple is false */
+      const collapseOthers = (activeButton: HTMLButtonElement): void => {
+        if (allowMultiple) return;
+        buttons.forEach((btn) => {
+          if (btn !== activeButton) {
+            setExpanded(btn, false);
+          }
+        });
+      };
+
+      buttons.forEach((button, index) => {
+        // Click — toggle current panel
+        button.addEventListener('click', () => {
+          const isExpanded = button.getAttribute('aria-expanded') === 'true';
+          collapseOthers(button);
+          setExpanded(button, !isExpanded);
+        });
+
+        // Keyboard — Arrow keys, Home, End (WAI-ARIA APG §3.1)
+        button.addEventListener('keydown', (event: KeyboardEvent) => {
+          const key = event.key;
+          if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(key)) return;
+
+          event.preventDefault();
+
+          let targetIndex = index;
+
+          if (key === 'ArrowDown') {
+            targetIndex = (index + 1) % buttons.length;
+          } else if (key === 'ArrowUp') {
+            targetIndex = (index - 1 + buttons.length) % buttons.length;
+          } else if (key === 'Home') {
+            targetIndex = 0;
+          } else if (key === 'End') {
+            targetIndex = buttons.length - 1;
+          }
+
+          buttons[targetIndex]?.focus();
+        });
+      });
+    });
+  }
+
+  // Init on DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAccordions);
+  } else {
+    initAccordions();
+  }
+
+  // Astro View Transitions support
+  document.addEventListener('astro:page-load', initAccordions);
+</script>
+
+<style>
+  /* ─── Accordion wrapper ─────────────────────────────────────── */
+  .wm-accordion {
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--border-radius-xl);
+    background-color: var(--color-background-surface);
+    overflow: hidden;
+  }
+
+  /* ─── Item divider ─────────────────────────────────────────── */
+  .wm-accordion__item + .wm-accordion__item {
+    border-top: 1px solid var(--color-border-default);
+  }
+
+  /* ─── Heading — reset margin/padding carried by h3 ────────── */
+  .wm-accordion__heading {
+    margin: 0;
+    padding: 0;
+  }
+
+  /* ─── Trigger button ────────────────────────────────────────── */
+  .wm-accordion__trigger {
+    /* Layout */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-4);
+    width: 100%;
+    padding: var(--spacing-4) var(--spacing-6);
+
+    /* Minimum 44 × 44 px touch target */
+    min-height: 44px;
+
+    /* Typography */
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--font-line-height-normal);
+    color: var(--color-text-primary);
+    text-align: left;
+
+    /* Appearance */
+    background: transparent;
+    border: none;
+    cursor: pointer;
+
+    /* Transition */
+    transition:
+      background-color var(--transition-duration-fast) var(--transition-timing-ease),
+      color var(--transition-duration-fast) var(--transition-timing-ease);
+  }
+
+  .wm-accordion__trigger:hover {
+    background-color: var(--color-background-muted);
+    color: var(--color-brand-primary);
+  }
+
+  /* :focus-visible ring — keyboard only, not on mouse click */
+  .wm-accordion__trigger:focus {
+    outline: none;
+  }
+
+  .wm-accordion__trigger:focus-visible {
+    outline: 2px solid var(--color-border-focus);
+    outline-offset: -2px;
+    border-radius: var(--border-radius-md);
+  }
+
+  /* ─── Title text ────────────────────────────────────────────── */
+  .wm-accordion__title {
+    flex: 1;
+  }
+
+  /* ─── Chevron icon ──────────────────────────────────────────── */
+  .wm-accordion__icon {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    color: var(--color-brand-primary);
+    transition: transform var(--transition-duration-slow) var(--transition-timing-ease-in-out);
+  }
+
+  .wm-accordion__icon--open {
+    transform: rotate(180deg);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .wm-accordion__icon {
+      transition: none;
+    }
+  }
+
+  /* ─── Panel ─────────────────────────────────────────────────── */
+  .wm-accordion__panel {
+    /* Panel is toggled via the `hidden` HTML attribute — no CSS needed
+       to hide it. Styles below only apply when NOT hidden. */
+  }
+
+  .wm-accordion__panel-body {
+    padding: var(--spacing-3) var(--spacing-6) var(--spacing-5);
+    font-size: var(--font-size-base);
+    line-height: var(--font-line-height-relaxed);
+    color: var(--color-text-secondary);
+  }
+
+  /* ─── High-contrast mode ────────────────────────────────────── */
+  @media (forced-colors: active) {
+    .wm-accordion {
+      border: 1px solid ButtonText;
+    }
+
+    .wm-accordion__item + .wm-accordion__item {
+      border-top: 1px solid ButtonText;
+    }
+
+    .wm-accordion__trigger:focus-visible {
+      outline: 2px solid Highlight;
+    }
+
+    .wm-accordion__icon {
+      forced-color-adjust: auto;
+    }
+  }
+</style>

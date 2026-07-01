@@ -20,3 +20,25 @@ export type {
   Props as ContactProps,
   ContactField
 } from './Contact.astro';
+
+// ---------------------------------------------------------------------------
+// Form System — labeled inputs + rules engine + error container + consent.
+// Backported from the WM field network 2026-07-01 (shared aria/data contract).
+// ---------------------------------------------------------------------------
+export { default as FormTextField } from './FormTextField.astro';
+export { default as FormTextArea } from './FormTextArea.astro';
+export { default as FormErrorContainer } from './FormErrorContainer.astro';
+export { default as PrivacyCheckbox } from './PrivacyCheckbox.astro';
+export { default as FormValidation } from './FormValidation.astro';
+export { default as InputMask } from './InputMask.astro';
+export { default as Select } from './Select.astro';
+export { default as ProgressSteps } from './ProgressSteps.astro';
+
+export type { Props as FormTextFieldProps } from './FormTextField.astro';
+export type { Props as FormTextAreaProps } from './FormTextArea.astro';
+export type { Props as FormErrorContainerProps } from './FormErrorContainer.astro';
+export type { Props as PrivacyCheckboxProps } from './PrivacyCheckbox.astro';
+export type { Props as FormValidationProps } from './FormValidation.astro';
+export type { Props as InputMaskProps } from './InputMask.astro';
+export type { Props as SelectProps } from './Select.astro';
+export type { Props as ProgressStepsProps } from './ProgressSteps.astro';

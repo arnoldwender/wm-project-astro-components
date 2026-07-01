@@ -33,3 +33,21 @@ export type { Props as TextToSpeechProps } from './TextToSpeech.astro';
 export type { Props as ScreenReaderOnlyProps } from './ScreenReaderOnly.astro';
 export type { Props as LiveRegionProps } from './LiveRegion.astro';
 export type { Props as ReducedMotionProps } from './ReducedMotion.astro';
+
+// ---------------------------------------------------------------------------
+// A11y Toolkit — WAI-ARIA APG widgets + reader-comfort toggles (additive:
+// a11y-first alternatives to ui/Accordion|Tabs|Alert). Backported 2026-07-01.
+// ---------------------------------------------------------------------------
+export { default as AccessibleAccordion } from './AccessibleAccordion.astro';
+export { default as AccessibleTabs } from './AccessibleTabs.astro';
+export { default as AccessibleAlert } from './AccessibleAlert.astro';
+export { default as AriaLiveRegion } from './AriaLiveRegion.astro';
+export { default as FontSizeControls } from './FontSizeControls.astro';
+export { default as FontFamilyToggle } from './FontFamilyToggle.astro';
+
+export type { Props as AccessibleAccordionProps } from './AccessibleAccordion.astro';
+export type { Props as AccessibleTabsProps } from './AccessibleTabs.astro';
+export type { Props as AccessibleAlertProps } from './AccessibleAlert.astro';
+export type { Props as AriaLiveRegionProps } from './AriaLiveRegion.astro';
+export type { Props as FontSizeControlsProps } from './FontSizeControls.astro';
+export type { Props as FontFamilyToggleProps } from './FontFamilyToggle.astro';

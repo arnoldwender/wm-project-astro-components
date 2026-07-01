@@ -1,0 +1,500 @@
+---
+/**
+ * ProgressSteps Component
+ *
+ * A step-by-step progress indicator for multi-step forms and wizard flows.
+ * Shows numbered steps with labels and optional descriptions, a progress
+ * connector line between them, and distinct visual states for completed,
+ * current, and pending steps.
+ *
+ * Variants:
+ * - `horizontal` (default) — steps arrayed in a row; collapses to vertical on
+ *   narrow viewports (≤ 640 px) via a responsive breakpoint.
+ * - `vertical` — steps stacked top-to-bottom with a left-rail connector.
+ *
+ * Clickable mode: when `clickable={true}`, completed steps render as `<button>`
+ * elements and dispatch a `progress-step-click` custom event (bubbling) with
+ * `detail.step` (1-indexed number) so the parent form can navigate back.
+ *
+ * @example
+ * <!-- Three-step horizontal indicator, step 2 active -->
+ * <ProgressSteps
+ *   steps={[
+ *     { label: 'Kontakt' },
+ *     { label: 'Details', description: 'Weitere Informationen' },
+ *     { label: 'Bestätigung' },
+ *   ]}
+ *   currentStep={2}
+ * />
+ *
+ * @example
+ * <!-- Vertical, clickable completed steps -->
+ * <ProgressSteps
+ *   steps={[{ label: 'Kontakt' }, { label: 'Details' }, { label: 'Bestätigung' }]}
+ *   currentStep={3}
+ *   variant="vertical"
+ *   clickable={true}
+ *   aria-label="Bestellfortschritt"
+ * />
+ *
+ * @copyright 2007-2026 Arnold Wender · Wender Media. All Rights Reserved. License: LicenseRef-Wender-Media-Source-1.0
+ * @see https://github.com/arnoldwender/wm-project-astro-components
+ */
+
+export interface Step {
+  /** Step label shown below or beside the indicator circle (required). */
+  label: string;
+  /** Optional secondary description shown beneath the label. */
+  description?: string;
+}
+
+export interface Props {
+  /** Ordered list of step definitions. */
+  steps: Step[];
+  /**
+   * 1-indexed number of the currently active step.
+   * Clamped to [1, steps.length] automatically.
+   */
+  currentStep: number;
+  /** Layout direction. Defaults to `"horizontal"`. */
+  variant?: 'horizontal' | 'vertical';
+  /**
+   * When true, completed steps render as `<button>` elements that dispatch a
+   * `progress-step-click` custom event so the host form can navigate backwards.
+   */
+  clickable?: boolean;
+  /**
+   * Accessible label for the `<nav>` landmark. Override per locale.
+   * Defaults to `"Fortschrittsanzeige"`.
+   */
+  'aria-label'?: string;
+  /** Optional extra class added to the root `<nav>` element. */
+  class?: string;
+}
+
+const {
+  steps,
+  currentStep,
+  variant = 'horizontal',
+  clickable = false,
+  'aria-label': ariaLabel = 'Fortschrittsanzeige',
+  class: className = '',
+} = Astro.props;
+
+/* Clamp currentStep to a valid range */
+const validCurrentStep = Math.max(1, Math.min(currentStep, steps.length));
+
+function getStepStatus(index: number): 'completed' | 'current' | 'pending' {
+  const n = index + 1;
+  if (n < validCurrentStep) return 'completed';
+  if (n === validCurrentStep) return 'current';
+  return 'pending';
+}
+---
+
+<nav
+  class:list={['ps', `ps--${variant}`, className]}
+  aria-label={ariaLabel}
+  data-clickable={clickable ? 'true' : 'false'}
+>
+  <ol class="ps__list" role="list">
+    {steps.map((step, index) => {
+      const status      = getStepStatus(index);
+      const stepNumber  = index + 1;
+      const isClickable = clickable && status === 'completed';
+      const isLastStep  = index === steps.length - 1;
+
+      return (
+        <li
+          class:list={[
+            'ps__step',
+            `ps__step--${status}`,
+            isClickable && 'ps__step--clickable',
+          ]}
+          aria-current={status === 'current' ? 'step' : undefined}
+          data-step={stepNumber}
+        >
+          {/* ── Indicator circle / button ── */}
+          <div class="ps__indicator">
+            {isClickable ? (
+              <button
+                type="button"
+                class="ps__circle ps__circle--btn"
+                aria-label={`Zurück zu Schritt ${stepNumber}: ${step.label}`}
+                data-step-target={stepNumber}
+              >
+                <svg
+                  class="ps__check"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="3"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                  focusable="false"
+                >
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              </button>
+            ) : (
+              <div class="ps__circle" aria-hidden="true">
+                {status === 'completed' ? (
+                  <svg
+                    class="ps__check"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="3"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                    focusable="false"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                ) : (
+                  <span class="ps__number">{stepNumber}</span>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* ── Connector line between steps (not after last) ── */}
+          {!isLastStep && (
+            <div
+              class:list={[
+                'ps__connector',
+                index < validCurrentStep - 1 && 'ps__connector--filled',
+              ]}
+              aria-hidden="true"
+            />
+          )}
+
+          {/* ── Label + optional description ── */}
+          <div class="ps__content">
+            <span class="ps__label">{step.label}</span>
+            {step.description && (
+              <span class="ps__desc">{step.description}</span>
+            )}
+          </div>
+        </li>
+      );
+    })}
+  </ol>
+</nav>
+
+<script>
+  /**
+   * Wire up click-navigation on completed steps.
+   * Dispatches `progress-step-click` with `{ detail: { step: number } }` so the
+   * host form component can advance/retreat without tight coupling.
+   */
+  function initProgressSteps(): void {
+    const containers = document.querySelectorAll<HTMLElement>(
+      '.ps[data-clickable="true"]',
+    );
+
+    containers.forEach((container) => {
+      container
+        .querySelectorAll<HTMLButtonElement>('.ps__circle--btn')
+        .forEach((btn) => {
+          btn.addEventListener('click', (e) => {
+            const target = (e.currentTarget as HTMLElement).dataset.stepTarget;
+            if (target) {
+              container.dispatchEvent(
+                new CustomEvent('progress-step-click', {
+                  detail: { step: parseInt(target, 10) },
+                  bubbles: true,
+                }),
+              );
+            }
+          });
+        });
+    });
+  }
+
+  initProgressSteps();
+  /* Re-init after Astro View Transitions */
+  document.addEventListener('astro:page-load', initProgressSteps);
+</script>
+
+<style>
+/* ─────────────────────────────────────────────────────────────────────────────
+   ProgressSteps — all values via WM design tokens (tokens/dist/tokens.css)
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Root nav */
+.ps {
+  width: 100%;
+  padding: var(--spacing-4) 0;
+}
+
+/* Ordered list resets */
+.ps__list {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* ── Horizontal layout (default) ──────────────────────────────────────────── */
+
+.ps--horizontal .ps__list {
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.ps--horizontal .ps__step {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+/* Connector: absolute bar running right from the circle centre */
+.ps--horizontal .ps__connector {
+  position: absolute;
+  top: var(--spacing-5);          /* half of 40 px circle */
+  left: calc(50% + var(--spacing-5));
+  width: calc(100% - var(--spacing-10));
+  height: 2px;
+  background: var(--color-border-default);
+  transition:
+    background var(--transition-duration-fast) var(--transition-timing-ease-in-out);
+}
+
+.ps--horizontal .ps__content {
+  text-align: center;
+  margin-top: var(--spacing-2);
+}
+
+/* ── Vertical layout ──────────────────────────────────────────────────────── */
+
+.ps--vertical .ps__list {
+  flex-direction: column;
+  gap: 0;
+}
+
+.ps--vertical .ps__step {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  position: relative;
+  padding-bottom: var(--spacing-6);
+}
+
+.ps--vertical .ps__step:last-child {
+  padding-bottom: 0;
+}
+
+/* Connector: vertical bar below the circle */
+.ps--vertical .ps__connector {
+  position: absolute;
+  /* 40 px circle → centre at top + 20 px; connector starts below */
+  top: var(--spacing-10);
+  left: calc(var(--spacing-5) - 1px);  /* 19 px: centre of 40 px circle */
+  width: 2px;
+  height: calc(100% - var(--spacing-5));
+  background: var(--color-border-default);
+  transition:
+    background var(--transition-duration-fast) var(--transition-timing-ease-in-out);
+}
+
+.ps--vertical .ps__content {
+  margin-left: var(--spacing-4);
+  padding-top: var(--spacing-1);
+}
+
+.ps--vertical .ps__indicator {
+  flex-shrink: 0;
+}
+
+/* ── Connector fill (completed segment) ──────────────────────────────────── */
+
+.ps__connector--filled {
+  background: var(--color-brand-primary);
+}
+
+/* ── Indicator circle ─────────────────────────────────────────────────────── */
+
+.ps__indicator {
+  position: relative;
+  z-index: var(--z-index-10);
+}
+
+.ps__circle {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--border-radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  transition:
+    background    var(--transition-duration-fast) var(--transition-timing-ease-in-out),
+    border-color  var(--transition-duration-fast) var(--transition-timing-ease-in-out),
+    color         var(--transition-duration-fast) var(--transition-timing-ease-in-out),
+    box-shadow    var(--transition-duration-fast) var(--transition-timing-ease-in-out),
+    transform     var(--transition-duration-fast) var(--transition-timing-ease-in-out);
+}
+
+/* Button variant — reset browser defaults */
+.ps__circle--btn {
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  /* inherits same size/shape as .ps__circle via shared class */
+}
+
+/* Visible keyboard focus ring — WCAG 2.2 §2.4.11 */
+.ps__circle--btn:focus-visible {
+  outline: 2px solid var(--color-brand-primary);
+  outline-offset: 3px;
+}
+
+/* ── Step state: pending ──────────────────────────────────────────────────── */
+
+.ps__step--pending .ps__circle {
+  background: var(--color-background-muted);
+  border: 2px solid var(--color-border-default);
+  color: var(--color-text-muted);
+}
+
+/* ── Step state: current ──────────────────────────────────────────────────── */
+
+.ps__step--current .ps__circle {
+  background: var(--color-brand-primary);
+  border: 2px solid var(--color-brand-primary);
+  color: var(--color-text-inverse);
+  /* Focus ring halo — doubles as ring affordance even without click */
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-brand-primary) 20%, transparent);
+}
+
+/* ── Step state: completed ────────────────────────────────────────────────── */
+
+.ps__step--completed .ps__circle {
+  background: var(--color-brand-primary);
+  border: 2px solid var(--color-brand-primary);
+  color: var(--color-text-inverse);
+}
+
+/* ── Clickable completed step hover/active ────────────────────────────────── */
+
+.ps__step--clickable .ps__circle--btn:hover {
+  background: var(--color-brand-primary-hover);
+  border-color: var(--color-brand-primary-hover);
+  transform: scale(1.05);
+}
+
+.ps__step--clickable .ps__circle--btn:active {
+  transform: scale(0.97);
+}
+
+/* ── Icons & numbers ──────────────────────────────────────────────────────── */
+
+.ps__check {
+  width: 18px;
+  height: 18px;
+}
+
+.ps__number {
+  line-height: 1;
+  /* inherits font-size / font-weight from .ps__circle */
+}
+
+/* ── Label text ───────────────────────────────────────────────────────────── */
+
+.ps__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-0-5);
+}
+
+.ps__label {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+  transition: color var(--transition-duration-fast) var(--transition-timing-ease-in-out);
+}
+
+.ps__step--current .ps__label {
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.ps__step--completed .ps__label {
+  color: var(--color-text-primary);
+}
+
+/* ── Description ─────────────────────────────────────────────────────────── */
+
+.ps__desc {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  line-height: var(--font-line-height-normal);
+  /* Constrain width on horizontal to avoid overflow */
+  max-width: 9.375rem;  /* 150 px — layout-proportionate, not a design value */
+}
+
+.ps--vertical .ps__desc {
+  max-width: none;
+}
+
+/* ── Responsive: collapse horizontal to vertical on narrow screens ─────────── */
+
+@media (max-width: 640px) {
+  .ps--horizontal .ps__list {
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .ps--horizontal .ps__step {
+    flex-direction: row;
+    align-items: flex-start;
+    padding-bottom: var(--spacing-6);
+  }
+
+  .ps--horizontal .ps__step:last-child {
+    padding-bottom: 0;
+  }
+
+  /* Re-use vertical connector geometry */
+  .ps--horizontal .ps__connector {
+    position: absolute;
+    top: var(--spacing-10);
+    left: calc(var(--spacing-5) - 1px);
+    width: 2px;
+    height: calc(100% - var(--spacing-5));
+  }
+
+  .ps--horizontal .ps__content {
+    text-align: left;
+    margin-top: 0;
+    margin-left: var(--spacing-4);
+    padding-top: var(--spacing-1);
+  }
+
+  .ps__desc {
+    max-width: none;
+  }
+}
+
+/* ── Reduced motion ───────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .ps__circle,
+  .ps__connector,
+  .ps__label {
+    transition: none;
+  }
+
+  .ps__step--clickable .ps__circle--btn:hover,
+  .ps__step--clickable .ps__circle--btn:active {
+    transform: none;
+  }
+}
+</style>

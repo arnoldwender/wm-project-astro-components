@@ -1,0 +1,484 @@
+---
+/**
+ * FontSizeControls Component - WenderMedia Astro Components
+ *
+ * a11y-first font-size control bar — the compact "A− / A+" affordance ported from
+ * wm-source-site and wm-source-site, elevated to full WCAG 2.2 AA and
+ * BFSG 2025 compliance. Designed to sit inside toolbars, navigation bars, or footers.
+ *
+ * Relationship to existing library components:
+ * - Complements `accessibility/FontResizer`, which is a standalone percentage-based
+ *   widget. FontSizeControls is the lightweight inline bar variant (A− label / live
+ *   display / A+ label) used in navigation context, with identical persistence contract
+ *   (localStorage key "fontSize") so both components share state on the same page.
+ * - Does NOT import from any other library component (atomic boundary rule).
+ *
+ * Features:
+ * - role="group" with aria-labelledby; buttons carry aria-label + aria-pressed at limits
+ * - Live display span with aria-live="polite" for current size announcement
+ * - Optional reset button (aria-label configurable)
+ * - Persist preference to localStorage ("fontSize" key — shared with FontResizer)
+ * - Ctrl/Meta +/−/0 global keyboard shortcuts (opt-in via enableKeyboardShortcuts)
+ * - prefers-reduced-motion: no animation class added on toggle
+ * - 44 × 44 px minimum touch targets enforced via CSS min-size
+ * - forced-colors / high-contrast mode support
+ * - Inline aria-live region (no DOM append, avoids duplicate region if LiveRegion.astro
+ *   is also present on the page)
+ *
+ * @example
+ * <!-- Compact bar with German labels, 2px step, shared localStorage -->
+ * <FontSizeControls
+ *   label="Schriftgröße"
+ *   decreaseLabel="Schriftgröße verkleinern"
+ *   increaseLabel="Schriftgröße vergrößern"
+ *   resetLabel="Schriftgröße zurücksetzen"
+ *   minSize={14}
+ *   maxSize={20}
+ *   defaultSize={16}
+ *   step={2}
+ * />
+ *
+ * @example
+ * <!-- English compact bar inside a nav toolbar, no reset button -->
+ * <FontSizeControls
+ *   label="Font size"
+ *   decreaseLabel="Decrease font size"
+ *   increaseLabel="Increase font size"
+ *   showReset={false}
+ *   minSize={12}
+ *   maxSize={22}
+ *   step={2}
+ * />
+ *
+ * @copyright 2007-2026 Arnold Wender · Wender Media. All Rights Reserved. License: LicenseRef-Wender-Media-Source-1.0
+ * @see https://github.com/arnoldwender/wm-project-astro-components
+ */
+
+export interface Props {
+  /** Visible label text for the group; also used as the legend / aria-labelledby target */
+  label?: string;
+  /** aria-label for the decrease button */
+  decreaseLabel?: string;
+  /** aria-label for the increase button */
+  increaseLabel?: string;
+  /** aria-label for the optional reset button */
+  resetLabel?: string;
+  /** Show the reset button */
+  showReset?: boolean;
+  /** Minimum font size in px (inclusive) */
+  minSize?: number;
+  /** Maximum font size in px (inclusive) */
+  maxSize?: number;
+  /** Starting font size in px */
+  defaultSize?: number;
+  /** Step size in px per click */
+  step?: number;
+  /** Enable Ctrl/Meta +/−/0 keyboard shortcuts globally on this page */
+  enableKeyboardShortcuts?: boolean;
+  /** Extra CSS class(es) on the root element */
+  class?: string;
+}
+
+const {
+  label = 'Schriftgröße',
+  decreaseLabel = 'Schriftgröße verkleinern',
+  increaseLabel = 'Schriftgröße vergrößern',
+  resetLabel = 'Schriftgröße zurücksetzen',
+  showReset = true,
+  minSize = 14,
+  maxSize = 20,
+  defaultSize = 16,
+  step = 1,
+  enableKeyboardShortcuts = true,
+  class: className = '',
+} = Astro.props;
+
+/* Unique ID per component instance so multiple widgets on the same page are
+   independently labelled without id collision. */
+const instanceId = `fsc-${Math.random().toString(36).slice(2, 8)}`;
+const labelId = `${instanceId}-label`;
+const displayId = `${instanceId}-display`;
+const announceId = `${instanceId}-announce`;
+---
+
+<!-- Font-size control group: role=group with labelledby ties label to the toolbar -->
+<div
+  class:list={['font-size-controls', className]}
+  role="group"
+  aria-labelledby={labelId}
+  data-font-size-controls
+  data-min={minSize}
+  data-max={maxSize}
+  data-default={defaultSize}
+  data-step={step}
+  data-enable-shortcuts={enableKeyboardShortcuts ? 'true' : 'false'}
+  data-announce-id={announceId}
+  data-display-id={displayId}
+>
+  <!-- Visible label; also serves as the group's accessible name via aria-labelledby -->
+  <span id={labelId} class="fsc-label" aria-hidden="false">{label}</span>
+
+  <!-- Decrease button: A− affordance -->
+  <button
+    type="button"
+    class="fsc-btn fsc-btn--decrease"
+    aria-label={decreaseLabel}
+    data-fsc-decrease
+  >
+    <!-- Decorative: screen readers use aria-label -->
+    <span aria-hidden="true" class="fsc-glyph">A<sup>−</sup></span>
+  </button>
+
+  <!-- Current-size display: acts as a live region label -->
+  <span
+    id={displayId}
+    class="fsc-display"
+    aria-live="polite"
+    aria-atomic="true"
+    aria-label={`${label}: ${defaultSize}px`}
+    data-fsc-display
+  >{defaultSize}px</span>
+
+  <!-- Increase button: A+ affordance -->
+  <button
+    type="button"
+    class="fsc-btn fsc-btn--increase"
+    aria-label={increaseLabel}
+    data-fsc-increase
+  >
+    <span aria-hidden="true" class="fsc-glyph">A<sup>+</sup></span>
+  </button>
+
+  <!-- Optional reset button -->
+  {showReset && (
+    <button
+      type="button"
+      class="fsc-btn fsc-btn--reset"
+      aria-label={resetLabel}
+      data-fsc-reset
+    >
+      {/* SVG: undo/reset icon, decorative */}
+      <svg
+        class="fsc-icon"
+        viewBox="0 0 20 20"
+        fill="currentColor"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <path
+          fill-rule="evenodd"
+          d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+          clip-rule="evenodd"
+        />
+      </svg>
+      <span class="sr-only">{resetLabel}</span>
+    </button>
+  )}
+
+  <!-- Inline polite live region for screen-reader announcements.
+       Kept inside the widget so it is scoped; script targets it by data-announce-id. -->
+  <span
+    id={announceId}
+    role="status"
+    aria-live="polite"
+    aria-atomic="true"
+    class="sr-only"
+    data-fsc-announce
+  ></span>
+</div>
+
+<script>
+  function initFontSizeControls(): void {
+    const widgets = document.querySelectorAll<HTMLElement>('[data-font-size-controls]');
+
+    widgets.forEach((widget) => {
+      /* Read configuration from data-* attributes set by Astro props */
+      const MIN_SIZE    = parseFloat(widget.dataset.min     ?? '14');
+      const MAX_SIZE    = parseFloat(widget.dataset.max     ?? '20');
+      const DEFAULT_SIZE= parseFloat(widget.dataset.default ?? '16');
+      const STEP        = parseFloat(widget.dataset.step    ?? '1');
+      const ANNOUNCE_ID = widget.dataset.announceId ?? '';
+      const DISPLAY_ID  = widget.dataset.displayId  ?? '';
+      const SHORTCUTS   = widget.dataset.enableShortcuts === 'true';
+
+      const decreaseBtn = widget.querySelector<HTMLButtonElement>('[data-fsc-decrease]');
+      const increaseBtn = widget.querySelector<HTMLButtonElement>('[data-fsc-increase]');
+      const resetBtn    = widget.querySelector<HTMLButtonElement>('[data-fsc-reset]');
+      const display     = DISPLAY_ID ? (document.getElementById(DISPLAY_ID) as HTMLSpanElement | null) : null;
+      const announce    = ANNOUNCE_ID ? (document.getElementById(ANNOUNCE_ID) as HTMLElement | null) : null;
+
+      /* ── State ─────────────────────────────────────────────────────────── */
+      let currentSize = DEFAULT_SIZE;
+
+      /* ── Persistence helpers ───────────────────────────────────────────── */
+      function loadSavedSize(): number {
+        try {
+          const raw = localStorage.getItem('fontSize');
+          if (raw) {
+            const n = parseFloat(raw);
+            if (!Number.isNaN(n) && n >= MIN_SIZE && n <= MAX_SIZE) return n;
+          }
+        } catch { /* localStorage blocked (private mode) */ }
+        return DEFAULT_SIZE;
+      }
+
+      function persistSize(size: number): void {
+        try { localStorage.setItem('fontSize', size.toString()); } catch { /* ignore */ }
+      }
+
+      /* ── Announcement helper ───────────────────────────────────────────── */
+      function announceSize(size: number, label: string): void {
+        if (!announce) return;
+        // Clear then set in rAF so repeated values are still announced by AT
+        announce.textContent = '';
+        requestAnimationFrame(() => {
+          announce!.textContent = `${label}: ${size}px`;
+        });
+      }
+
+      /* ── Apply size to document + sync UI ─────────────────────────────── */
+      function applySize(size: number): void {
+        /* Write directly to documentElement fontSize so the cascade inherits */
+        document.documentElement.style.fontSize = `${size}px`;
+
+        /* Update visible display and its accessible label */
+        if (display) {
+          display.textContent = `${size}px`;
+          const groupLabel = widget.querySelector('[id$="-label"]')?.textContent ?? 'Schriftgröße';
+          display.setAttribute('aria-label', `${groupLabel}: ${size}px`);
+        }
+
+        /* Disable / enable buttons at limits, set aria-pressed at boundary */
+        const atMin = size <= MIN_SIZE;
+        const atMax = size >= MAX_SIZE;
+        const atDefault = size === DEFAULT_SIZE;
+
+        if (decreaseBtn) {
+          decreaseBtn.disabled = atMin;
+          /* aria-pressed: true = "currently at minimum" boundary signal */
+          decreaseBtn.setAttribute('aria-pressed', atMin ? 'true' : 'false');
+        }
+        if (increaseBtn) {
+          increaseBtn.disabled = atMax;
+          increaseBtn.setAttribute('aria-pressed', atMax ? 'true' : 'false');
+        }
+        if (resetBtn) {
+          resetBtn.disabled = atDefault;
+        }
+
+        /* Announce the change politely */
+        const groupLabel = widget.querySelector('[id$="-label"]')?.textContent ?? 'Schriftgröße';
+        announceSize(size, groupLabel);
+      }
+
+      /* ── Handlers ──────────────────────────────────────────────────────── */
+      function handleIncrease(): void {
+        if (currentSize < MAX_SIZE) {
+          currentSize = Math.min(currentSize + STEP, MAX_SIZE);
+          applySize(currentSize);
+          persistSize(currentSize);
+        }
+      }
+
+      function handleDecrease(): void {
+        if (currentSize > MIN_SIZE) {
+          currentSize = Math.max(currentSize - STEP, MIN_SIZE);
+          applySize(currentSize);
+          persistSize(currentSize);
+        }
+      }
+
+      function handleReset(): void {
+        currentSize = DEFAULT_SIZE;
+        applySize(currentSize);
+        persistSize(currentSize);
+      }
+
+      /* ── Event listeners ───────────────────────────────────────────────── */
+      increaseBtn?.addEventListener('click', handleIncrease);
+      decreaseBtn?.addEventListener('click', handleDecrease);
+      resetBtn?.addEventListener('click', handleReset);
+
+      /* ── Global keyboard shortcuts (Ctrl/Meta +/−/0) ──────────────────── */
+      if (SHORTCUTS) {
+        document.addEventListener('keydown', (e: KeyboardEvent) => {
+          if (!(e.ctrlKey || e.metaKey)) return;
+          if (e.key === '+' || e.key === '=') { e.preventDefault(); handleIncrease(); }
+          if (e.key === '-')                  { e.preventDefault(); handleDecrease(); }
+          if (e.key === '0')                  { e.preventDefault(); handleReset(); }
+        });
+      }
+
+      /* ── Init ──────────────────────────────────────────────────────────── */
+      currentSize = loadSavedSize();
+      applySize(currentSize);
+    });
+  }
+
+  /* Run on DOMContentLoaded and Astro View Transition page loads */
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initFontSizeControls);
+  } else {
+    initFontSizeControls();
+  }
+  document.addEventListener('astro:page-load', initFontSizeControls);
+</script>
+
+<style>
+  /* ── Root layout ─────────────────────────────────────────────────────────── */
+  .font-size-controls {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-1);
+    /* Surface token: white background with a subtle border */
+    background-color: var(--color-background-surface);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-1) var(--spacing-2);
+    box-shadow: var(--shadow-xs);
+  }
+
+  /* ── Group label ────────────────────────────────────────────────────────── */
+  .fsc-label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+    margin-inline-end: var(--spacing-1);
+    /* Not aria-hidden, intentionally visible and used for aria-labelledby */
+  }
+
+  /* ── Buttons ─────────────────────────────────────────────────────────────── */
+  .fsc-btn {
+    /* 44 × 44 px minimum touch target (WCAG 2.5.5 / BFSG) */
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-1);
+    background: none;
+    border: none;
+    border-radius: var(--border-radius-md);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    /* Smooth color transition — guarded against reduced-motion below */
+    transition:
+      color var(--transition-duration-fast) var(--transition-timing-ease),
+      background-color var(--transition-duration-fast) var(--transition-timing-ease),
+      box-shadow var(--transition-duration-fast) var(--transition-timing-ease);
+  }
+
+  .fsc-btn:hover:not(:disabled) {
+    color: var(--color-text-primary);
+    background-color: var(--color-background-subtle);
+  }
+
+  /* Visible :focus-visible ring using the border-focus token */
+  .fsc-btn:focus-visible {
+    outline: 2px solid var(--color-border-focus);
+    outline-offset: 2px;
+  }
+
+  /* Remove default focus ring for non-keyboard interactions */
+  .fsc-btn:focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  .fsc-btn:disabled {
+    opacity: var(--opacity-40);
+    cursor: not-allowed;
+  }
+
+  /* ── Glyph: A− / A+ ──────────────────────────────────────────────────────── */
+  .fsc-glyph {
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--font-line-height-none);
+    /* The superscript ± sign shrinks proportionally */
+    font-family: var(--font-family-sans);
+  }
+
+  .fsc-glyph sup {
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-bold);
+    vertical-align: super;
+  }
+
+  /* ── Current-size display ────────────────────────────────────────────────── */
+  .fsc-display {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-text-primary);
+    /* Fixed width so layout does not shift when value changes 14px → 20px */
+    min-width: 3.5ch;
+    text-align: center;
+    tabindex: -1; /* not interactive, but visually labeled */
+  }
+
+  /* ── Reset icon ──────────────────────────────────────────────────────────── */
+  .fsc-icon {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  /* ── Screen-reader-only utility ──────────────────────────────────────────── */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* ── Reduce motion: disable transitions ──────────────────────────────────── */
+  @media (prefers-reduced-motion: reduce) {
+    .fsc-btn {
+      transition: none;
+    }
+  }
+
+  /* ── High-contrast mode (Windows HCM / Forced Colors) ────────────────────── */
+  @media (forced-colors: active) {
+    .font-size-controls {
+      forced-color-adjust: none;
+      background: ButtonFace;
+      border: 1px solid ButtonText;
+    }
+
+    .fsc-btn {
+      background: ButtonFace;
+      color: ButtonText;
+      border: 1px solid ButtonText;
+    }
+
+    .fsc-btn:hover:not(:disabled) {
+      background: Highlight;
+      color: HighlightText;
+    }
+
+    .fsc-btn:focus-visible {
+      outline: 2px solid Highlight;
+    }
+
+    .fsc-label,
+    .fsc-display {
+      color: ButtonText;
+    }
+  }
+
+  @media (prefers-contrast: high) {
+    .font-size-controls {
+      border-width: 2px;
+      border-color: var(--color-text-primary);
+    }
+
+    .fsc-btn {
+      border: 1px solid var(--color-text-primary);
+    }
+  }
+</style>

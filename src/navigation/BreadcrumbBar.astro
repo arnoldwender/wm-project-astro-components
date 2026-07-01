@@ -1,0 +1,186 @@
+---
+/**
+ * BreadcrumbBar Component - WenderMedia Astro Components
+ *
+ * A styled horizontal bar that wraps breadcrumb navigation, typically placed
+ * immediately after a fixed site header and before the page hero section.
+ * Handles the vertical offset needed to clear fixed navigation bars so the
+ * bar always appears flush below the header without a hard-coded pixel value.
+ *
+ * Distinct from `navigation/Breadcrumbs.astro`, which is the raw `<nav>`
+ * primitive. BreadcrumbBar is the layout molecule: it provides the bar
+ * surface, border, padding, container max-width, dark-mode adaptation, and
+ * the optional right-side slot (e.g. for a call-to-action link or page title
+ * badge). Use Breadcrumbs inside this component or pass your own right slot
+ * content standalone.
+ *
+ * The offset for fixed navigation is controlled via the CSS custom properties
+ * `--breadcrumb-bar-nav-height` and `--breadcrumb-bar-top-bar-height` so each
+ * consuming site can set them in its own `:root` without touching this
+ * component (sensible defaults: 0 and 0 — works for non-fixed headers too).
+ *
+ * @example
+ * <BreadcrumbBar
+ *   items={[
+ *     { label: 'Products', href: '/products' },
+ *     { label: 'Category', href: '/products/category' },
+ *     { label: 'Current Product' },
+ *   ]}
+ * />
+ *
+ * @example
+ * <!-- Custom separator + a right-slot action link -->
+ * <BreadcrumbBar
+ *   items={[
+ *     { label: 'Services', href: '/services' },
+ *     { label: 'Web Design' },
+ *   ]}
+ *   separator="slash"
+ *   homeLabel="Acme Corp"
+ * >
+ *   <a slot="right" href="/contact">Get a quote &rarr;</a>
+ * </BreadcrumbBar>
+ *
+ * @example
+ * <!-- No built-in breadcrumbs — supply your own content via default slot -->
+ * <BreadcrumbBar showBuiltinBreadcrumbs={false}>
+ *   <span>You are here: <strong>Checkout</strong></span>
+ * </BreadcrumbBar>
+ *
+ * @copyright 2007-2026 Arnold Wender · Wender Media. All Rights Reserved. License: LicenseRef-Wender-Media-Source-1.0
+ * @see https://github.com/arnoldwender/wm-project-astro-components
+ */
+
+import Breadcrumbs from './Breadcrumbs.astro';
+
+export interface BreadcrumbItem {
+  label: string;
+  href?: string;
+}
+
+export interface Props {
+  /** Breadcrumb items passed through to the built-in Breadcrumbs component. */
+  items?: BreadcrumbItem[];
+  /** Separator style for the built-in Breadcrumbs component. */
+  separator?: 'chevron' | 'slash' | 'arrow';
+  /** Whether to auto-prepend a Home link. Passed through to Breadcrumbs. */
+  showHome?: boolean;
+  /** Label for the auto-prepended Home link. */
+  homeLabel?: string;
+  /** href for the auto-prepended Home link. */
+  homeHref?: string;
+  /**
+   * When false, the built-in `<Breadcrumbs>` is not rendered. Use the
+   * default `<slot />` to supply your own breadcrumb markup.
+   */
+  showBuiltinBreadcrumbs?: boolean;
+  /** Additional CSS class names applied to the outer bar element. */
+  class?: string;
+}
+
+const {
+  items = [],
+  separator = 'chevron',
+  showHome = true,
+  homeLabel = 'Home',
+  homeHref = '/',
+  showBuiltinBreadcrumbs = true,
+  class: className = '',
+} = Astro.props;
+---
+
+<div class:list={['breadcrumb-bar', className]}>
+  <div class="breadcrumb-bar__container">
+    <div class="breadcrumb-bar__inner">
+
+      <!-- Built-in breadcrumbs (rendered when items are provided and showBuiltinBreadcrumbs is true) -->
+      {showBuiltinBreadcrumbs && items.length > 0 && (
+        <Breadcrumbs
+          items={items}
+          separator={separator}
+          showHome={showHome}
+          homeLabel={homeLabel}
+          homeHref={homeHref}
+        />
+      )}
+
+      <!-- Fallback default slot: caller-supplied breadcrumb content -->
+      {(!showBuiltinBreadcrumbs || items.length === 0) && (
+        <slot />
+      )}
+
+      <!-- Optional right-side slot: secondary label, CTA link, etc. -->
+      <slot name="right" />
+
+    </div>
+  </div>
+</div>
+
+<style>
+  /*
+   * --breadcrumb-bar-nav-height:      height of a fixed top navigation bar.
+   * --breadcrumb-bar-top-bar-height:  height of a secondary utility bar above
+   *                                   the main nav (announcements, language
+   *                                   switches, etc.).
+   * Both default to 0 so the component works without configuration on sites
+   * that do not have fixed headers. Each consuming site sets these in :root.
+   */
+  .breadcrumb-bar {
+    background-color: var(--color-background-muted);
+    border-bottom: 1px solid var(--color-border-default);
+    padding-top: calc(
+      var(--breadcrumb-bar-nav-height, 0px) +
+      var(--breadcrumb-bar-top-bar-height, 0px) +
+      var(--spacing-4)
+    );
+    padding-bottom: var(--spacing-4);
+    /* Ensure the bar sits above page content when positioned below a fixed header */
+    position: relative;
+  }
+
+  .breadcrumb-bar__container {
+    /* Respects the consuming site's max-width convention via the token */
+    max-width: var(--size-container-7xl);
+    margin-inline: auto;
+    padding-inline: var(--spacing-6);
+  }
+
+  .breadcrumb-bar__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-4);
+    min-height: 44px; /* WCAG 2.2 AA 2.5.8 minimum touch-target height */
+  }
+
+  /* ─── Focus-visible ring for any interactive child (links in the right slot) ─── */
+  .breadcrumb-bar__inner :focus-visible {
+    outline: 2px solid var(--color-border-focus);
+    outline-offset: 2px;
+    border-radius: var(--border-radius-sm);
+  }
+
+  /* ─── Dark mode ─── */
+  @media (prefers-color-scheme: dark) {
+    .breadcrumb-bar {
+      background-color: var(--color-background-inverse);
+      border-bottom-color: var(--color-slate-700);
+    }
+  }
+
+  /* ─── Reduced motion: no residual transitions from child slots ─── */
+  @media (prefers-reduced-motion: reduce) {
+    .breadcrumb-bar,
+    .breadcrumb-bar * {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+    }
+  }
+
+  /* ─── Responsive padding reduction on small screens ─── */
+  @media (max-width: 640px) {
+    .breadcrumb-bar__container {
+      padding-inline: var(--spacing-4);
+    }
+  }
+</style>

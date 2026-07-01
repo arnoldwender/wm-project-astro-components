@@ -1,0 +1,75 @@
+---
+/**
+ * FAQSchema Component - WenderMedia Astro Components
+ *
+ * Emits a `FAQPage` JSON-LD structured data block that enables expandable
+ * Q&A rich results in Google Search. Renders nothing when the `items` array
+ * is empty, preventing invalid/empty schema from reaching the index.
+ *
+ * Schema.org type emitted: {@link https://schema.org/FAQPage FAQPage}
+ *   → mainEntity[]: {@link https://schema.org/Question Question}
+ *     → acceptedAnswer: {@link https://schema.org/Answer Answer}
+ *
+ * @example
+ * ---
+ * import FAQSchema from '@components/seo/FAQSchema.astro';
+ * ---
+ * <FAQSchema
+ *   items={[
+ *     { question: 'Was kostet SEO?', answer: 'Die Kosten hängen vom Umfang ab.' },
+ *     { question: 'Wie lange dauert SEO?', answer: 'Erste Ergebnisse in 3-6 Monaten.' },
+ *   ]}
+ * />
+ *
+ * @example
+ * <!-- Suppress schema on pages that already emit FAQPage via another component -->
+ * <FAQSchema items={faqs} suppress={true} />
+ *
+ * @copyright 2007-2026 Arnold Wender · Wender Media. All Rights Reserved. License: LicenseRef-Wender-Media-Source-1.0
+ * @see https://github.com/arnoldwender/wm-project-astro-components
+ */
+
+/** A single FAQ entry with a question and its plain-text answer. */
+export interface FAQItem {
+  /** The question text — maps to schema.org/Question `name`. */
+  question: string;
+  /** The answer text — maps to schema.org/Answer `text`. Plain text or simple HTML allowed. */
+  answer: string;
+}
+
+export interface Props {
+  /** Array of FAQ items. Schema is suppressed when the array is empty. */
+  items: FAQItem[];
+  /**
+   * Set to `true` to suppress JSON-LD output even when `items` is non-empty.
+   * Useful on pages that emit FAQPage schema via a different mechanism to
+   * avoid duplicate FAQPage blocks (GSC error: "mehrere zusammengefasste Bewertungen").
+   * @default false
+   */
+  suppress?: boolean;
+}
+
+const { items, suppress = false } = Astro.props;
+
+// Guard: emit nothing for empty item list or when explicitly suppressed
+const shouldRender = !suppress && items.length > 0;
+
+const schema = shouldRender
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: items.map((item) => ({
+        '@type': 'Question',
+        name: item.question,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: item.answer,
+        },
+      })),
+    }
+  : null;
+---
+
+{schema && (
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(schema)} />
+)}
