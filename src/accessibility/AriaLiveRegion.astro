@@ -1,0 +1,228 @@
+---
+/**
+ * AriaLiveRegion Component - WenderMedia Astro Components
+ *
+ * Global dual-region ARIA live announcer for screen reader announcements.
+ * Exposes a `window.announce(message, politeness?)` and
+ * `window.clearAnnouncement(politeness?)` API for programmatic announcements
+ * from anywhere in the application.
+ *
+ * Relationship: complements the single-target `accessibility/LiveRegion` component.
+ * Use `LiveRegion` when you need a named, single region embedded in a specific
+ * part of the DOM (e.g. a form error container). Use `AriaLiveRegion` once,
+ * globally in your layout, when you need to drive announcements imperatively from
+ * JavaScript (e.g. toast notifications, route changes, cart updates).
+ *
+ * Place exactly ONE instance in your root layout (e.g. BaseLayout.astro).
+ * Multiple instances are safe — the script guard deduplicates initialization.
+ *
+ * @example
+ * <!-- In BaseLayout.astro — once, globally -->
+ * <AriaLiveRegion />
+ *
+ * @example
+ * <!-- Announce from anywhere in client JS -->
+ * window.announce('3 items added to your cart');
+ * window.announce('Session expired — please log in again.', 'assertive');
+ * window.clearAnnouncement('polite');
+ *
+ * @example
+ * <!-- Custom clear delay (ms before the text is wiped) -->
+ * <AriaLiveRegion clearDelay={1500} />
+ *
+ * @copyright 2007-2026 Arnold Wender · Wender Media. All Rights Reserved. License: LicenseRef-Wender-Media-Source-1.0
+ * @see https://github.com/arnoldwender/wm-project-astro-components
+ */
+
+export interface Props {
+  /**
+   * Milliseconds to wait before auto-clearing the announced text.
+   * Prevents re-announcement when focus returns to the region.
+   * Set to 0 to disable auto-clear.
+   * @default 1000
+   */
+  clearDelay?: number;
+  /** Additional CSS class(es) passed to both region wrappers. */
+  class?: string;
+}
+
+const {
+  clearDelay = 1000,
+  class: className = '',
+} = Astro.props;
+---
+
+<!-- Polite live region — non-urgent status updates (cart, loading, search results) -->
+<div
+  id="aria-live-polite"
+  class:list={['aria-live-region sr-only', className]}
+  role="status"
+  aria-live="polite"
+  aria-atomic="true"
+  aria-relevant="additions text"
+  data-live-region="polite"
+  data-clear-delay={clearDelay}
+></div>
+
+<!-- Assertive live region — urgent alerts that interrupt speech (errors, session expiry) -->
+<div
+  id="aria-live-assertive"
+  class:list={['aria-live-region sr-only', className]}
+  role="alert"
+  aria-live="assertive"
+  aria-atomic="true"
+  aria-relevant="additions text"
+  data-live-region="assertive"
+  data-clear-delay={clearDelay}
+></div>
+
+<script define:vars={{ clearDelay }}>
+  /**
+   * AriaLiveManager
+   *
+   * Manages both ARIA live regions and exposes the global announce API.
+   * Re-announcement of identical text is handled by a clear-then-rAF pattern.
+   * Pending timeouts are cancelled before each new announcement to prevent
+   * race conditions when messages arrive in quick succession.
+   */
+  class AriaLiveManager {
+    /** @type {HTMLElement|null} */
+    politeRegion = null;
+    /** @type {HTMLElement|null} */
+    assertiveRegion = null;
+    /** @type {number} */
+    clearDelayMs = 1000;
+    /** @type {ReturnType<typeof setTimeout>|null} */
+    pendingClear = null;
+
+    /**
+     * @param {number} delay
+     */
+    constructor(delay) {
+      this.clearDelayMs = typeof delay === 'number' && delay >= 0 ? delay : 1000;
+      this._init();
+    }
+
+    _init() {
+      this.politeRegion = document.querySelector('[data-live-region="polite"]');
+      this.assertiveRegion = document.querySelector('[data-live-region="assertive"]');
+
+      if (!this.politeRegion || !this.assertiveRegion) {
+        // Regions may not yet be in the DOM on first paint — silently abort;
+        // the astro:page-load handler will retry.
+        return;
+      }
+
+      // Expose the global announce API — safe to overwrite on re-init.
+      window.announce = this.announce.bind(this);
+      window.clearAnnouncement = this.clear.bind(this);
+    }
+
+    /**
+     * Announce a message to screen readers.
+     *
+     * @param {string} message - Text to announce.
+     * @param {'polite'|'assertive'} [politeness='polite'] - Urgency level.
+     */
+    announce(message, politeness = 'polite') {
+      if (!message || typeof message !== 'string') {
+        console.warn('[AriaLiveRegion] announce() requires a non-empty string.');
+        return;
+      }
+
+      const region = politeness === 'assertive'
+        ? this.assertiveRegion
+        : this.politeRegion;
+
+      if (!region) {
+        console.warn('[AriaLiveRegion] Target region not available. Was the component mounted?');
+        return;
+      }
+
+      // Cancel any pending auto-clear to avoid wiping the new message.
+      if (this.pendingClear !== null) {
+        clearTimeout(this.pendingClear);
+        this.pendingClear = null;
+      }
+
+      // Clear first so that repeating the same string still triggers a DOM
+      // mutation that AT can detect.
+      region.textContent = '';
+
+      // rAF ensures the browser has processed the empty state before
+      // injecting the new text — critical for NVDA/JAWS re-announcement.
+      requestAnimationFrame(() => {
+        region.textContent = message;
+
+        if (this.clearDelayMs > 0) {
+          this.pendingClear = setTimeout(() => {
+            this.clear(politeness);
+          }, this.clearDelayMs);
+        }
+      });
+    }
+
+    /**
+     * Clear one or both live regions.
+     *
+     * @param {'polite'|'assertive'|'all'} [politeness='all']
+     */
+    clear(politeness = 'all') {
+      if (politeness === 'all' || politeness === 'polite') {
+        if (this.politeRegion) this.politeRegion.textContent = '';
+      }
+      if (politeness === 'all' || politeness === 'assertive') {
+        if (this.assertiveRegion) this.assertiveRegion.textContent = '';
+      }
+    }
+  }
+
+  // Module-level singleton — one manager per page lifetime.
+  /** @type {AriaLiveManager|null} */
+  let manager = null;
+
+  function initAriaLiveRegion() {
+    // Destroy previous manager on Astro View Transition page loads
+    // so region references are refreshed from the new DOM.
+    manager = null;
+    manager = new AriaLiveManager(clearDelay);
+  }
+
+  // Initialise as early as possible.
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAriaLiveRegion, { once: true });
+  } else {
+    initAriaLiveRegion();
+  }
+
+  // Re-initialise after Astro View Transitions / ClientRouter swaps.
+  document.addEventListener('astro:page-load', initAriaLiveRegion);
+</script>
+
+<style>
+  /**
+   * sr-only — standard visually-hidden pattern (WCAG technique C7).
+   * The 1px dimensions are the accepted exception to the no-hardcoded-px rule.
+   * clip/clip-path combo for maximum browser support.
+   */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /**
+   * Decorative wrapper — no visual output.
+   * font-size token applied to suppress any inherited cascade that might
+   * cause layout reflow when text is injected.
+   */
+  .aria-live-region {
+    font-size: var(--font-size-base);
+  }
+</style>
