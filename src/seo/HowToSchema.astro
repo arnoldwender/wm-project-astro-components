@@ -1,0 +1,188 @@
+---
+/**
+ * HowToSchema Component - WenderMedia Astro Components
+ *
+ * Emits a Schema.org HowTo JSON-LD block for step-by-step procedural guides.
+ * Helps search engines understand tutorial content and can enable rich results
+ * (expandable step cards) in Google Search.
+ *
+ * Renders nothing when `steps` is empty, so it is safe to include
+ * unconditionally on pages that may or may not have how-to content.
+ *
+ * @example
+ * ---
+ * import HowToSchema from '@components/seo/HowToSchema.astro';
+ * ---
+ * <HowToSchema
+ *   name="How to Improve Your Local SEO in 5 Steps"
+ *   description="A practical guide to ranking higher in local search results."
+ *   steps={[
+ *     { name: 'Claim your Google Business Profile', text: 'Go to business.google.com and verify your listing.' },
+ *     { name: 'Optimize your NAP data', text: 'Ensure Name, Address, Phone are consistent across all directories.' },
+ *   ]}
+ *   totalTime="PT20M"
+ *   estimatedCost={{ value: 0, currency: 'EUR' }}
+ *   tools={[{ name: 'Google Search Console' }, { name: 'Google Business Profile' }]}
+ * />
+ *
+ * @see https://schema.org/HowTo
+ * @see https://developers.google.com/search/docs/appearance/structured-data/how-to
+ * @copyright 2007-2026 Arnold Wender · Wender Media. All Rights Reserved. License: LicenseRef-Wender-Media-Source-1.0
+ * @see https://github.com/arnoldwender/wm-project-astro-components
+ */
+
+/** A single step within the how-to guide. */
+export interface HowToStep {
+  /** Short title for this step (shown in rich results). */
+  name: string;
+  /** Full instructions for completing this step. */
+  text: string;
+  /**
+   * URL of an image illustrating this step.
+   * Relative paths are resolved against `baseUrl`.
+   */
+  image?: string;
+  /**
+   * URL that links to this step (e.g. an anchor on the page).
+   * Relative paths are resolved against `baseUrl`.
+   */
+  url?: string;
+}
+
+/** A tool required to complete the how-to. Maps to schema.org/HowToTool. */
+export interface HowToTool {
+  /** Tool name (e.g. "Drill", "Google Search Console"). */
+  name: string;
+}
+
+/** A supply or material required. Maps to schema.org/HowToSupply. */
+export interface HowToSupply {
+  /** Supply name (e.g. "Wood screws", "API key"). */
+  name: string;
+}
+
+export interface Props {
+  /** Title of the how-to guide — becomes schema `name`. */
+  name: string;
+  /** Short description of what this guide accomplishes. */
+  description: string;
+  /**
+   * Ordered list of steps. The component renders nothing when this array
+   * is empty so Google never receives a malformed HowTo without steps.
+   */
+  steps: HowToStep[];
+  /**
+   * ISO 8601 duration for the total time to complete.
+   * Examples: "PT30M" (30 minutes), "PT1H30M" (1.5 hours), "P2D" (2 days).
+   */
+  totalTime?: string;
+  /**
+   * Estimated cost to complete the guide.
+   * `currency` defaults to "EUR" when omitted.
+   */
+  estimatedCost?: {
+    value: string | number;
+    currency?: string;
+  };
+  /** Tools needed to complete the guide. */
+  tools?: HowToTool[];
+  /** Supplies or materials needed. */
+  supplies?: HowToSupply[];
+  /**
+   * Hero image for the entire guide.
+   * Relative paths are resolved against `baseUrl`.
+   */
+  image?: string;
+  /**
+   * Absolute base URL used to resolve relative image/step URLs.
+   * Defaults to `Astro.site` when available; falls back to an empty string
+   * (relative URLs would then be emitted as-is — always pass `baseUrl` when
+   * `Astro.site` is not configured in `astro.config.mjs`).
+   */
+  baseUrl?: string;
+}
+
+const {
+  name,
+  description,
+  steps,
+  totalTime,
+  estimatedCost,
+  tools,
+  supplies,
+  image,
+  baseUrl,
+} = Astro.props;
+
+// Guard: never emit a structurally invalid HowTo (Google requires ≥1 step).
+const hasSteps = Array.isArray(steps) && steps.length > 0;
+
+// Resolve the base for relative URL expansion.
+// Priority: explicit prop > Astro.site origin > empty string (bare relative).
+const resolvedBase: string =
+  baseUrl ??
+  (Astro.site ? Astro.site.origin : '');
+
+/** Ensures a URL is absolute. Relative paths are prefixed with `resolvedBase`. */
+function toAbsolute(url: string): string {
+  if (!url) return url;
+  return url.startsWith('http://') || url.startsWith('https://') || url.startsWith('//')
+    ? url
+    : `${resolvedBase}${url.startsWith('/') ? '' : '/'}${url}`;
+}
+
+// Build the HowTo schema object only when there are steps.
+const schema = hasSteps
+  ? (() => {
+      const obj: Record<string, unknown> = {
+        '@context': 'https://schema.org',
+        '@type': 'HowTo',
+        name,
+        description,
+        step: steps.map((step, index) => {
+          const stepObj: Record<string, unknown> = {
+            '@type': 'HowToStep',
+            position: index + 1,
+            name: step.name,
+            text: step.text,
+          };
+          if (step.image) stepObj.image = toAbsolute(step.image);
+          if (step.url) stepObj.url = toAbsolute(step.url);
+          return stepObj;
+        }),
+      };
+
+      if (totalTime) obj.totalTime = totalTime;
+
+      if (image) obj.image = toAbsolute(image);
+
+      if (estimatedCost) {
+        obj.estimatedCost = {
+          '@type': 'MonetaryAmount',
+          value: estimatedCost.value,
+          currency: estimatedCost.currency ?? 'EUR',
+        };
+      }
+
+      if (tools && tools.length > 0) {
+        obj.tool = tools.map((tool) => ({
+          '@type': 'HowToTool',
+          name: tool.name,
+        }));
+      }
+
+      if (supplies && supplies.length > 0) {
+        obj.supply = supplies.map((supply) => ({
+          '@type': 'HowToSupply',
+          name: supply.name,
+        }));
+      }
+
+      return obj;
+    })()
+  : null;
+---
+
+{schema && (
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(schema)} />
+)}
