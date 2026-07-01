@@ -1,0 +1,250 @@
+---
+/**
+ * MobileNavToggle Component - WenderMedia Astro Components
+ *
+ * A standalone accessible hamburger/close toggle button for mobile navigation.
+ * Distinct from MobileNav.astro (which bundles its own trigger inline) — this
+ * primitive lets you wire any drawer/overlay independently, giving full layout
+ * control when the trigger lives in a separate header atom.
+ *
+ * Renders three animated lines that morph into an × when aria-expanded="true".
+ * Emits a `data-mobile-toggle` attribute so the companion script can pair it
+ * with any controlled element via `aria-controls`.
+ *
+ * @example
+ * <!-- Basic usage — pair with any panel that has id="mobile-menu" -->
+ * <MobileNavToggle controls="mobile-menu" />
+ *
+ * @example
+ * <!-- Custom label and initial state -->
+ * <MobileNavToggle
+ *   controls="site-nav"
+ *   label="Navigation öffnen"
+ *   labelClose="Navigation schließen"
+ *   expanded={false}
+ *   id="nav-toggle"
+ *   class="my-toggle"
+ * />
+ *
+ * @example
+ * <!-- Light variant on dark header backgrounds -->
+ * <MobileNavToggle controls="mobile-menu" variant="light" />
+ *
+ * NOTE: Relationship to MobileNav.astro — MobileNav.astro is a complete
+ * overlay component that renders its own trigger button internally.
+ * MobileNavToggle is the extracted toggle primitive for use cases where the
+ * trigger and the panel are composed separately (e.g. trigger in <Header>,
+ * panel teleported to <body>).
+ *
+ * @copyright 2007-2026 Arnold Wender · Wender Media. All Rights Reserved. License: LicenseRef-Wender-Media-Source-1.0
+ * @see https://github.com/arnoldwender/wm-project-astro-components
+ */
+
+export interface Props {
+  /** The id of the element this button controls. Sets aria-controls. */
+  controls: string;
+  /** Unique id for the button element. Defaults to "mobile-menu-button". */
+  id?: string;
+  /** Screen-reader label when menu is closed. */
+  label?: string;
+  /** Screen-reader label when menu is open (falls back to label). */
+  labelClose?: string;
+  /** Initial expanded state. */
+  expanded?: boolean;
+  /** Visual variant: "dark" uses text-primary on light bg; "light" uses white on dark bg. */
+  variant?: 'dark' | 'light';
+  /** Additional CSS classes forwarded to the button. */
+  class?: string;
+}
+
+const {
+  controls,
+  id = 'mobile-menu-button',
+  label = 'Menü öffnen',
+  labelClose,
+  expanded = false,
+  variant = 'dark',
+  class: className,
+} = Astro.props;
+
+const effectiveLabelClose = labelClose ?? label;
+---
+
+<button
+  type="button"
+  id={id}
+  aria-controls={controls}
+  aria-expanded={expanded ? 'true' : 'false'}
+  aria-label={expanded ? effectiveLabelClose : label}
+  data-mobile-toggle
+  data-label-open={label}
+  data-label-close={effectiveLabelClose}
+  class:list={['mobile-nav-toggle', `mobile-nav-toggle--${variant}`, className]}
+>
+  <!-- Animated hamburger / × icon — no external icon dependency -->
+  <span class="mobile-nav-toggle__icon" aria-hidden="true">
+    <span class="mobile-nav-toggle__line mobile-nav-toggle__line--top"></span>
+    <span class="mobile-nav-toggle__line mobile-nav-toggle__line--mid"></span>
+    <span class="mobile-nav-toggle__line mobile-nav-toggle__line--bot"></span>
+  </span>
+</button>
+
+<style>
+  /* ── Base button ───────────────────────────────────────────── */
+  .mobile-nav-toggle {
+    /* Ensure WCAG / BFSG 44 × 44 px touch target */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    padding: var(--spacing-2);
+    background: none;
+    border: none;
+    border-radius: var(--border-radius-md);
+    cursor: pointer;
+    /* Token-based transition */
+    transition:
+      background-color var(--transition-duration-fast) var(--transition-timing-ease),
+      color var(--transition-duration-fast) var(--transition-timing-ease);
+  }
+
+  /* ── Variants ──────────────────────────────────────────────── */
+  .mobile-nav-toggle--dark {
+    color: var(--color-text-primary);
+  }
+
+  .mobile-nav-toggle--dark:hover {
+    background-color: var(--color-background-subtle);
+  }
+
+  .mobile-nav-toggle--light {
+    color: var(--color-text-inverse);
+  }
+
+  .mobile-nav-toggle--light:hover {
+    /* Subtle white overlay — opacity token ensures design-system compliance */
+    background-color: color-mix(
+      in srgb,
+      var(--color-text-inverse) calc(var(--opacity-10) * 100%),
+      transparent
+    );
+  }
+
+  /* ── Focus ring (WCAG 2.2 AA / BFSG) ─────────────────────── */
+  .mobile-nav-toggle:focus-visible {
+    outline: 2px solid var(--color-border-focus);
+    outline-offset: 2px;
+  }
+
+  /* ── Icon container ────────────────────────────────────────── */
+  .mobile-nav-toggle__icon {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: var(--spacing-1-5);
+    width: var(--spacing-6);   /* 24px */
+    height: var(--spacing-6);  /* 24px */
+  }
+
+  /* ── Individual lines ──────────────────────────────────────── */
+  .mobile-nav-toggle__line {
+    display: block;
+    width: 100%;
+    /* 2px stroke — allowed exception per spec (border-like structural px) */
+    height: 2px;
+    background: currentColor;
+    border-radius: var(--border-radius-full);
+    transform-origin: center;
+    transition:
+      transform var(--transition-duration-slow) var(--transition-timing-ease-in-out),
+      opacity var(--transition-duration-slow) var(--transition-timing-ease-in-out);
+  }
+
+  /* ── Open state — × morph animation ───────────────────────── */
+  /* Top line rotates +45° and translates down to cross center */
+  .mobile-nav-toggle[aria-expanded="true"] .mobile-nav-toggle__line--top {
+    transform: translateY(calc(var(--spacing-1-5) + 2px)) rotate(45deg);
+  }
+
+  /* Middle line fades out */
+  .mobile-nav-toggle[aria-expanded="true"] .mobile-nav-toggle__line--mid {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+
+  /* Bottom line rotates −45° and translates up to cross center */
+  .mobile-nav-toggle[aria-expanded="true"] .mobile-nav-toggle__line--bot {
+    transform: translateY(calc(-1 * (var(--spacing-1-5) + 2px))) rotate(-45deg);
+  }
+
+  /* ── Reduced motion — skip the morph animation ─────────────── */
+  @media (prefers-reduced-motion: reduce) {
+    .mobile-nav-toggle__line {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  /**
+   * Wire MobileNavToggle buttons to their controlled panels.
+   * Handles:
+   *  - click → toggle aria-expanded on button + aria-hidden on controlled panel
+   *  - Escape key → close when panel is open
+   *  - aria-label swap on state change
+   */
+  function initMobileNavToggle() {
+    const buttons = document.querySelectorAll<HTMLButtonElement>('[data-mobile-toggle]');
+
+    buttons.forEach((btn) => {
+      const controlledId = btn.getAttribute('aria-controls');
+      if (!controlledId) return;
+      const panel = document.getElementById(controlledId);
+
+      const labelOpen = btn.dataset.labelOpen ?? 'Open menu';
+      const labelClose = btn.dataset.labelClose ?? labelOpen;
+
+      function open() {
+        btn.setAttribute('aria-expanded', 'true');
+        btn.setAttribute('aria-label', labelClose);
+        if (panel) {
+          panel.setAttribute('aria-hidden', 'false');
+          panel.removeAttribute('hidden');
+        }
+        document.body.style.overflow = 'hidden';
+      }
+
+      function close() {
+        btn.setAttribute('aria-expanded', 'false');
+        btn.setAttribute('aria-label', labelOpen);
+        if (panel) {
+          panel.setAttribute('aria-hidden', 'true');
+        }
+        document.body.style.overflow = '';
+      }
+
+      btn.addEventListener('click', () => {
+        const isExpanded = btn.getAttribute('aria-expanded') === 'true';
+        if (isExpanded) { close(); } else { open(); }
+      });
+
+      // Close on Escape when panel is open
+      document.addEventListener('keydown', (e: KeyboardEvent) => {
+        if (e.key === 'Escape' && btn.getAttribute('aria-expanded') === 'true') {
+          close();
+          btn.focus();
+        }
+      });
+    });
+  }
+
+  // Run on initial load and after Astro View Transitions navigation
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMobileNavToggle);
+  } else {
+    initMobileNavToggle();
+  }
+  document.addEventListener('astro:page-load', initMobileNavToggle);
+</script>

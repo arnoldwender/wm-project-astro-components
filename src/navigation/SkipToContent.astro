@@ -1,0 +1,115 @@
+---
+/**
+ * SkipToContent Component - WenderMedia Astro Components
+ *
+ * Accessible skip-navigation link that appears on keyboard focus, allowing
+ * users to bypass repeated navigation and jump directly to the main content.
+ * Visually hidden until focused (screen-reader + keyboard users), fulfilling
+ * WCAG 2.2 SC 2.4.1 (Bypass Blocks) and BFSG 2025 requirements.
+ *
+ * Note: This is a distinct primitive from any SkipLinks wrapper organism.
+ * It renders a single anchor; compose multiple instances for multi-landmark
+ * skip targets (main, navigation, search, footer).
+ *
+ * @example
+ * <!-- Place as the FIRST child of <body> / layout wrapper -->
+ * <SkipToContent />
+ *
+ * @example
+ * <!-- Custom target and label for a single-page app shell -->
+ * <SkipToContent targetId="app-content" label="Direkt zum Inhalt" />
+ *
+ * @example
+ * <!-- English locale, targeting a custom landmark -->
+ * <SkipToContent targetId="search-results" label="Skip to search results" />
+ *
+ * @copyright 2007-2026 Arnold Wender · Wender Media. All Rights Reserved. License: LicenseRef-Wender-Media-Source-1.0
+ * @see https://github.com/arnoldwender/wm-project-astro-components
+ */
+
+export interface Props {
+  /** ID of the target landmark element (must exist on the page). */
+  targetId?: string;
+  /** Visible label shown when the link receives focus. */
+  label?: string;
+  /** Additional CSS classes forwarded to the anchor element. */
+  class?: string;
+}
+
+const {
+  targetId = 'main-content',
+  label = 'Zum Hauptinhalt springen',
+  class: className = '',
+} = Astro.props;
+---
+
+<a
+  href={`#${targetId}`}
+  class:list={['skip-to-content', className]}
+  data-skip-to-content
+>
+  {label}
+</a>
+
+<style>
+  /* Visually hidden but present in the accessibility tree */
+  .skip-to-content {
+    position: absolute;
+    top: var(--spacing-2);
+    left: var(--spacing-2);
+    z-index: var(--z-index-toast); /* always above all overlays */
+
+    /* sr-only state — hidden until focused */
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+
+    /* Typography */
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    font-family: var(--font-family-sans);
+    line-height: var(--font-line-height-normal);
+    text-decoration: none;
+    color: var(--color-text-inverse);
+
+    /* Pill appearance — shown on :focus-visible */
+    background-color: var(--color-background-inverse);
+    border-radius: var(--border-radius-md);
+    padding: var(--spacing-2) var(--spacing-4);
+
+    /* Touch target: minimum 44 × 44px enforced when visible via min-height */
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+
+    /* Smooth reveal */
+    transition:
+      width var(--transition-duration-fast) var(--transition-timing-ease),
+      height var(--transition-duration-fast) var(--transition-timing-ease),
+      clip var(--transition-duration-fast) var(--transition-timing-ease),
+      outline-offset var(--transition-duration-fast) var(--transition-timing-ease);
+  }
+
+  /* Reveal on keyboard focus — WCAG 2.4.1 */
+  .skip-to-content:focus-visible {
+    /* Reset sr-only sizing */
+    width: auto;
+    height: auto;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+
+    /* Accessible focus ring */
+    outline: 2px solid var(--color-border-focus);
+    outline-offset: var(--spacing-1);
+  }
+
+  /* Respect reduced-motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    .skip-to-content {
+      transition: none;
+    }
+  }
+</style>

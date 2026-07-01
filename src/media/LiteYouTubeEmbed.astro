@@ -1,0 +1,816 @@
+---
+/**
+ * LiteYouTubeEmbed — DSGVO/GDPR-compliant zero-JS YouTube embed primitive.
+ *
+ * Renders a self-contained poster placeholder with a play button. No external
+ * request (YouTube, i.ytimg.com) is made until the user explicitly clicks.
+ * After click the component lazy-loads `@justinribeiro/lite-youtube` and
+ * replaces itself with the interactive embed.
+ *
+ * DSGVO contract:
+ * - `requireConsent=true` (default): activating the video first opens a cookie
+ *   consent modal (via `window.openCookieSettings()`) and waits for the
+ *   `cookieConsentChanged` event on `document` before loading YouTube.
+ *   Consent is read from `localStorage['cookieConsent'].marketing === true`.
+ * - `requireConsent=false`: loads immediately on click (e.g. for pages where
+ *   the user already accepted in a prior step).
+ * - No-JS fallback: renders a plain `<a>` link to youtube.com (never an iframe
+ *   that would leak the visitor IP on page load).
+ * - Poster must be a local absolute path (`/images/…`) supplied via the
+ *   `posterSrc` prop. External URLs (i.ytimg.com, etc.) are rejected silently
+ *   to prevent IP leakage on page load.
+ *
+ * Relationship to existing components:
+ * - Distinct from `VideoPlayer.astro` (which handles native HTML5 + Vimeo and
+ *   uses a different consent model). LiteYouTubeEmbed is a YouTube-only
+ *   primitive optimised for LCP (priority poster, lite-youtube lazy-swap).
+ *   Both can coexist.
+ *
+ * @example
+ * <LiteYouTubeEmbed
+ *   videoId="rH5TrIX9RQg"
+ *   title="Wender Media Introduction"
+ *   posterSrc="/images/video/rH5TrIX9RQg.webp"
+ * />
+ *
+ * @example
+ * <!-- Above-the-fold hero video — set priority for LCP -->
+ * <LiteYouTubeEmbed
+ *   videoId="rH5TrIX9RQg"
+ *   title="Wender Media Introduction"
+ *   posterSrc="/images/video/rH5TrIX9RQg.webp"
+ *   priority={true}
+ * />
+ *
+ * @example
+ * <!-- With transcript link and no consent requirement -->
+ * <LiteYouTubeEmbed
+ *   videoId="abc123"
+ *   title="Product Demo"
+ *   posterSrc="/images/video/abc123.webp"
+ *   requireConsent={false}
+ *   transcriptUrl="/transcripts/product-demo/"
+ *   privacyUrl="/privacy/"
+ * />
+ * @copyright 2007-2026 Arnold Wender · Wender Media. All Rights Reserved. License: LicenseRef-Wender-Media-Source-1.0
+ * @see https://github.com/arnoldwender/wm-project-astro-components
+ */
+
+export interface Props {
+  /** YouTube video ID (e.g. "rH5TrIX9RQg"). Required. */
+  videoId: string;
+  /** Accessible title shown in aria-label and as the visible overlay label. Required. */
+  title: string;
+  /** Accessible label for the play button. Defaults to "Play: {title}". */
+  playLabel?: string;
+  /**
+   * Local poster image path — must start with "/" (absolute site-root path).
+   * External URLs (i.ytimg.com, CDNs) are rejected to prevent DSGVO IP leakage.
+   * When omitted a tokenised dark placeholder is rendered instead.
+   */
+  posterSrc?: string;
+  /**
+   * URL to the video transcript page.
+   * When provided a disclosure widget is rendered below the embed.
+   */
+  transcriptUrl?: string;
+  /**
+   * When true (default) the embed is gated behind cookie consent.
+   * The component calls `window.openCookieSettings()` if the user clicks
+   * without marketing consent, then auto-activates on `cookieConsentChanged`.
+   */
+  requireConsent?: boolean;
+  /**
+   * Set to true when the poster is the LCP candidate (above-the-fold hero).
+   * Renders the poster image as `loading="eager" fetchpriority="high"`.
+   */
+  priority?: boolean;
+  /**
+   * URL of the privacy/data-protection page shown in the consent notice.
+   * Defaults to "/datenschutz/" for German-market deployments.
+   */
+  privacyUrl?: string;
+  /** Additional CSS class(es) applied to the outermost wrapper. */
+  class?: string;
+}
+
+const {
+  videoId,
+  title,
+  playLabel = `Play: ${title}`,
+  posterSrc,
+  transcriptUrl,
+  requireConsent = true,
+  priority = false,
+  privacyUrl = '/datenschutz/',
+  class: className = '',
+} = Astro.props;
+
+// Validate poster: only accept absolute local paths ("/…").
+// This prevents accidental external URL usage that would leak the visitor IP.
+const safeLocalPoster = posterSrc?.startsWith('/') ? posterSrc : null;
+const hasPoster = Boolean(safeLocalPoster);
+
+// Unique IDs for ARIA relationships.
+const embedId = `lyte-${videoId}`;
+const transcriptId = `lyte-transcript-${videoId}`;
+
+// No-JS fallback: direct YouTube link (NOT an iframe — iframes leak IP on load).
+const watchUrl = `https://www.youtube.com/watch?v=${videoId}`;
+---
+
+<div
+  class:list={['lyte-wrapper', className]}
+  role="region"
+  aria-label={`Video: ${title}`}
+>
+  <!-- ------------------------------------------------------------------ -->
+  <!-- Poster placeholder — zero external requests until interaction       -->
+  <!-- ------------------------------------------------------------------ -->
+  <div
+    class:list={['lyte-placeholder', { 'lyte-placeholder--empty': !hasPoster }]}
+    id={embedId}
+    data-video-id={videoId}
+    data-title={title}
+    data-play-label={playLabel}
+    data-require-consent={requireConsent ? 'true' : 'false'}
+  >
+    {hasPoster ? (
+      <img
+        src={safeLocalPoster!}
+        alt={`Thumbnail: ${title}`}
+        class="lyte-poster"
+        loading={priority ? 'eager' : 'lazy'}
+        fetchpriority={priority ? 'high' : 'auto'}
+        decoding="async"
+        width="800"
+        height="450"
+      />
+    ) : (
+      <div class="lyte-poster-empty" aria-hidden="true">
+        <span class="lyte-poster-empty__label">Video</span>
+      </div>
+    )}
+
+    <!-- Gradient overlay for title/button contrast -->
+    <div class="lyte-overlay" aria-hidden="true"></div>
+
+    <!-- Play button — 44px minimum touch target (WCAG 2.5.5) -->
+    <button
+      type="button"
+      class="lyte-play-btn"
+      aria-label={playLabel}
+    >
+      <!-- Standard YouTube-shaped play icon (SVG, no external request) -->
+      <svg
+        class="lyte-play-icon"
+        viewBox="0 0 68 48"
+        width="68"
+        height="48"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <path
+          class="lyte-play-bg"
+          d="M66.52,7.74c-0.78-2.93-2.49-5.41-5.42-6.19C55.79,.13,34,0,34,0S12.21,.13,6.9,1.55 C3.97,2.33,2.27,4.81,1.48,7.74C0.06,13.05,0,24,0,24s0.06,10.95,1.48,16.26c0.78,2.93,2.49,5.41,5.42,6.19 C12.21,47.87,34,48,34,48s21.79-0.13,27.1-1.55c2.93-0.78,4.64-3.26,5.42-6.19C67.94,34.95,68,24,68,24S67.94,13.05,66.52,7.74z"
+          fill="#f00"
+        />
+        <path class="lyte-play-arrow" d="M 45,24 27,14 27,34" fill="#fff" />
+      </svg>
+    </button>
+
+    <!-- Video title overlay -->
+    <div class="lyte-title-bar" aria-hidden="true">
+      <span class="lyte-title-text">{title}</span>
+    </div>
+
+    <!-- Consent notice — visible on hover/focus-within when consent pending -->
+    <div class="lyte-consent-notice" aria-live="polite" aria-atomic="true">
+      <p>
+        Clicking loads the video from YouTube (Google). Data is transferred to
+        Google.{' '}
+        <a href={privacyUrl}>Learn more</a>
+      </p>
+    </div>
+  </div>
+
+  <!--
+    DSGVO no-JS fallback: a plain link, not an <iframe>.
+    An iframe (even youtube-nocookie.com) sends the visitor IP to Google on
+    page load. A link only contacts YouTube when the user actively clicks.
+  -->
+  <noscript>
+    <p class="lyte-noscript">
+      <a href={watchUrl} target="_blank" rel="noopener noreferrer">
+        Watch on YouTube: {title}
+      </a>
+    </p>
+  </noscript>
+
+  <!-- ------------------------------------------------------------------ -->
+  <!-- Optional transcript disclosure widget                               -->
+  <!-- ------------------------------------------------------------------ -->
+  {transcriptUrl && (
+    <div class="lyte-transcript">
+      <details>
+        <summary aria-controls={transcriptId}>
+          <span class="lyte-transcript__icon" aria-hidden="true">
+            <!-- Document/text icon -->
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+              <polyline points="10 9 9 9 8 9"/>
+            </svg>
+          </span>
+          Transcript available
+        </summary>
+        <div id={transcriptId} class="lyte-transcript__content">
+          <a
+            href={transcriptUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="lyte-transcript__link"
+          >
+            Open full transcript →
+          </a>
+        </div>
+      </details>
+    </div>
+  )}
+</div>
+
+<style>
+  /* ====================================================================
+     Outer wrapper — constrains max-width, centers the embed.
+     Uses spacing tokens from tokens/dist/tokens.css.
+  ==================================================================== */
+  .lyte-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: var(--size-container-5xl); /* 64rem / ~1024px */
+    margin-inline: auto;
+    margin-block: var(--spacing-8);
+  }
+
+  /* ====================================================================
+     Poster placeholder — holds 16:9 aspect ratio, clips contents.
+     Background: --color-background-inverse (slate-900) = DSGVO-safe
+     fallback when no local poster exists (NEVER falls back to i.ytimg.com).
+  ==================================================================== */
+  .lyte-placeholder {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--border-radius-xl);
+    overflow: hidden;
+    cursor: pointer;
+    background-color: var(--color-background-inverse);
+    box-shadow: var(--shadow-lg);
+    /* Accent border via pseudo-element — uses brand-primary (sky-500) */
+  }
+
+  /* Gradient accent ring around the placeholder */
+  .lyte-placeholder::before {
+    content: '';
+    display: block;
+    position: absolute;
+    inset: -3px;
+    background: linear-gradient(
+      135deg,
+      var(--color-brand-primary),
+      var(--color-brand-primary-hover)
+    );
+    border-radius: calc(var(--border-radius-xl) + 3px);
+    z-index: -1;
+  }
+
+  /* ====================================================================
+     Poster image
+  ==================================================================== */
+  .lyte-poster {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition:
+      transform var(--transition-duration-slow) var(--transition-timing-ease-out);
+  }
+
+  .lyte-placeholder:hover .lyte-poster,
+  .lyte-placeholder:focus-within .lyte-poster {
+    transform: scale(1.02);
+  }
+
+  /* Empty poster (no local file) — dark slate placeholder, no external requests */
+  .lyte-placeholder--empty {
+    background-color: var(--color-slate-900);
+  }
+
+  .lyte-poster-empty {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: var(--spacing-4);
+  }
+
+  .lyte-poster-empty__label {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: var(--color-slate-400);
+  }
+
+  /* ====================================================================
+     Gradient overlay — improves play-button and title contrast
+     Uses rgba() with literal black: allowed (currentColor / transparent
+     not applicable; no brand-color token needed for a neutral shadow).
+  ==================================================================== */
+  .lyte-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.08) 0%,
+      rgba(0, 0, 0, 0) 30%,
+      rgba(0, 0, 0, 0) 65%,
+      rgba(0, 0, 0, 0.45) 100%
+    );
+    pointer-events: none;
+  }
+
+  /* ====================================================================
+     Play button — centred, 44px minimum touch target (WCAG 2.5.5 / BFSG)
+  ==================================================================== */
+  .lyte-play-btn {
+    /* Reset */
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+
+    /* Centre absolutely */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    /* Ensure 44px minimum clickable area around the 68×48 SVG */
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    z-index: var(--z-index-10);
+    transition:
+      transform var(--transition-duration-fast) var(--transition-timing-ease-out);
+  }
+
+  .lyte-play-btn:hover {
+    transform: translate(-50%, -50%) scale(1.1);
+  }
+
+  /* Focus ring — :focus-visible only (WCAG 2.4.11) */
+  .lyte-play-btn:focus {
+    outline: none;
+  }
+
+  .lyte-play-btn:focus-visible {
+    outline: 3px solid var(--color-base-white);
+    outline-offset: var(--spacing-1);
+    border-radius: var(--border-radius-md);
+  }
+
+  .lyte-play-icon {
+    display: block;
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4));
+    transition:
+      filter var(--transition-duration-fast) var(--transition-timing-ease-out);
+  }
+
+  .lyte-placeholder:hover .lyte-play-icon {
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.6));
+  }
+
+  /* YouTube-red play button bg — #f00 is the official brand colour,
+     retained as-is (it is a third-party brand element, not a WM design token).
+     Hover brightens to YouTube's hover red (#cc0000 ≈ brand-secondary-active). */
+  .lyte-play-bg {
+    transition: fill var(--transition-duration-fast) var(--transition-timing-ease-out);
+  }
+
+  .lyte-play-btn:hover .lyte-play-bg {
+    /* brand-secondary-active resolves to red-700 (#b91c1c) — visually correct */
+    fill: var(--color-brand-secondary-active);
+  }
+
+  /* Loading pulse animation (applied by JS) */
+  .lyte-placeholder.is-loading .lyte-play-btn {
+    animation: lyte-pulse 1s ease-in-out infinite;
+  }
+
+  @keyframes lyte-pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.45; }
+  }
+
+  /* ====================================================================
+     Title bar — bottom gradient with video title text
+  ==================================================================== */
+  .lyte-title-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: var(--spacing-3) var(--spacing-4);
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.82), transparent);
+    pointer-events: none;
+  }
+
+  .lyte-title-text {
+    color: var(--color-text-inverse);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--font-line-height-snug);
+  }
+
+  /* ====================================================================
+     Consent notice — appears on hover/focus-within when consent pending.
+     Hides when the placeholder has `has-consent` class (set by JS).
+  ==================================================================== */
+  .lyte-consent-notice {
+    position: absolute;
+    top: var(--spacing-3);
+    left: var(--spacing-3);
+    right: var(--spacing-3);
+    background-color: rgba(0, 0, 0, 0.78);
+    backdrop-filter: blur(4px);
+    padding: var(--spacing-2) var(--spacing-3);
+    border-radius: var(--border-radius-md);
+    opacity: 0;
+    transform: translateY(calc(-1 * var(--spacing-2)));
+    transition:
+      opacity var(--transition-duration-fast) var(--transition-timing-ease-out),
+      transform var(--transition-duration-fast) var(--transition-timing-ease-out);
+    pointer-events: none;
+    z-index: var(--z-index-10);
+  }
+
+  .lyte-placeholder:hover .lyte-consent-notice,
+  .lyte-placeholder:focus-within .lyte-consent-notice {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+
+  /* Hide the notice once consent is confirmed */
+  .lyte-placeholder.has-consent .lyte-consent-notice {
+    display: none;
+  }
+
+  .lyte-consent-notice p {
+    margin: 0;
+    color: var(--color-base-white);
+    font-size: var(--font-size-xs);
+    line-height: var(--font-line-height-normal);
+  }
+
+  .lyte-consent-notice a {
+    color: var(--color-brand-primary);
+    text-decoration: underline;
+  }
+
+  .lyte-consent-notice a:hover {
+    color: var(--color-brand-primary-hover);
+  }
+
+  /* ====================================================================
+     Styling for the activated <lite-youtube> custom element
+  ==================================================================== */
+  lite-youtube {
+    border-radius: var(--border-radius-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    background-color: var(--color-background-inverse);
+    position: relative;
+  }
+
+  lite-youtube::before {
+    content: '';
+    display: block;
+    position: absolute;
+    inset: -3px;
+    background: linear-gradient(
+      135deg,
+      var(--color-brand-primary),
+      var(--color-brand-primary-hover)
+    );
+    border-radius: calc(var(--border-radius-xl) + 3px);
+    z-index: -1;
+  }
+
+  /* ====================================================================
+     No-JS fallback link
+  ==================================================================== */
+  .lyte-noscript {
+    margin-block-start: var(--spacing-3);
+    text-align: center;
+    font-size: var(--font-size-sm);
+  }
+
+  .lyte-noscript a {
+    color: var(--color-brand-primary);
+    text-decoration: underline;
+    font-weight: var(--font-weight-semibold);
+  }
+
+  /* ====================================================================
+     Transcript disclosure widget
+  ==================================================================== */
+  .lyte-transcript {
+    margin-block-start: var(--spacing-4);
+    text-align: center;
+  }
+
+  .lyte-transcript details {
+    background-color: var(--color-background-muted);
+    border: 1px solid var(--color-border-default);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-3) var(--spacing-4);
+  }
+
+  .lyte-transcript summary {
+    cursor: pointer;
+    list-style: none;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-brand-primary);
+    transition: color var(--transition-duration-fast) var(--transition-timing-ease-out);
+  }
+
+  .lyte-transcript summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .lyte-transcript summary:hover {
+    color: var(--color-brand-primary-hover);
+  }
+
+  /* Visible focus for the <summary> */
+  .lyte-transcript summary:focus-visible {
+    outline: 2px solid var(--color-border-focus);
+    outline-offset: var(--spacing-1);
+    border-radius: var(--border-radius-sm);
+  }
+
+  .lyte-transcript__icon {
+    flex-shrink: 0;
+    display: flex;
+  }
+
+  .lyte-transcript__content {
+    padding-block-start: var(--spacing-3);
+  }
+
+  .lyte-transcript__link {
+    color: var(--color-brand-primary);
+    font-weight: var(--font-weight-medium);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-1);
+    transition:
+      color var(--transition-duration-fast) var(--transition-timing-ease-out),
+      transform var(--transition-duration-fast) var(--transition-timing-ease-out);
+  }
+
+  .lyte-transcript__link:hover {
+    color: var(--color-brand-primary-hover);
+    transform: translateX(var(--spacing-1));
+  }
+
+  /* ====================================================================
+     Responsive — mobile (max-width: 640px)
+  ==================================================================== */
+  @media (max-width: 640px) {
+    .lyte-wrapper {
+      margin-block: var(--spacing-6);
+    }
+
+    .lyte-placeholder,
+    lite-youtube {
+      border-radius: var(--border-radius-lg);
+    }
+
+    .lyte-placeholder::before,
+    lite-youtube::before {
+      border-radius: calc(var(--border-radius-lg) + 3px);
+    }
+
+    .lyte-play-icon {
+      width: 56px;
+      height: 40px;
+    }
+
+    .lyte-title-text {
+      font-size: var(--font-size-sm);
+    }
+
+    .lyte-consent-notice {
+      top: var(--spacing-2);
+      left: var(--spacing-2);
+      right: var(--spacing-2);
+    }
+  }
+
+  /* ====================================================================
+     Accessibility — reduced motion
+  ==================================================================== */
+  @media (prefers-reduced-motion: reduce) {
+    .lyte-poster,
+    .lyte-play-btn,
+    .lyte-play-bg,
+    .lyte-play-icon,
+    .lyte-consent-notice,
+    .lyte-transcript__link {
+      transition: none;
+    }
+
+    .lyte-placeholder.is-loading .lyte-play-btn {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  /**
+   * LiteYouTubeEmbed — client-side activation logic.
+   *
+   * Consent model (matches CookieConsent.astro convention):
+   *   localStorage['cookieConsent'] = { essential, analytics, marketing }
+   *   YouTube embeds are third-party media → gated on `marketing === true`.
+   *
+   * window.openCookieSettings() — declared globally in the host site's
+   *   global.d.ts (e.g. wm-source-site/src/types/global.d.ts).
+   *   When not present the function call is a no-op (guarded).
+   *
+   * Events:
+   *   document `cookieConsentChanged` — dispatched by CookieConsent.astro
+   *     when the user saves preferences. The listener auto-activates any
+   *     pendingActivation placeholder.
+   */
+
+  let liteYouTubeLoaded = false;
+  // Track a placeholder that was clicked before consent was given so we can
+  // auto-activate it once the user accepts in the cookie modal.
+  let pendingActivation: HTMLElement | null = null;
+
+  /** Lazy-load @justinribeiro/lite-youtube once per page. */
+  async function loadLiteYouTubeLibrary(): Promise<void> {
+    if (liteYouTubeLoaded) return;
+    try {
+      await import('@justinribeiro/lite-youtube');
+      liteYouTubeLoaded = true;
+    } catch (err) {
+      console.error('[LiteYouTubeEmbed] Failed to load lite-youtube library:', err);
+    }
+  }
+
+  /** Returns true when the user has accepted marketing cookies. */
+  function hasMarketingConsent(): boolean {
+    try {
+      const stored = localStorage.getItem('cookieConsent');
+      if (!stored) return false;
+      const prefs = JSON.parse(stored);
+      return prefs.marketing === true;
+    } catch {
+      return false;
+    }
+  }
+
+  /** Replace the static placeholder with a live lite-youtube element. */
+  async function activatePlaceholder(placeholder: HTMLElement): Promise<void> {
+    const videoId = placeholder.getAttribute('data-video-id');
+    const playLabel = placeholder.getAttribute('data-play-label') ?? '';
+    const requireConsent = placeholder.getAttribute('data-require-consent') === 'true';
+
+    // Consent gate — open the cookie settings modal and remember the click.
+    if (requireConsent && !hasMarketingConsent()) {
+      pendingActivation = placeholder;
+      if (typeof (window as Window & { openCookieSettings?: () => void }).openCookieSettings === 'function') {
+        (window as Window & { openCookieSettings?: () => void }).openCookieSettings!();
+      }
+      return;
+    }
+
+    // Visual loading state.
+    placeholder.classList.add('is-loading');
+
+    await loadLiteYouTubeLibrary();
+
+    // Build the <lite-youtube> element.
+    const liteEl = document.createElement('lite-youtube') as HTMLElement;
+    liteEl.setAttribute('videoid', videoId ?? '');
+    liteEl.setAttribute('playlabel', playLabel);
+    liteEl.setAttribute('params', 'modestbranding=1&rel=0&autoplay=1');
+
+    // Accessible play button child required by the custom element.
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'lty-playbtn';
+
+    const label = document.createElement('span');
+    label.className = 'lyt-visually-hidden';
+    label.textContent = playLabel;
+
+    btn.appendChild(label);
+    liteEl.appendChild(btn);
+
+    // Swap placeholder → lite-youtube.
+    placeholder.replaceWith(liteEl);
+
+    // Auto-trigger playback after the element is connected.
+    requestAnimationFrame(() => {
+      const playBtn = liteEl.querySelector<HTMLElement>('.lty-playbtn');
+      if (playBtn) {
+        setTimeout(() => playBtn.click(), 80);
+      }
+    });
+  }
+
+  /** Initialise all `.lyte-placeholder` elements on the current page. */
+  function initPlaceholders(): void {
+    document.querySelectorAll<HTMLElement>('.lyte-placeholder').forEach((el) => {
+      // Mark consent state immediately so the consent notice hides if already accepted.
+      if (hasMarketingConsent()) {
+        el.classList.add('has-consent');
+      }
+
+      // Click anywhere on the placeholder activates the embed.
+      el.addEventListener('click', (e) => {
+        e.preventDefault();
+        activatePlaceholder(el);
+      });
+
+      // Keyboard: Enter / Space on the play button also triggers activation.
+      const playBtn = el.querySelector<HTMLElement>('.lyte-play-btn');
+      if (playBtn) {
+        playBtn.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            activatePlaceholder(el);
+          }
+        });
+      }
+    });
+  }
+
+  // React to consent changes dispatched by the host site's cookie manager.
+  document.addEventListener('cookieConsentChanged', () => {
+    const granted = hasMarketingConsent();
+
+    // Update all placeholders on the page.
+    document.querySelectorAll<HTMLElement>('.lyte-placeholder').forEach((el) => {
+      if (granted) el.classList.add('has-consent');
+    });
+
+    // Auto-activate the pending embed if consent was just granted.
+    if (granted && pendingActivation?.isConnected) {
+      const target = pendingActivation;
+      pendingActivation = null;
+      activatePlaceholder(target);
+    }
+  });
+
+  // Boot — handle both initial load and Astro view-transitions.
+  function boot(): void {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initPlaceholders, { once: true });
+    } else {
+      initPlaceholders();
+    }
+  }
+
+  boot();
+
+  // Astro view-transitions: re-init on every page navigation.
+  document.addEventListener('astro:page-load', initPlaceholders);
+</script>

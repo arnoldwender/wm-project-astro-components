@@ -1,0 +1,678 @@
+---
+/**
+ * DSGVO-Compliant Cookie Consent Manager — WenderMedia Astro Components
+ *
+ * A full-featured, DSGVO-compliant cookie consent banner with a persistent
+ * floating settings button. Shows on first user interaction (mousemove, scroll,
+ * touchstart, click) or after a configurable timeout — no page-load flash.
+ * Consent choices are stored in localStorage and dispatched as a
+ * `cookie-consent-changed` CustomEvent for downstream script loading.
+ *
+ * Three categories are supported out of the box:
+ *   - necessary   (always on, disabled checkbox)
+ *   - functional  (opt-in)
+ *   - analytics   (opt-in)
+ *
+ * DSGVO note: no third-party requests are made by this component itself.
+ * Downstream scripts that depend on consent MUST listen for
+ * `cookie-consent-changed` and check `event.detail.analytics / .functional`.
+ *
+ * @example
+ * <!-- German defaults (DSGVO) -->
+ * <CookieManager />
+ *
+ * @example
+ * <!-- Custom copy + links -->
+ * <CookieManager
+ *   title="Cookie Settings"
+ *   description="We use cookies to improve your experience."
+ *   privacyUrl="/privacy"
+ *   imprintUrl="/imprint"
+ *   privacyLinkText="Privacy Policy"
+ *   imprintLinkText="Imprint"
+ *   labelAcceptAll="Accept all"
+ *   labelAcceptSelected="Accept selected"
+ *   labelRejectAll="Necessary only"
+ *   showOnTimeout={3000}
+ * />
+ *
+ * @copyright 2007-2026 Arnold Wender · Wender Media. All Rights Reserved. License: LicenseRef-Wender-Media-Source-1.0
+ * @see https://github.com/arnoldwender/wm-project-astro-components
+ */
+
+export interface Props {
+  /** Banner heading */
+  title?: string;
+  /** Banner description paragraph */
+  description?: string;
+  /** "Accept all" button label */
+  labelAcceptAll?: string;
+  /** "Accept selected" button label */
+  labelAcceptSelected?: string;
+  /** "Necessary only" button label */
+  labelRejectAll?: string;
+  /** Label for the necessary cookies category */
+  labelNecessary?: string;
+  /** Description for the necessary cookies category */
+  descNecessary?: string;
+  /** Label for the functional cookies category */
+  labelFunctional?: string;
+  /** Description for the functional cookies category */
+  descFunctional?: string;
+  /** Label for the analytics cookies category */
+  labelAnalytics?: string;
+  /** Description for the analytics cookies category */
+  descAnalytics?: string;
+  /** href for the Datenschutz / Privacy page */
+  privacyUrl?: string;
+  /** Link text for the privacy page */
+  privacyLinkText?: string;
+  /** href for the Impressum / Imprint page */
+  imprintUrl?: string;
+  /** Link text for the imprint page */
+  imprintLinkText?: string;
+  /** Milliseconds before the banner is shown automatically (fallback after interaction listeners) */
+  showOnTimeout?: number;
+  /** localStorage key used to persist the consent record */
+  storageKey?: string;
+  /** aria-label for the floating settings button */
+  settingsBtnLabel?: string;
+  /** Extra CSS class on the banner root element */
+  class?: string;
+}
+
+const {
+  title = 'Cookie-Einstellungen',
+  description = 'Wir verwenden Cookies zur Verbesserung Ihrer Nutzererfahrung. Sie können Ihre Einwilligung jederzeit widerrufen.',
+  labelAcceptAll = 'Alle akzeptieren',
+  labelAcceptSelected = 'Auswahl akzeptieren',
+  labelRejectAll = 'Nur notwendige',
+  labelNecessary = 'Notwendige Cookies',
+  descNecessary = 'Für die Grundfunktionen der Website erforderlich.',
+  labelFunctional = 'Funktionale Cookies',
+  descFunctional = 'Für erweiterte Funktionalität und bessere Performance.',
+  labelAnalytics = 'Analyse-Cookies',
+  descAnalytics = 'Helfen uns, die Nutzung zu verstehen. Anonymisiert.',
+  privacyUrl = '/datenschutz',
+  privacyLinkText = 'Datenschutzerklärung',
+  imprintUrl = '/impressum',
+  imprintLinkText = 'Impressum',
+  showOnTimeout = 5000,
+  storageKey = 'cookie-consent',
+  settingsBtnLabel = 'Cookie-Einstellungen öffnen',
+  class: className = '',
+} = Astro.props;
+---
+
+<!-- Cookie consent banner — role="dialog" with aria-modal for focus containment -->
+<div
+  id="cookie-banner"
+  class:list={['cookie-banner', className]}
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="cookie-banner-title"
+  aria-describedby="cookie-banner-desc"
+>
+  <div class="cookie-content">
+    <!-- Header -->
+    <div class="cookie-header">
+      <h3 id="cookie-banner-title" class="cookie-title">{title}</h3>
+      <p id="cookie-banner-desc" class="cookie-description">{description}</p>
+    </div>
+
+    <!-- Category checkboxes -->
+    <div class="cookie-categories" role="group" aria-label="Cookie-Kategorien">
+
+      <!-- Necessary (always enabled, read-only) -->
+      <div class="cookie-category">
+        <div class="category-header">
+          <input
+            type="checkbox"
+            id="cm-necessary"
+            checked
+            disabled
+            aria-describedby="cm-necessary-desc"
+          />
+          <label for="cm-necessary" class="category-label">
+            <strong>{labelNecessary}</strong>
+          </label>
+        </div>
+        <p id="cm-necessary-desc" class="category-description">{descNecessary}</p>
+      </div>
+
+      <!-- Functional (opt-in) -->
+      <div class="cookie-category">
+        <div class="category-header">
+          <input
+            type="checkbox"
+            id="cm-functional"
+            aria-describedby="cm-functional-desc"
+          />
+          <label for="cm-functional" class="category-label">
+            <strong>{labelFunctional}</strong>
+          </label>
+        </div>
+        <p id="cm-functional-desc" class="category-description">{descFunctional}</p>
+      </div>
+
+      <!-- Analytics (opt-in) -->
+      <div class="cookie-category">
+        <div class="category-header">
+          <input
+            type="checkbox"
+            id="cm-analytics"
+            aria-describedby="cm-analytics-desc"
+          />
+          <label for="cm-analytics" class="category-label">
+            <strong>{labelAnalytics}</strong>
+          </label>
+        </div>
+        <p id="cm-analytics-desc" class="category-description">{descAnalytics}</p>
+      </div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="cookie-buttons">
+      <button type="button" id="cm-accept-all" class="cm-btn cm-btn--primary">
+        {labelAcceptAll}
+      </button>
+      <button type="button" id="cm-accept-selected" class="cm-btn cm-btn--secondary">
+        {labelAcceptSelected}
+      </button>
+      <button type="button" id="cm-reject-all" class="cm-btn cm-btn--ghost">
+        {labelRejectAll}
+      </button>
+    </div>
+
+    <!-- Footer links -->
+    <footer class="cookie-footer">
+      <p class="cookie-links">
+        <a href={privacyUrl}>{privacyLinkText}</a>
+        {' | '}
+        <a href={imprintUrl}>{imprintLinkText}</a>
+      </p>
+    </footer>
+  </div>
+</div>
+
+<!-- Floating re-open button — visible only after consent is given -->
+<button
+  id="cm-settings-btn"
+  class="cm-settings-btn"
+  type="button"
+  aria-label={settingsBtnLabel}
+>
+  <!-- Cookie / shield SVG icon -->
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="28"
+    height="28"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/>
+    <path d="m9 12 2 2 4-4"/>
+  </svg>
+</button>
+
+<!-- Inline data island — passes props to the client script without SSR leakage -->
+<script
+  id="cm-config"
+  type="application/json"
+  set:text={JSON.stringify({ storageKey, showOnTimeout })}
+/>
+
+<style>
+  /* ----------------------------------------------------------------
+   * Banner — slides up from bottom on first interaction
+   * ---------------------------------------------------------------- */
+  .cookie-banner {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--color-background-surface);
+    border-top: 3px solid var(--color-brand-primary);
+    box-shadow: var(--shadow-lg);
+    z-index: var(--z-index-modal);
+    /* Hidden by default; JS adds .cm-visible */
+    transform: translateY(100%);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      transform var(--transition-duration-slow) var(--transition-timing-ease-out),
+      opacity   var(--transition-duration-slow) var(--transition-timing-ease-out),
+      visibility 0s var(--transition-duration-slow);
+  }
+
+  .cookie-banner.cm-visible {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+    transition:
+      transform var(--transition-duration-slow) var(--transition-timing-ease-out),
+      opacity   var(--transition-duration-slow) var(--transition-timing-ease-out),
+      visibility 0s;
+  }
+
+  /* Inner wrapper — caps width for wide screens */
+  .cookie-content {
+    max-width: var(--size-container-7xl);
+    margin: 0 auto;
+    padding: var(--spacing-6);
+  }
+
+  /* ----------------------------------------------------------------
+   * Header
+   * ---------------------------------------------------------------- */
+  .cookie-header {
+    margin-bottom: var(--spacing-4);
+  }
+
+  .cookie-title {
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-brand-primary);
+    margin: 0 0 var(--spacing-2) 0;
+    line-height: var(--font-line-height-tight);
+  }
+
+  .cookie-description {
+    color: var(--color-text-secondary);
+    line-height: var(--font-line-height-normal);
+    margin: 0;
+    font-size: var(--font-size-sm);
+  }
+
+  /* ----------------------------------------------------------------
+   * Categories grid
+   * ---------------------------------------------------------------- */
+  .cookie-categories {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-4);
+    margin-bottom: var(--spacing-6);
+  }
+
+  .cookie-category {
+    background: var(--color-background-muted);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-4);
+    border: 1px solid var(--color-border-default);
+  }
+
+  .category-header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    margin-bottom: var(--spacing-2);
+  }
+
+  /* 44×44 touch target for checkboxes */
+  .category-header input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+    accent-color: var(--color-brand-primary);
+    cursor: pointer;
+  }
+
+  .category-header input[type="checkbox"]:disabled {
+    cursor: not-allowed;
+    opacity: var(--opacity-50);
+  }
+
+  .category-label {
+    color: var(--color-text-primary);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    line-height: var(--font-line-height-tight);
+  }
+
+  .category-description {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+    line-height: var(--font-line-height-normal);
+    margin: 0;
+  }
+
+  /* ----------------------------------------------------------------
+   * Action buttons — flex row, collapses to column on mobile
+   * ---------------------------------------------------------------- */
+  .cookie-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-3);
+    justify-content: center;
+    margin-bottom: var(--spacing-4);
+  }
+
+  .cm-btn {
+    /* 44px min-height for touch target */
+    min-height: 44px;
+    padding: var(--spacing-3) var(--spacing-6);
+    border-radius: var(--border-radius-md);
+    font-weight: var(--font-weight-semibold);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+    border: none;
+    transition:
+      transform var(--transition-duration-fast) var(--transition-timing-ease-out),
+      box-shadow var(--transition-duration-fast) var(--transition-timing-ease-out),
+      background  var(--transition-duration-fast) var(--transition-timing-ease);
+  }
+
+  .cm-btn:focus-visible {
+    outline: 2px solid var(--color-brand-primary);
+    outline-offset: 2px;
+  }
+
+  /* Primary — accept all */
+  .cm-btn--primary {
+    background: var(--color-brand-primary);
+    color: var(--color-text-inverse);
+  }
+
+  .cm-btn--primary:hover {
+    background: var(--color-brand-primary-hover);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-base);
+  }
+
+  .cm-btn--primary:active {
+    background: var(--color-brand-primary-active);
+    transform: translateY(0);
+    box-shadow: none;
+  }
+
+  /* Secondary — accept selected */
+  .cm-btn--secondary {
+    background: var(--color-background-subtle);
+    color: var(--color-text-primary);
+    border: 1px solid var(--color-border-strong);
+  }
+
+  .cm-btn--secondary:hover {
+    background: var(--color-border-default);
+  }
+
+  /* Ghost — reject all / necessary only */
+  .cm-btn--ghost {
+    background: transparent;
+    color: var(--color-text-muted);
+    border: 1px solid var(--color-border-default);
+  }
+
+  .cm-btn--ghost:hover {
+    color: var(--color-text-primary);
+    border-color: var(--color-border-strong);
+    background: var(--color-background-muted);
+  }
+
+  /* ----------------------------------------------------------------
+   * Footer links
+   * ---------------------------------------------------------------- */
+  .cookie-footer {
+    text-align: center;
+    border-top: 1px solid var(--color-border-default);
+    padding-top: var(--spacing-4);
+  }
+
+  .cookie-links {
+    margin: 0;
+    font-size: var(--font-size-xs);
+    color: var(--color-text-muted);
+  }
+
+  .cookie-links a {
+    color: var(--color-brand-primary);
+    text-decoration: none;
+  }
+
+  .cookie-links a:hover {
+    text-decoration: underline;
+  }
+
+  .cookie-links a:focus-visible {
+    outline: 2px solid var(--color-brand-primary);
+    outline-offset: 2px;
+    border-radius: var(--border-radius-sm);
+  }
+
+  /* ----------------------------------------------------------------
+   * Floating re-open button
+   * ---------------------------------------------------------------- */
+  .cm-settings-btn {
+    position: fixed;
+    bottom: var(--spacing-6);
+    left: var(--spacing-6);
+    width: 56px;
+    height: 56px;
+    border-radius: var(--border-radius-full);
+    background: var(--color-brand-primary);
+    color: var(--color-text-inverse);
+    border: 3px solid var(--color-background-surface);
+    cursor: pointer;
+    box-shadow: var(--shadow-md);
+    z-index: var(--z-index-modal);
+    /* Hidden by default; JS adds .cm-btn-visible */
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.8);
+    transition:
+      opacity    var(--transition-duration-base) var(--transition-timing-ease-out),
+      transform  var(--transition-duration-base) var(--transition-timing-ease-out),
+      visibility 0s var(--transition-duration-base);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cm-settings-btn.cm-btn-visible {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1);
+    transition:
+      opacity    var(--transition-duration-base) var(--transition-timing-ease-out),
+      transform  var(--transition-duration-base) var(--transition-timing-ease-out),
+      visibility 0s;
+  }
+
+  .cm-settings-btn:hover {
+    background: var(--color-brand-primary-hover);
+    transform: scale(1.1);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .cm-settings-btn:active {
+    transform: scale(0.95);
+  }
+
+  .cm-settings-btn:focus-visible {
+    outline: 2px solid var(--color-brand-primary);
+    outline-offset: 3px;
+  }
+
+  /* ----------------------------------------------------------------
+   * Responsive — mobile
+   * ---------------------------------------------------------------- */
+  @media (max-width: 640px) {
+    .cookie-content {
+      padding: var(--spacing-4);
+    }
+
+    .cookie-categories {
+      grid-template-columns: 1fr;
+    }
+
+    .cookie-buttons {
+      flex-direction: column;
+    }
+
+    .cm-btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
+  /* ----------------------------------------------------------------
+   * prefers-reduced-motion — disable all transitions
+   * ---------------------------------------------------------------- */
+  @media (prefers-reduced-motion: reduce) {
+    .cookie-banner,
+    .cookie-banner.cm-visible,
+    .cm-btn,
+    .cm-settings-btn,
+    .cm-settings-btn.cm-btn-visible {
+      transition: none;
+    }
+
+    .cm-btn--primary:hover,
+    .cm-settings-btn:hover {
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  // ----------------------------------------------------------------
+  // CookieManager — DSGVO consent logic
+  // Reads config from the #cm-config JSON island to avoid string
+  // duplication between Astro props and the client bundle.
+  // ----------------------------------------------------------------
+
+  (function initCookieManager() {
+    // Read config injected by the Astro component
+    const configEl = document.getElementById('cm-config');
+    const config = configEl ? JSON.parse(configEl.textContent || '{}') : {};
+    const STORAGE_KEY: string = config.storageKey ?? 'cookie-consent';
+    const SHOW_TIMEOUT: number = config.showOnTimeout ?? 5000;
+
+    const banner = document.getElementById('cookie-banner') as HTMLElement | null;
+    const settingsBtn = document.getElementById('cm-settings-btn') as HTMLButtonElement | null;
+    const acceptAllBtn = document.getElementById('cm-accept-all') as HTMLButtonElement | null;
+    const acceptSelectedBtn = document.getElementById('cm-accept-selected') as HTMLButtonElement | null;
+    const rejectAllBtn = document.getElementById('cm-reject-all') as HTMLButtonElement | null;
+    const functionalCb = document.getElementById('cm-functional') as HTMLInputElement | null;
+    const analyticsCb = document.getElementById('cm-analytics') as HTMLInputElement | null;
+
+    // Return null when no consent stored yet
+    function getStoredConsent(): { necessary: boolean; functional: boolean; analytics: boolean } | null {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return null;
+        return JSON.parse(raw).settings ?? null;
+      } catch {
+        return null;
+      }
+    }
+
+    function saveConsent(settings: { necessary: boolean; functional: boolean; analytics: boolean }) {
+      try {
+        localStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify({ settings, timestamp: Date.now(), version: '1.0' })
+        );
+      } catch {
+        // localStorage may be unavailable (private mode, storage full)
+      }
+      window.dispatchEvent(new CustomEvent('cookie-consent-changed', { detail: settings }));
+    }
+
+    function showBanner() {
+      if (!banner) return;
+      banner.classList.add('cm-visible');
+      // Move focus into the banner — first focusable button
+      requestAnimationFrame(() => {
+        const firstBtn = banner.querySelector<HTMLButtonElement>('button:not(:disabled)');
+        firstBtn?.focus();
+      });
+    }
+
+    function hideBanner() {
+      banner?.classList.remove('cm-visible');
+      showSettingsButton();
+    }
+
+    function showSettingsButton() {
+      settingsBtn?.classList.add('cm-btn-visible');
+    }
+
+    function loadStoredCheckboxes(settings: { functional: boolean; analytics: boolean }) {
+      if (functionalCb) functionalCb.checked = settings.functional;
+      if (analyticsCb) analyticsCb.checked = settings.analytics;
+    }
+
+    // Handle Escape key — treat as "necessary only" per UX convention
+    function onKeydown(e: KeyboardEvent) {
+      if (e.key === 'Escape' && banner?.classList.contains('cm-visible')) {
+        acceptNecessaryOnly();
+      }
+    }
+
+    function acceptAll() {
+      saveConsent({ necessary: true, functional: true, analytics: true });
+      hideBanner();
+    }
+
+    function acceptSelected() {
+      saveConsent({
+        necessary: true,
+        functional: functionalCb?.checked ?? false,
+        analytics: analyticsCb?.checked ?? false,
+      });
+      hideBanner();
+    }
+
+    function acceptNecessaryOnly() {
+      saveConsent({ necessary: true, functional: false, analytics: false });
+      hideBanner();
+    }
+
+    // ---------------------------------------------------------------
+    // Wiring
+    // ---------------------------------------------------------------
+    acceptAllBtn?.addEventListener('click', acceptAll);
+    acceptSelectedBtn?.addEventListener('click', acceptSelected);
+    rejectAllBtn?.addEventListener('click', acceptNecessaryOnly);
+    settingsBtn?.addEventListener('click', showBanner);
+    document.addEventListener('keydown', onKeydown);
+
+    // ---------------------------------------------------------------
+    // Bootstrap
+    // ---------------------------------------------------------------
+    const stored = getStoredConsent();
+
+    if (stored) {
+      // Consent already given — restore checkboxes & show settings button
+      loadStoredCheckboxes(stored);
+      showSettingsButton();
+    } else {
+      // No consent yet — show banner on first interaction or after timeout
+      const interactionEvents = ['mousemove', 'scroll', 'touchstart', 'click'] as const;
+      let triggered = false;
+
+      const triggerBanner = () => {
+        if (triggered) return;
+        triggered = true;
+        interactionEvents.forEach(ev =>
+          document.removeEventListener(ev, triggerBanner)
+        );
+        showBanner();
+      };
+
+      interactionEvents.forEach(ev =>
+        document.addEventListener(ev, triggerBanner, { once: true, passive: true })
+      );
+
+      // Fallback: show automatically after timeout (accessibility — keyboard users)
+      setTimeout(triggerBanner, SHOW_TIMEOUT);
+    }
+  })();
+</script>

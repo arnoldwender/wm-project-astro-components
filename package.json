@@ -19,6 +19,7 @@
     "./products": "./src/products/index.ts",
     "./images": "./src/images/index.ts",
     "./maps": "./src/maps/index.ts",
+    "./legal": "./src/legal/index.ts",
     "./social": "./src/social/index.ts",
     "./navigation": "./src/navigation/index.ts",
     "./content": "./src/content/index.ts",
@@ -126,10 +127,14 @@
   },
   "peerDependencies": {
     "astro": "^6.0.0 || ^7.0.0",
-    "gsap": "^3.11.0"
+    "gsap": "^3.11.0",
+    "@justinribeiro/lite-youtube": "^1.9.0"
   },
   "peerDependenciesMeta": {
     "gsap": {
+      "optional": true
+    },
+    "@justinribeiro/lite-youtube": {
       "optional": true
     }
   },
@@ -152,6 +157,7 @@
     "@axe-core/playwright": "^4.11.3",
     "@changesets/cli": "^2.31.0",
     "@eslint/js": "^10.0.1",
+    "@justinribeiro/lite-youtube": "^1.9.0",
     "@storybook/addon-a11y": "^10.3.6",
     "@storybook/addon-docs": "^10.3.6",
     "@storybook/addon-links": "^10.3.6",
