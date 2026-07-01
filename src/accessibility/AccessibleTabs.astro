@@ -1,0 +1,352 @@
+---
+/**
+ * AccessibleTabs Component - WenderMedia Astro Components
+ *
+ * a11y-first tabbed interface following WAI-ARIA APG Tabs pattern
+ * (https://www.w3.org/WAI/ARIA/apg/patterns/tabs/).
+ *
+ * Relationship to other library components: this is the a11y-first
+ * alternative to any generic ui/Tabs implementation, providing the full
+ * WAI-ARIA APG keyboard contract (Arrow keys, Home, End, roving tabindex,
+ * aria-selected, aria-controls, focus management) as a standalone unit.
+ *
+ * Features:
+ * - Full WAI-ARIA Tabs pattern: role="tablist", role="tab", role="tabpanel"
+ * - Roving tabindex on the tablist (only the active tab is in the tab sequence)
+ * - ArrowRight / ArrowLeft wraps; Home → first; End → last
+ * - Panel activation follows focus (automatic selection model per APG)
+ * - aria-selected, aria-controls, aria-labelledby wired on SSR
+ * - :focus-visible ring — no outline suppression
+ * - 44 × 44 px minimum touch targets on tab buttons
+ * - prefers-reduced-motion guard on the panel transition
+ * - Supports Astro View Transitions via astro:page-load re-init
+ * - HTML panel content rendered server-side via set:html (safe: caller owns data)
+ *
+ * @example
+ * <AccessibleTabs
+ *   tabs={[
+ *     { id: 'overview', label: 'Overview', content: '<p>Overview content</p>' },
+ *     { id: 'details',  label: 'Details',  content: '<p>Details content</p>'  },
+ *   ]}
+ *   ariaLabel="Product information"
+ * />
+ *
+ * @example
+ * <!-- Custom default tab and id prefix -->
+ * <AccessibleTabs
+ *   tabs={tabs}
+ *   defaultTabId="details"
+ *   idPrefix="product-tabs"
+ *   ariaLabel="Produktinformationen"
+ * />
+ *
+ * @copyright 2007-2026 Arnold Wender · Wender Media. All Rights Reserved. License: LicenseRef-Wender-Media-Source-1.0
+ * @see https://github.com/arnoldwender/wm-project-astro-components
+ */
+
+export interface TabItem {
+  /** Unique identifier for this tab; used to build DOM ids */
+  id: string;
+  /** Visible label rendered inside the tab button */
+  label: string;
+  /** HTML string rendered inside the tab panel via set:html */
+  content: string;
+}
+
+export interface Props {
+  /** Array of tab items to render */
+  tabs: TabItem[];
+  /** id of the tab that should be selected on first render; defaults to tabs[0].id */
+  defaultTabId?: string;
+  /**
+   * Accessible label for the tablist landmark.
+   * Should describe what the tabs are about (e.g. "Product details").
+   */
+  ariaLabel?: string;
+  /**
+   * Prefix used to build DOM ids: `<idPrefix>-tab-<id>` / `<idPrefix>-panel-<id>`.
+   * Allows multiple AccessibleTabs instances on the same page without id collisions.
+   * Defaults to "accessible-tabs".
+   */
+  idPrefix?: string;
+  /** Additional CSS class(es) on the root container */
+  class?: string;
+}
+
+const {
+  tabs,
+  defaultTabId,
+  ariaLabel = 'Tabs',
+  idPrefix = 'accessible-tabs',
+  class: className = '',
+} = Astro.props;
+
+/* Resolve the initial active tab server-side so SSR renders correctly */
+const initialTabId = defaultTabId ?? tabs[0]?.id ?? '';
+---
+
+<div
+  class:list={['accessible-tabs', className]}
+  data-accessible-tabs
+  data-id-prefix={idPrefix}
+>
+  <!-- Tablist: only one tab button is in the natural tab order at a time (roving tabindex) -->
+  <div
+    role="tablist"
+    aria-label={ariaLabel}
+    class="accessible-tabs__list"
+  >
+    {tabs.map((tab) => {
+      const isActive = tab.id === initialTabId;
+      return (
+        <button
+          type="button"
+          role="tab"
+          id={`${idPrefix}-tab-${tab.id}`}
+          aria-selected={isActive ? 'true' : 'false'}
+          aria-controls={`${idPrefix}-panel-${tab.id}`}
+          tabindex={isActive ? 0 : -1}
+          class:list={['accessible-tabs__tab', { 'accessible-tabs__tab--active': isActive }]}
+          data-tab-button
+          data-tab-id={tab.id}
+        >
+          {tab.label}
+        </button>
+      );
+    })}
+  </div>
+
+  <!-- Tab panels -->
+  <div class="accessible-tabs__panels">
+    {tabs.map((tab) => (
+      <div
+        id={`${idPrefix}-panel-${tab.id}`}
+        role="tabpanel"
+        tabindex="0"
+        aria-labelledby={`${idPrefix}-tab-${tab.id}`}
+        hidden={tab.id !== initialTabId}
+        class="accessible-tabs__panel"
+        data-tab-panel
+        data-tab-id={tab.id}
+      >
+        <div set:html={tab.content} />
+      </div>
+    ))}
+  </div>
+</div>
+
+<script>
+  /**
+   * Initialise all AccessibleTabs instances on the page.
+   * Safe to call multiple times (e.g. after Astro View Transitions).
+   * Each container is guarded by a data-tabs-init attribute to prevent
+   * double-binding when astro:page-load fires on a page without navigation.
+   */
+  function initAccessibleTabs(): void {
+    const containers = document.querySelectorAll<HTMLElement>('[data-accessible-tabs]');
+
+    containers.forEach((container) => {
+      /* Prevent double-binding */
+      if (container.dataset.tabsInit === 'true') return;
+      container.dataset.tabsInit = 'true';
+
+      const buttons = Array.from(
+        container.querySelectorAll<HTMLButtonElement>('[data-tab-button]')
+      );
+      const panels = Array.from(
+        container.querySelectorAll<HTMLElement>('[data-tab-panel]')
+      );
+
+      if (buttons.length === 0) return;
+
+      /** Activate a tab by its data-tab-id value */
+      const setActiveTab = (tabId: string): void => {
+        buttons.forEach((btn) => {
+          const isActive = btn.getAttribute('data-tab-id') === tabId;
+          btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+          btn.tabIndex = isActive ? 0 : -1;
+          btn.classList.toggle('accessible-tabs__tab--active', isActive);
+        });
+
+        panels.forEach((panel) => {
+          panel.hidden = panel.getAttribute('data-tab-id') !== tabId;
+        });
+      };
+
+      buttons.forEach((button, index) => {
+        /* Click handler */
+        button.addEventListener('click', () => {
+          const tabId = button.getAttribute('data-tab-id');
+          if (tabId) setActiveTab(tabId);
+        });
+
+        /* WAI-ARIA APG keyboard handler:
+         * ArrowRight → next (wraps to first)
+         * ArrowLeft  → previous (wraps to last)
+         * Home       → first tab
+         * End        → last tab
+         * Activation follows focus (automatic model).
+         */
+        button.addEventListener('keydown', (event: KeyboardEvent) => {
+          const navigableKeys = ['ArrowRight', 'ArrowLeft', 'Home', 'End'];
+          if (!navigableKeys.includes(event.key)) return;
+
+          event.preventDefault();
+
+          let nextIndex = index;
+
+          if (event.key === 'ArrowRight') {
+            nextIndex = (index + 1) % buttons.length;
+          } else if (event.key === 'ArrowLeft') {
+            nextIndex = (index - 1 + buttons.length) % buttons.length;
+          } else if (event.key === 'Home') {
+            nextIndex = 0;
+          } else if (event.key === 'End') {
+            nextIndex = buttons.length - 1;
+          }
+
+          const nextButton = buttons[nextIndex];
+          if (nextButton) {
+            nextButton.focus();
+            const nextId = nextButton.getAttribute('data-tab-id');
+            if (nextId) setActiveTab(nextId);
+          }
+        });
+      });
+    });
+  }
+
+  /* Initial page load */
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAccessibleTabs);
+  } else {
+    initAccessibleTabs();
+  }
+
+  /* Astro View Transitions: re-init on every page load */
+  document.addEventListener('astro:page-load', () => {
+    /* Reset init flags so re-binding works after navigation */
+    document
+      .querySelectorAll<HTMLElement>('[data-accessible-tabs][data-tabs-init]')
+      .forEach((el) => delete el.dataset.tabsInit);
+
+    initAccessibleTabs();
+  });
+</script>
+
+<style>
+  /* =========================================================
+     AccessibleTabs — token-only styles
+     All values from tokens/dist/tokens.css
+     ========================================================= */
+
+  .accessible-tabs {
+    width: 100%;
+  }
+
+  /* ----- Tablist ----- */
+  .accessible-tabs__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2);
+    border-bottom: var(--spacing-px) solid var(--color-border-default);
+  }
+
+  /* ----- Tab button ----- */
+  .accessible-tabs__tab {
+    /* Layout */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    /* 44 × 44 px minimum touch target (WCAG 2.5.8 / BFSG) */
+    min-height: 44px;
+    min-width: 44px;
+    padding: var(--spacing-2) var(--spacing-4);
+
+    /* Typography */
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    line-height: var(--font-line-height-normal);
+    font-family: var(--font-family-sans);
+
+    /* Appearance */
+    background: transparent;
+    color: var(--color-text-secondary);
+    border: none;
+    border-bottom: 2px solid transparent;
+    border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
+    cursor: pointer;
+
+    /* Transition — guarded by prefers-reduced-motion below */
+    transition:
+      color var(--transition-duration-base) var(--transition-timing-ease-in-out),
+      border-color var(--transition-duration-base) var(--transition-timing-ease-in-out),
+      background var(--transition-duration-base) var(--transition-timing-ease-in-out);
+  }
+
+  /* Hover state */
+  .accessible-tabs__tab:hover {
+    color: var(--color-text-primary);
+    background: var(--color-background-subtle);
+  }
+
+  /* Active / selected state */
+  .accessible-tabs__tab--active,
+  .accessible-tabs__tab[aria-selected="true"] {
+    color: var(--color-brand-primary);
+    border-bottom-color: var(--color-brand-primary);
+  }
+
+  /* Focus-visible ring — never suppress outline */
+  .accessible-tabs__tab:focus-visible {
+    outline: 2px solid var(--color-border-focus);
+    outline-offset: var(--spacing-1);
+    border-radius: var(--border-radius-md);
+  }
+
+  /* ----- Panels container ----- */
+  .accessible-tabs__panels {
+    margin-top: var(--spacing-4);
+  }
+
+  /* ----- Tab panel ----- */
+  .accessible-tabs__panel {
+    color: var(--color-text-primary);
+    font-size: var(--font-size-base);
+    line-height: var(--font-line-height-normal);
+    /* Panel receives focus when user tabs into it */
+    outline: none;
+  }
+
+  /* Focus-visible ring on the panel itself when focused via keyboard */
+  .accessible-tabs__panel:focus-visible {
+    outline: 2px solid var(--color-border-focus);
+    outline-offset: var(--spacing-1);
+    border-radius: var(--border-radius-md);
+  }
+
+  /* =========================================================
+     prefers-reduced-motion: strip all transitions
+     ========================================================= */
+  @media (prefers-reduced-motion: reduce) {
+    .accessible-tabs__tab {
+      transition: none;
+    }
+  }
+
+  /* =========================================================
+     Forced-colors (Windows High Contrast, BFSG §16)
+     ========================================================= */
+  @media (forced-colors: active) {
+    .accessible-tabs__tab--active,
+    .accessible-tabs__tab[aria-selected="true"] {
+      forced-color-adjust: none;
+      color: Highlight;
+      border-bottom-color: Highlight;
+    }
+
+    .accessible-tabs__tab:focus-visible {
+      outline: 2px solid ButtonText;
+    }
+  }
+</style>

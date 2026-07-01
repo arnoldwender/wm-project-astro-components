@@ -1,0 +1,344 @@
+---
+/**
+ * FontFamilyToggle Component - WenderMedia Astro Components
+ *
+ * Accessible toggle button that switches the page between a sans-serif and a
+ * serif ("reading") font family by toggling a class on <html>. Persists the
+ * user's choice to localStorage and announces the change to screen readers via
+ * an inline ARIA live region — no dependency on the separate LiveRegion
+ * component so this unit remains self-contained.
+ *
+ * This component is part of the a11y-toolkit unit.  It is an a11y-first
+ * utility with full WAI-ARIA toggle-button contract (aria-pressed + persistence)
+ * rather than a visual molecule.  For a LiveRegion stand-alone use the
+ * separate accessibility/LiveRegion component.
+ *
+ * WAI-ARIA contract:
+ * - role="button" (native <button>) with aria-pressed reflecting current state
+ * - State change announced via polite aria-live region (1 s auto-clear)
+ * - Keyboard: Space / Enter activate toggle (native for <button>)
+ * - :focus-visible ring using --color-border-focus token
+ * - Touch target ≥ 44 × 44 px
+ * - prefers-reduced-motion: transition disabled
+ * - data-font-family-toggle hook for external scripts / testing
+ *
+ * @example
+ * <!-- Default (German labels) -->
+ * <FontFamilyToggle />
+ *
+ * @example
+ * <!-- Custom labels and storage key -->
+ * <FontFamilyToggle
+ *   labelSans="Standard font"
+ *   labelSerif="Reading font"
+ *   storageKey="myApp.fontFamily"
+ * />
+ *
+ * @example
+ * <!-- Without active indicator underline -->
+ * <FontFamilyToggle showIndicator={false} />
+ *
+ * @copyright 2007-2026 Arnold Wender · Wender Media. All Rights Reserved. License: LicenseRef-Wender-Media-Source-1.0
+ * @see https://github.com/arnoldwender/wm-project-astro-components
+ */
+
+export interface Props {
+  /** Accessible label shown when sans-serif is active (default state). */
+  labelSans?: string;
+  /** Accessible label shown when serif is active. */
+  labelSerif?: string;
+  /** Accessible description on the button element itself. */
+  ariaLabel?: string;
+  /** localStorage key used to persist the selection. */
+  storageKey?: string;
+  /** HTML class added to <html> when sans-serif is selected. */
+  classSans?: string;
+  /** HTML class added to <html> when serif is selected. */
+  classSerif?: string;
+  /** Show the animated underline indicator when serif is active. */
+  showIndicator?: boolean;
+  /** Additional class(es) forwarded to the root <button>. */
+  class?: string;
+}
+
+const {
+  labelSans      = 'Standardschrift',
+  labelSerif     = 'Leseschrift',
+  ariaLabel      = 'Zwischen Standard- und Leseschrift wechseln',
+  storageKey     = 'fontFamily',
+  classSans      = 'font-sans',
+  classSerif     = 'font-serif',
+  showIndicator  = true,
+  class: className = '',
+} = Astro.props;
+---
+
+<!-- Font family toggle button with WAI-ARIA pressed state -->
+<button
+  type="button"
+  class:list={['fft-button', className]}
+  aria-pressed="false"
+  aria-label={ariaLabel}
+  data-font-family-toggle
+  data-label-sans={labelSans}
+  data-label-serif={labelSerif}
+  data-storage-key={storageKey}
+  data-class-sans={classSans}
+  data-class-serif={classSerif}
+>
+  <!-- Book / document icon (inline SVG — no external dependency) -->
+  <svg
+    class="fft-icon"
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+    aria-hidden="true"
+    focusable="false"
+  >
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+    <polyline points="14 2 14 8 20 8" />
+    <line x1="16" y1="13" x2="8" y2="13" />
+    <line x1="16" y1="17" x2="8" y2="17" />
+    <polyline points="10 9 9 9 8 9" />
+  </svg>
+
+  <!-- Visible label — updated by JS on state change -->
+  <span class="fft-label" data-fft-label>{labelSans}</span>
+
+  <!-- Active indicator underline (hidden via scaleX when inactive) -->
+  {showIndicator && (
+    <span class="fft-indicator" data-fft-indicator aria-hidden="true" />
+  )}
+</button>
+
+<!-- Inline ARIA live region — self-contained, no LiveRegion import needed -->
+<div
+  class="fft-live-region"
+  role="status"
+  aria-live="polite"
+  aria-atomic="true"
+  data-fft-live
+/>
+
+<script>
+  /**
+   * Initialise all FontFamilyToggle instances on the page.
+   * Safe to call multiple times (idempotent via data-fft-init guard).
+   */
+  function initFontFamilyToggles(): void {
+    const buttons = document.querySelectorAll<HTMLButtonElement>(
+      '[data-font-family-toggle]:not([data-fft-init])'
+    );
+
+    buttons.forEach((button) => {
+      button.setAttribute('data-fft-init', 'true');
+
+      const labelSans   = button.dataset.labelSans   ?? 'Standardschrift';
+      const labelSerif  = button.dataset.labelSerif  ?? 'Leseschrift';
+      const storageKey  = button.dataset.storageKey  ?? 'fontFamily';
+      const classSans   = button.dataset.classSans   ?? 'font-sans';
+      const classSerif  = button.dataset.classSerif  ?? 'font-serif';
+
+      const labelEl     = button.querySelector<HTMLElement>('[data-fft-label]');
+      const indicatorEl = button.querySelector<HTMLElement>('[data-fft-indicator]');
+
+      // Live region is the next sibling <div[data-fft-live]>
+      const liveEl = button.nextElementSibling?.matches('[data-fft-live]')
+        ? (button.nextElementSibling as HTMLElement)
+        : null;
+
+      /** Apply state visually and to aria-pressed without announcing. */
+      function applyState(serif: boolean): void {
+        const html = document.documentElement;
+
+        if (serif) {
+          html.classList.remove(classSans);
+          html.classList.add(classSerif);
+        } else {
+          html.classList.remove(classSerif);
+          html.classList.add(classSans);
+        }
+
+        button.setAttribute('aria-pressed', String(serif));
+
+        if (labelEl) {
+          labelEl.textContent = serif ? labelSerif : labelSans;
+        }
+
+        if (indicatorEl) {
+          indicatorEl.style.transform = serif ? 'scaleX(1)' : 'scaleX(0)';
+        }
+      }
+
+      /** Announce state change to screen readers then clear after 1 s. */
+      function announce(serif: boolean): void {
+        if (!liveEl) return;
+        const message = serif
+          ? `${labelSerif} wurde aktiviert`
+          : `${labelSans} wurde aktiviert`;
+
+        // Clear first so repeated clicks are always announced
+        liveEl.textContent = '';
+        requestAnimationFrame(() => {
+          liveEl.textContent = message;
+          setTimeout(() => { liveEl.textContent = ''; }, 1000);
+        });
+      }
+
+      /** Toggle handler — called on click (Space/Enter fire click natively). */
+      function handleToggle(): void {
+        const isCurrentlySerif = button.getAttribute('aria-pressed') === 'true';
+        const nextSerif = !isCurrentlySerif;
+
+        applyState(nextSerif);
+        announce(nextSerif);
+        try {
+          localStorage.setItem(storageKey, nextSerif ? 'serif' : 'sans-serif');
+        } catch {
+          // localStorage may be blocked in private browsing — silently ignore
+        }
+      }
+
+      button.addEventListener('click', handleToggle);
+
+      // Restore persisted preference on load
+      try {
+        const saved = localStorage.getItem(storageKey);
+        if (saved === 'serif') {
+          applyState(true);
+          // No announcement on restore — user knows their own setting
+        }
+      } catch {
+        // localStorage unavailable — start with default (sans)
+      }
+    });
+  }
+
+  // DOM ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initFontFamilyToggles);
+  } else {
+    initFontFamilyToggles();
+  }
+
+  // Astro View Transitions / client-side navigation
+  document.addEventListener('astro:page-load', initFontFamilyToggles);
+</script>
+
+<style>
+  /* ─── Button shell ─────────────────────────────────────────────────── */
+  .fft-button {
+    /* Layout */
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    position: relative;
+
+    /* Sizing — 44 px min touch target */
+    min-height: 44px;
+    min-width: 44px;
+    padding-block: var(--spacing-2);
+    padding-inline: var(--spacing-3);
+
+    /* Typography */
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    color: inherit;
+
+    /* Appearance */
+    background: transparent;
+    border: none;
+    border-radius: var(--border-radius-lg);
+    cursor: pointer;
+
+    /* Transition (colour + transform) */
+    transition:
+      background-color var(--transition-duration-fast) var(--transition-timing-ease-in-out),
+      color var(--transition-duration-fast) var(--transition-timing-ease-in-out);
+  }
+
+  /* ─── Hover ────────────────────────────────────────────────────────── */
+  .fft-button:hover {
+    background-color: color-mix(in srgb, var(--color-base-white) 10%, transparent);
+  }
+
+  /* ─── Focus ring (WCAG 2.2 AA — :focus-visible only) ──────────────── */
+  .fft-button:focus {
+    outline: none;
+  }
+
+  .fft-button:focus-visible {
+    outline: 2px solid var(--color-border-focus);
+    outline-offset: var(--spacing-1);
+  }
+
+  /* ─── Pressed / active state ───────────────────────────────────────── */
+  .fft-button[aria-pressed="true"] {
+    color: var(--color-brand-primary);
+  }
+
+  /* ─── Icon ─────────────────────────────────────────────────────────── */
+  .fft-icon {
+    flex-shrink: 0;
+    /* 16 × 16 set in SVG attributes; no extra sizing needed */
+  }
+
+  /* ─── Active indicator underline ───────────────────────────────────── */
+  .fft-indicator {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: -var(--spacing-1);  /* negative offset: sits just below button */
+    bottom: calc(-1 * var(--spacing-1));
+    height: 2px;
+    background-color: var(--color-brand-primary);
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform var(--transition-duration-slow) var(--transition-timing-ease-in-out);
+    border-radius: var(--border-radius-sm);
+  }
+
+  /* ─── Reduced motion ───────────────────────────────────────────────── */
+  @media (prefers-reduced-motion: reduce) {
+    .fft-button,
+    .fft-indicator {
+      transition: none;
+    }
+  }
+
+  /* ─── High contrast / forced-colors ───────────────────────────────── */
+  @media (forced-colors: active) {
+    .fft-button {
+      forced-color-adjust: none;
+      color: ButtonText;
+      background: ButtonFace;
+      border: 1px solid ButtonText;
+    }
+
+    .fft-button[aria-pressed="true"] {
+      color: Highlight;
+      border-color: Highlight;
+    }
+
+    .fft-indicator {
+      background-color: Highlight;
+    }
+  }
+
+  /* ─── ARIA live region — visually hidden, always in DOM ───────────── */
+  .fft-live-region {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+</style>
