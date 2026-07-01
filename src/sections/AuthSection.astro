@@ -924,7 +924,7 @@ const displaySubtitle = subtitle || defaultSubtitles[variant];
     // Code inputs
     const codeContainers = document.querySelectorAll('[data-code-inputs]');
     codeContainers.forEach((container) => {
-      const inputs = container.querySelectorAll('.code-input');
+      const inputs = container.querySelectorAll<HTMLInputElement>('.code-input');
       const fullCodeInput = container.parentElement?.querySelector('#fullCode') as HTMLInputElement;
 
       inputs.forEach((input, index) => {
@@ -943,7 +943,7 @@ const displaySubtitle = subtitle || defaultSubtitles[variant];
           }
         });
 
-        input.addEventListener('keydown', (e) => {
+        input.addEventListener('keydown', (e: KeyboardEvent) => {
           const target = e.target as HTMLInputElement;
 
           if (e.key === 'Backspace' && !target.value && index > 0) {
@@ -952,11 +952,11 @@ const displaySubtitle = subtitle || defaultSubtitles[variant];
         });
 
         // Handle paste
-        input.addEventListener('paste', (e) => {
+        input.addEventListener('paste', (e: ClipboardEvent) => {
           e.preventDefault();
           const pastedData = e.clipboardData?.getData('text').slice(0, inputs.length) || '';
 
-          pastedData.split('').forEach((char, i) => {
+          pastedData.split('').forEach((char: string, i: number) => {
             if (inputs[i]) {
               (inputs[i] as HTMLInputElement).value = char;
             }

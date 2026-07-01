@@ -41,7 +41,7 @@ const renderHeroSection = (args: Record<string, unknown>) => html`
       ${args.variant === 'split' ? html`
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;">
           <div>
-            <span style="font-size: 0.875rem; font-weight: 600; color: ${args.variant === 'gradient' ? 'rgba(255,255,255,0.8)' : '#3b82f6'}; text-transform: uppercase; display: block; margin-bottom: 1rem;">Trusted by 5,000+ Teams</span>
+            <span style="font-size: 0.875rem; font-weight: 600; color: ${(args.variant as string) === 'gradient' ? 'rgba(255,255,255,0.8)' : '#3b82f6'}; text-transform: uppercase; display: block; margin-bottom: 1rem;">Trusted by 5,000+ Teams</span>
             <h1 style="font-size: 2.5rem; font-weight: 800; color: #1e293b; margin: 0 0 1rem; line-height: 1.1;">Build Faster, Ship Sooner</h1>
             <p style="font-size: 1.125rem; color: #64748b; margin: 0 0 2rem; line-height: 1.5;">The modern platform for web development teams.</p>
             <div style="display: flex; gap: 1rem;">

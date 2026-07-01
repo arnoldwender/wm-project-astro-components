@@ -149,7 +149,7 @@ const duplicatedItems = [...items, ...items];
       <div class="ticker-track" data-ticker-track>
         {/* Default variant */}
         {variant === 'default' && duplicatedItems.map((item, index) => (
-          <div class="ticker-item" key={index}>
+          <div class="ticker-item">
             {item.icon && (
               <span class="item-icon" set:html={item.icon} />
             )}
@@ -164,7 +164,7 @@ const duplicatedItems = [...items, ...items];
 
         {/* News variant */}
         {variant === 'news' && duplicatedItems.map((item, index) => (
-          <div class="ticker-item ticker-item--news" key={index}>
+          <div class="ticker-item ticker-item--news">
             {item.category && (
               <span class="news-category">{item.category}</span>
             )}
@@ -184,7 +184,7 @@ const duplicatedItems = [...items, ...items];
 
         {/* Stocks variant */}
         {variant === 'stocks' && duplicatedItems.map((item, index) => (
-          <div class="ticker-item ticker-item--stock" key={index}>
+          <div class="ticker-item ticker-item--stock">
             <span class="stock-symbol">{item.symbol}</span>
             <span class="stock-price">${item.price?.toFixed(2)}</span>
             <span class:list={[
@@ -209,7 +209,7 @@ const duplicatedItems = [...items, ...items];
 
         {/* Logos variant */}
         {variant === 'logos' && duplicatedItems.map((item, index) => (
-          <div class="ticker-item ticker-item--logo" key={index}>
+          <div class="ticker-item ticker-item--logo">
             {item.href ? (
               <a href={item.href} class="logo-link">
                 {item.image ? (
@@ -236,7 +236,7 @@ const duplicatedItems = [...items, ...items];
 
         {/* Social variant */}
         {variant === 'social' && duplicatedItems.map((item, index) => (
-          <div class="ticker-item ticker-item--social" key={index}>
+          <div class="ticker-item ticker-item--social">
             {item.avatar && (
               <img src={item.avatar} alt={item.author || 'Autor'} class="social-avatar" loading="lazy" />
             )}

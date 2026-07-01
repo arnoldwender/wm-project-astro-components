@@ -273,7 +273,7 @@ function initLanguageSwitcher() {
     if (dropdown) {
       const trigger = dropdown.querySelector('[data-dropdown-trigger]');
       const menu = dropdown.querySelector('[data-dropdown-menu]');
-      const icon = dropdown.querySelector('[data-dropdown-icon]');
+      const icon = dropdown.querySelector<HTMLElement>('[data-dropdown-icon]');
 
       let isOpen = false;
 

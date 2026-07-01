@@ -550,7 +550,7 @@ const formId = `contact-${Math.random().toString(36).substring(2, 9)}`;
                   />
                 ) : (
                   <input
-                    type={field.type}
+                    type={field.type as 'text' | 'email' | 'tel' | 'file'}
                     id={`${formId}-${field.name}`}
                     name={field.name}
                     required={field.required}
@@ -613,7 +613,7 @@ const formId = `contact-${Math.random().toString(36).substring(2, 9)}`;
           <div class="grid sm:grid-cols-2 gap-4">
             {fields.filter(f => f.type !== 'textarea').slice(0, 2).map((field) => (
               <input
-                type={field.type}
+                type={field.type as 'text' | 'email' | 'tel' | 'file'}
                 name={field.name}
                 required={field.required}
                 placeholder={field.placeholder || field.label}

@@ -296,3 +296,32 @@ export function generateHreflangTags(
 
   return tags;
 }
+
+// ---------------------------------------------------------------------------
+// Public API aliases — stable names re-exported from the package barrel,
+// mapped onto the canonical implementations above. (Astro 7 / v4.0.0)
+// ---------------------------------------------------------------------------
+
+/** Alias of {@link getLocaleDirection} — text direction for a locale. */
+export const getTextDirection = getLocaleDirection;
+
+/** True when the given locale is written right-to-left. */
+export const isRTL = (locale: string): boolean => getLocaleDirection(locale) === 'rtl';
+
+/** Alias of {@link detectBrowserLocale}. */
+export const detectLocale = detectBrowserLocale;
+
+/** Alias of {@link detectBrowserLocale} — the visitor's preferred locale. */
+export const getPreferredLocale = detectBrowserLocale;
+
+/** Alias of {@link addLocaleToPath} — builds a locale-prefixed URL path. */
+export const getLocalizedUrl = addLocaleToPath;
+
+/** Alias of {@link generateHreflangTags}. */
+export const generateHreflangLinks = generateHreflangTags;
+
+/** A supported locale code (BCP-47 short form, e.g. "de", "en", "es"). */
+export type SupportedLocale = string;
+
+/** A single hreflang link descriptor produced by {@link generateHreflangTags}. */
+export type HreflangLink = { hreflang: string; href: string };

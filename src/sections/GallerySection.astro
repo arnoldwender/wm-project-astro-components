@@ -376,8 +376,8 @@ const gapClasses = {
       const titleEl = modal.querySelector('[data-lightbox-title]');
       const counterEl = modal.querySelector('[data-lightbox-counter]');
       const closeBtn = modal.querySelector('[data-lightbox-close]');
-      const prevBtn = modal.querySelector('[data-lightbox-prev]');
-      const nextBtn = modal.querySelector('[data-lightbox-next]');
+      const prevBtn = modal.querySelector<HTMLElement>('[data-lightbox-prev]');
+      const nextBtn = modal.querySelector<HTMLElement>('[data-lightbox-next]');
 
       let currentIndex = 0;
 

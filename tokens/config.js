@@ -21,7 +21,6 @@ export default {
           },
         },
       ],
-      transforms: ['attribute/cti', 'name/cti/kebab', 'color/css'],
     },
     scss: {
       transformGroup: 'scss',

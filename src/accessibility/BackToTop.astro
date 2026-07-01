@@ -47,7 +47,7 @@ const {
 
 <script>
   function initBackToTop() {
-    const buttons = document.querySelectorAll('[data-back-to-top]');
+    const buttons = document.querySelectorAll<HTMLElement>('[data-back-to-top]');
 
     buttons.forEach(button => {
       const threshold = parseInt(button.getAttribute('data-threshold') || '300', 10);
