@@ -1,0 +1,427 @@
+---
+/**
+ * VonRestorffCTA — Standout call-to-action using the Von Restorff isolation effect.
+ *
+ * The Von Restorff effect states that an item which stands out from its peers
+ * is far more likely to be remembered and acted upon. This component renders a
+ * visually isolated, animated CTA link that breaks the visual monotony of the
+ * surrounding page to maximise click-through intent.
+ *
+ * Four animation variants (glow / pulse / shake / gradient) each trigger a
+ * distinct perceptual-attention mechanism while respecting prefers-reduced-motion.
+ *
+ * Relationship to sibling components:
+ *   - `sections/CTA.astro` — full-section CTA with multiple layout variants,
+ *     social proof, countdown, split-image layout. VonRestorffCTA is a focused
+ *     *inline primitive* (a single link element) that can be dropped inside any
+ *     section, including CTA.astro.
+ *   - `sections/CTASection.astro` — wraps CTA.astro with section semantics.
+ *
+ * @example Basic glow button
+ * <VonRestorffCTA href="/kontakt" text="Jetzt Anfragen" />
+ *
+ * @example Pulse with icon and subtext
+ * <VonRestorffCTA
+ *   href="/preise"
+ *   text="Angebot sichern"
+ *   subtext="Kostenlos & unverbindlich"
+ *   variant="pulse"
+ *   size="xl"
+ *   icon="🚀"
+ * />
+ *
+ * @example Gradient inside a dark hero section
+ * <VonRestorffCTA
+ *   href="/demo"
+ *   text="Demo starten"
+ *   variant="gradient"
+ *   size="lg"
+ *   class="my-hero-cta"
+ * />
+ *
+ * @copyright 2007-2026 Arnold Wender · Wender Media. All Rights Reserved. License: LicenseRef-Wender-Media-Source-1.0
+ * @see https://github.com/arnoldwender/wm-project-astro-components
+ */
+
+export interface Props {
+  /** Destination URL for the CTA link */
+  href: string;
+  /** Primary visible label — keep to ≤5 words for impact */
+  text: string;
+  /** Optional secondary line shown below the main label */
+  subtext?: string;
+  /**
+   * Animation variant controlling how the button draws attention:
+   * - `glow`     — pulsing ambient glow (default)
+   * - `pulse`    — expanding ring animation
+   * - `shake`    — periodic horizontal shake every 5 s
+   * - `gradient` — animated shifting gradient background
+   */
+  variant?: 'glow' | 'pulse' | 'shake' | 'gradient';
+  /** Button size preset */
+  size?: 'md' | 'lg' | 'xl';
+  /**
+   * Optional leading icon — accepts any Unicode emoji or short text string.
+   * Rendered with `aria-hidden="true"` so it is purely decorative.
+   */
+  icon?: string;
+  /** Additional class(es) applied to the outer wrapper `<div>` */
+  class?: string;
+}
+
+const {
+  href,
+  text,
+  subtext,
+  variant = 'glow',
+  size = 'lg',
+  icon,
+  class: className = '',
+} = Astro.props;
+---
+
+<div class:list={['vr-wrapper', className]}>
+  <a
+    href={href}
+    class:list={['vr-cta', `vr-cta--${variant}`, `vr-cta--${size}`]}
+    data-von-restorff
+  >
+    {/* Animated background layer — clipped by overflow:hidden on the anchor */}
+    <span class="vr-bg" aria-hidden="true"></span>
+
+    {/* Primary content row */}
+    <span class="vr-content">
+      {icon && <span class="vr-icon" aria-hidden="true">{icon}</span>}
+      <span class="vr-text">
+        <span class="vr-main">{text}</span>
+        {subtext && <span class="vr-sub">{subtext}</span>}
+      </span>
+      <span class="vr-arrow" aria-hidden="true">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+          <polyline points="12 5 19 12 12 19"></polyline>
+        </svg>
+      </span>
+    </span>
+
+    {/* Decorative radial orbs — purely visual, pointer-events:none */}
+    <span class="vr-deco vr-deco--1" aria-hidden="true"></span>
+    <span class="vr-deco vr-deco--2" aria-hidden="true"></span>
+    <span class="vr-deco vr-deco--3" aria-hidden="true"></span>
+  </a>
+</div>
+
+<style>
+  /* ─────────────────────────────────────────────
+     Wrapper — centres button with breathing room
+  ───────────────────────────────────────────── */
+  .vr-wrapper {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    padding: var(--spacing-8) var(--spacing-4);
+  }
+
+  /* ─────────────────────────────────────────────
+     Base CTA anchor
+  ───────────────────────────────────────────── */
+  .vr-cta {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    border-radius: var(--border-radius-3xl);
+    overflow: hidden;
+    isolation: isolate;
+    /* Exceeds 44 px WCAG 2.2 / BFSG touch-target minimum */
+    min-height: 56px;
+    font-family: var(--font-family-sans);
+    font-weight: var(--font-weight-bold);
+    transition:
+      transform var(--transition-duration-slow) var(--transition-timing-ease-out),
+      box-shadow var(--transition-duration-slow) var(--transition-timing-ease-out);
+  }
+
+  /* ── Size modifiers ── */
+  .vr-cta--md {
+    padding: var(--spacing-4) var(--spacing-8);
+    font-size: var(--font-size-base);
+  }
+
+  .vr-cta--lg {
+    padding: var(--spacing-5) var(--spacing-10);
+    font-size: var(--font-size-lg);
+  }
+
+  .vr-cta--xl {
+    padding: var(--spacing-6) var(--spacing-12);
+    font-size: var(--font-size-xl);
+  }
+
+  /* ─────────────────────────────────────────────
+     Background layer (gradient fill behind text)
+  ───────────────────────────────────────────── */
+  .vr-bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(
+      135deg,
+      var(--color-sky-500) 0%,
+      var(--color-sky-700) 100%
+    );
+    transition: transform var(--transition-duration-slow) var(--transition-timing-ease-out);
+  }
+
+  .vr-cta:hover .vr-bg {
+    transform: scale(1.02);
+  }
+
+  /* ─────────────────────────────────────────────
+     Content row
+  ───────────────────────────────────────────── */
+  .vr-content {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-4);
+    color: var(--color-base-white);
+  }
+
+  .vr-icon {
+    font-size: 1.5em;
+    line-height: 1;
+  }
+
+  .vr-text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
+  }
+
+  .vr-main {
+    font-weight: var(--font-weight-bold);
+    line-height: var(--font-line-height-tight);
+  }
+
+  .vr-sub {
+    font-size: var(--font-size-xs);
+    opacity: var(--opacity-90);
+    font-weight: var(--font-weight-normal);
+  }
+
+  .vr-arrow {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    transition: transform var(--transition-duration-slow) var(--transition-timing-ease-out);
+  }
+
+  .vr-cta:hover .vr-arrow {
+    transform: translateX(4px);
+  }
+
+  /* ─────────────────────────────────────────────
+     Focus-visible ring (WCAG 2.2 AA / BFSG)
+  ───────────────────────────────────────────── */
+  .vr-cta:focus-visible {
+    outline: 3px solid var(--color-sky-300);
+    outline-offset: 4px;
+  }
+
+  /* ─────────────────────────────────────────────
+     Decorative orbs (purely visual, clipped)
+  ───────────────────────────────────────────── */
+  .vr-deco {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: var(--opacity-60);
+  }
+
+  .vr-deco--1 {
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle, var(--color-sky-300) 0%, transparent 70%);
+    top: -30%;
+    left: -10%;
+  }
+
+  .vr-deco--2 {
+    width: 80px;
+    height: 80px;
+    background: radial-gradient(circle, var(--color-green-300) 0%, transparent 70%);
+    bottom: -20%;
+    right: -5%;
+  }
+
+  .vr-deco--3 {
+    width: 40px;
+    height: 40px;
+    background: var(--color-amber-300);
+    top: 20%;
+    right: 15%;
+    opacity: var(--opacity-40);
+  }
+
+  /* ─────────────────────────────────────────────
+     Hover lift (all variants)
+  ───────────────────────────────────────────── */
+  .vr-cta:hover {
+    transform: translateY(-4px);
+  }
+
+  .vr-cta:active {
+    transform: translateY(-2px);
+  }
+
+  /* ═══════════════════════════════════════════
+     VARIANT: glow
+     Ambient pulsing box-shadow (default)
+  ═══════════════════════════════════════════ */
+  .vr-cta--glow {
+    box-shadow:
+      0 0 30px color-mix(in srgb, var(--color-sky-500) 40%, transparent),
+      0 0 60px color-mix(in srgb, var(--color-sky-500) 20%, transparent),
+      0 0 90px color-mix(in srgb, var(--color-sky-500) 10%, transparent);
+    animation: vr-glow-pulse 2s var(--transition-timing-ease-in-out) infinite;
+  }
+
+  @keyframes vr-glow-pulse {
+    0%, 100% {
+      box-shadow:
+        0 0 30px color-mix(in srgb, var(--color-sky-500) 40%, transparent),
+        0 0 60px color-mix(in srgb, var(--color-sky-500) 20%, transparent),
+        0 0 90px color-mix(in srgb, var(--color-sky-500) 10%, transparent);
+    }
+    50% {
+      box-shadow:
+        0 0 40px color-mix(in srgb, var(--color-sky-500) 55%, transparent),
+        0 0 80px color-mix(in srgb, var(--color-sky-500) 30%, transparent),
+        0 0 120px color-mix(in srgb, var(--color-sky-500) 15%, transparent);
+    }
+  }
+
+  /* Dark mode: intensify glow slightly */
+  :global(.dark) .vr-cta--glow {
+    box-shadow:
+      0 0 40px color-mix(in srgb, var(--color-sky-400) 55%, transparent),
+      0 0 80px color-mix(in srgb, var(--color-sky-400) 30%, transparent);
+  }
+
+  /* ═══════════════════════════════════════════
+     VARIANT: pulse
+     Expanding ring radiates outward from border
+  ═══════════════════════════════════════════ */
+  .vr-cta--pulse::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    background: linear-gradient(135deg, var(--color-sky-400) 0%, var(--color-sky-600) 100%);
+    border-radius: inherit;
+    z-index: -2;
+    animation: vr-pulse-ring 1.5s var(--transition-timing-ease-out) infinite;
+    opacity: 0;
+  }
+
+  @keyframes vr-pulse-ring {
+    0% {
+      transform: scale(1);
+      opacity: var(--opacity-60);
+    }
+    100% {
+      transform: scale(1.15);
+      opacity: 0;
+    }
+  }
+
+  /* ═══════════════════════════════════════════
+     VARIANT: shake
+     Periodic horizontal micro-shake every 5 s
+  ═══════════════════════════════════════════ */
+  .vr-cta--shake {
+    animation: vr-attention-shake 5s var(--transition-timing-ease-in-out) infinite;
+  }
+
+  @keyframes vr-attention-shake {
+    0%, 90%, 100% { transform: translateX(0); }
+    92%, 96%      { transform: translateX(-4px); }
+    94%, 98%      { transform: translateX(4px); }
+  }
+
+  /* ═══════════════════════════════════════════
+     VARIANT: gradient
+     Animated multi-stop background shift
+  ═══════════════════════════════════════════ */
+  .vr-cta--gradient .vr-bg {
+    background: linear-gradient(
+      135deg,
+      var(--color-sky-500) 0%,
+      var(--color-green-500) 50%,
+      var(--color-amber-500) 100%
+    );
+    background-size: 200% 200%;
+    animation: vr-gradient-shift 3s var(--transition-timing-ease) infinite;
+  }
+
+  /* Dark mode: keep gradient surfaces readable */
+  :global(.dark) .vr-cta--gradient .vr-bg,
+  :global(.dark) .vr-bg {
+    background: linear-gradient(135deg, var(--color-sky-500) 0%, var(--color-sky-300) 100%);
+  }
+
+  @keyframes vr-gradient-shift {
+    0%, 100% { background-position: 0% 50%; }
+    50%       { background-position: 100% 50%; }
+  }
+
+  /* ─────────────────────────────────────────────
+     Mobile overrides (≤ 480 px)
+  ───────────────────────────────────────────── */
+  @media (max-width: 480px) {
+    .vr-cta--lg,
+    .vr-cta--xl {
+      padding: var(--spacing-4) var(--spacing-6);
+      font-size: var(--font-size-base);
+    }
+
+    /* Arrow adds visual clutter on narrow screens */
+    .vr-arrow {
+      display: none;
+    }
+  }
+
+  /* ─────────────────────────────────────────────
+     prefers-reduced-motion — disable all motion
+  ───────────────────────────────────────────── */
+  @media (prefers-reduced-motion: reduce) {
+    .vr-cta,
+    .vr-bg,
+    .vr-arrow,
+    .vr-cta--glow,
+    .vr-cta--pulse::before,
+    .vr-cta--shake,
+    .vr-cta--gradient .vr-bg {
+      animation: none;
+      transition: none;
+    }
+
+    .vr-cta:hover,
+    .vr-cta:active {
+      transform: none;
+    }
+  }
+</style>

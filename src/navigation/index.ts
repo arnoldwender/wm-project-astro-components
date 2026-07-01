@@ -22,3 +22,11 @@ export type { Props as MobileNavProps, NavItem, SocialLink } from './MobileNav.a
 export type { Props as PaginationProps } from './Pagination.astro';
 export type { Props as BreadcrumbsProps, BreadcrumbItem } from './Breadcrumbs.astro';
 export type { Props as AccessibleLoadMoreProps } from './AccessibleLoadMore.astro';
+
+// Nav-system primitives (backported 2026-07-01) — headless, additive
+export { default as MobileNavToggle } from './MobileNavToggle.astro';
+export { default as SkipToContent } from './SkipToContent.astro';
+export { default as BreadcrumbBar } from './BreadcrumbBar.astro';
+export type { Props as MobileNavToggleProps } from './MobileNavToggle.astro';
+export type { Props as SkipToContentProps } from './SkipToContent.astro';
+export type { Props as BreadcrumbBarProps } from './BreadcrumbBar.astro';

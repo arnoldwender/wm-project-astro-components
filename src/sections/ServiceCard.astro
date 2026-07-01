@@ -1,0 +1,285 @@
+---
+/**
+ * ServiceCard Component - WenderMedia Astro Components
+ *
+ * Individual service card displaying an icon, title, description, and a
+ * checklist of feature items. Designed for use inside ServiceSection or any
+ * custom grid/flex layout.
+ *
+ * Relationship to existing components:
+ * - Distinct from `ServiceSection.astro`, which is a full-section composer
+ *   (grid / list / tabs / accordion / featured / pricing layouts).
+ *   ServiceCard is the single-card primitive that can be used standalone or
+ *   composed into any layout, including inside ServiceSection.
+ * - Distinct from `FeatureCard.astro`, which has four layout variants and an
+ *   optional link wrapper. ServiceCard focuses on the icon → title →
+ *   description → feature-list pattern with lift-on-hover microinteraction.
+ *
+ * Features:
+ * - Lift-on-hover with border highlight (respects prefers-reduced-motion)
+ * - Icon container animates on group hover (scale + slight rotate)
+ * - Feature checklist with staggered entry via CSS custom property
+ * - Accepts raw SVG string or emoji/text as icon
+ * - Fully token-based styles — no hardcoded hex/px
+ * - WCAG 2.2 AA: :focus-visible ring, semantic <article>/<ul>, aria-label
+ *
+ * @example
+ * <ServiceCard
+ *   title="SEO Optimierung"
+ *   description="Mehr organischer Traffic durch datengetriebene Suchmaschinenoptimierung."
+ *   icon="🔍"
+ *   features={["Keyword-Analyse", "On-Page SEO", "Technisches SEO"]}
+ * />
+ *
+ * @example
+ * <ServiceCard
+ *   title="Webdesign"
+ *   description="Individuelle Websites die konvertieren — responsiv, schnell, barrierefrei."
+ *   icon="<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><rect x='3' y='3' width='18' height='18' rx='2'/><path d='M3 9h18'/></svg>"
+ *   features={["Responsive Design", "Core Web Vitals", "BFSG-konform"]}
+ * />
+ * @copyright 2007-2026 Arnold Wender · Wender Media. All Rights Reserved. License: LicenseRef-Wender-Media-Source-1.0
+ * @see https://github.com/arnoldwender/wm-project-astro-components
+ */
+
+export interface Props {
+  /** Card heading */
+  title: string;
+  /** Short description of the service */
+  description: string;
+  /** Emoji, plain text, or raw SVG string used as the icon */
+  icon?: string;
+  /** Checklist of feature/benefit items */
+  features?: string[];
+  /** Additional CSS class(es) forwarded to the root <article> */
+  class?: string;
+}
+
+const {
+  title,
+  description,
+  icon,
+  features = [],
+  class: className = '',
+} = Astro.props;
+
+const isRawSvg = icon?.trim().startsWith('<');
+---
+
+<article
+  class:list={['service-card', className]}
+  data-has-features={features.length > 0 ? 'true' : undefined}
+>
+  <!-- Icon container — aria-hidden because the card heading carries the label -->
+  {icon && (
+    <div class="service-card__icon" aria-hidden="true">
+      {isRawSvg
+        ? <Fragment set:html={icon} />
+        : <span>{icon}</span>
+      }
+    </div>
+  )}
+
+  <h3 class="service-card__title">{title}</h3>
+  <p class="service-card__description">{description}</p>
+
+  {features.length > 0 && (
+    <ul
+      class="service-card__features"
+      role="list"
+      aria-label={`Funktionen für ${title}`}
+    >
+      {features.map((feature, index) => (
+        <li
+          class="service-card__feature-item"
+          style={`--delay: ${index * 50}ms`}
+        >
+          <!-- Checkmark SVG — aria-hidden, meaning carried by parent li text -->
+          <svg
+            class="service-card__check"
+            aria-hidden="true"
+            focusable="false"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M16.704 4.153a.75.75 0 0 1 .143 1.052l-8 10.5a.75.75 0 0 1-1.127.075l-4.5-4.5a.75.75 0 0 1 1.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 0 1 1.05-.143Z"
+              clip-rule="evenodd"
+            />
+          </svg>
+          <span>{feature}</span>
+        </li>
+      ))}
+    </ul>
+  )}
+
+  <!-- Slot for any additional content (e.g. a CTA link) -->
+  {Astro.slots.has('default') && (
+    <div class="service-card__slot">
+      <slot />
+    </div>
+  )}
+</article>
+
+<style>
+  /* ─── Card shell ─────────────────────────────────────────────────── */
+  .service-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+    padding: var(--spacing-8);
+    background-color: var(--color-background-surface);
+    border-radius: var(--border-radius-2xl);
+    border: 1px solid var(--color-border-default);
+    box-shadow: var(--shadow-xs);
+    transition:
+      transform var(--transition-duration-slow) var(--transition-timing-ease-out),
+      box-shadow var(--transition-duration-slow) var(--transition-timing-ease-out),
+      border-color var(--transition-duration-slow) var(--transition-timing-ease-out);
+    /* Establish stacking context so the focus ring isn't clipped */
+    isolation: isolate;
+  }
+
+  /* Keyboard focus ring on the card itself if it ever receives focus */
+  .service-card:focus-visible {
+    outline: 2px solid var(--color-brand-primary);
+    outline-offset: 3px;
+  }
+
+  /* Lift + border highlight on hover */
+  @media (hover: hover) {
+    .service-card:hover {
+      transform: translateY(-0.5rem);
+      box-shadow: var(--shadow-md);
+      border-color: var(--color-brand-primary);
+    }
+
+    /* Animate the icon container on card hover */
+    .service-card:hover .service-card__icon {
+      background-color: var(--color-brand-primary);
+      color: var(--color-text-inverse);
+      transform: scale(1.1) rotate(3deg);
+      box-shadow: var(--shadow-base);
+    }
+
+    /* Reveal feature-item check icon on card hover */
+    .service-card:hover .service-card__check {
+      transform: scale(1.1);
+    }
+
+    /* Deepen feature text on card hover */
+    .service-card:hover .service-card__feature-item span {
+      color: var(--color-text-primary);
+    }
+  }
+
+  /* Honour reduced-motion preference — skip translate/scale/rotate */
+  @media (prefers-reduced-motion: reduce) {
+    .service-card,
+    .service-card__icon,
+    .service-card__check {
+      transition: none;
+    }
+
+    .service-card:hover {
+      transform: none;
+    }
+
+    .service-card:hover .service-card__icon {
+      transform: none;
+    }
+  }
+
+  /* ─── Icon container ─────────────────────────────────────────────── */
+  .service-card__icon {
+    /* 44 px touch-target safe zone for the icon area (decorative but sized for tap-friendliness) */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;       /* 48px — intentional touch-target floor */
+    height: 3rem;
+    flex-shrink: 0;
+    border-radius: var(--border-radius-xl);
+    background-color: var(--color-background-subtle);
+    color: var(--color-brand-primary);
+    transition:
+      background-color var(--transition-duration-slow) var(--transition-timing-ease-out),
+      color var(--transition-duration-slow) var(--transition-timing-ease-out),
+      transform var(--transition-duration-slow) var(--transition-timing-ease-out),
+      box-shadow var(--transition-duration-slow) var(--transition-timing-ease-out);
+  }
+
+  /* Raw SVG icons passed as strings */
+  .service-card__icon :global(svg) {
+    width: 1.5rem;
+    height: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  /* Emoji / text icon */
+  .service-card__icon span {
+    font-size: var(--font-size-xl);
+    line-height: var(--font-line-height-none);
+  }
+
+  /* ─── Heading ────────────────────────────────────────────────────── */
+  .service-card__title {
+    margin: 0;
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-semibold);
+    line-height: var(--font-line-height-tight);
+    color: var(--color-text-primary);
+    transition: color var(--transition-duration-slow) var(--transition-timing-ease-out);
+  }
+
+  @media (hover: hover) {
+    .service-card:hover .service-card__title {
+      color: var(--color-brand-primary-hover);
+    }
+  }
+
+  /* ─── Description ────────────────────────────────────────────────── */
+  .service-card__description {
+    margin: 0;
+    font-size: var(--font-size-base);
+    line-height: var(--font-line-height-relaxed);
+    color: var(--color-text-secondary);
+  }
+
+  /* ─── Feature list ───────────────────────────────────────────────── */
+  .service-card__features {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+  }
+
+  .service-card__feature-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    transition: color var(--transition-duration-base) var(--transition-timing-ease-out) var(--delay, 0ms);
+  }
+
+  /* Checkmark icon */
+  .service-card__check {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+    color: var(--color-brand-primary);
+    transition: transform var(--transition-duration-base) var(--transition-timing-ease-out);
+  }
+
+  /* ─── Optional slot wrapper ──────────────────────────────────────── */
+  .service-card__slot {
+    margin-top: auto;
+    padding-top: var(--spacing-2);
+  }
+</style>

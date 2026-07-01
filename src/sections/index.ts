@@ -300,3 +300,9 @@ export type { Props as TrustBarProps, TrustItem } from './TrustBar.astro';
 
 // Types - Top Bar
 export type { Props as TopBarProps, SocialLink as TopBarSocialLink } from './TopBar.astro';
+
+// Backported singles (2026-07-01)
+export { default as ServiceCard } from './ServiceCard.astro';
+export { default as VonRestorffCTA } from './VonRestorffCTA.astro';
+export type { Props as ServiceCardProps } from './ServiceCard.astro';
+export type { Props as VonRestorffCTAProps } from './VonRestorffCTA.astro';

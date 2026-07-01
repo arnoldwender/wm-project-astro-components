@@ -19,3 +19,7 @@ export { default as ImageGallery } from './ImageGallery.astro';
 export type { Props as VideoPlayerProps, Provider as VideoProvider } from './VideoPlayer.astro';
 export type { Props as AudioPlayerProps, Track } from './AudioPlayer.astro';
 export type { Props as ImageGalleryProps, GalleryImage } from './ImageGallery.astro';
+
+// Consent-gated YouTube facade (backported 2026-07-01) — DSGVO, LCP-optimised
+export { default as LiteYouTubeEmbed } from './LiteYouTubeEmbed.astro';
+export type { Props as LiteYouTubeEmbedProps } from './LiteYouTubeEmbed.astro';
