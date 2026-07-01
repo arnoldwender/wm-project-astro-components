@@ -21,6 +21,7 @@ export default tseslint.config(
     ignores: [
       'dist/**',
       'node_modules/**',
+      '.astro/**',
       '.storybook/**',
       'storybook-static/**',
       'tokens/dist/**',

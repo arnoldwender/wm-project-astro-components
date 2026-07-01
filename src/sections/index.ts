@@ -266,7 +266,7 @@ export { default as TopBar } from './TopBar.astro';
 // Types - Layout
 export type { Props as MasonryGridProps } from './MasonryGrid.astro';
 export type { Props as SidebarLayoutProps } from './SidebarLayout.astro';
-export type { Props as NavbarSectionProps, NavItem, NavAction } from './NavbarSection.astro';
+export type { Props as NavbarSectionProps, NavItem } from './NavbarSection.astro';
 export type { Props as MegaMenuSectionProps, MenuColumn } from './MegaMenuSection.astro';
 export type { Props as FooterSectionProps, SocialLink as FooterSocialLink, FooterLink } from './FooterSection.astro';
 export type { Props as BreadcrumbSectionProps, BreadcrumbItem } from './BreadcrumbSection.astro';

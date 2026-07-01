@@ -346,6 +346,7 @@ const instanceId = `alm-${Math.random().toString(36).slice(2, 9)}`;
 
         /* Disable if all loaded */
         if (remaining <= 0) {
+          if (!button) return;
           button.disabled = true;
         }
       }

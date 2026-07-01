@@ -740,7 +740,7 @@ const menuId = `mega-menu-${Math.random().toString(36).slice(2, 9)}`;
     const menus = document.querySelectorAll('[data-mega-menu]');
 
     menus.forEach((menu) => {
-      const trigger = menu.querySelector('[data-mega-trigger]');
+      const trigger = menu.querySelector<HTMLElement>('[data-mega-trigger]');
       const panel = menu.querySelector('[data-mega-panel]');
       const tabTriggers = menu.querySelectorAll('.tab-trigger');
       const tabPanels = menu.querySelectorAll('.tab-panel');

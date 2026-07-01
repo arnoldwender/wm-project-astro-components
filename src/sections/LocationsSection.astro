@@ -183,7 +183,7 @@ const columnClasses = {
                 : 'bg-background-subtle text-text-secondary hover:bg-background-muted',
             ]}
             data-tab={region.id}
-            aria-selected={(defaultRegion === region.id || (!defaultRegion && index === 0)).toString()}
+            aria-selected={(defaultRegion === region.id || (!defaultRegion && index === 0))}
             aria-controls={`tab-panel-${region.id}`}
           >
             {region.name}

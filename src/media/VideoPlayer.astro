@@ -423,7 +423,7 @@ const needsConsent = requireConsent && !isNative;
       const needsConsent = el.dataset.needsConsent === 'true';
       const consentScreen = el.querySelector('[data-consent-screen]') as HTMLElement | null;
       const embedContainer = el.querySelector('[data-embed-container]') as HTMLElement | null;
-      const loadBtn = el.querySelector('[data-load-video]');
+      const loadBtn = el.querySelector<HTMLElement>('[data-load-video]');
       const playBtn = el.querySelector('[data-play-btn]') as HTMLButtonElement | null;
       const video = el.querySelector('video') as HTMLVideoElement | null;
 
