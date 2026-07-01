@@ -1,0 +1,99 @@
+---
+/**
+ * BreadcrumbSchema Component - WenderMedia Astro Components
+ *
+ * Emits a schema.org BreadcrumbList JSON-LD block for enhanced SERP breadcrumb
+ * display. Accepts a typed array of navigation items and resolves all relative
+ * hrefs to absolute URLs before serialising, so Google Search Console never sees
+ * bare relative paths in structured data.
+ *
+ * Renders nothing when the items array is empty or undefined.
+ *
+ * @example
+ * ---
+ * import BreadcrumbSchema from '@components/seo/BreadcrumbSchema.astro';
+ * ---
+ * <!-- Minimal: resolves against Astro.site -->
+ * <BreadcrumbSchema
+ *   items={[
+ *     { name: 'Home', href: '/' },
+ *     { name: 'Leistungen', href: '/leistungen/' },
+ *     { name: 'SEO-Beratung', href: '/leistungen/seo-beratung/' },
+ *   ]}
+ * />
+ *
+ * @example
+ * <!-- With explicit base URL (for static exports without Astro.site) -->
+ * <BreadcrumbSchema
+ *   baseUrl="https://seo-halle.de"
+ *   items={[
+ *     { name: 'Home', href: '/' },
+ *     { name: 'Blog', href: '/blog/' },
+ *     { name: 'Was kostet SEO?', href: '/blog/was-kostet-seo/' },
+ *   ]}
+ * />
+ *
+ * @schema https://schema.org/BreadcrumbList
+ * @copyright 2007-2026 Arnold Wender · Wender Media. All Rights Reserved. License: LicenseRef-Wender-Media-Source-1.0
+ * @see https://github.com/arnoldwender/wm-project-astro-components
+ */
+
+/** A single breadcrumb step. */
+export interface BreadcrumbItem {
+  /** Visible label for this breadcrumb step. */
+  name: string;
+  /**
+   * URL path for this step. May be absolute or relative.
+   * Relative paths are resolved against `baseUrl` / `Astro.site`.
+   */
+  href: string;
+}
+
+export interface Props {
+  /** Ordered list of breadcrumb steps, from root to current page. */
+  items: BreadcrumbItem[];
+  /**
+   * Base URL used to resolve relative `href` values.
+   * Defaults to `Astro.site` when available, otherwise falls back to an
+   * empty string (resulting in a no-op concatenation for already-absolute hrefs).
+   */
+  baseUrl?: string;
+}
+
+const { items, baseUrl } = Astro.props;
+
+// Resolve base: explicit prop > Astro.site > empty string
+const resolvedBase: string =
+  baseUrl?.replace(/\/$/, '') ??
+  (Astro.site ? Astro.site.href.replace(/\/$/, '') : '');
+
+/**
+ * Make an href absolute. Already-absolute URLs (http/https) pass through
+ * unchanged; relative paths are prefixed with resolvedBase.
+ */
+function toAbsolute(href: string): string {
+  if (/^https?:\/\//.test(href)) return href;
+  const path = href.startsWith('/') ? href : `/${href}`;
+  return `${resolvedBase}${path}`;
+}
+
+// Guard: render nothing if no items are provided
+const hasItems = Array.isArray(items) && items.length > 0;
+
+const schema = hasItems
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: items.map((item, index) => ({
+        '@type': 'ListItem',
+        position: index + 1,
+        name: item.name,
+        item: toAbsolute(item.href),
+      })),
+    }
+  : null;
+---
+
+{schema && (
+  <script is:inline type="application/ld+json" set:html={JSON.stringify(schema)} />
+)}

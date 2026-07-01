@@ -1,0 +1,295 @@
+---
+/**
+ * ServiceSchema Component - WenderMedia Astro Components
+ *
+ * Emits a schema.org/Service JSON-LD script tag for a service page.
+ * Supports optional AggregateOffer (when lowPrice+highPrice are provided) or a plain
+ * Offer, a typed areaServed (array of Place nodes or a single Place), an optional
+ * ImageObject, and optional additionalProperty name/value pairs.
+ *
+ * All URL props that could be relative are resolved to absolute URLs against the
+ * `site` prop (defaults to `Astro.site`). If the required `name` or `description`
+ * props are empty the component renders nothing.
+ *
+ * @example
+ * ---
+ * import ServiceSchema from '@wendermedia/astro-components/seo/ServiceSchema.astro';
+ * ---
+ * <ServiceSchema
+ *   name="SEO-Beratung Halle"
+ *   description="Professionelle Suchmaschinenoptimierung fuer Unternehmen in Halle (Saale)."
+ *   serviceType="SearchEngineOptimizationService"
+ *   url="/suchmaschinenoptimierung/"
+ *   areaServed={[{ name: 'Halle (Saale)' }, { name: 'Sachsen-Anhalt' }]}
+ *   provider={{
+ *     name: 'Wender Media',
+ *     url: 'https://www.wendermedia.com',
+ *     telephone: '+4934519698390',
+ *     email: 'info@wendermedia.com',
+ *     address: {
+ *       streetAddress: 'Franckestrasse 1',
+ *       addressLocality: 'Halle (Saale)',
+ *       addressRegion: 'Sachsen-Anhalt',
+ *       postalCode: '06110',
+ *       addressCountry: 'DE',
+ *     },
+ *   }}
+ *   offers={{ lowPrice: 499, highPrice: 999, priceCurrency: 'EUR', offerCount: 3 }}
+ *   image="/images/seo-beratung.webp"
+ * />
+ *
+ * @see https://schema.org/Service
+ * @copyright 2007-2026 Arnold Wender · Wender Media. All Rights Reserved. License: LicenseRef-Wender-Media-Source-1.0
+ * @see https://github.com/arnoldwender/wm-project-astro-components
+ */
+
+/** A geographic area this service is available in. */
+export interface ServiceAreaItem {
+  /** schema.org GeoShape sub-type; defaults to 'Place'. */
+  type?: 'Place' | 'City' | 'State' | 'Country' | 'AdministrativeArea';
+  name: string;
+}
+
+/** Postal address block for the service provider. */
+export interface ServiceProviderAddress {
+  streetAddress?: string;
+  addressLocality?: string;
+  addressRegion?: string;
+  postalCode?: string;
+  addressCountry?: string;
+}
+
+/** The organization or local business that provides this service. */
+export interface ServiceProvider {
+  name: string;
+  url?: string;
+  telephone?: string;
+  email?: string;
+  /** Optional @id anchor; if omitted the component derives `${url}/#organization`. */
+  id?: string;
+  address?: ServiceProviderAddress;
+}
+
+/** Offer / pricing descriptor. Provide lowPrice+highPrice for AggregateOffer. */
+export interface ServiceOffers {
+  /** Lowest price in the range — triggers AggregateOffer when set together with highPrice. */
+  lowPrice?: number;
+  /** Highest price in the range. */
+  highPrice?: number;
+  /** ISO 4217 currency code. @default 'EUR' */
+  priceCurrency?: string;
+  /** Number of distinct offers in the aggregate. @default 3 */
+  offerCount?: number;
+  /** schema.org ItemAvailability URL. @default 'https://schema.org/InStock' */
+  availability?: string;
+  /** Freetext price-range label (e.g. '€€€'). Used for Offer when no low/highPrice. */
+  priceRange?: string;
+  /** Whether prices are VAT-inclusive. @default false */
+  valueAddedTaxIncluded?: boolean;
+}
+
+/** A schema.org PropertyValue pair for additionalProperty. */
+export interface ServiceProperty {
+  name: string;
+  value: string;
+}
+
+export interface Props {
+  /** Service display name (required). */
+  name: string;
+  /** Human-readable description (required). */
+  description: string;
+  /** schema.org serviceType string, e.g. 'SearchEngineOptimizationService'. */
+  serviceType?: string;
+  /**
+   * Geographic area(s) covered.
+   * Pass an array of { name, type? } objects or a single shorthand string.
+   * String shorthand is wrapped in a single Place node.
+   */
+  areaServed?: ServiceAreaItem | ServiceAreaItem[] | string | string[];
+  /** Pricing / offer information. */
+  offers?: ServiceOffers;
+  /** Organization/LocalBusiness that delivers this service. */
+  provider?: ServiceProvider;
+  /**
+   * Hero/OG image URL (relative or absolute).
+   * Resolved to absolute using `site`.
+   * Assumed dimensions 1200×630 when set.
+   */
+  image?: string;
+  /**
+   * Canonical URL for this service page (relative or absolute).
+   * Defaults to the current page URL (`Astro.url.href`).
+   */
+  url?: string;
+  /**
+   * Base URL used to resolve relative `url` and `image` props.
+   * Defaults to `Astro.site`. Must be an absolute URL.
+   */
+  site?: string | URL;
+  /** Extra schema.org PropertyValue pairs to attach as additionalProperty. */
+  additionalProperties?: ServiceProperty[];
+}
+
+const {
+  name,
+  description,
+  serviceType,
+  areaServed,
+  offers = {},
+  provider,
+  image,
+  url,
+  site = Astro.site,
+  additionalProperties,
+} = Astro.props;
+
+// Guard: render nothing when required fields are missing
+if (!name || !description) {
+  return null;
+}
+
+// --- URL resolution helpers ---
+const baseUrl = site ? new URL(String(site)).origin : '';
+
+function toAbsolute(path: string | undefined): string | undefined {
+  if (!path) return undefined;
+  if (/^https?:\/\//i.test(path)) return path;
+  return baseUrl ? `${baseUrl}${path.startsWith('/') ? '' : '/'}${path}` : path;
+}
+
+const pageUrl = toAbsolute(url) ?? Astro.url.href;
+const imageUrl = toAbsolute(image);
+
+// --- Build typed areaServed ---
+type PlaceNode = { '@type': string; name: string };
+
+function toPlaceNode(item: ServiceAreaItem | string): PlaceNode {
+  if (typeof item === 'string') {
+    return { '@type': 'Place', name: item };
+  }
+  return { '@type': item.type ?? 'Place', name: item.name };
+}
+
+let typedAreaServed: PlaceNode | PlaceNode[] | undefined;
+if (areaServed !== undefined) {
+  if (Array.isArray(areaServed)) {
+    typedAreaServed = (areaServed as Array<ServiceAreaItem | string>).map(toPlaceNode);
+  } else {
+    typedAreaServed = toPlaceNode(areaServed as ServiceAreaItem | string);
+  }
+}
+
+// --- Build offers block ---
+const currency = offers.priceCurrency ?? 'EUR';
+const availability = offers.availability ?? 'https://schema.org/InStock';
+const vatIncluded = offers.valueAddedTaxIncluded ?? false;
+
+let offersBlock: Record<string, unknown>;
+
+if (typeof offers.lowPrice === 'number' && typeof offers.highPrice === 'number') {
+  offersBlock = {
+    '@type': 'AggregateOffer',
+    lowPrice: offers.lowPrice,
+    highPrice: offers.highPrice,
+    offerCount: offers.offerCount ?? 3,
+    priceCurrency: currency,
+    availability,
+    priceSpecification: {
+      '@type': 'UnitPriceSpecification',
+      priceCurrency: currency,
+      valueAddedTaxIncluded: vatIncluded,
+    },
+  };
+} else {
+  offersBlock = {
+    '@type': 'Offer',
+    priceCurrency: currency,
+    availability,
+    validFrom: new Date().toISOString().split('T')[0],
+    priceSpecification: {
+      '@type': 'UnitPriceSpecification',
+      priceCurrency: currency,
+      valueAddedTaxIncluded: vatIncluded,
+    },
+  };
+}
+
+// --- Build provider block ---
+let providerBlock: Record<string, unknown> | undefined;
+if (provider) {
+  const providerUrl = toAbsolute(provider.url);
+  providerBlock = {
+    '@type': 'LocalBusiness',
+    '@id': provider.id ?? (providerUrl ? `${providerUrl}#organization` : undefined),
+    name: provider.name,
+    url: providerUrl,
+    ...(provider.telephone ? { telephone: provider.telephone } : {}),
+    ...(provider.email ? { email: provider.email } : {}),
+    ...(provider.address
+      ? {
+          address: {
+            '@type': 'PostalAddress',
+            streetAddress: provider.address.streetAddress,
+            addressLocality: provider.address.addressLocality,
+            addressRegion: provider.address.addressRegion,
+            postalCode: provider.address.postalCode,
+            addressCountry: provider.address.addressCountry,
+          },
+        }
+      : {}),
+  };
+}
+
+// --- Build additionalProperty block ---
+type PropertyValueNode = { '@type': 'PropertyValue'; name: string; value: string };
+let additionalPropertyBlock: PropertyValueNode[] | undefined;
+if (additionalProperties && additionalProperties.length > 0) {
+  additionalPropertyBlock = additionalProperties.map((p) => ({
+    '@type': 'PropertyValue' as const,
+    name: p.name,
+    value: p.value,
+  }));
+}
+
+// --- Assemble final schema ---
+const schema: Record<string, unknown> = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  '@id': `${pageUrl}#service`,
+  name,
+  description,
+  ...(serviceType ? { serviceType } : {}),
+  ...(providerBlock ? { provider: providerBlock } : {}),
+  ...(typedAreaServed !== undefined ? { areaServed: typedAreaServed } : {}),
+  offers: offersBlock,
+  ...(imageUrl
+    ? {
+        image: {
+          '@type': 'ImageObject',
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+        },
+      }
+    : {}),
+  ...(additionalPropertyBlock ? { additionalProperty: additionalPropertyBlock } : {}),
+};
+
+// --- Deep-clean: strip undefined values ---
+function cleanSchema(obj: unknown): unknown {
+  if (Array.isArray(obj)) return obj.map(cleanSchema);
+  if (obj !== null && typeof obj === 'object') {
+    return Object.fromEntries(
+      Object.entries(obj as Record<string, unknown>)
+        .filter(([, v]) => v !== undefined)
+        .map(([k, v]) => [k, cleanSchema(v)])
+    );
+  }
+  return obj;
+}
+
+const cleanedSchema = cleanSchema(schema);
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(cleanedSchema)} />
