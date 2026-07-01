@@ -5,13 +5,13 @@
 <h1 align="center">@wendermedia/astro-components</h1>
 
 <p align="center">
-  <strong>158 production-ready, accessible, GDPR-compliant Astro 6 components</strong><br />
+  <strong>158 production-ready, accessible, GDPR-compliant Astro 7 components</strong><br />
   Built by <a href="https://www.wendermedia.com">Wender Media</a> &mdash; Web Agency from Halle (Saale), Germany
 </p>
 
 <p align="center">
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-Wender%20Media%20Source%201.0-blue.svg" alt="Wender Media Source License v1.0" /></a>
-  <img src="https://img.shields.io/badge/Astro-6.x-BC52EE?logo=astro&logoColor=white" alt="Astro 6.x" />
+  <img src="https://img.shields.io/badge/Astro-6%20%7C%207-BC52EE?logo=astro&logoColor=white" alt="Astro 6 | 7" />
   <img src="https://img.shields.io/badge/Tailwind-4.x-06B6D4?logo=tailwindcss&logoColor=white" alt="Tailwind 4.x" />
   <img src="https://img.shields.io/badge/Node-22.12%2B-339933?logo=nodedotjs&logoColor=white" alt="Node 22.12+" />
   <img src="https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white" alt="TypeScript" />
@@ -45,9 +45,9 @@
 
 ---
 
-## What's new in 3.0
+## What's new in 4.0
 
-- **Astro 6 only** &mdash; full alignment with Astro 6 (`ClientRouter`, Content Layer API, native Vite 7/8).
+- **Astro 6 & 7** &mdash; runs on both majors (peer `astro@^6.0.0 || ^7.0.0`). Astro 7 brings the Rust compiler (default & only) and Vite 8; every component compiles clean on both.
 - **Tailwind 4** in templates via `@tailwindcss/vite` (`@astrojs/tailwind` was removed because it is EOL on Astro 6).
 - **Wender Media Source License v1.0** &mdash; source-available, free for commercial and non-commercial use, with an attribution recommendation (see [Attribution](#attribution-recommended)).
 - **Storybook 10** as the internal documentation runner.
@@ -93,10 +93,10 @@ See [docs/MIGRATION-2.x-to-3.0.md](./docs/MIGRATION-2.x-to-3.0.md) for the full 
 npm install @wendermedia/astro-components
 ```
 
-Make sure your project already has Astro 6 installed:
+Make sure your project already has Astro 6 or 7 installed:
 
 ```bash
-npm install astro@^6
+npm install astro@^7   # or astro@^6 — the package supports both
 ```
 
 Or install the components package directly from GitHub:
@@ -105,7 +105,7 @@ Or install the components package directly from GitHub:
 npm install git+https://github.com/arnoldwender/wm-project-astro-components.git
 ```
 
-> **Upgrading from 2.x?** Read [docs/MIGRATION-2.x-to-3.0.md](./docs/MIGRATION-2.x-to-3.0.md) first &mdash; it covers the Astro 6, Tailwind 4 and license model changes.
+> **Upgrading from 3.x?** Read [docs/MIGRATION-3.x-to-4.0.md](./docs/MIGRATION-3.x-to-4.0.md) &mdash; it covers Astro 7, the `^6 || ^7` peer range, and the `gsap` optional peer. Coming from 2.x? See [docs/MIGRATION-2.x-to-3.0.md](./docs/MIGRATION-2.x-to-3.0.md) first.
 
 ### CLI Scaffolding
 

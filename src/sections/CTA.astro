@@ -501,6 +501,7 @@ function initCTA() {
 
     if (showOnScroll && floatingCTA) {
       function checkScroll() {
+        if (!floatingCTA) return;
         const scrollY = window.scrollY;
         if (scrollY > showOnScroll) {
           floatingCTA.classList.remove('hidden');

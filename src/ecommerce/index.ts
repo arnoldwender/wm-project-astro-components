@@ -11,6 +11,9 @@
  * GDPR-friendly with no third-party tracking by default.
  */
 
+// Local type import for the helper-function signatures below (also re-exported).
+import type { WishlistItem } from './Wishlist.astro';
+
 export { default as Cart } from './Cart.astro';
 export { default as Wishlist } from './Wishlist.astro';
 export { default as ProductQuickView } from './ProductQuickView.astro';

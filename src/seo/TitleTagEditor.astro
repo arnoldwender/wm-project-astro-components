@@ -489,6 +489,7 @@ const instanceId = `tte-${Math.random().toString(36).slice(2, 9)}`;
       }
 
       function update() {
+        if (!input) return;
         const title = input.value;
         const len = title.length;
         const px = approximatePixelWidth(title);

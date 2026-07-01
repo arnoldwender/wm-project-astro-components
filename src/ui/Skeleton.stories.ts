@@ -121,7 +121,7 @@ const renderSkeleton = (args: Record<string, unknown>) => {
     `;
   }
 
-  let styles = '';
+  let styles: string;
   let radius = '0.25rem';
 
   switch (variant) {

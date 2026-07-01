@@ -37,7 +37,7 @@ const renderFooter = (args: Record<string, unknown>) => html`
       ${args.variant === 'minimal' ? html`
         <div style="display: flex; align-items: center; justify-content: space-between;">
           <span style="font-weight: 600;">${args.companyName}</span>
-          <span style="font-size: 0.875rem; color: ${args.variant === 'dark' ? '#94a3b8' : '#64748b'};">&copy; 2025 ${args.companyName}. All rights reserved.</span>
+          <span style="font-size: 0.875rem; color: ${(args.variant as string) === 'dark' ? '#94a3b8' : '#64748b'};">&copy; 2025 ${args.companyName}. All rights reserved.</span>
         </div>
       ` : html`
         <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 3rem; margin-bottom: 3rem;">

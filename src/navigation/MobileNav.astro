@@ -444,21 +444,25 @@ const currentPath = Astro.url.pathname;
 
     if (!trigger || !nav) return;
 
+    // Capture as non-null consts so TypeScript can narrow inside the closures below
+    const navEl: HTMLElement = nav;
+    const triggerEl: HTMLElement = trigger;
+
     function openNav() {
-      nav.setAttribute('aria-hidden', 'false');
-      trigger.setAttribute('aria-expanded', 'true');
+      navEl.setAttribute('aria-hidden', 'false');
+      triggerEl.setAttribute('aria-expanded', 'true');
       document.body.style.overflow = 'hidden';
     }
 
     function closeNav() {
-      nav.setAttribute('aria-hidden', 'true');
-      trigger.setAttribute('aria-expanded', 'false');
+      navEl.setAttribute('aria-hidden', 'true');
+      triggerEl.setAttribute('aria-expanded', 'false');
       document.body.style.overflow = '';
     }
 
-    trigger.addEventListener('click', () => {
-      const isOpen = nav.getAttribute('aria-hidden') === 'false';
-      isOpen ? closeNav() : openNav();
+    triggerEl.addEventListener('click', () => {
+      const isOpen = navEl.getAttribute('aria-hidden') === 'false';
+      if (isOpen) { closeNav(); } else { openNav(); }
     });
 
     closeBtn?.addEventListener('click', closeNav);

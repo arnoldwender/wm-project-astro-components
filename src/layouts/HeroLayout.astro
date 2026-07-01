@@ -151,7 +151,6 @@ const bgStyle = [
     ]}
   >
     {variant === 'split' ? (
-      <!-- Split Layout -->
       <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center w-full">
         <div class:list={['flex flex-col gap-6', textAlignClasses[textAlign]]}>
           <slot name="headline" />
@@ -165,7 +164,6 @@ const bgStyle = [
         </div>
       </div>
     ) : variant === 'stacked' ? (
-      <!-- Stacked Layout -->
       <div class:list={['flex flex-col gap-8 w-full', textAlignClasses[textAlign]]}>
         <div class="hero-media-top max-w-md mx-auto">
           <slot name="media" />
@@ -177,7 +175,6 @@ const bgStyle = [
         </div>
       </div>
     ) : (
-      <!-- Default/Centered/Left-aligned/Minimal -->
       <div class:list={['flex flex-col gap-6 w-full', textAlignClasses[textAlign]]}>
         <slot name="eyebrow" />
         <slot name="headline" />
