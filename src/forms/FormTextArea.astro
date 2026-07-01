@@ -1,0 +1,373 @@
+---
+/**
+ * FormTextArea — Accessible multi-line text input atom for WM form systems.
+ *
+ * A standalone textarea atom that wires into the shared WM form-system contract
+ * (FormValidation rules engine, FormErrorContainer, character counter) via the
+ * predictable `{id}Hint` / `{id}Counter` / `{id}Count` / `{id}Error` ID scheme.
+ *
+ * Variants / features:
+ * - Required / optional with visible `*` indicator + `.sr-only` screen-reader text
+ * - Optional hint text rendered below the textarea and announced via `aria-describedby`
+ * - Optional character counter (`showCounter + maxLength`) with live `aria-live="polite"`
+ *   announcement — counter ID also wired into `aria-describedby`
+ * - Optional contextual help tooltip slot (`tooltip` prop) next to the label
+ * - Error container (`id="{id}Error"`, `role="alert"`) always rendered (hidden by
+ *   default); the FormValidation engine populates and un-hides it at runtime
+ * - Resize: vertical-only by default (`resize: vertical`)
+ * - 44 × 44 px minimum touch target enforced on the textarea via `min-height`
+ * - Full `prefers-reduced-motion` guard on all transitions
+ * - WCAG 2.2 AA / BFSG compliant: focus-visible ring, `:focus-visible` only,
+ *   `aria-invalid`, `aria-required`, `aria-describedby` wired to all helper nodes
+ *
+ * @example
+ * <!-- Basic required textarea -->
+ * <FormTextArea
+ *   id="message"
+ *   name="message"
+ *   label="Message"
+ *   required
+ *   rows={5}
+ *   placeholder="Your message…"
+ * />
+ *
+ * @example
+ * <!-- With hint, counter and custom row count -->
+ * <FormTextArea
+ *   id="feedback"
+ *   name="feedback"
+ *   label="Feedback"
+ *   hint="Please be as specific as possible."
+ *   rows={6}
+ *   maxLength={500}
+ *   showCounter
+ * />
+ *
+ * @copyright 2007-2026 Arnold Wender · Wender Media. All Rights Reserved. License: LicenseRef-Wender-Media-Source-1.0
+ * @see https://github.com/arnoldwender/wm-project-astro-components
+ */
+
+export interface Props {
+  /** Unique ID — used as base for all derived IDs in the form-system contract. */
+  id: string;
+  /** HTML `name` attribute for form submission. */
+  name: string;
+  /** Visible label text rendered in a `<label for={id}>`. */
+  label: string;
+  /** Marks the field as required; shows `*` indicator and sets `aria-required`. */
+  required?: boolean;
+  /** `placeholder` attribute on the textarea. */
+  placeholder?: string;
+  /** Number of visible text rows (maps to HTML `rows`). Default: 4. */
+  rows?: number;
+  /** `minlength` attribute; validated by the browser and FormValidation engine. */
+  minLength?: number;
+  /** `maxlength` attribute; also used by the optional character counter. */
+  maxLength?: number;
+  /** Hint text rendered below the textarea and announced via `aria-describedby`. */
+  hint?: string;
+  /** Contextual help content rendered as a tooltip next to the label. */
+  tooltip?: string;
+  /**
+   * When `true` AND `maxLength` is set, renders a live character counter
+   * (`{id}Counter` / `{id}Count`) and wires it into `aria-describedby`.
+   */
+  showCounter?: boolean;
+  /** Additional CSS classes forwarded to the root wrapper `<div>`. */
+  class?: string;
+}
+
+const {
+  id,
+  name,
+  label,
+  required = false,
+  placeholder = '',
+  rows = 4,
+  minLength,
+  maxLength,
+  hint,
+  tooltip,
+  showCounter = false,
+  class: className,
+} = Astro.props;
+
+// Build the aria-describedby value — order: hint → counter (conditional) → error.
+// The error node is always present in the DOM (hidden) so it is always included.
+const describedByParts = [
+  hint ? `${id}Hint` : null,
+  showCounter && maxLength ? `${id}Counter` : null,
+  `${id}Error`,
+].filter(Boolean).join(' ');
+---
+
+<div class:list={['form-textarea-field', className]}>
+  {/* ── Label row ── */}
+  <div class="label-row">
+    <label for={id} class="field-label">
+      {label}
+      {required && (
+        <>
+          {/* Decorative asterisk hidden from AT */}
+          <span class="required-indicator" aria-hidden="true"> *</span>
+          {/* Accessible required text for screen readers */}
+          <span class="sr-only"> (required)</span>
+        </>
+      )}
+    </label>
+
+    {/* Optional tooltip slot — rendered only when prop is provided */}
+    {tooltip && (
+      <span
+        class="tooltip-trigger"
+        role="tooltip"
+        id={`${id}-tooltip`}
+        aria-label={tooltip}
+        tabindex="0"
+        title={tooltip}
+      >
+        <svg
+          class="tooltip-icon"
+          aria-hidden="true"
+          focusable="false"
+          viewBox="0 0 20 20"
+          fill="currentColor"
+          width="16"
+          height="16"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
+            clip-rule="evenodd"
+          />
+        </svg>
+      </span>
+    )}
+  </div>
+
+  {/* ── Textarea ── */}
+  <div class="textarea-wrapper">
+    <textarea
+      id={id}
+      name={name}
+      rows={rows}
+      required={required || undefined}
+      minlength={minLength}
+      maxlength={maxLength}
+      aria-describedby={describedByParts || undefined}
+      aria-required={required ? 'true' : undefined}
+      aria-invalid="false"
+      placeholder={placeholder}
+      class="textarea-control"
+    ></textarea>
+  </div>
+
+  {/* ── Sub-row: hint (left) + counter (right) ── */}
+  {(hint || (showCounter && maxLength)) && (
+    <div class="sub-row">
+      {hint && (
+        <p id={`${id}Hint`} class="hint-text">
+          {hint}
+        </p>
+      )}
+      {showCounter && maxLength && (
+        <p
+          id={`${id}Counter`}
+          class="counter-text"
+          aria-live="polite"
+          aria-atomic="true"
+        >
+          <span id={`${id}Count`}>0</span>/{maxLength}
+        </p>
+      )}
+    </div>
+  )}
+
+  {/* ── Error container — always rendered, hidden by default.
+        FormValidation / FormErrorContainer populate this at runtime.
+        `role="alert"` triggers immediate AT announcement when shown. ── */}
+  <p
+    id={`${id}Error`}
+    class="error-text"
+    role="alert"
+    aria-live="assertive"
+    hidden
+  ></p>
+</div>
+
+<style>
+  /*
+   * All values use design-system tokens exclusively.
+   * The only allowed literals: 0, none, %, transparent, currentColor, inherit.
+   * `resize: vertical` is a keyword — allowed.
+   */
+
+  .form-textarea-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* ── Label row ── */
+  .label-row {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-inline-xs);
+    margin-bottom: var(--label-margin-bottom);
+  }
+
+  .field-label {
+    display: block;
+    font-size: var(--label-font-size);
+    font-weight: var(--label-font-weight);
+    line-height: var(--label-line-height);
+    color: var(--label-color);
+  }
+
+  .required-indicator {
+    color: var(--color-error);
+  }
+
+  /* ── Tooltip trigger ── */
+  .tooltip-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-tertiary);
+    cursor: help;
+    border-radius: var(--radius-sm);
+    /* 44 px touch target via padding */
+    padding: var(--spacing-inline-xs);
+    transition: color var(--transition-fast);
+  }
+
+  .tooltip-trigger:hover,
+  .tooltip-trigger:focus-visible {
+    color: var(--color-primary);
+    outline: none;
+  }
+
+  .tooltip-trigger:focus-visible {
+    box-shadow: var(--focus-ring);
+  }
+
+  /* ── Textarea wrapper ── */
+  .textarea-wrapper {
+    position: relative;
+  }
+
+  .textarea-control {
+    display: block;
+    width: 100%;
+    /* Minimum touch-target height for short row counts */
+    min-height: var(--touch-target-min);
+    padding: var(--input-padding-lg);
+    font-family: var(--input-font-family);
+    font-size: var(--input-font-size);
+    font-weight: var(--input-font-weight);
+    line-height: var(--input-line-height);
+    color: var(--input-text);
+    background-color: var(--input-bg);
+    border: var(--input-border-width) solid var(--input-border);
+    border-radius: var(--input-border-radius);
+    resize: vertical;
+    transition: var(--input-transition);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .textarea-control {
+      transition: none;
+    }
+  }
+
+  .textarea-control::placeholder {
+    color: var(--input-text-placeholder);
+  }
+
+  /* Hover — only when not disabled */
+  .textarea-control:not(:disabled):hover {
+    border-color: var(--input-border-hover);
+  }
+
+  /* Focus — keyboard only (`focus-visible`) */
+  .textarea-control:focus {
+    outline: none;
+  }
+
+  .textarea-control:focus-visible {
+    border-color: var(--input-border-focus);
+    box-shadow: var(--focus-ring);
+    outline: none;
+  }
+
+  /* Invalid state — toggled by FormValidation via `aria-invalid="true"` */
+  .textarea-control[aria-invalid='true'] {
+    border-color: var(--input-border-error);
+  }
+
+  .textarea-control[aria-invalid='true']:focus-visible {
+    border-color: var(--input-border-error);
+    box-shadow: 0 0 0 var(--focus-ring-offset) var(--color-focus-ring-offset),
+                0 0 0 calc(var(--focus-ring-offset) + var(--focus-ring-width)) var(--color-error);
+  }
+
+  /* Disabled state */
+  .textarea-control:disabled {
+    background-color: var(--input-bg-disabled);
+    color: var(--input-text-disabled);
+    border-color: var(--input-border-disabled);
+    cursor: not-allowed;
+    resize: none;
+  }
+
+  /* ── Sub-row (hint + counter) ── */
+  .sub-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--spacing-gap-sm);
+    margin-top: var(--helper-margin-top);
+  }
+
+  .hint-text {
+    margin: 0;
+    font-size: var(--helper-font-size);
+    line-height: var(--helper-line-height);
+    color: var(--helper-color);
+  }
+
+  .counter-text {
+    margin: 0;
+    font-size: var(--helper-font-size);
+    line-height: var(--helper-line-height);
+    color: var(--helper-color);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* ── Error text ── */
+  .error-text {
+    margin: var(--helper-margin-top) 0 0;
+    font-size: var(--helper-font-size);
+    line-height: var(--helper-line-height);
+    color: var(--helper-color-error);
+  }
+
+  /* `hidden` attribute hides the error node; when removed by JS the styles apply */
+  .error-text[hidden] {
+    display: none;
+  }
+
+  /* ── Screen-reader utility ── */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+</style>

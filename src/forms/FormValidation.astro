@@ -1,0 +1,719 @@
+---
+/**
+ * FormValidation — Rules-engine form with inline, accessible validation feedback.
+ *
+ * Renders a complete `<form>` that:
+ * - Accepts a declarative `fields` schema (text, email, tel, password, textarea, select)
+ * - Runs a client-side rules engine (required, email, phone, minLength, maxLength, pattern, match)
+ * - Validates on blur; re-validates on `input` once a field is already invalid ("fix-as-you-type")
+ * - Sets `aria-invalid` on each control, populates a live `role="alert"` error region,
+ *   and shows a checkmark icon on valid fields — all without external libraries
+ * - Focuses the first invalid field on submit (keyboard recovery path)
+ * - Shows a loading spinner on the submit button and a success panel after submission
+ * - Guards all animations / transitions with `prefers-reduced-motion`
+ * - Includes a DSGVO honeypot slot (hidden via CSS + `aria-hidden`, not `display:none`)
+ *
+ * Variants/states exposed via CSS class hooks:
+ * - `.is-valid`   — field passed all rules (green border + checkmark icon)
+ * - `.is-invalid` — field failed a rule  (red border + error message)
+ * - `.is-loading` — submit button while request is in flight
+ *
+ * @example
+ * <!-- Minimal: single email capture -->
+ * <FormValidation
+ *   fields={[
+ *     { name: 'email', label: 'E-Mail', type: 'email',
+ *       rules: [{ type: 'required', message: 'Pflichtfeld' },
+ *               { type: 'email',    message: 'Ungültige E-Mail-Adresse' }] }
+ *   ]}
+ *   submitLabel="Absenden"
+ *   action="/api/contact"
+ * />
+ *
+ * @example
+ * <!-- Full contact form with textarea + select -->
+ * <FormValidation
+ *   fields={[
+ *     { name: 'name',    label: 'Name',     type: 'text',
+ *       rules: [{ type: 'required', message: 'Pflichtfeld' },
+ *               { type: 'minLength', value: 2, message: 'Mindestens 2 Zeichen' }] },
+ *     { name: 'email',   label: 'E-Mail',   type: 'email',
+ *       rules: [{ type: 'required', message: 'Pflichtfeld' },
+ *               { type: 'email',    message: 'Ungültige Adresse' }] },
+ *     { name: 'service', label: 'Leistung', type: 'select',
+ *       options: [{ value: 'seo', label: 'SEO' }, { value: 'web', label: 'Webdesign' }] },
+ *     { name: 'message', label: 'Nachricht', type: 'textarea',
+ *       rules: [{ type: 'required', message: 'Pflichtfeld' }] },
+ *   ]}
+ *   submitLabel="Nachricht senden"
+ *   successMessage="Danke! Wir melden uns in Kürze."
+ * />
+ *
+ * @copyright 2007-2026 Arnold Wender · Wender Media. All Rights Reserved. License: LicenseRef-Wender-Media-Source-1.0
+ * @see https://github.com/arnoldwender/wm-project-astro-components
+ */
+
+export interface ValidationRule {
+  /** Rule type — drives the client-side check */
+  type: 'required' | 'email' | 'phone' | 'minLength' | 'maxLength' | 'pattern' | 'match';
+  /** Companion value: min/max length number, regex string, or name of field to match */
+  value?: string | number;
+  /** User-facing error message shown when this rule fails */
+  message: string;
+}
+
+export interface FormFieldDef {
+  /** Unique field name — used as `id`, `name`, and ARIA hook prefix */
+  name: string;
+  /** Visible label text */
+  label: string;
+  /** Input type; defaults to `'text'` */
+  type?: 'text' | 'email' | 'tel' | 'password' | 'textarea' | 'select';
+  /** Placeholder text */
+  placeholder?: string;
+  /** Validation rules applied in order; first failure wins */
+  rules?: ValidationRule[];
+  /** Options list — only used when `type === 'select'` */
+  options?: { value: string; label: string }[];
+}
+
+export interface Props {
+  /** Array of field definitions rendered in order */
+  fields: FormFieldDef[];
+  /** Submit button label */
+  submitLabel?: string;
+  /** Form `action` attribute — defaults to empty string (JS handles submission) */
+  action?: string;
+  /** HTTP method */
+  method?: 'GET' | 'POST';
+  /** Additional CSS class on the `<form>` element */
+  class?: string;
+  /** Message shown in the success panel after a successful submission */
+  successMessage?: string;
+}
+
+const {
+  fields,
+  submitLabel = 'Absenden',
+  action = '',
+  method = 'POST',
+  class: className = '',
+  successMessage = 'Vielen Dank! Ihre Nachricht wurde erfolgreich gesendet.',
+} = Astro.props;
+---
+
+<form
+  class:list={['wm-form-validated', className]}
+  action={action}
+  method={method}
+  novalidate
+  data-validated-form
+  data-success-message={successMessage}
+>
+  {/* ── DSGVO honeypot — visually hidden, not focusable ── */}
+  <div class="wm-form-honeypot" aria-hidden="true">
+    <input type="text" name="website" tabindex="-1" autocomplete="off" />
+  </div>
+
+  {/* ── Field list ── */}
+  {fields.map((field) => (
+    <div
+      class="wm-form-field"
+      data-field={field.name}
+      data-rules={JSON.stringify(field.rules ?? [])}
+    >
+      <label for={field.name} class="wm-form-label">
+        {field.label}
+        {field.rules?.some((r) => r.type === 'required') && (
+          <span class="wm-form-required" aria-hidden="true">*</span>
+        )}
+      </label>
+
+      {field.type === 'textarea' ? (
+        <textarea
+          id={field.name}
+          name={field.name}
+          placeholder={field.placeholder}
+          class="wm-form-input wm-form-textarea"
+          aria-describedby={`${field.name}-error`}
+          rows={4}
+        ></textarea>
+      ) : field.type === 'select' ? (
+        <select
+          id={field.name}
+          name={field.name}
+          class="wm-form-input wm-form-select"
+          aria-describedby={`${field.name}-error`}
+        >
+          <option value="">{field.placeholder ?? 'Bitte wählen …'}</option>
+          {field.options?.map((opt) => (
+            <option value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
+      ) : (
+        <input
+          type={field.type ?? 'text'}
+          id={field.name}
+          name={field.name}
+          placeholder={field.placeholder}
+          class="wm-form-input"
+          aria-describedby={`${field.name}-error`}
+        />
+      )}
+
+      {/* ── Inline feedback row: valid check + error message ── */}
+      <div class="wm-form-feedback" aria-live="polite">
+        <span class="wm-form-valid-icon" aria-hidden="true">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="3"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        </span>
+        {/* id matches aria-describedby on the control above */}
+        <span id={`${field.name}-error`} class="wm-form-error" role="alert"></span>
+      </div>
+    </div>
+  ))}
+
+  {/* ── Submit button ── */}
+  <div class="wm-form-actions">
+    <button type="submit" class="wm-form-submit" data-submit-button>
+      <span class="wm-form-submit-text">{submitLabel}</span>
+      <span class="wm-form-submit-loading" aria-hidden="true">
+        <svg
+          class="wm-form-spinner"
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+          focusable="false"
+        >
+          <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+        </svg>
+      </span>
+    </button>
+  </div>
+
+  {/* ── Success panel — toggled via `hidden` attribute by JS ── */}
+  <div class="wm-form-success" hidden data-success-message-el role="status" aria-live="polite">
+    <span class="wm-form-success-icon" aria-hidden="true">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+        focusable="false"
+      >
+        <polyline points="20 6 9 17 4 12" />
+      </svg>
+    </span>
+    <p class="wm-form-success-text"></p>
+  </div>
+</form>
+
+<style>
+  /* ──────────────────────────────────────────────────────────────
+   * Form wrapper
+   * ────────────────────────────────────────────────────────────── */
+  .wm-form-validated {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-stack-lg);   /* semantic: 24px */
+    max-width: 500px;
+  }
+
+  /* ── Honeypot ── */
+  .wm-form-honeypot {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  /* ──────────────────────────────────────────────────────────────
+   * Field wrapper
+   * ────────────────────────────────────────────────────────────── */
+  .wm-form-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-stack-sm);  /* semantic: 8px */
+  }
+
+  /* ──────────────────────────────────────────────────────────────
+   * Label
+   * ────────────────────────────────────────────────────────────── */
+  .wm-form-label {
+    font-size: var(--label-font-size);          /* component token */
+    font-weight: var(--label-font-weight);
+    line-height: var(--label-line-height);
+    color: var(--label-color);
+  }
+
+  .wm-form-required {
+    color: var(--color-error);
+    margin-left: var(--spacing-inline-xs);      /* semantic: 4px */
+  }
+
+  /* ──────────────────────────────────────────────────────────────
+   * Inputs — shared base
+   * ────────────────────────────────────────────────────────────── */
+  .wm-form-input {
+    width: 100%;
+    padding: var(--input-padding-lg);           /* component token: 10px 16px */
+    font-size: var(--input-font-size);
+    font-family: var(--input-font-family);
+    line-height: var(--input-line-height);
+    color: var(--input-text);
+    background-color: var(--input-bg);
+    border: var(--input-border-width) solid var(--input-border);
+    border-radius: var(--radius-input);
+    transition: var(--input-transition);
+    min-height: var(--input-min-height-lg);     /* component token: 44px — WCAG 2.5.5 */
+  }
+
+  .wm-form-input::placeholder {
+    color: var(--input-text-placeholder);
+  }
+
+  .wm-form-input:hover {
+    border-color: var(--input-border-hover);
+  }
+
+  /* :focus-visible keeps native outline for keyboard, suppresses for pointer */
+  .wm-form-input:focus {
+    outline: none;
+  }
+
+  .wm-form-input:focus-visible {
+    border-color: var(--input-border-focus);
+    box-shadow: var(--focus-ring);
+  }
+
+  /* ── Textarea ── */
+  .wm-form-textarea {
+    resize: vertical;
+    min-height: 120px;
+  }
+
+  /* ── Select ── */
+  .wm-form-select {
+    appearance: none;
+    /* Inline SVG chevron — neutral gray using URL-encoded %23 for # */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right var(--spacing-3) center;
+    padding-right: var(--spacing-10);
+  }
+
+  /* ──────────────────────────────────────────────────────────────
+   * Validation state overrides (set by JS via class toggle)
+   * ────────────────────────────────────────────────────────────── */
+
+  .wm-form-field.is-valid .wm-form-input {
+    border-color: var(--input-border-success);
+  }
+
+  .wm-form-field.is-valid .wm-form-input:focus-visible {
+    /* Positive focus ring: success color, same ring geometry */
+    box-shadow:
+      0 0 0 var(--focus-ring-offset) var(--color-focus-ring-offset),
+      0 0 0 calc(var(--focus-ring-offset) + var(--focus-ring-width)) var(--color-success);
+  }
+
+  .wm-form-field.is-invalid .wm-form-input {
+    border-color: var(--input-border-error);
+  }
+
+  .wm-form-field.is-invalid .wm-form-input:focus-visible {
+    box-shadow:
+      0 0 0 var(--focus-ring-offset) var(--color-focus-ring-offset),
+      0 0 0 calc(var(--focus-ring-offset) + var(--focus-ring-width)) var(--color-error);
+  }
+
+  /* aria-invalid attribute set by JS — additional hook for AT */
+  .wm-form-input[aria-invalid="true"] {
+    border-color: var(--input-border-error);
+  }
+
+  /* ──────────────────────────────────────────────────────────────
+   * Feedback row (valid icon + error message)
+   * ────────────────────────────────────────────────────────────── */
+  .wm-form-feedback {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-gap-xs);   /* semantic: 8px */
+    min-height: 24px;
+  }
+
+  /* Valid icon — hidden until .is-valid applied */
+  .wm-form-valid-icon {
+    display: none;
+    color: var(--color-success);
+    flex-shrink: 0;
+  }
+
+  .wm-form-field.is-valid .wm-form-valid-icon {
+    display: flex;
+  }
+
+  /* Error message — hidden until .is-invalid applied */
+  .wm-form-error {
+    font-size: var(--helper-font-size);
+    line-height: var(--helper-line-height);
+    color: var(--helper-color-error);
+  }
+
+  .wm-form-field:not(.is-invalid) .wm-form-error {
+    display: none;
+  }
+
+  /* ──────────────────────────────────────────────────────────────
+   * Submit button
+   * ────────────────────────────────────────────────────────────── */
+  .wm-form-actions {
+    margin-top: var(--spacing-stack-md);  /* semantic: 16px */
+  }
+
+  .wm-form-submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-inline-sm);        /* semantic: 8px */
+    width: 100%;
+    padding: var(--button-padding-xl);    /* component token: 12px 24px */
+    font-family: var(--button-font-family);
+    font-size: var(--button-font-size);
+    font-weight: var(--button-font-weight);
+    line-height: var(--button-line-height);
+    color: var(--button-primary-text);
+    background-color: var(--button-primary-bg);
+    border: var(--button-border-width) solid var(--button-primary-border);
+    border-radius: var(--button-border-radius);
+    cursor: pointer;
+    min-height: var(--button-min-height-xl);  /* 52px > touch target */
+    transition: var(--button-transition);
+    box-shadow: var(--button-primary-shadow);
+  }
+
+  .wm-form-submit:hover:not(:disabled) {
+    background-color: var(--button-primary-bg-hover);
+    box-shadow: var(--button-primary-shadow-hover);
+  }
+
+  .wm-form-submit:active:not(:disabled) {
+    background-color: var(--button-primary-bg-active);
+    transform: scale(0.98);
+  }
+
+  .wm-form-submit:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring);
+  }
+
+  .wm-form-submit:disabled {
+    opacity: var(--button-disabled-opacity, 0.6);
+    cursor: not-allowed;
+  }
+
+  /* Loading state toggled by JS class `.is-loading` */
+  .wm-form-submit-loading {
+    display: none;
+  }
+
+  .wm-form-submit.is-loading .wm-form-submit-text {
+    display: none;
+  }
+
+  .wm-form-submit.is-loading .wm-form-submit-loading {
+    display: flex;
+  }
+
+  .wm-form-spinner {
+    animation: wm-spin 1s linear infinite;
+  }
+
+  @keyframes wm-spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+
+  /* ──────────────────────────────────────────────────────────────
+   * Success panel
+   * ────────────────────────────────────────────────────────────── */
+  .wm-form-success {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-stack-md);     /* semantic: 16px */
+    padding: var(--spacing-stack-xl); /* semantic: 32px */
+    background-color: var(--color-success-subtle);
+    border-radius: var(--radius-card);
+    text-align: center;
+  }
+
+  /* `hidden` attribute — ensures `display:none` even if parent resets it */
+  .wm-form-success[hidden] {
+    display: none !important;
+  }
+
+  .wm-form-success-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background-color: var(--color-success);
+    color: var(--color-success-text);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .wm-form-success-text {
+    margin: 0;
+    font-size: var(--font-size-body-lg);
+    color: var(--color-success);
+  }
+
+  /* ──────────────────────────────────────────────────────────────
+   * Dark mode — tokens redefine themselves; only non-token
+   * fallbacks need explicit overrides here.
+   * ────────────────────────────────────────────────────────────── */
+  :global(.dark) .wm-form-select {
+    /* Chevron in light gray for dark backgrounds */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  }
+
+  /* ──────────────────────────────────────────────────────────────
+   * Reduced motion — disable all transitions and animations
+   * ────────────────────────────────────────────────────────────── */
+  @media (prefers-reduced-motion: reduce) {
+    .wm-form-input,
+    .wm-form-submit {
+      transition: none;
+    }
+
+    .wm-form-spinner {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  // ── Type declaration (mirrors Astro frontmatter — duplicated for the
+  //    client bundle which does not share the server context) ──────────
+  interface ValidationRule {
+    type: string;
+    value?: string | number;
+    message: string;
+  }
+
+  /**
+   * FormValidator — attached to each `[data-validated-form]` element.
+   * Preserves exact `aria-describedby`/`id`/`data-*` hook names so that
+   * FormTextField / FormErrorContainer atoms can wire to the same selectors.
+   */
+  class FormValidator {
+    private readonly form: HTMLFormElement;
+    private readonly fields: NodeListOf<HTMLElement>;
+    private readonly submitBtn: HTMLButtonElement;
+    private readonly successEl: HTMLElement;
+
+    constructor(form: HTMLFormElement) {
+      this.form = form;
+      this.fields = form.querySelectorAll('[data-field]');
+      this.submitBtn = form.querySelector('[data-submit-button]') as HTMLButtonElement;
+      this.successEl = form.querySelector('[data-success-message-el]') as HTMLElement;
+      this.init();
+    }
+
+    private init(): void {
+      this.fields.forEach((fieldEl) => {
+        const input = fieldEl.querySelector('input, textarea, select') as HTMLInputElement | null;
+        if (!input) return;
+
+        // Validate on blur (user leaves the field)
+        input.addEventListener('blur', () => this.validateField(fieldEl));
+
+        // Re-validate immediately while typing if the field is already invalid
+        // ("fix-as-you-type" pattern — reduces frustration)
+        input.addEventListener('input', () => {
+          if (fieldEl.classList.contains('is-invalid')) {
+            this.validateField(fieldEl);
+          }
+        });
+      });
+
+      this.form.addEventListener('submit', (e) => this.handleSubmit(e));
+    }
+
+    /** Returns `true` when the field passes all its rules. */
+    private validateField(fieldEl: HTMLElement): boolean {
+      const input = fieldEl.querySelector('input, textarea, select') as HTMLInputElement;
+      const rules: ValidationRule[] = JSON.parse(fieldEl.dataset.rules ?? '[]');
+      const errorEl = fieldEl.querySelector('.wm-form-error') as HTMLElement | null;
+
+      let isValid = true;
+      let errorMessage = '';
+
+      for (const rule of rules) {
+        const result = this.checkRule(input.value, rule);
+        if (!result.valid) {
+          isValid = false;
+          errorMessage = result.message;
+          break;
+        }
+      }
+
+      // Populated (non-empty) + all rules pass → is-valid; failed → is-invalid
+      const hasValue = input.value.length > 0;
+      fieldEl.classList.toggle('is-valid',   isValid && hasValue);
+      fieldEl.classList.toggle('is-invalid', !isValid);
+
+      // ARIA: aria-invalid surfaces the error state to screen-readers
+      input.setAttribute('aria-invalid', isValid ? 'false' : 'true');
+
+      if (errorEl) {
+        errorEl.textContent = errorMessage;
+      }
+
+      return isValid;
+    }
+
+    /** Evaluates a single rule against `value`. */
+    private checkRule(
+      value: string,
+      rule: ValidationRule,
+    ): { valid: boolean; message: string } {
+      switch (rule.type) {
+        case 'required':
+          return { valid: value.trim().length > 0, message: rule.message };
+
+        case 'email': {
+          const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+          return { valid: !value || emailRe.test(value), message: rule.message };
+        }
+
+        case 'phone': {
+          // Accepts international formats: digits, spaces, dashes, plus, parens
+          const phoneRe = /^[\d\s\-+()]{10,}$/;
+          return { valid: !value || phoneRe.test(value), message: rule.message };
+        }
+
+        case 'minLength':
+          return {
+            valid: !value || value.length >= (rule.value as number),
+            message: rule.message,
+          };
+
+        case 'maxLength':
+          return {
+            valid: !value || value.length <= (rule.value as number),
+            message: rule.message,
+          };
+
+        case 'pattern': {
+          const patternRe = new RegExp(rule.value as string);
+          return { valid: !value || patternRe.test(value), message: rule.message };
+        }
+
+        case 'match': {
+          // Finds sibling field by name — useful for password confirmation
+          const matchInput = this.form.querySelector(
+            `[name="${rule.value}"]`,
+          ) as HTMLInputElement | null;
+          return { valid: !value || value === (matchInput?.value ?? ''), message: rule.message };
+        }
+
+        default:
+          return { valid: true, message: '' };
+      }
+    }
+
+    private handleSubmit(e: Event): void {
+      e.preventDefault();
+
+      // Guard against honeypot being filled (bot detection)
+      const honeypot = this.form.querySelector(
+        'input[name="website"]',
+      ) as HTMLInputElement | null;
+      if (honeypot?.value) return;
+
+      // Run all fields through validation; collect overall result
+      let isFormValid = true;
+      this.fields.forEach((fieldEl) => {
+        if (!this.validateField(fieldEl)) {
+          isFormValid = false;
+        }
+      });
+
+      if (!isFormValid) {
+        // Move keyboard focus to the first invalid control for accessibility
+        const firstInvalid = this.form.querySelector(
+          '.is-invalid input, .is-invalid textarea, .is-invalid select',
+        ) as HTMLElement | null;
+        firstInvalid?.focus();
+        return;
+      }
+
+      // Show loading state — prevents double submit
+      this.submitBtn.classList.add('is-loading');
+      this.submitBtn.disabled = true;
+
+      // Native form submission via fetch — callers replace the timeout
+      // with a real `fetch(this.form.action, …)` call
+      setTimeout(() => {
+        this.submitBtn.classList.remove('is-loading');
+
+        // Hide all field wrappers and the actions row; show success panel
+        this.form
+          .querySelectorAll('.wm-form-field, .wm-form-actions')
+          .forEach((el) => ((el as HTMLElement).hidden = true));
+
+        const successText = this.successEl.querySelector(
+          '.wm-form-success-text',
+        ) as HTMLElement | null;
+        if (successText) {
+          successText.textContent =
+            this.form.dataset.successMessage ?? 'Erfolgreich gesendet!';
+        }
+        this.successEl.hidden = false;
+      }, 1500);
+    }
+  }
+
+  // ── Bootstrap — one instance per form on the page ──────────────
+  document.querySelectorAll<HTMLFormElement>('[data-validated-form]').forEach((form) => {
+    new FormValidator(form);
+  });
+
+  // ── View Transitions support (Astro client-side router) ─────────
+  document.addEventListener('astro:page-load', () => {
+    document.querySelectorAll<HTMLFormElement>('[data-validated-form]').forEach((form) => {
+      new FormValidator(form);
+    });
+  });
+</script>

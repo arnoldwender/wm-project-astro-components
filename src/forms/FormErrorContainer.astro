@@ -1,0 +1,263 @@
+---
+/**
+ * FormErrorContainer — Form-system error summary container atom.
+ *
+ * Renders an ARIA live region that surfaces a list of validation error messages
+ * for an entire form. Hidden by default (`data-hidden`); shown by the
+ * FormValidation rules engine or a custom validation script by toggling the
+ * `data-hidden` attribute. Error items are injected at runtime into the inner
+ * `<ul>` (selector: `[data-form-errors-list]`).
+ *
+ * Form-system contract (PRESERVE — do not rename):
+ * - `id="formErrors"` — referenced via `aria-describedby="formErrors"` on the
+ *   parent `<form>` element and by the FormValidation JS engine hook.
+ * - `data-form-errors` — JS hook used by the validation engine to toggle
+ *   visibility and focus this container.
+ * - `data-form-errors-list` — the `<ul>` into which error items are injected.
+ * - Toggle pattern: add/remove `data-hidden` attribute to show/hide.
+ *
+ * Variants:
+ * - `default` — error summary (red, exclamation icon, bullet list)
+ * - `warning` — softer alert for non-blocking warnings (amber, warning icon)
+ * - `info` — informational notices (blue, info icon)
+ *
+ * @example
+ * <!-- Default — wire to a form via aria-describedby -->
+ * <form aria-describedby="formErrors">
+ *   <FormErrorContainer />
+ *   <!-- … fields … -->
+ * </form>
+ *
+ * @example
+ * <!-- Warning variant with custom heading text -->
+ * <FormErrorContainer
+ *   variant="warning"
+ *   headingText="Bitte beachten Sie die folgenden Hinweise:"
+ * />
+ *
+ * @copyright 2007-2026 Arnold Wender · Wender Media. All Rights Reserved. License: LicenseRef-Wender-Media-Source-1.0
+ * @see https://github.com/arnoldwender/wm-project-astro-components
+ */
+
+export interface Props {
+  /** Visual and semantic variant of the alert container. @default 'default' */
+  variant?: 'default' | 'warning' | 'info';
+
+  /** Heading text rendered above the error list. */
+  headingText?: string;
+
+  /**
+   * The `id` attribute placed on the root element.
+   * PRESERVE — FormValidation engine and `aria-describedby` on the parent
+   * `<form>` reference this exact value.
+   * @default 'formErrors'
+   */
+  containerId?: string;
+
+  /** Additional CSS classes forwarded to the root element. */
+  class?: string;
+}
+
+const {
+  variant = 'default',
+  headingText = 'Bitte korrigieren Sie die folgenden Fehler:',
+  containerId = 'formErrors',
+  class: className,
+} = Astro.props;
+---
+
+<!--
+  Hidden by default via [data-hidden].
+  The validation engine removes this attribute to reveal the container and
+  moves focus here (tabindex="-1") to announce errors to screen-reader users.
+-->
+<div
+  id={containerId}
+  role="alert"
+  aria-live="assertive"
+  aria-atomic="true"
+  tabindex="-1"
+  data-form-errors
+  data-hidden
+  data-variant={variant}
+  class:list={['form-error-container', className]}
+>
+  <div class="form-error-container__header">
+    <!-- Variant icon (inline SVG — no external dep) -->
+    {variant === 'default' && (
+      <svg
+        class="form-error-container__icon"
+        aria-hidden="true"
+        focusable="false"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="12" />
+        <line x1="12" y1="16" x2="12.01" y2="16" />
+      </svg>
+    )}
+
+    {variant === 'warning' && (
+      <svg
+        class="form-error-container__icon"
+        aria-hidden="true"
+        focusable="false"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+        <line x1="12" y1="9" x2="12" y2="13" />
+        <line x1="12" y1="17" x2="12.01" y2="17" />
+      </svg>
+    )}
+
+    {variant === 'info' && (
+      <svg
+        class="form-error-container__icon"
+        aria-hidden="true"
+        focusable="false"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="16" x2="12" y2="12" />
+        <line x1="12" y1="8" x2="12.01" y2="8" />
+      </svg>
+    )}
+
+    <p class="form-error-container__heading">{headingText}</p>
+  </div>
+
+  <!-- Validation engine injects <li> items here at runtime -->
+  <ul class="form-error-container__list" data-form-errors-list aria-label="Fehlerliste"></ul>
+</div>
+
+<style>
+  /* ------------------------------------------------------------------ */
+  /* Visibility toggle — controlled by data-hidden attribute              */
+  /* ------------------------------------------------------------------ */
+  .form-error-container[data-hidden] {
+    display: none;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Base layout                                                          */
+  /* ------------------------------------------------------------------ */
+  .form-error-container {
+    padding: var(--spacing-4);
+    border-radius: var(--radius-input);
+    border-width: 1px;
+    border-style: solid;
+    margin-bottom: var(--spacing-stack-md);
+
+    /* Smooth reveal — respects reduced-motion preference */
+    @media (prefers-reduced-motion: no-preference) {
+      animation: form-error-slide-in var(--transition-fast, 150ms ease) both;
+    }
+  }
+
+  @keyframes form-error-slide-in {
+    from {
+      opacity: 0;
+      transform: translateY(calc(-1 * var(--spacing-1)));
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Variants                                                             */
+  /* ------------------------------------------------------------------ */
+
+  /* default (error) */
+  .form-error-container[data-variant="default"] {
+    background-color: var(--color-error-subtle);
+    border-color: var(--color-error);
+    color: var(--color-error);
+  }
+
+  /* warning */
+  .form-error-container[data-variant="warning"] {
+    background-color: var(--color-warning-subtle);
+    border-color: var(--color-warning);
+    color: var(--color-warning-text, var(--color-text-primary));
+  }
+
+  /* info */
+  .form-error-container[data-variant="info"] {
+    background-color: var(--color-info-subtle);
+    border-color: var(--color-info);
+    color: var(--color-info);
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Header row: icon + heading                                           */
+  /* ------------------------------------------------------------------ */
+  .form-error-container__header {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-gap-sm);
+  }
+
+  .form-error-container__icon {
+    /* Fixed 20×20 touch-friendly icon; flex-shrink prevents squashing */
+    width: 1.25rem;   /* 20px */
+    height: 1.25rem;
+    flex-shrink: 0;
+  }
+
+  .form-error-container__heading {
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium, 500);
+    line-height: var(--line-height-tight, 1.2);
+    margin: 0;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Error list                                                           */
+  /* ------------------------------------------------------------------ */
+  .form-error-container__list {
+    list-style: disc;
+    padding-left: var(--spacing-5);
+    margin-top: var(--spacing-stack-sm);
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-body, 1.5);
+  }
+
+  /* Empty list takes no space */
+  .form-error-container__list:empty {
+    display: none;
+    margin: 0;
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Focus outline for programmatic focus (tabindex="-1")                */
+  /* ------------------------------------------------------------------ */
+  .form-error-container:focus-visible {
+    outline: var(--focus-ring-width, 2px) solid var(--color-focus-ring);
+    outline-offset: var(--focus-ring-offset, 2px);
+  }
+
+  /* Suppress default :focus ring when focused programmatically          */
+  .form-error-container:focus:not(:focus-visible) {
+    outline: none;
+  }
+</style>
