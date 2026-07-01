@@ -1,0 +1,263 @@
+---
+/**
+ * PrivacyCheckbox — DSGVO/GDPR consent checkbox atom for WM form system.
+ *
+ * Renders a styled, accessible checkbox that requires explicit user consent to a
+ * privacy policy before a form may be submitted. Wires into the shared form-system
+ * contract via the `id="privacy"` / `aria-describedby="privacyError"` selectors used
+ * by FormValidation and FormErrorContainer atoms — do NOT rename these attributes.
+ *
+ * Variants (controlled by consumer layout):
+ *   - Default: standalone atom, drop into any form `<form>` element
+ *   - Checked state: highlighted border + subtle tinted background via CSS `:has()`
+ *   - Error state: `privacyError` container becomes visible; `aria-invalid` set by JS
+ *
+ * @example
+ * <!-- Minimal — German defaults -->
+ * <PrivacyCheckbox privacyUrl="/datenschutz/" />
+ *
+ * @example
+ * <!-- English privacy policy link with custom label -->
+ * <PrivacyCheckbox
+ *   privacyUrl="/privacy-policy/"
+ *   privacyLinkText="Privacy Policy"
+ *   consentLabel="I agree to the"
+ *   helperText="Required for contact requests"
+ * />
+ *
+ * @copyright 2007-2026 Arnold Wender · Wender Media. All Rights Reserved. License: LicenseRef-Wender-Media-Source-1.0
+ * @see https://github.com/arnoldwender/wm-project-astro-components
+ */
+
+export interface Props {
+  /** URL of the privacy policy page. */
+  privacyUrl?: string;
+  /** Visible text for the privacy policy anchor. */
+  privacyLinkText?: string;
+  /** Text before the privacy policy link in the consent label. */
+  consentLabel?: string;
+  /** Small helper text displayed below the label. */
+  helperText?: string;
+  /** Additional CSS class(es) applied to the outer wrapper. */
+  class?: string;
+}
+
+const {
+  privacyUrl = '/datenschutz/',
+  privacyLinkText = 'Datenschutzerklärung',
+  consentLabel = 'Ich stimme der',
+  helperText = 'Erforderlich für die Kontaktaufnahme',
+  class: className,
+} = Astro.props;
+---
+
+<!--
+  Outer wrapper uses CSS :has() to apply a checked-state highlight.
+  The `data-privacy-checkbox` hook lets FormValidation wire validation without
+  coupling to class names — preserve it.
+-->
+<div
+  class:list={['privacy-checkbox', className]}
+  data-privacy-checkbox
+>
+  <!-- Checkbox track: fixed 20×20 px touch-safe box aligns with label top -->
+  <div class="privacy-checkbox__track">
+    <!--
+      id="privacy" + name="privacy" are the shared form-system hook selectors.
+      aria-describedby="privacyError" wires to the live error region below.
+      Do NOT rename either attribute.
+    -->
+    <input
+      id="privacy"
+      name="privacy"
+      type="checkbox"
+      required
+      aria-required="true"
+      aria-describedby="privacyError"
+      class="privacy-checkbox__input"
+    />
+  </div>
+
+  <div class="privacy-checkbox__body">
+    <!-- Label text + privacy policy link + required marker -->
+    <label for="privacy" class="privacy-checkbox__label">
+      {consentLabel}
+      {' '}
+      <a
+        href={privacyUrl}
+        class="privacy-checkbox__link"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        {privacyLinkText}
+      </a>
+      {' '}
+      zu
+      <!-- Required asterisk: presentational only, sr-only text carries the meaning -->
+      <span class="privacy-checkbox__required" aria-hidden="true">*</span>
+      <span class="sr-only">(Pflichtfeld)</span>
+    </label>
+
+    <!-- Helper text: general hint, always visible -->
+    {helperText && (
+      <p class="privacy-checkbox__helper">{helperText}</p>
+    )}
+
+    <!--
+      Live error region: hidden by default, revealed by FormValidation JS.
+      role="alert" announces the message to screen readers on insert.
+      id="privacyError" is the contract anchor — do NOT rename.
+    -->
+    <p
+      id="privacyError"
+      class="privacy-checkbox__error"
+      role="alert"
+      aria-live="assertive"
+    ></p>
+  </div>
+</div>
+
+<style>
+  /* Wrapper: flex row, vertically top-aligned */
+  .privacy-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-gap-md);
+    padding: var(--spacing-stack-sm) var(--spacing-inline-md);
+    background-color: var(--color-background-subtle);
+    border-radius: var(--radius-input);
+    border: 2px solid transparent;
+    transition: var(--transition-colors);
+  }
+
+  /* Checked-state highlight via CSS :has() — no JS required */
+  .privacy-checkbox:has(#privacy:checked) {
+    border-color: var(--color-primary);
+    background-color: var(--color-primary-subtle);
+  }
+
+  /* Error-state outline — toggled by FormValidation adding [data-invalid] */
+  .privacy-checkbox[data-invalid] {
+    border-color: var(--color-error);
+    background-color: var(--color-error-subtle);
+  }
+
+  /* Checkbox track: vertically centres the 20 px box with the first label line */
+  .privacy-checkbox__track {
+    display: flex;
+    align-items: center;
+    /* Offset matches the label line-height to align with cap-height */
+    padding-top: 0.125rem;
+    flex-shrink: 0;
+  }
+
+  /* Native checkbox: sized to 20×20 px for a 44 px-friendly tap area */
+  .privacy-checkbox__input {
+    width: var(--checkbox-size, 18px);
+    height: var(--checkbox-size, 18px);
+    min-width: var(--checkbox-size, 18px);
+    min-height: var(--checkbox-size, 18px);
+    aspect-ratio: 1;
+    cursor: pointer;
+    border: var(--checkbox-border-width, 2px) solid var(--checkbox-border);
+    border-radius: var(--checkbox-border-radius, var(--radius-sm));
+    background-color: var(--checkbox-bg);
+    accent-color: var(--checkbox-bg-checked);
+    transition: var(--transition-colors);
+
+    /* Ensure a minimum 44 px tap target via margin compensation on small screens */
+    margin: 0;
+  }
+
+  /* Visible focus ring — WCAG 2.2 Focus Appearance (2.4.11) */
+  .privacy-checkbox__input:focus-visible {
+    outline: var(--focus-ring-width, 2px) solid var(--color-focus-ring);
+    outline-offset: var(--focus-ring-offset, 2px);
+  }
+
+  /* Right column: label + helper + error stacked */
+  .privacy-checkbox__body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* Consent label text */
+  .privacy-checkbox__label {
+    display: block;
+    font-size: var(--font-size-label);
+    font-weight: var(--font-weight-label);
+    line-height: var(--line-height-label);
+    color: var(--color-text-primary);
+    cursor: pointer;
+  }
+
+  /* Privacy policy anchor: inherits label size, uses link token */
+  .privacy-checkbox__link {
+    color: var(--color-link);
+    font-weight: var(--font-weight-medium);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: var(--transition-colors);
+  }
+
+  .privacy-checkbox__link:hover {
+    color: var(--color-link-hover);
+  }
+
+  .privacy-checkbox__link:focus-visible {
+    outline: var(--focus-ring-width, 2px) solid var(--color-focus-ring);
+    outline-offset: var(--focus-ring-offset, 2px);
+    border-radius: 2px;
+  }
+
+  /* Required asterisk */
+  .privacy-checkbox__required {
+    color: var(--color-error);
+    font-weight: var(--font-weight-bold);
+    margin-left: var(--spacing-inline-xs);
+  }
+
+  /* Helper / sub-label text */
+  .privacy-checkbox__helper {
+    margin-top: var(--helper-margin-top);
+    font-size: var(--helper-font-size);
+    line-height: var(--line-height-normal);
+    color: var(--color-text-tertiary);
+  }
+
+  /* Error message: hidden by default, revealed by FormValidation */
+  .privacy-checkbox__error {
+    display: none;
+    margin-top: var(--helper-margin-top);
+    font-size: var(--helper-font-size);
+    line-height: var(--line-height-normal);
+    color: var(--helper-color-error);
+  }
+
+  /* Show error message when non-empty (JS populates textContent, then removes [hidden]) */
+  .privacy-checkbox__error:not(:empty) {
+    display: block;
+  }
+
+  /* Screen-reader-only utility (no Tailwind dependency at atom level) */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  /* Respect reduced-motion: disable border/bg transition for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    .privacy-checkbox,
+    .privacy-checkbox__input,
+    .privacy-checkbox__link {
+      transition: none;
+    }
+  }
+</style>

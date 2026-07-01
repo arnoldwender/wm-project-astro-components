@@ -1,0 +1,359 @@
+---
+/**
+ * Select — Form select atom for the WenderMedia Astro Components form system.
+ *
+ * A fully accessible `<select>` wrapper that wires into the shared form-system
+ * contract used by Contact.astro, ContactForm.astro, and the FormValidation
+ * engine. Supports inline error display via a sibling error container that is
+ * identified by `aria-describedby` + `id="${id}-error"`, the same id/data-hook
+ * pattern used across all form atoms in this library.
+ *
+ * Variants:
+ *  - default  — standard border + background styling
+ *  - ghost    — transparent background for use on coloured surfaces
+ *  - invalid  — forced error state (also triggered dynamically via aria-invalid)
+ *
+ * @example
+ * ---
+ * import Select from '../forms/Select.astro';
+ * ---
+ * <!-- Basic controlled select -->
+ * <Select
+ *   name="service"
+ *   label="Service"
+ *   options={[
+ *     { value: 'design', label: 'Web Design' },
+ *     { value: 'seo',    label: 'SEO' },
+ *   ]}
+ *   placeholder="Choose a service…"
+ *   required
+ * />
+ *
+ * @example
+ * <!-- Pre-selected value with ghost variant -->
+ * <Select
+ *   name="budget"
+ *   label="Budget"
+ *   variant="ghost"
+ *   value="mid"
+ *   options={[
+ *     { value: 'low',  label: 'Under €1 000' },
+ *     { value: 'mid',  label: '€1 000 – €5 000' },
+ *     { value: 'high', label: 'Over €5 000' },
+ *   ]}
+ * />
+ *
+ * @example
+ * <!-- Server-side invalid state with custom error message -->
+ * <Select
+ *   name="country"
+ *   label="Country"
+ *   options={countryOptions}
+ *   invalid
+ *   errorMessage="Please select a country."
+ * />
+ *
+ * @copyright 2007-2026 Arnold Wender · Wender Media. All Rights Reserved. License: LicenseRef-Wender-Media-Source-1.0
+ * @see https://github.com/arnoldwender/wm-project-astro-components
+ */
+
+export interface SelectOption {
+  value: string;
+  label: string;
+}
+
+export interface Props {
+  /** The `name` attribute — used as the default `id` when no `id` is provided. */
+  name: string;
+  /** Visible label text rendered in a `<label>` element. Pass `false` to suppress (sr-only label is still rendered for a11y). */
+  label: string;
+  /** Selectable options list. */
+  options: SelectOption[];
+  /** Currently selected value. */
+  value?: string;
+  /** Placeholder shown as the first disabled option when no value is selected. */
+  placeholder?: string;
+  /** Explicit `id` — falls back to `name` when omitted. */
+  id?: string;
+  /** Marks the field as required. Appends a required indicator (*) to the label. */
+  required?: boolean;
+  /** Marks the field as disabled. */
+  disabled?: boolean;
+  /**
+   * Styling variant.
+   * - `default` — standard bordered input style (default)
+   * - `ghost`   — transparent, for use on coloured card surfaces
+   */
+  variant?: 'default' | 'ghost';
+  /**
+   * Forces the invalid/error state. The form validation engine also toggles
+   * this dynamically by setting `aria-invalid="true"` on the `<select>`.
+   */
+  invalid?: boolean;
+  /** Error message shown below the select when `invalid` is true. Matches the `id="${id}-error"` hook. */
+  errorMessage?: string;
+  /** Hint text shown below the select when there is no error. */
+  hint?: string;
+  /** Additional CSS class(es) applied to the outer wrapper element. */
+  class?: string;
+}
+
+const {
+  name,
+  label,
+  options,
+  value,
+  placeholder,
+  id,
+  required = false,
+  disabled = false,
+  variant = 'default',
+  invalid = false,
+  errorMessage,
+  hint,
+  class: className = '',
+} = Astro.props;
+
+/* Derive a stable id for label association and aria-describedby wiring */
+const fieldId  = id || name;
+const errorId  = `${fieldId}-error`;
+const hintId   = `${fieldId}-hint`;
+
+/* aria-describedby wires the select to its error container (form-system contract) */
+const describedBy = invalid && errorMessage
+  ? errorId
+  : hint
+    ? hintId
+    : undefined;
+---
+
+<div class:list={['select-field', className]}>
+  <!-- Label — always rendered; sr-only class omitted so it's always visible per WCAG 2.2 -->
+  <label for={fieldId} class="select-field__label">
+    {label}
+    {required && (
+      <span class="select-field__required" aria-hidden="true"> *</span>
+    )}
+  </label>
+
+  <!-- Wrapper provides the custom chevron overlay and relative positioning -->
+  <div class:list={[
+    'select-field__wrapper',
+    variant === 'ghost' && 'select-field__wrapper--ghost',
+    invalid && 'select-field__wrapper--invalid',
+    disabled && 'select-field__wrapper--disabled',
+  ]}>
+    <select
+      id={fieldId}
+      name={name}
+      required={required}
+      disabled={disabled}
+      aria-invalid={invalid ? 'true' : undefined}
+      aria-describedby={describedBy}
+      aria-required={required ? 'true' : undefined}
+      class="select-field__control"
+    >
+      {/* Placeholder option — disabled so it cannot be reselected after choosing a real value */}
+      {placeholder && (
+        <option value="" disabled selected={!value}>{placeholder}</option>
+      )}
+
+      {options.map((option) => (
+        <option value={option.value} selected={value === option.value}>
+          {option.label}
+        </option>
+      ))}
+    </select>
+
+    <!-- Custom chevron icon — pointer-events: none so it never captures clicks -->
+    <span class="select-field__chevron" aria-hidden="true">
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="M19 9l-7 7-7-7" />
+      </svg>
+    </span>
+  </div>
+
+  <!-- Error container — id matches aria-describedby; role="alert" for live announcements.
+       The form-system validation engine targets [id$="-error"] to inject messages. -->
+  {invalid && errorMessage && (
+    <p id={errorId} class="select-field__error" role="alert" aria-live="polite">
+      {errorMessage}
+    </p>
+  )}
+
+  <!-- Hint text — hidden when there is an active error (error takes precedence) -->
+  {hint && !invalid && (
+    <p id={hintId} class="select-field__hint">
+      {hint}
+    </p>
+  )}
+</div>
+
+<style>
+  /* ============================================================
+   * Select Field — scoped component styles
+   * ALL values use design-system tokens. No hardcoded hex/px/rem.
+   * ============================================================ */
+
+  .select-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1-5);
+  }
+
+  /* ---- Label ---- */
+  .select-field__label {
+    display: block;
+    font-size: var(--font-size-label);
+    font-weight: var(--font-weight-label);
+    line-height: var(--line-height-label);
+    color: var(--color-text-primary);
+  }
+
+  .select-field__required {
+    color: var(--color-error);
+    margin-inline-start: var(--spacing-0-5);
+  }
+
+  /* ---- Wrapper (handles chevron overlay) ---- */
+  .select-field__wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  /* ---- Native select control ---- */
+  .select-field__control {
+    /* Layout */
+    display: block;
+    width: 100%;
+    min-height: var(--input-min-height-lg); /* 44px touch target */
+    padding: var(--input-padding-lg);
+    padding-inline-end: var(--spacing-10); /* room for the custom chevron */
+
+    /* Typography */
+    font-family: var(--input-font-family);
+    font-size: var(--input-font-size);
+    font-weight: var(--input-font-weight);
+    line-height: var(--input-line-height);
+    color: var(--input-text);
+
+    /* Appearance */
+    background-color: var(--input-bg);
+    border: var(--input-border-width) solid var(--input-border);
+    border-radius: var(--input-border-radius);
+    appearance: none;   /* remove OS-native arrow so our SVG shows */
+    -webkit-appearance: none;
+    cursor: pointer;
+
+    /* Animation — respects prefers-reduced-motion via the transition token */
+    transition: var(--input-transition);
+  }
+
+  .select-field__control::placeholder {
+    color: var(--input-text-placeholder);
+  }
+
+  /* Hover */
+  .select-field__control:hover:not(:disabled) {
+    border-color: var(--input-border-hover);
+  }
+
+  /* Focus — WCAG 2.2 visible focus, using :focus-visible to avoid mouse ring */
+  .select-field__control:focus-visible {
+    outline: var(--border-focus);
+    outline-offset: var(--spacing-0-5);
+    border-color: var(--input-border-focus);
+  }
+
+  /* Invalid state — driven by aria-invalid (JS) or the --invalid modifier class */
+  .select-field__wrapper--invalid .select-field__control,
+  .select-field__control[aria-invalid="true"] {
+    border-color: var(--input-border-error);
+  }
+
+  .select-field__wrapper--invalid .select-field__control:focus-visible,
+  .select-field__control[aria-invalid="true"]:focus-visible {
+    outline-color: var(--color-error);
+  }
+
+  /* Disabled state */
+  .select-field__control:disabled,
+  .select-field__wrapper--disabled .select-field__control {
+    background-color: var(--input-bg-disabled);
+    color: var(--input-text-disabled);
+    border-color: var(--input-border-disabled);
+    cursor: not-allowed;
+    opacity: var(--opacity-60);
+  }
+
+  /* Ghost variant — transparent background for coloured surfaces */
+  .select-field__wrapper--ghost .select-field__control {
+    background-color: transparent;
+    border-color: var(--color-border-subtle);
+  }
+
+  .select-field__wrapper--ghost .select-field__control:hover:not(:disabled) {
+    border-color: var(--color-border-default);
+  }
+
+  /* ---- Custom chevron ---- */
+  .select-field__chevron {
+    position: absolute;
+    inset-inline-end: var(--spacing-3);
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    color: var(--color-text-muted);
+  }
+
+  /* Dim chevron when select is disabled */
+  .select-field__wrapper--disabled .select-field__chevron {
+    opacity: var(--opacity-40);
+  }
+
+  /* Rotate chevron on open (browsers that support :has, others fall back gracefully) */
+  @media (prefers-reduced-motion: no-preference) {
+    .select-field__control:focus ~ .select-field__chevron svg {
+      transform: rotate(180deg);
+      transition: transform var(--transition-fast);
+    }
+  }
+
+  /* ---- Error message ---- */
+  .select-field__error {
+    margin: 0;
+    font-size: var(--font-size-label);
+    line-height: var(--line-height-label);
+    color: var(--color-error);
+  }
+
+  /* ---- Hint text ---- */
+  .select-field__hint {
+    margin: 0;
+    font-size: var(--font-size-label);
+    line-height: var(--line-height-label);
+    color: var(--color-text-secondary);
+  }
+
+  /* ================================================================
+   * Reduced-motion: suppress transitions on all interactive elements
+   * ================================================================ */
+  @media (prefers-reduced-motion: reduce) {
+    .select-field__control {
+      transition: none;
+    }
+    .select-field__control:focus ~ .select-field__chevron svg {
+      transition: none;
+    }
+  }
+</style>

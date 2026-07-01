@@ -1,0 +1,455 @@
+---
+/**
+ * InputMask — Formatted text input with real-time character masking.
+ *
+ * Supports four built-in mask presets (phone, card, date, iban) plus a
+ * "custom" escape-hatch for arbitrary mask strings. The mask character
+ * placeholder is `_` (underscore). Separator characters (spaces, dots,
+ * dashes, slashes) are inserted automatically as the user types.
+ *
+ * Variants
+ * --------
+ * - **phone**  → `+49 (___) ___-____`   numeric, tel inputmode
+ * - **card**   → `____ ____ ____ ____`  numeric, numeric inputmode
+ * - **date**   → `__.__.____`           numeric, numeric inputmode
+ * - **iban**   → `DE__ ____ ____ ____ ____ __`  text inputmode
+ * - **custom** → supply your own `mask` + `placeholder` strings
+ *
+ * Accessibility contract
+ * ----------------------
+ * - `<label>` is always rendered and associated via matching `for`/`id`.
+ * - `aria-invalid="true"` is set on the input when `error` is non-empty.
+ * - `aria-describedby` points to the error container `id` (`${id}-error`).
+ * - Error message container carries `role="alert"` so screen readers
+ *   announce it immediately on injection.
+ * - Visible `:focus-visible` ring meets WCAG 2.2 AA.
+ * - Touch target height ≥ 44 px (WCAG 2.5.5 / BFSG).
+ * - All transitions respect `prefers-reduced-motion: reduce`.
+ *
+ * Form-system contract (do NOT rename these hooks)
+ * -------------------------------------------------
+ * - `data-input-mask`        wrapper selector for the JS engine
+ * - `data-mask`              the active mask string (on the `<input>`)
+ * - `data-mask-type`         preset name (on the `<input>`)
+ * - `data-mask-display`      ghost overlay span
+ * - `id="${id}-error"`       error container id (matched by aria-describedby)
+ *
+ * @example
+ * <!-- Phone field with label and inline error -->
+ * <InputMask
+ *   name="phone"
+ *   label="Telefonnummer"
+ *   type="phone"
+ *   required
+ *   error={formErrors.phone}
+ * />
+ *
+ * @example
+ * <!-- Custom mask — German postcode -->
+ * <InputMask
+ *   name="plz"
+ *   label="Postleitzahl"
+ *   type="custom"
+ *   mask="_____"
+ *   placeholder="12345"
+ *   required
+ * />
+ *
+ * @copyright 2007-2026 Arnold Wender · Wender Media. All Rights Reserved. License: LicenseRef-Wender-Media-Source-1.0
+ * @see https://github.com/arnoldwender/wm-project-astro-components
+ */
+
+export interface Props {
+  /** Form field name (required) */
+  name: string;
+  /** Element id — defaults to `name` */
+  id?: string;
+  /** Visible label text (required for a11y) */
+  label: string;
+  /** Built-in mask preset or "custom" */
+  type?: 'phone' | 'card' | 'date' | 'iban' | 'custom';
+  /** Custom mask string (only used when type="custom").
+   *  Use `_` as the digit placeholder. Example: `+___ (___) ___-____` */
+  mask?: string;
+  /** Custom placeholder string shown in the input (only used when type="custom") */
+  placeholder?: string;
+  /** Mark field as required — adds `aria-required` + visual indicator */
+  required?: boolean;
+  /** Disabled state — prevents interaction */
+  disabled?: boolean;
+  /** Inline error message.
+   *  Non-empty string sets `aria-invalid="true"` and renders a `role="alert"` container. */
+  error?: string;
+  /** Additional CSS classes forwarded to the wrapper element */
+  class?: string;
+}
+
+const {
+  name,
+  id = name,
+  label,
+  type = 'phone',
+  mask,
+  placeholder,
+  required = false,
+  disabled = false,
+  error,
+  class: className = '',
+} = Astro.props;
+
+/* Built-in mask presets.
+ * All numeric presets use `_` as the digit placeholder. */
+const MASKS: Record<string, { mask: string; placeholder: string; inputmode: string }> = {
+  phone: { mask: '+49 (___) ___-____', placeholder: '+49 (123) 456-7890',         inputmode: 'tel'     },
+  card:  { mask: '____ ____ ____ ____', placeholder: '1234 5678 9012 3456',        inputmode: 'numeric' },
+  date:  { mask: '__.__.____',          placeholder: 'TT.MM.JJJJ',                inputmode: 'numeric' },
+  iban:  { mask: 'DE__ ____ ____ ____ ____ __', placeholder: 'DE12 3456 7890 1234 5678 90', inputmode: 'text' },
+};
+
+/* Resolve the active mask configuration */
+const resolved = type === 'custom'
+  ? { mask: mask ?? '', placeholder: placeholder ?? '', inputmode: 'text' }
+  : MASKS[type];
+---
+
+<div
+  class:list={['im-wrapper', className]}
+  data-input-mask
+>
+  <!-- Label is always rendered — never use sr-only patterns for masked fields -->
+  <label for={id} class="im-label">
+    {label}
+    {required && <span class="im-required" aria-hidden="true">*</span>}
+  </label>
+
+  <!-- Input container holds the real input + ghost overlay -->
+  <div class="im-field">
+    <input
+      type="text"
+      id={id}
+      name={name}
+      placeholder={resolved.placeholder}
+      required={required || undefined}
+      disabled={disabled || undefined}
+      autocomplete="off"
+      inputmode={resolved.inputmode as 'text' | 'numeric' | 'tel' | 'email' | 'url' | 'decimal' | 'search' | 'none'}
+      class:list={['im-input', error ? 'im-input--error' : '']}
+      data-mask={resolved.mask}
+      data-mask-type={type}
+      aria-invalid={error ? 'true' : 'false'}
+      aria-describedby={error ? `${id}-error` : undefined}
+      aria-required={required ? 'true' : undefined}
+    />
+    <!-- Ghost overlay: shows the unfilled portion of the mask on focus -->
+    <span class="im-ghost" aria-hidden="true" data-mask-display></span>
+  </div>
+
+  <!-- Error region: role="alert" announces immediately to screen readers -->
+  {error && (
+    <p id={`${id}-error`} class="im-error" role="alert">
+      {error}
+    </p>
+  )}
+</div>
+
+<style>
+  /* ── Wrapper ─────────────────────────────────────────────────── */
+  .im-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-stack-xs);
+  }
+
+  /* ── Label ───────────────────────────────────────────────────── */
+  .im-label {
+    font-size: var(--font-size-label, var(--font-size-sm));
+    font-weight: var(--font-weight-label, var(--font-weight-medium));
+    line-height: var(--line-height-label, var(--line-height-tight));
+    color: var(--color-text-primary);
+  }
+
+  .im-required {
+    color: var(--color-error);
+    margin-inline-start: var(--spacing-inline-xs);
+  }
+
+  /* ── Field container ─────────────────────────────────────────── */
+  .im-field {
+    position: relative;
+  }
+
+  /* ── Input ───────────────────────────────────────────────────── */
+  .im-input {
+    /* Layout */
+    display: block;
+    width: 100%;
+    /* Touch target: min-height meets WCAG 2.5.5 / BFSG 44 px rule */
+    min-height: var(--touch-target-min, 44px);
+    padding: var(--spacing-stack-sm) var(--spacing-inline-lg);
+
+    /* Typography — monospace for character-by-character alignment */
+    font-family: var(--font-family-code);
+    font-size: var(--font-size-body);
+    line-height: var(--line-height-body);
+    letter-spacing: var(--letter-spacing-wider);
+    color: var(--color-text-primary);
+
+    /* Surface */
+    background-color: var(--color-surface);
+    border: var(--border-width-2) solid var(--color-border-default);
+    border-radius: var(--radius-input);
+
+    /* Interaction */
+    transition: var(--transition-colors), var(--transition-shadow);
+    outline: none;
+  }
+
+  .im-input::placeholder {
+    color: var(--color-text-muted);
+    opacity: 1; /* Firefox normalisation */
+  }
+
+  /* Focus — :focus-visible ensures keyboard users see the ring */
+  .im-input:focus-visible {
+    border-color: var(--color-primary);
+    box-shadow: var(--focus-ring);
+  }
+
+  /* Hover (non-focus, non-error, non-disabled) */
+  .im-input:hover:not(:focus-visible):not(.im-input--error):not(:disabled) {
+    border-color: var(--color-border-strong);
+  }
+
+  /* Error state */
+  .im-input--error {
+    border-color: var(--color-error);
+  }
+
+  .im-input--error:focus-visible {
+    border-color: var(--color-error);
+    box-shadow: var(--shadow-error);
+  }
+
+  /* Disabled state */
+  .im-input:disabled {
+    background-color: var(--color-background-muted);
+    color: var(--color-text-disabled);
+    cursor: not-allowed;
+    opacity: 1;
+  }
+
+  /* ── Ghost overlay ───────────────────────────────────────────── */
+  .im-ghost {
+    /* Positioned exactly over the input text area */
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: var(--spacing-inline-lg);
+    transform: translateY(-50%);
+
+    /* Match input typography exactly */
+    font-family: var(--font-family-code);
+    font-size: var(--font-size-body);
+    line-height: var(--line-height-body);
+    letter-spacing: var(--letter-spacing-wider);
+
+    /* Subdued colour so it reads as a hint, not live text */
+    color: var(--color-text-muted);
+
+    /* Never intercept pointer events */
+    pointer-events: none;
+    user-select: none;
+
+    /* Hidden until input receives focus (set via JS) */
+    opacity: 0;
+    transition: var(--transition-opacity);
+  }
+
+  /* ── Error message ───────────────────────────────────────────── */
+  .im-error {
+    margin: 0;
+    font-size: var(--font-size-caption);
+    line-height: var(--line-height-body);
+    color: var(--color-error);
+  }
+
+  /* ── Reduced-motion guard ────────────────────────────────────── */
+  @media (prefers-reduced-motion: reduce) {
+    .im-input,
+    .im-ghost {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  /**
+   * InputMaskEngine — drives one [data-input-mask] wrapper.
+   *
+   * Mask format: any printable character is a literal separator;
+   * underscore `_` is the digit placeholder.
+   *
+   * Merges the best of two source implementations:
+   *  - OOP class structure + ghost overlay  (hairprofis/InputMask.astro)
+   *  - Cursor-position preservation on input (seo-halle/MaskedInput.astro)
+   */
+  class InputMaskEngine {
+    private readonly input!: HTMLInputElement;
+    private readonly ghost!: HTMLElement;
+    private readonly mask!: string;
+    private readonly PLACEHOLDER = '_';
+
+    constructor(wrapper: HTMLElement) {
+      const input = wrapper.querySelector<HTMLInputElement>('[data-input-mask] .im-input, .im-input');
+      const ghost = wrapper.querySelector<HTMLElement>('[data-mask-display]');
+
+      if (!input || !ghost) return;
+
+      this.input = input;
+      this.ghost = ghost;
+      this.mask  = input.dataset.mask ?? '';
+
+      if (!this.mask) return;
+
+      this.attach();
+    }
+
+    private attach(): void {
+      this.input.addEventListener('input',   (e) => this.onInput(e as InputEvent));
+      this.input.addEventListener('keydown', (e) => this.onKeydown(e));
+      this.input.addEventListener('paste',   (e) => this.onPaste(e));
+      this.input.addEventListener('focus',   ()  => this.showGhost());
+      this.input.addEventListener('blur',    ()  => this.hideGhost());
+    }
+
+    /* ── Core masking ──────────────────────────────────────────── */
+
+    /** Strip everything that is not a digit. */
+    private digits(value: string): string {
+      return value.replace(/\D/g, '');
+    }
+
+    /**
+     * Lay digits into the mask template.
+     * Separator characters from the mask are inserted automatically.
+     */
+    private applyMask(raw: string): string {
+      const digs = this.digits(raw);
+      let result     = '';
+      let digitIndex = 0;
+
+      for (let i = 0; i < this.mask.length && digitIndex < digs.length; i++) {
+        if (this.mask[i] === this.PLACEHOLDER) {
+          result += digs[digitIndex++];
+        } else {
+          result += this.mask[i];
+          /* If the user typed a separator that matches the mask, consume it
+           * so we don't double-count it as a digit. */
+          if (digs[digitIndex] === this.mask[i]) {
+            digitIndex++;
+          }
+        }
+      }
+
+      return result;
+    }
+
+    /* ── Event handlers ────────────────────────────────────────── */
+
+    private onInput(_e: InputEvent): void {
+      const pos    = this.input.selectionStart ?? 0;
+      const before = this.input.value.length;
+
+      this.input.value = this.applyMask(this.input.value);
+
+      /* Preserve cursor position proportionally after reformatting */
+      const after    = this.input.value.length;
+      const newPos   = Math.max(0, pos + (after - before));
+      this.input.setSelectionRange(newPos, newPos);
+
+      this.refreshGhost();
+    }
+
+    private onKeydown(e: KeyboardEvent): void {
+      /* Allow navigation / editing keys */
+      if (
+        e.key === 'Backspace' ||
+        e.key === 'Delete'    ||
+        e.key === 'Tab'       ||
+        e.key === 'Escape'    ||
+        e.key === 'Enter'     ||
+        e.key === 'ArrowLeft' ||
+        e.key === 'ArrowRight'||
+        e.key === 'Home'      ||
+        e.key === 'End'
+      ) {
+        return;
+      }
+
+      /* Allow clipboard shortcuts */
+      if ((e.ctrlKey || e.metaKey) && ['a','c','v','x'].includes(e.key.toLowerCase())) {
+        return;
+      }
+
+      /* Only allow digit keys for purely numeric masks */
+      const isNumericMask = !this.mask.includes('D') && !this.mask.match(/[A-Z]/);
+      if (isNumericMask && !/^\d$/.test(e.key)) {
+        e.preventDefault();
+      }
+    }
+
+    private onPaste(e: ClipboardEvent): void {
+      e.preventDefault();
+      const pasted = e.clipboardData?.getData('text') ?? '';
+      this.input.value = this.applyMask(pasted);
+      this.refreshGhost();
+    }
+
+    /* ── Ghost overlay ─────────────────────────────────────────── */
+
+    private showGhost(): void {
+      this.refreshGhost();
+      this.ghost.style.opacity = '1';
+    }
+
+    private hideGhost(): void {
+      this.ghost.style.opacity = '0';
+    }
+
+    private refreshGhost(): void {
+      const value = this.input.value;
+      let display    = '';
+      let valueIndex = 0;
+
+      for (let i = 0; i < this.mask.length; i++) {
+        if (valueIndex < value.length) {
+          /* Blank out the filled positions so the ghost only shows the remainder */
+          display += '\u00A0'; /* non-breaking space maintains character width */
+          if (this.mask[i] === this.PLACEHOLDER) {
+            valueIndex++;
+          }
+        } else {
+          display += this.mask[i];
+        }
+      }
+
+      this.ghost.textContent = display;
+    }
+  }
+
+  /* ── Initialisation ──────────────────────────────────────────── */
+
+  function initInputMasks(): void {
+    document.querySelectorAll<HTMLElement>('[data-input-mask]').forEach(
+      (wrapper) => new InputMaskEngine(wrapper),
+    );
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initInputMasks);
+  } else {
+    initInputMasks();
+  }
+
+  /* Astro View Transitions support */
+  document.addEventListener('astro:page-load', initInputMasks);
+</script>
