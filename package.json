@@ -1,6 +1,6 @@
 {
   "name": "@wendermedia/astro-components",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "Complete Astro 7 development resource - components, bundles, integrations, and utilities",
   "type": "module",
   "main": "./index.ts",
@@ -11,6 +11,7 @@
   "exports": {
     ".": "./index.ts",
     "./layout": "./src/layout/index.ts",
+    "./layouts": "./src/layouts/index.ts",
     "./seo": "./src/seo/index.ts",
     "./accessibility": "./src/accessibility/index.ts",
     "./sections": "./src/sections/index.ts",
@@ -25,6 +26,7 @@
     "./content": "./src/content/index.ts",
     "./ecommerce": "./src/ecommerce/index.ts",
     "./media": "./src/media/index.ts",
+    "./ui": "./src/ui/index.ts",
     "./design-system": "./src/design-system/index.ts",
     "./design-system/tokens/*": "./src/design-system/tokens/*",
     "./design-system/base/*": "./src/design-system/base/*",
