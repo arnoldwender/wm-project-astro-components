@@ -1,6 +1,6 @@
 {
   "name": "@wendermedia/astro-components",
-  "version": "4.0.1",
+  "version": "4.0.2",
   "description": "Complete Astro 7 development resource - components, bundles, integrations, and utilities",
   "type": "module",
   "main": "./index.ts",
