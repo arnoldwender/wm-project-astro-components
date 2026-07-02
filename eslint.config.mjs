@@ -56,6 +56,22 @@ export default tseslint.config(
     },
   },
 
+  // Node.js build/tooling scripts (banner generator, etc.)
+  // `document` is a browser global available inside Playwright page.evaluate().
+  {
+    files: ['scripts/**/*.mjs'],
+    languageOptions: {
+      globals: {
+        process: 'readonly',
+        console: 'readonly',
+        document: 'readonly',
+      },
+    },
+    rules: {
+      'no-console': 'off',
+    },
+  },
+
   // TypeScript
   {
     files: ['**/*.ts', '**/*.tsx'],
