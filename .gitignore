@@ -30,3 +30,8 @@ instructions.md
 docs/superpowers/
 docs/development/
 .astro/
+
+# internal artifacts — never in the PUBLIC repo (audit 2026-07-02)
+.design-dna-audit.json
+GEMINI.md
+LEGAL-AUDIT-REPORT-DE-*.md
