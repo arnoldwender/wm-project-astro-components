@@ -2,16 +2,22 @@
 /**
  * README / npm banner generator for @wendermedia/astro-components
  *
- * Renders three HTML templates with Playwright (headless Chromium) and captures
- * them as PNGs at 2540x1520 (the size the README <img> tags expect). Same idiom
- * as wm-brand-wendermedia-info/scripts/generate-og-images.mjs — no design tool,
- * no external assets, everything is inline HTML/CSS/SVG so the banners always
- * reflect the CURRENT package state (version + counts are read live below).
+ * Renders three cohesive banners with Playwright (headless Chromium) at
+ * 2540x1520 (viewport 1270x760 @ deviceScaleFactor 2) — the size the README
+ * <img> tags expect. Same idiom as wm-brand-wendermedia-info's OG generator:
+ * no design tool, no external assets, everything inline HTML/CSS/SVG so the
+ * banners always reflect the CURRENT package state (version + counts read live).
  *
- * Run:  node scripts/generate-banners.mjs
+ * Design system: "Developer / real code" — deep-slate developer surface, a raised
+ * editor card showing a real .astro import, authentic Wender Media brand blues
+ * (navy #002D5B -> #0080C9). The ONLY gradient anywhere is the small navy->blue
+ * logo mark. Functional green (#10b981) appears ONLY on WCAG/GDPR checkmarks.
+ * Zero purple/violet/magenta/pink — no AI-slop gradients.
+ *
+ * Run:  npm run banners   (or: node scripts/generate-banners.mjs)
  *
  * Output (overwrites):
- *   docs/images/gallery-01-hero.png        full-width hero
+ *   docs/images/gallery-01-hero.png        hero — real code + install
  *   docs/images/gallery-03-components.png  18 categories · 183 components
  *   docs/images/gallery-04-a11y-gdpr.png   accessibility + GDPR
  */
@@ -30,7 +36,6 @@ const outDir = join(repoRoot, 'docs', 'images');
 const pkg = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf8'));
 const VERSION = pkg.version; // e.g. 4.0.2
 
-// Count real .astro components per category barrel (src/<cat>/*.astro).
 const srcDir = join(repoRoot, 'src');
 const CATEGORIES = readdirSync(srcDir, { withFileTypes: true })
   .filter((d) => d.isDirectory())
@@ -49,156 +54,256 @@ const CATEGORIES = readdirSync(srcDir, { withFileTypes: true })
 const TOTAL = CATEGORIES.reduce((n, c) => n + c.count, 0);
 const CATEGORY_COUNT = CATEGORIES.length;
 
-// --- Shared design tokens (mirror the library's own brand primary #3b82f6) ----
+// --- Brand tokens — REAL Wender Media identity, non-purple only --------------
 const CSS = /* css */ `
   * { margin: 0; padding: 0; box-sizing: border-box; }
   :root {
-    --bg-0: #0b1220;
-    --bg-1: #0f172a;
-    --bg-2: #1e293b;
-    --brand: #3b82f6;      /* WM astro-components brand primary (from tokens) */
-    --brand-2: #8b5cf6;    /* violet accent for gradient pop */
-    --astro: #bc52ee;
-    --ok: #10b981;
-    --text: #f8fafc;
-    --muted: #94a3b8;
-    --line: #334155;
-    --card: rgba(148, 163, 184, 0.08);
+    --bg:        #0d1420;   /* page surface */
+    --panel:     #111827;   /* raised card */
+    --panel-bar: #0f1826;   /* card title bar */
+    --navy:      #002D5B;   /* WM corporate navy */
+    --brand:     #0080C9;   /* WM bright brand blue */
+    --brand-deep:#004C91;
+    --white:  #f8fafc;
+    --text:   #e2e8f0;
+    --muted:  #94a3b8;
+    --dim:    #64748b;
+    --line:   #1f2a3d;
+    --line-2: #253349;
+    --card:   rgba(148, 163, 184, 0.05);
+    --ok: #10b981;          /* functional green — checkmarks ONLY */
+    /* restrained monochromatic syntax palette (blue / slate / white) */
+    --syn-key:  #7ea6cc;
+    --syn-tag:  #eaf1fb;
+    --syn-attr: #9fb6d2;
+    --syn-str:  #5fa8dc;
+    --syn-punc: #5c6b82;
+    --syn-fence:#59708f;
+    --syn-line: #3a4a63;
   }
   html, body {
     width: 1270px; height: 760px;
     font-family: -apple-system, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    color: var(--text);
-    -webkit-font-smoothing: antialiased;
+    color: var(--text); -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision;
   }
+  .mono { font-family: "SF Mono", "JetBrains Mono", "Fira Code", ui-monospace, Menlo, Consolas, monospace; }
+
   .stage {
     width: 1270px; height: 760px; position: relative; overflow: hidden;
-    background:
-      radial-gradient(1100px 620px at 15% -10%, rgba(59,130,246,0.22), transparent 60%),
-      radial-gradient(900px 560px at 110% 120%, rgba(139,92,246,0.20), transparent 60%),
-      linear-gradient(160deg, var(--bg-0), var(--bg-1) 55%, var(--bg-2));
-    padding: 68px 72px;
-    display: flex; flex-direction: column;
+    background: var(--bg); padding: 60px 68px; display: flex; flex-direction: column;
   }
-  .stage::before { /* subtle dot grid */
-    content: ""; position: absolute; inset: 0;
-    background-image: radial-gradient(rgba(148,163,184,0.10) 1px, transparent 1px);
-    background-size: 34px 34px; opacity: 0.5; pointer-events: none;
+  .stage::before { /* faint blueprint dot grid */
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background-image: radial-gradient(rgba(148,163,184,0.055) 1px, transparent 1.4px);
+    background-size: 30px 30px;
   }
-  .brandbar { display: flex; align-items: center; gap: 16px; position: relative; z-index: 1; }
+  .stage::after { /* one soft brand glow — depth, not a wash */
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(760px 460px at 88% -8%, rgba(0,128,201,0.13), transparent 62%);
+  }
+
+  /* --- Brand bar --- */
+  .brandbar { display: flex; align-items: center; gap: 15px; position: relative; z-index: 2; }
   .logo {
-    width: 60px; height: 60px; border-radius: 15px; flex: 0 0 auto;
-    background: linear-gradient(135deg, var(--brand), var(--brand-2));
+    width: 46px; height: 46px; border-radius: 12px; flex: 0 0 auto;
+    background: linear-gradient(135deg, var(--navy), var(--brand)); /* the ONLY gradient */
     display: grid; place-items: center;
-    box-shadow: 0 10px 30px rgba(59,130,246,0.45);
+    box-shadow: 0 6px 20px rgba(0,45,91,0.55), inset 0 1px 0 rgba(255,255,255,0.12);
   }
-  .brandbar .name { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
-  .brandbar .sub { font-size: 14px; color: var(--muted); margin-top: 2px; }
+  .brandbar .name { font-size: 18px; font-weight: 700; letter-spacing: -0.01em; color: var(--white); }
+  .brandbar .sub  { font-size: 13px; color: var(--muted); margin-top: 1px; }
   .ver {
-    margin-left: auto; font-size: 15px; font-weight: 600; color: var(--brand);
-    border: 1px solid var(--line); border-radius: 999px; padding: 8px 16px;
-    background: var(--card);
+    margin-left: auto; display: inline-flex; align-items: center; gap: 8px;
+    font-size: 14px; font-weight: 600; color: var(--text);
+    border: 1px solid var(--line-2); border-radius: 999px; padding: 7px 15px; background: var(--card);
   }
-  .grad { background: linear-gradient(120deg, #60a5fa, #a78bfa 55%, #f0abfc);
-          -webkit-background-clip: text; background-clip: text; color: transparent; }
-  .chips { display: flex; flex-wrap: wrap; gap: 12px; position: relative; z-index: 1; }
+  .ver .pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--brand);
+                box-shadow: 0 0 0 3px rgba(0,128,201,0.18); }
+  .ver .mono { font-size: 13px; color: var(--brand); }
+
+  .eyebrow { font-size: 15px; color: var(--muted); letter-spacing: 0.02em; }
+  .eyebrow b { color: var(--brand); font-weight: 600; }
+  .lede { font-size: 19.5px; line-height: 1.5; color: var(--muted); font-weight: 450; }
+  .lede b { color: var(--text); font-weight: 600; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; }
   .chip {
-    display: inline-flex; align-items: center; gap: 9px;
-    font-size: 18px; font-weight: 600; color: #e2e8f0;
-    border: 1px solid var(--line); border-radius: 12px;
-    padding: 11px 18px; background: var(--card);
+    font-size: 14.5px; font-weight: 550; color: var(--text);
+    border: 1px solid var(--line-2); border-radius: 9px; padding: 8px 14px;
+    background: var(--card); letter-spacing: 0.01em;
   }
-  .chip .dot { width: 10px; height: 10px; border-radius: 50%; }
-  .foot { margin-top: auto; display: flex; align-items: center; gap: 14px;
-          font-size: 17px; color: var(--muted); position: relative; z-index: 1; }
-  .foot b { color: var(--text); font-weight: 600; }
+
+  .vitem { display: inline-flex; align-items: center; gap: 9px; font-size: 15px; font-weight: 600; color: var(--text); }
+
+  .foot { margin-top: auto; display: flex; align-items: center; gap: 13px;
+          font-size: 14.5px; color: var(--dim); position: relative; z-index: 2; }
+  .foot b { color: var(--muted); font-weight: 600; }
+  .foot .sep { color: var(--line-2); }
+
+  /* --- Hero split --- */
+  .split { position: relative; z-index: 2; margin-top: 46px;
+           display: grid; grid-template-columns: 468px 1fr; gap: 42px; align-items: start; }
+  h1.hero { font-size: 60px; line-height: 1.05; font-weight: 800; letter-spacing: -0.032em;
+            color: var(--white); margin-top: 20px; }
+  h1.hero .l2 { color: var(--muted); }
+  .split .lede { margin-top: 22px; max-width: 440px; }
+  .split .chips { margin-top: 30px; }
+  .verified { display: flex; align-items: center; gap: 22px; margin-top: 24px; }
+
+  /* --- Editor card (hero) --- */
+  .editor { border: 1px solid var(--line-2); border-radius: 15px; overflow: hidden; background: var(--panel);
+            box-shadow: 0 24px 60px rgba(2,6,15,0.55), 0 2px 0 rgba(255,255,255,0.02) inset; }
+  .editor .bar { display: flex; align-items: center; gap: 9px; padding: 13px 17px;
+                 background: var(--panel-bar); border-bottom: 1px solid var(--line); }
+  .editor .dots { display: flex; gap: 7px; }
+  .editor .dots i { width: 11px; height: 11px; border-radius: 50%; background: #223047; display: inline-block; }
+  .editor .tab { margin-left: 8px; font-size: 13px; color: var(--muted); display: inline-flex; align-items: center; gap: 8px; }
+  .editor .tab .fileico { color: var(--brand); }
+  .editor .tabpath { margin-left: auto; font-size: 12.5px; color: var(--dim); }
+  .code { display: flex; padding: 22px 6px 24px 0; font-size: 17px; line-height: 29px; min-width: 0; }
+  .gutter { flex: 0 0 auto; text-align: right; padding: 0 18px 0 20px; white-space: pre; color: var(--syn-line); user-select: none; }
+  .lines { flex: 1 1 auto; min-width: 0; white-space: pre; overflow: hidden; }
+  .k { color: var(--syn-key); } .tag { color: var(--syn-tag); font-weight: 600; } .at { color: var(--syn-attr); }
+  .s { color: var(--syn-str); } .p { color: var(--syn-punc); } .f { color: var(--syn-fence); } .id { color: var(--text); }
+  .install { margin-top: 14px; display: flex; align-items: center; gap: 12px; border: 1px solid var(--line);
+             border-radius: 12px; padding: 14px 18px; background: rgba(15,24,38,0.7); }
+  .install .prompt { color: var(--brand); font-size: 17px; }
+  .install .cmd { font-size: 17px; color: var(--text); } .install .cmd .pkg { color: var(--muted); }
+  .install .copy { margin-left: auto; color: var(--dim); display: inline-flex; }
+
+  /* --- Big figure headline (catalog) --- */
+  .figure { position: relative; z-index: 2; margin-top: 26px; }
+  .figure .n { font-size: 82px; font-weight: 800; letter-spacing: -0.035em; line-height: 1; color: var(--white); }
+  .figure .n b { color: var(--brand); font-weight: 800; }
+  .figure .k { font-size: 20px; color: var(--muted); font-weight: 500; margin-top: 10px; }
+  .figure .k .b { color: var(--text); font-weight: 600; }
+
+  /* --- Category grid (catalog) --- */
+  .catgrid { position: relative; z-index: 2; margin-top: 26px; flex: 1;
+             display: grid; grid-template-columns: repeat(3, 1fr); gap: 13px; align-content: start; }
+  .catcard { display: flex; align-items: center; justify-content: space-between;
+             border: 1px solid var(--line-2); border-radius: 12px; padding: 13px 18px; background: var(--card); }
+  .catname { font-size: 18px; font-weight: 600; color: var(--text); }
+  .catcount { font-family: "SF Mono", ui-monospace, Menlo, monospace; font-size: 18px; font-weight: 700;
+              color: var(--brand); min-width: 38px; text-align: right; }
+
+  /* --- a11y / gdpr --- */
+  .a11ybody { position: relative; z-index: 2; flex: 1;
+              display: flex; flex-direction: column; justify-content: center; gap: 40px; }
+  .badges { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .badge { border: 1px solid var(--line-2); border-radius: 16px; padding: 24px 26px; background: var(--card); }
+  .badge .t { display: flex; align-items: center; gap: 12px; font-size: 25px; font-weight: 800; color: var(--white); }
+  .badge .s { font-size: 16px; color: var(--muted); margin-top: 8px; margin-left: 34px; }
+  .checklist { display: grid; grid-template-columns: 1fr 1fr; gap: 20px 44px; }
+  .cli { display: flex; align-items: center; gap: 15px; font-size: 21px; font-weight: 500; color: var(--text); padding: 6px 0; }
+  .cli code { font-family: "SF Mono", ui-monospace, Menlo, monospace; font-size: 18px; color: var(--syn-key); }
 `;
 
+// --- SVG helpers -------------------------------------------------------------
 const LOGO = /* html */ `
   <div class="logo">
-    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4"
          stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="8 7 3 12 8 17"></polyline>
-      <polyline points="16 7 21 12 16 17"></polyline>
+      <polyline points="8 7 3 12 8 17"></polyline><polyline points="16 7 21 12 16 17"></polyline>
     </svg>
   </div>`;
 
-const check = (c = '#10b981') => /* html */ `
-  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2.6"
+const check = (size = 20) => /* html */ `
+  <svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="var(--ok)" stroke-width="2.8"
        stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`;
+
+const fileIcon = /* html */ `
+  <svg class="fileico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+       stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>`;
+
+const copyIcon = /* html */ `
+  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+       stroke-linecap="round" stroke-linejoin="round">
+    <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
+
+const brandbar = (name, sub) => /* html */ `
+  <div class="brandbar">
+    ${LOGO}
+    <div><div class="name">${name}</div><div class="sub">${sub}</div></div>
+    <div class="ver"><span class="pulse"></span>@wendermedia/astro-components&nbsp;<span class="mono">v${VERSION}</span></div>
+  </div>`;
 
 const shell = (inner) =>
   `<!doctype html><html><head><meta charset="utf-8"><style>${CSS}</style></head><body><div class="stage">${inner}</div></body></html>`;
 
-// --- Banner 1: hero ----------------------------------------------------------
-const heroChips = [
-  { t: 'Astro 6 · 7', c: '#bc52ee' },
-  { t: 'Tailwind 4', c: '#06b6d4' },
-  { t: 'TypeScript 5', c: '#3178c6' },
-  { t: 'Node 22.12+', c: '#22c55e' },
-  { t: 'WCAG 2.1 AA', c: '#10b981' },
-  { t: 'GDPR', c: '#10b981' },
-]
-  .map((x) => `<span class="chip"><span class="dot" style="background:${x.c}"></span>${x.t}</span>`)
+// --- Banner 1: hero (real code) ---------------------------------------------
+const CODE_LINES = [
+  `<span class="f">---</span>`,
+  `<span class="k">import</span> <span class="p">{</span>`,
+  `  <span class="tag">HeroSection</span><span class="p">,</span>`,
+  `  <span class="tag">PricingSection</span><span class="p">,</span>`,
+  `<span class="p">}</span> <span class="k">from</span> <span class="s">'@wendermedia/astro-components/sections'</span>`,
+  `<span class="f">---</span>`,
+  ``,
+  `<span class="p">&lt;</span><span class="tag">HeroSection</span>`,
+  `  <span class="at">title</span><span class="p">=</span><span class="s">"${TOTAL} Astro components"</span>`,
+  `  <span class="at">cta</span><span class="p">=</span><span class="s">"Jetzt anfragen"</span>`,
+  `<span class="p">/&gt;</span>`,
+  `<span class="p">&lt;</span><span class="tag">PricingSection</span> <span class="at">plans</span><span class="p">={</span><span class="id">plans</span><span class="p">}</span> <span class="at">locale</span><span class="p">=</span><span class="s">"de"</span> <span class="p">/&gt;</span>`,
+];
+const gutter = CODE_LINES.map((_, i) => i + 1).join('\n');
+const codeLines = CODE_LINES.join('\n');
+const techChips = ['Astro 6 · 7', 'Tailwind 4', 'TypeScript 5', 'Node 22.12+']
+  .map((t) => `<span class="chip">${t}</span>`)
   .join('');
 
 const heroHTML = shell(/* html */ `
-  <div class="brandbar">
-    ${LOGO}
-    <div><div class="name">Wender Media</div><div class="sub">Web Agency · Halle (Saale), Germany</div></div>
-    <div class="ver">v${VERSION}</div>
-  </div>
-  <div style="position:relative;z-index:1;margin-top:54px">
-    <div style="font-size:26px;font-weight:600;color:#cbd5e1;letter-spacing:0.01em">@wendermedia/astro-components</div>
-    <h1 style="font-size:104px;line-height:1.02;font-weight:800;letter-spacing:-0.03em;margin-top:14px">
-      <span class="grad">${TOTAL} Astro</span><br/>components
-    </h1>
-    <div style="font-size:27px;color:#cbd5e1;font-weight:500;margin-top:22px;max-width:1000px">
-      Production-ready, accessible &amp; GDPR-compliant &mdash;
-      <span style="color:#fff;font-weight:600">${CATEGORY_COUNT} categories</span>,
-      design-tokened, trilingual-ready.
+  ${brandbar('Wender Media', 'Web Agency · Halle (Saale), Germany')}
+  <div class="split">
+    <div>
+      <div class="eyebrow">The <b>Wender Media</b> Astro building blocks</div>
+      <h1 class="hero">${TOTAL} Astro components,<br/><span class="l2">one import away.</span></h1>
+      <p class="lede">
+        Accessible, GDPR-compliant, fully design-tokened sections and UI primitives
+        across <b>${CATEGORY_COUNT} categories</b> — drop them into any Astro&nbsp;6 or&nbsp;7 project.
+      </p>
+      <div class="chips">${techChips}</div>
+      <div class="verified">
+        <span class="vitem">${check()} WCAG 2.1 AA</span>
+        <span class="vitem">${check()} GDPR / DSGVO</span>
+      </div>
+    </div>
+    <div>
+      <div class="editor">
+        <div class="bar">
+          <span class="dots"><i></i><i></i><i></i></span>
+          <span class="tab">${fileIcon} index.astro</span>
+          <span class="tabpath mono">src/pages</span>
+        </div>
+        <div class="code mono"><div class="gutter">${gutter}</div><div class="lines">${codeLines}</div></div>
+      </div>
+      <div class="install mono">
+        <span class="prompt">$</span>
+        <span class="cmd">npm i <span class="pkg">@wendermedia/astro-components</span></span>
+        <span class="copy">${copyIcon}</span>
+      </div>
     </div>
   </div>
-  <div class="chips" style="margin-top:38px">${heroChips}</div>
-  <div class="foot">
-    <b>astro.wendermedia.com</b><span style="color:var(--line)">&bull;</span>
-    Live Playbook &mdash; browse every component with props &amp; live previews
-  </div>
+  <div class="foot"><b>astro.wendermedia.com</b><span class="sep">•</span>
+    Live playbook — browse every component with props &amp; live previews</div>
 `);
 
 // --- Banner 2: component catalog --------------------------------------------
 const catCards = CATEGORIES.map(
-  (c) => /* html */ `
-    <div class="cat">
-      <span class="cat-name">${c.name}</span>
-      <span class="cat-count">${c.count}</span>
-    </div>`
+  (c) => `<div class="catcard"><span class="catname">${c.name}</span><span class="catcount">${c.count}</span></div>`
 ).join('');
 
 const componentsHTML = shell(/* html */ `
-  <div class="brandbar">
-    ${LOGO}
-    <div><div class="name">Component catalog</div><div class="sub">One named import per barrel</div></div>
-    <div class="ver">v${VERSION}</div>
+  ${brandbar('Component catalog', 'One named import per barrel')}
+  <div class="figure">
+    <div class="n"><b>${TOTAL}</b> components</div>
+    <div class="k">across <span class="b">${CATEGORY_COUNT} categories</span> — tree-shakeable, one import per barrel</div>
   </div>
-  <div style="position:relative;z-index:1;margin-top:30px">
-    <div style="font-size:24px;color:var(--muted);font-weight:600">${CATEGORY_COUNT} categories</div>
-    <div style="font-size:76px;font-weight:800;letter-spacing:-0.03em;line-height:1">
-      <span class="grad">${TOTAL}</span> components
-    </div>
+  <div class="catgrid">${catCards}</div>
+  <div class="foot mono" style="font-size:13.5px">
+    <span style="color:var(--syn-key)">import</span>&nbsp;<span style="color:var(--syn-punc)">{</span>&nbsp;<span style="color:var(--syn-tag)">PricingSection</span>&nbsp;<span style="color:var(--syn-punc)">}</span>&nbsp;<span style="color:var(--syn-key)">from</span>&nbsp;<span style="color:var(--syn-str)">'@wendermedia/astro-components/sections'</span>
   </div>
-  <div style="position:relative;z-index:1;margin-top:34px;display:grid;
-              grid-template-columns:repeat(3,1fr);gap:14px;flex:1">
-    ${catCards}
-  </div>
-  <style>
-    .cat { display:flex; align-items:center; justify-content:space-between;
-           border:1px solid var(--line); border-radius:13px; padding:14px 18px;
-           background: var(--card); }
-    .cat-name { font-size:19px; font-weight:600; color:#e2e8f0; }
-    .cat-count { font-size:19px; font-weight:800; color:var(--brand);
-                 min-width:40px; text-align:right; }
-  </style>
 `);
 
 // --- Banner 3: accessibility + GDPR -----------------------------------------
@@ -210,33 +315,26 @@ const a11yItems = [
   'No third-party trackers by default',
   'Consent-gated embeds (YouTube, Maps)',
 ]
-  .map(
-    (t) => /* html */ `<li style="display:flex;align-items:center;gap:15px;font-size:23px;
-      font-weight:500;color:#e2e8f0;padding:11px 0">${check()}<span>${t}</span></li>`
-  )
+  .map((t) => `<div class="cli">${check(22)}<span>${t}</span></div>`)
   .join('');
 
 const a11yHTML = shell(/* html */ `
-  <div class="brandbar">
-    ${LOGO}
-    <div><div class="name">Accessible &amp; privacy-first</div><div class="sub">by default, in every component</div></div>
-    <div class="ver">v${VERSION}</div>
-  </div>
-  <div style="position:relative;z-index:1;display:flex;gap:16px;margin-top:34px">
-    <div style="flex:1;border:1px solid var(--line);border-radius:16px;padding:22px;background:var(--card)">
-      <div style="display:flex;align-items:center;gap:12px">${check('#10b981')}
-        <span style="font-size:26px;font-weight:800">WCAG 2.1 AA</span></div>
-      <div style="font-size:17px;color:var(--muted);margin-top:8px">BFSG 2025 ready</div>
+  ${brandbar('Accessible & privacy-first', 'by default, in every component')}
+  <div class="a11ybody">
+    <div class="badges">
+      <div class="badge">
+        <div class="t">${check(26)} WCAG 2.1 AA</div>
+        <div class="s">BFSG 2025 ready — tested, not claimed</div>
+      </div>
+      <div class="badge">
+        <div class="t">${check(26)} GDPR / DSGVO</div>
+        <div class="s">DSGVO Art. 13 — no trackers by default</div>
+      </div>
     </div>
-    <div style="flex:1;border:1px solid var(--line);border-radius:16px;padding:22px;background:var(--card)">
-      <div style="display:flex;align-items:center;gap:12px">${check('#10b981')}
-        <span style="font-size:26px;font-weight:800">GDPR compliant</span></div>
-      <div style="font-size:17px;color:var(--muted);margin-top:8px">DSGVO Art. 13</div>
-    </div>
+    <div class="checklist">${a11yItems}</div>
   </div>
-  <ul style="position:relative;z-index:1;margin-top:26px;list-style:none">${a11yItems}</ul>
-  <div class="foot"><b>${TOTAL} components</b><span style="color:var(--line)">&bull;</span>
-    Tested against WCAG 2.1 AA &mdash; accessibility is not an add-on</div>
+  <div class="foot"><b>${TOTAL} components</b><span class="sep">•</span>
+    Accessibility is not an add-on — it ships in every component</div>
 `);
 
 // --- Render -----------------------------------------------------------------
@@ -258,12 +356,11 @@ for (const b of BANNERS) {
   await page.setContent(b.html, { waitUntil: 'networkidle' });
   await page.evaluate(() => document.fonts.ready);
   await page.screenshot({ path: dest, clip: { x: 0, y: 0, width: 1270, height: 760 } });
-  // Quantize in place — flat gradients crush to ~1/5 size with no visible loss.
-  // pngquant is optional; skip gracefully if it isn't installed.
+  // Quantize in place — flat surfaces crush to ~1/5 size with no visible loss.
   let note = '';
   try {
     const before = statSync(dest).size;
-    execFileSync('pngquant', ['--quality=70-92', '--speed', '1', '--strip', '--force', '--output', dest, dest]);
+    execFileSync('pngquant', ['--quality=72-94', '--speed', '1', '--strip', '--force', '--output', dest, dest]);
     const after = statSync(dest).size;
     note = ` (${(before / 1e6).toFixed(1)}MB → ${(after / 1e3).toFixed(0)}KB)`;
   } catch {
