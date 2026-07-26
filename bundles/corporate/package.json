@@ -13,7 +13,7 @@
     "@astrojs/mdx": "^5.0.0",
     "@astrojs/sitemap": "^4.0.0",
     "@astrojs/react": "^5.0.0",
-    "@astrojs/netlify": "^7.0.0",
+    "@astrojs/netlify": "^8.1.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "@tailwindcss/vite": "^4.2.4",
