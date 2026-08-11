@@ -1,3 +1,5 @@
+
+
 <p align="center">
   <img src="https://www.wendermedia.com/favicon.svg" alt="WenderMedia Logo" width="64" height="64" />
 </p>
@@ -86,6 +88,7 @@ See [docs/MIGRATION-2.x-to-3.0.md](./docs/MIGRATION-2.x-to-3.0.md) for the full 
 - `@astrojs/solid-js` &mdash; Solid island support
 - `@tailwindcss/vite` + `tailwindcss@^4` &mdash; styling for the templates
 - `GSAP` &mdash; Hero animations
+- `@justinribeiro/lite-youtube` &mdash; Lightweight YouTube embeds (used by VideoPlayer)
 
 ## Installation
 
