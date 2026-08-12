@@ -5,8 +5,8 @@
   "type": "module",
   "main": "./index.ts",
   "bin": {
-    "create-wm-component": "./cli/bin.js",
-    "wm-components": "./cli/bin.js"
+    "create-wm-component": "cli/bin.js",
+    "wm-components": "cli/bin.js"
   },
   "exports": {
     ".": "./index.ts",
