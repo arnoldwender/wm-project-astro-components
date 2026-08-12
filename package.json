@@ -1,6 +1,6 @@
 {
   "name": "@wendermedia/astro-components",
-  "version": "4.0.2",
+  "version": "4.1.0",
   "description": "Complete Astro 7 development resource - components, bundles, integrations, and utilities",
   "type": "module",
   "main": "./index.ts",
@@ -152,9 +152,6 @@
     "@tailwindcss/vite": "^4.2.4",
     "tailwindcss": "^4.2.4"
   },
-  "overrides": {
-    "vite": "^8"
-  },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
     "@axe-core/playwright": "^4.11.3",
@@ -168,10 +165,10 @@
     "@storybook/web-components": "^10.3.6",
     "@storybook/web-components-vite": "^10.3.6",
     "@testing-library/dom": "^10.4.1",
-    "@typescript-eslint/parser": "^8.59.2",
+    "@typescript-eslint/parser": "^8.67.0",
     "@vitest/coverage-v8": "^4.1.5",
     "@vitest/ui": "^4.1.5",
-    "astro": "^7.2.0",
+    "astro": "^7.2.1",
     "axe-core": "^4.11.4",
     "eslint": "^10.3.0",
     "eslint-plugin-astro": "^3.1.0",
@@ -181,8 +178,8 @@
     "playwright": "^1.61.1",
     "storybook": "^10.3.6",
     "style-dictionary": "^5.4.0",
-    "typescript": "^6.0.3",
-    "typescript-eslint": "^8.59.2",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.67.0",
     "vitest": "^4.1.5"
   }
 }
