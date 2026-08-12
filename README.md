@@ -76,7 +76,7 @@ See [docs/MIGRATION-2.x-to-3.0.md](./docs/MIGRATION-2.x-to-3.0.md) for the full 
 
 - **Astro** 6.0 or higher
 - **Node.js** 22.12 or higher
-- **TypeScript** 5.x (recommended)
+- **TypeScript** 5.x or 6.x (recommended) &mdash; `astro check` is capped at 6.x by `@astrojs/check`
 
 ### Optional Peer Dependencies
 
@@ -86,6 +86,7 @@ See [docs/MIGRATION-2.x-to-3.0.md](./docs/MIGRATION-2.x-to-3.0.md) for the full 
 - `@astrojs/solid-js` &mdash; Solid island support
 - `@tailwindcss/vite` + `tailwindcss@^4` &mdash; styling for the templates
 - `GSAP` &mdash; Hero animations
+- `@justinribeiro/lite-youtube` &mdash; lazy-loaded YouTube embeds, imported on click by `LiteYouTubeEmbed` (`VideoPlayer` does not need it &mdash; it ships its own consent-gated `youtube-nocookie.com` embed)
 
 ## Installation
 
