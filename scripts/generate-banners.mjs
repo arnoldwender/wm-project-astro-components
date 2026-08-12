@@ -249,7 +249,12 @@ const CODE_LINES = [
 ];
 const gutter = CODE_LINES.map((_, i) => i + 1).join('\n');
 const codeLines = CODE_LINES.join('\n');
-const techChips = ['Astro 6 · 7', 'Tailwind 4', 'TypeScript 5', 'Node 22.12+']
+// Hardcoded on purpose — these state what a CONSUMER can pair the package with, which is
+// wider than any single version in our own devDependencies. Keep them in sync by hand when
+// the supported range actually moves: the version + component counts below are read live,
+// these are not. TypeScript is dual because @astrojs/check peers ^5 || ^6 and `astro check`
+// passes under 6.0.3 (verified 2026-08-12).
+const techChips = ['Astro 6 · 7', 'Tailwind 4', 'TypeScript 5 · 6', 'Node 22.12+']
   .map((t) => `<span class="chip">${t}</span>`)
   .join('');
 
