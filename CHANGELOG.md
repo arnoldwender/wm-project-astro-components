@@ -1,5 +1,41 @@
 # Changelog
 
+## 4.1.0
+
+### Minor Changes
+
+- Toolchain brought current on Astro 7.2 — **no public API change**.
+
+  The peer range stays `astro@^6.0.0 || ^7.0.0`, and `exports`, `optionalDependencies` and
+  `peerDependencies` are untouched. Consumers need to do nothing; this is an internal
+  toolchain and security update.
+
+  **Dependencies**
+
+  - `astro` 7.0 → **7.2.1**, `@astrojs/check` 0.9.9 → **0.9.10**.
+  - `eslint-plugin-astro` 2 → **3.1.0**, with the peers its 3.x line requires:
+    `@typescript-eslint/parser` and `typescript-eslint` → **8.67.0** (`>=8.61.0`).
+    `eslint` was already on the required `>=10`.
+  - `typescript` 5.9 → **6.0.3**, pinned with `~` rather than `^`: `typescript-eslint@8.67.0`
+    declares `typescript >=4.8.4 <6.1.0`, so a caret range would float past that ceiling the
+    day TS 6.1 ships. `@astrojs/check@0.9.10` accepts `^5 || ^6`; TypeScript 7 is **not**
+    reachable until it widens that peer.
+  - Removed the `overrides.vite: "^8"` pin. It no longer does anything — `astro@7.2.1`
+    depends on `vite@^8.0.13` directly, and vitest, `@tailwindcss/vite` and Storybook all
+    accept 8 — while a stale major pin in `overrides` is the known cause of undeployable
+    builds on the next Astro major. Resolution verified: a single `vite@8.2.1`, no duplicates.
+
+  **Security**
+
+  `npm audit` goes from **11 advisories (6 high, 5 moderate) to 0**. The high findings
+  (`brace-expansion`, `fast-uri`, `js-yaml`, `nanoid`, `postcss`, `svgo`) were transitive
+  through the `astro` and `@astrojs/language-server` chains that this bump advances. No
+  `--force` was used.
+
+  **Verification** (183 components / 386 files): `astro check` 0 errors, 0 warnings ·
+  `eslint` 0 errors, 90 warnings (unchanged from the pre-bump baseline) · vitest 10/10 ·
+  `tokens:build` and `build-storybook` both green.
+
 ## 4.0.0
 
 ### Major Changes
