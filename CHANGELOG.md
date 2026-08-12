@@ -1,5 +1,26 @@
 # Changelog
 
+## 4.1.2
+
+### Patch Changes
+
+- Fix a latent range mismatch in `bundles/affiliate` that resolves today only by luck.
+
+  The bundle declared `astro@^7.1.3` next to `@astrojs/cloudflare@^14.0.0`. That pair installs
+  right now because `astro` floats to 7.2.1 and `@astrojs/cloudflare` floats to 14.2.1 — but the
+  **floors** of the two declared ranges are incompatible: `@astrojs/cloudflare@14.2.1` peers
+  `astro@^7.2.0`, so pinning `astro` at 7.1.3 (the floor of its own declared range) fails with
+  `ERESOLVE`. Any lockfile, dedupe or `--prefer-offline` that lands astro on 7.1.x breaks the
+  bundle.
+
+  `@astrojs/cloudflare@^14.0.0` is also **not homogeneous**: 14.0.0 peers `astro@^7.0.0-alpha.2`
+  while 14.2.1 peers `astro@^7.2.0`. A caret range is not one constraint — the `.0` release of an
+  `@astrojs/*` major routinely ships a prerelease-tagged astro peer that later patches tighten.
+
+  Now `astro@^7.2.0` + `@astrojs/cloudflare@^14.2.0`, verified to resolve both at the exact
+  floors (7.2.0 + 14.2.0) and as declared. The other 7 bundles were checked with the same
+  floor-against-floor rule and came back coherent.
+
 ## 4.1.1
 
 ### Patch Changes
