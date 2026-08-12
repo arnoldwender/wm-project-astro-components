@@ -14,7 +14,7 @@
   <img src="https://img.shields.io/badge/Astro-6%20%7C%207-BC52EE?logo=astro&logoColor=white" alt="Astro 6 | 7" />
   <img src="https://img.shields.io/badge/Tailwind-4.x-06B6D4?logo=tailwindcss&logoColor=white" alt="Tailwind 4.x" />
   <img src="https://img.shields.io/badge/Node-22.12%2B-339933?logo=nodedotjs&logoColor=white" alt="Node 22.12+" />
-  <img src="https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/TypeScript-5.x%20%7C%206.x-3178C6?logo=typescript&logoColor=white" alt="TypeScript 5 or 6" />
   <img src="https://img.shields.io/badge/WCAG_2.1-AA-green" alt="WCAG 2.1 AA" />
   <img src="https://img.shields.io/badge/GDPR-Compliant-green" alt="GDPR Compliant" />
   <img src="https://img.shields.io/badge/Components-183-purple" alt="183 Components" />
