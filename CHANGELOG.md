@@ -1,5 +1,35 @@
 # Changelog
 
+## 4.1.1
+
+### Patch Changes
+
+- Fix the dependency declarations of all 8 shipped bundles — every one of them failed
+  `npm install`.
+
+  `bundles/` is listed in `files`, so these templates go out in the npm tarball. Each declared
+  `astro@^7.1.3` while pinning integrations from the Astro 5/6 era, and two of the pinned
+  versions **were never published at all**:
+
+  | Package              | Was       | Now       | Why it failed                                                    |
+  | -------------------- | --------- | --------- | ---------------------------------------------------------------- |
+  | `@astrojs/sitemap`   | `^4.0.0`  | `^3.7.3`  | no 4.x exists on any dist-tag — registry returns 404 (`ETARGET`) |
+  | `@astrojs/partytown` | `^3.0.0`  | `^2.1.7`  | no 3.x exists — max is 2.1.7 (`ETARGET`)                         |
+  | `@astrojs/mdx`       | `^5.0.0`  | `^7.0.0`  | v5 peers `astro@^6.0.0` (`ERESOLVE`)                             |
+  | `@astrojs/starlight` | `^0.39.1` | `^0.41.7` | 0.39.1 peers `astro@^6.0.0` (`ERESOLVE`)                         |
+  | `@astrojs/svelte`    | `^7.0.0`  | `^9.0.0`  | v7 peers `astro@^5.0.0` — two majors behind                      |
+  | `@astrojs/react`     | `^5.0.0`  | `^6.0.0`  | no astro peer either way; version debt only                      |
+
+  Affected: `affiliate`, `blog`, `corporate`, `docs`, `ecommerce`, `landing`, `portfolio`,
+  `saas` — all of them.
+
+  **Verification.** `npm install --dry-run` now resolves in all 8 bundles (was 0/8).
+  Mutation-checked rather than assumed: restoring the old declarations puts `landing` back to
+  `ETARGET` and `docs` back to `ERESOLVE`, so the check genuinely detects the defect.
+
+  The bundles stay on `typescript@^5.0.0`. `@astrojs/svelte@9` accepts `^5.3.3 || ^6.0.0`, and a
+  consumer template should not force a TypeScript major.
+
 ## 4.1.0
 
 ### Minor Changes
