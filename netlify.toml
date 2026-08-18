@@ -1,0 +1,23 @@
+# Build configuration for astro.wendermedia.com
+#
+# Dieses Repo ist eine Komponenten-Bibliothek (npm-Paket
+# @wendermedia/astro-components), KEINE Astro-Site: es gibt weder ein
+# `build`-Script noch eine astro.config.mjs, und damit auch kein dist/.
+# Was die Domain ausliefert, ist der Storybook-Showcase.
+#
+# Die UI-Einstellung stand auf `npm run tokens:build` mit publish `dist`.
+# tokens:build erzeugt nur die Design-Tokens unter tokens/dist/ — das
+# Verzeichnis dist/ entsteht dabei nie, deshalb brach der Deploy mit
+# "Deploy directory 'dist' does not exist" ab.
+#
+# Ein `netlify.toml` im Repo hat Vorrang vor der UI, damit die Einstellung
+# versioniert ist und nicht wieder still auseinanderlaeuft.
+
+[build]
+  # tokens:build zuerst — Storybook zieht die generierten Tokens.
+  command = "npm run tokens:build && npm run build-storybook"
+  publish = "storybook-static"
+
+[build.environment]
+  # package.json engines verlangt >=22.12.0
+  NODE_VERSION = "24"
