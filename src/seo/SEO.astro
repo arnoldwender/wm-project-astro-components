@@ -15,7 +15,9 @@
  * - Canonical URL support with automatic fallback to current page URL
  * - noindex / nofollow toggles for staging or thin-content pages
  * - Structured data: pass any JSON-LD object via the structuredData prop
- * - Security headers: X-Content-Type-Options, X-Frame-Options, X-XSS-Protection, Referrer-Policy
+ * - Referrer policy via <meta name="referrer">; las demas cabeceras de seguridad
+ *   NO se pueden fijar desde el HTML y van en la config del host (netlify.toml,
+ *   public/_headers, .htaccess)
  * - Apple Mobile Web App and Microsoft tile color support
  * - Locale mapping for en, de, es, fr (extensible)
  *
@@ -177,8 +179,20 @@ const localeMap: Record<string, string> = {
   <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
 )}
 
-<!-- Security Headers -->
-<meta http-equiv="X-Content-Type-Options" content="nosniff" />
-<meta http-equiv="X-Frame-Options" content="DENY" />
-<meta http-equiv="X-XSS-Protection" content="1; mode=block" />
-<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+<!--
+  Referrer-Policy: se declara con `name`, NO con `http-equiv`.
+
+  El atributo http-equiv acepta siete valores y ninguno es una cabecera de
+  seguridad salvo content-security-policy: content-language, content-type,
+  content-security-policy, default-style, refresh, set-cookie y x-ua-compatible.
+  MDN lo dice literal en esa misma pagina: "Do not set other security headers
+  using <meta http-equiv=, as this can lead to a false sense of security!".
+
+  Aqui vivian ademas X-Content-Type-Options, X-Frame-Options y X-XSS-Protection
+  como http-equiv. Los tres eran INERTES: el navegador los ignora, asi que no
+  protegian nada y ademas ensuciaban la consola en cada carga. Esas tres van
+  como cabecera HTTP real (netlify.toml / public/_headers / .htaccess), que es
+  el unico sitio donde surten efecto. X-XSS-Protection no deberia volver ni como
+  cabecera: esta retirado de los navegadores y llego a abrir vectores de mXSS.
+-->
+<meta name="referrer" content="strict-origin-when-cross-origin" />
