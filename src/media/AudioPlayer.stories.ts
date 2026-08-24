@@ -82,13 +82,13 @@ const renderAudioPlayer = (args: Record<string, unknown>) => html`
           <span class="ap-time">3:42</span>
         </div>
         <div class="ap-controls">
-          <button class="ap-btn ap-btn--secondary" aria-label="10 Sekunden zurueck">
+          <button class="ap-btn ap-btn--secondary" aria-label="10 Sekunden zurück">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 19l-7-7 7-7"/></svg>
           </button>
           <button class="ap-btn ap-btn--primary" aria-label="Abspielen">
             <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
           </button>
-          <button class="ap-btn ap-btn--secondary" aria-label="10 Sekunden vorwaerts">
+          <button class="ap-btn ap-btn--secondary" aria-label="10 Sekunden vorwärts">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 5l7 7-7 7"/></svg>
           </button>
           <button class="ap-speed">1x</button>

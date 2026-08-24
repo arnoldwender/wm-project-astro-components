@@ -63,7 +63,7 @@ const renderAddToCart = (args: Record<string, unknown>) => html`
       <div class="atc-qty">
         <button class="atc-qty-btn" aria-label="Menge verringern">-</button>
         <input type="number" class="atc-qty-input" value="1" min="1" aria-label="Menge" />
-        <button class="atc-qty-btn" aria-label="Menge erhoehen">+</button>
+        <button class="atc-qty-btn" aria-label="Menge erhöhen">+</button>
       </div>
     ` : ''}
     <button class="atc-btn" type="button">
