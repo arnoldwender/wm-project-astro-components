@@ -44,11 +44,28 @@ We take security seriously. If you discover a security vulnerability, please rep
 
 ## Security Measures
 
-- HTTPS enforced via hosting provider
-- Security headers configured (X-Frame-Options, X-Content-Type-Options, Referrer-Policy)
+- HTTPS enforced via hosting provider (HSTS, `max-age=31536000` — measured)
 - No third-party tracking or analytics
 - Regular dependency updates and vulnerability scanning
 - No secrets or credentials committed to the repository
+
+### Security headers — known gap
+
+`astro.wendermedia.com` (this repo's Storybook) currently serves **only**
+`Strict-Transport-Security`. It has no `X-Frame-Options`, no
+`X-Content-Type-Options` and no `Referrer-Policy`, because `netlify.toml` here
+declares no `[[headers]]` block. Measured 2026-08-24 against the live response —
+an earlier revision of this file claimed these headers were configured; they
+were not.
+
+Closing the gap needs care rather than a copy-paste: Storybook renders every
+story inside a **same-origin iframe** (`/iframe.html`), so `X-Frame-Options`
+must be `SAMEORIGIN` — `DENY` blanks the canvas. A `Content-Security-Policy` is
+a separate question again, since Storybook's runtime relies on inline scripts.
+
+Note that these are **HTTP headers**, set at the edge. They cannot be set from
+a `<meta http-equiv>` in a document; see the comment block in
+`src/seo/SEO.astro` for why that approach was removed.
 
 ## Dependencies
 
