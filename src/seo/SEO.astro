@@ -4,7 +4,7 @@
  *
  * Drop-in <head> component that renders a complete set of SEO meta tags,
  * Open Graph tags, Twitter Card tags, hreflang links, Apple/Microsoft
- * platform tags, optional JSON-LD structured data, and security headers.
+ * platform tags and optional JSON-LD structured data.
  * Place it once inside your BaseLayout <head> and pass page-level props.
  *
  * Features:
@@ -15,7 +15,6 @@
  * - Canonical URL support with automatic fallback to current page URL
  * - noindex / nofollow toggles for staging or thin-content pages
  * - Structured data: pass any JSON-LD object via the structuredData prop
- * - Security headers: X-Content-Type-Options, X-Frame-Options, X-XSS-Protection, Referrer-Policy
  * - Apple Mobile Web App and Microsoft tile color support
  * - Locale mapping for en, de, es, fr (extensible)
  *
@@ -164,7 +163,10 @@ const localeMap: Record<string, string> = {
 <meta property="article:author" content={siteName} />
 <meta property="article:publisher" content={siteName} />
 
-<!-- Apple -->
+<!-- Apple. Das standardisierte Gegenstueck steht daneben, nicht statt dessen:
+     Chrome verwarnt bei jedem Aufruf, wenn nur die Apple-Variante da ist, aber
+     aeltere iOS-Versionen kennen nur diese. Beide gehoeren gesetzt. -->
+<meta name="mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="default" />
 <meta name="apple-mobile-web-app-title" content={siteName} />
@@ -177,8 +179,25 @@ const localeMap: Record<string, string> = {
   <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
 )}
 
-<!-- Security Headers -->
-<meta http-equiv="X-Content-Type-Options" content="nosniff" />
-<meta http-equiv="X-Frame-Options" content="DENY" />
-<meta http-equiv="X-XSS-Protection" content="1; mode=block" />
-<meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+<!-- Keine Security-Header hier. Sie standen bis v4.1.2 als <meta http-equiv> in
+     diesem Kopf und haben nie etwas geschuetzt — gemessen, nicht vermutet:
+
+     · X-Frame-Options DENY: eine Seite damit liess sich in einen <iframe> laden,
+       und das eltern-Dokument konnte ihr DOM lesen. Chrome protokolliert dazu
+       einen Fehler bei JEDEM Aufruf. Der echte Schutz ist frame-ancestors im CSP.
+     · X-Content-Type-Options und X-XSS-Protection: wirkungslos als <meta>, und
+       zwar STILL — keine Warnung, kein Fehler. Falsche Sicherheit ohne Signal.
+       X-XSS-Protection will man ohnehin nicht mehr; dieses Repo sagt das
+       schon zweimal selbst (templates/deployment/netlify.mjs, astro.config.ecommerce.mjs).
+     · Referrer-Policy: als http-equiv ignoriert. Es GIBT eine gueltige Meta-Form
+       (<meta name="referrer">), aber sie gehoert nicht in eine geteilte
+       Komponente: gemessen ueberschreibt sie den Referrer-Policy-HEADER der
+       konsumierenden Seite, und deren Betreiber saehe nicht, warum die eigene
+       Einstellung wirkungslos bleibt.
+
+     `http-equiv` kennt nur content-language, content-type,
+     content-security-policy, default-style, refresh, set-cookie und
+     x-ua-compatible. Alles andere dort ist wirkungslos.
+
+     Security-Header gehoeren an den Edge. Vorlagen dafuer liegen im Repo:
+     templates/deployment/netlify.mjs und templates/deployment/vercel.mjs. -->

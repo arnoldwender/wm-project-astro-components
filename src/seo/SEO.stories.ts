@@ -23,7 +23,6 @@ Drop-in <head> component rendering a complete set of SEO meta tags.
 - Canonical URL with automatic fallback
 - noindex/nofollow toggles
 - Structured data via JSON-LD
-- Security headers: X-Content-Type-Options, X-Frame-Options, Referrer-Policy
         `,
       },
     },

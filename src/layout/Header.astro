@@ -65,6 +65,13 @@ export interface Props {
   contactPhone?: string;
   transparent?: boolean;
   class?: string;
+  /**
+   * Beschriftung des Menue-Knopfs fuer Screenreader. Default ist englisch, weil
+   * das der bisherige fest verdrahtete Wert war — auf einer Seite mit lang="de"
+   * gehoert hier aber Deutsch hin, sonst liest der Screenreader Englisch in
+   * einem deutschen Dokument vor (WCAG 3.1.2, Geltungsbereich BFSG).
+   */
+  menuLabel?: string;
 }
 
 const {
@@ -75,6 +82,7 @@ const {
   contactPhone,
   transparent = true,
   class: className = '',
+  menuLabel = 'Open menu',
 } = Astro.props;
 
 const currentPath = Astro.url.pathname;
@@ -140,7 +148,7 @@ const currentPath = Astro.url.pathname;
       <button
         id="mobile-menu-button"
         class="lg:hidden p-2 transition-colors hover:opacity-80"
-        aria-label="Open menu"
+        aria-label={menuLabel}
         aria-expanded="false"
         aria-controls="mobile-menu"
       >
