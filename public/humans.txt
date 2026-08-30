@@ -8,7 +8,7 @@
 
 # THANKS
 
-    Ozzy Osbourne -- Inspiration & Prince of Darkness
+    To My Family -- For unconditional love, strength & continuous inspiration
     Astro Team -- Amazing framework that rocks
     Open Source Community -- For making the web better
     Our Clients -- For trusting us with their digital presence
@@ -60,6 +60,4 @@
 
 # DEDICATION
 
-    Dedicated to Ozzy Osbourne - The Prince of Darkness
-    "I'm just a dreamer, I dream my life away"
-    Rock on! 🤘
+    Dedicated to my family with eternal love and gratitude.
