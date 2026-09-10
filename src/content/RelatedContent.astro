@@ -1,4 +1,5 @@
 ---
+import { serializeJsonLd } from '../lib/jsonld';
 /**
  * RelatedContent Component - WenderMedia Astro Components
  *
@@ -129,7 +130,7 @@ const schemaData = {
   </div>
 
   {/* Schema.org structured data */}
-  <script type="application/ld+json" set:html={JSON.stringify(schemaData)} />
+  <script type="application/ld+json" set:html={serializeJsonLd(schemaData)} />
 </section>
 
 <style>

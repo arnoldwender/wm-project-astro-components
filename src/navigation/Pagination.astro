@@ -1,4 +1,5 @@
 ---
+import { serializeJsonLd } from '../lib/jsonld';
 /**
  * Pagination Component - WenderMedia Astro Components
  *
@@ -180,7 +181,7 @@ const hasNext = currentPage < totalPages;
 </nav>
 
 <!-- SEO: Structured Data -->
-<script type="application/ld+json" set:html={JSON.stringify({
+<script type="application/ld+json" set:html={serializeJsonLd({
   '@context': 'https://schema.org',
   '@type': 'CollectionPage',
   'url': Astro.url.href,

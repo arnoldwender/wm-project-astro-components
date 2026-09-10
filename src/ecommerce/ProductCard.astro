@@ -1,4 +1,5 @@
 ---
+import { serializeJsonLd } from '../lib/jsonld';
 /**
  * ProductCard Component - WenderMedia Astro Components
  *
@@ -126,7 +127,7 @@ const productSchema = {
   data-product-id={id}
 >
   <!-- Schema.org JSON-LD -->
-  <script type="application/ld+json" set:html={JSON.stringify(productSchema)} />
+  <script type="application/ld+json" set:html={serializeJsonLd(productSchema)} />
 
   <!-- Image Section -->
   <div class="product-card__image-container">
