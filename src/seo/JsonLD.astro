@@ -1,4 +1,5 @@
 ---
+import { serializeJsonLd } from '../lib/jsonld';
 /**
  * JsonLD Component - WenderMedia Astro Components
  *
@@ -79,4 +80,4 @@ const schema = {
 };
 ---
 
-<script type="application/ld+json" set:html={JSON.stringify(schema, null, 0)} />
+<script type="application/ld+json" set:html={serializeJsonLd(schema, null, 0)} />

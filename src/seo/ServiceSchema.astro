@@ -1,4 +1,5 @@
 ---
+import { serializeJsonLd } from '../lib/jsonld';
 /**
  * ServiceSchema Component - WenderMedia Astro Components
  *
@@ -292,4 +293,4 @@ function cleanSchema(obj: unknown): unknown {
 const cleanedSchema = cleanSchema(schema);
 ---
 
-<script type="application/ld+json" set:html={JSON.stringify(cleanedSchema)} />
+<script type="application/ld+json" set:html={serializeJsonLd(cleanedSchema)} />

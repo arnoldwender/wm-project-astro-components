@@ -1,4 +1,5 @@
 ---
+import { serializeJsonLd } from '../lib/jsonld';
 /**
  * HowToSchema Component - WenderMedia Astro Components
  *
@@ -184,5 +185,5 @@ const schema = hasSteps
 ---
 
 {schema && (
-  <script is:inline type="application/ld+json" set:html={JSON.stringify(schema)} />
+  <script is:inline type="application/ld+json" set:html={serializeJsonLd(schema)} />
 )}

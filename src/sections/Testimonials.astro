@@ -1,4 +1,5 @@
 ---
+import { serializeJsonLd } from '../lib/jsonld';
 /**
  * Premium Testimonials Component - WenderMedia Astro Components
  *
@@ -361,7 +362,7 @@ const averageRating = testimonials.reduce((acc, t) => acc + (t.rating || 5), 0) 
 
 {/* Schema.org Review markup */}
 {showSchema && (
-  <script type="application/ld+json" set:html={JSON.stringify({
+  <script type="application/ld+json" set:html={serializeJsonLd({
     "@context": "https://schema.org",
     "@type": "ItemList",
     "itemListElement": testimonials.map((t, index) => ({

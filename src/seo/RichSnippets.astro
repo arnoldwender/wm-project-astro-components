@@ -1,4 +1,5 @@
 ---
+import { serializeJsonLd } from '../lib/jsonld';
 /**
  * RichSnippets Component - WenderMedia Astro Components
  *
@@ -326,5 +327,5 @@ const cleanedSchema = schema ? cleanSchema(schema) : null;
 ---
 
 {cleanedSchema && (
-  <script type="application/ld+json" set:html={JSON.stringify(cleanedSchema)} />
+  <script type="application/ld+json" set:html={serializeJsonLd(cleanedSchema)} />
 )}

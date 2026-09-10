@@ -1,4 +1,5 @@
 ---
+import { serializeJsonLd } from '../lib/jsonld';
 /**
  * Premium Pricing Table Component - WenderMedia Astro Components
  *
@@ -467,7 +468,7 @@ const savingsText = savingsLabel.replace('{percent}', maxSavings.toString());
 
 {/* Schema.org Product markup (pricing mode only) */}
 {mode === 'pricing' && showSchema && tiers.map((tier) => (
-  <script type="application/ld+json" set:html={JSON.stringify({
+  <script type="application/ld+json" set:html={serializeJsonLd({
     "@context": "https://schema.org",
     "@type": "Product",
     "name": tier.name,
