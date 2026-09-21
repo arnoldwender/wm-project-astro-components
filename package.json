@@ -180,6 +180,6 @@
     "style-dictionary": "^5.4.0",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.67.0",
-    "vitest": "^4.1.5"
+    "vitest": "^5.0.1"
   }
 }
