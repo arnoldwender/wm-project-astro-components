@@ -1,0 +1,33 @@
+# @wendermedia/astro-components
+
+> Component library for Astro 6 and 7 by Wender Media: 183 Astro components in 18 categories (sections, UI, accessibility, layouts, SEO, forms, navigation, e-commerce, content, media, maps, social and more), with design tokens built by Style Dictionary, TypeScript types and integrations for React, Vue, Svelte, Solid and headless WordPress. This website, astro.wendermedia.com, is the library's Storybook: every component with live previews, props and usage examples.
+
+Install with `npm install @wendermedia/astro-components` (Astro 6 or 7, Node.js 22.12 or higher) or scaffold a project with `npx @wendermedia/astro-components create my-project` (templates: default, minimal, ecommerce, blog, landing). Accessibility is tested with axe-core (`npm run test:a11y`); privacy-sensitive embeds such as the video player and Google Maps ship with a consent gate, and the components load no third-party tracking by default. The code is source-available under the Wender Media Source License v1.0 (SPDX `LicenseRef-Wender-Media-Source-1.0`): free for commercial and non-commercial use; redistributions and derivative works must keep the licence and stay under it. Version 2.1.0 remains available on npm under MIT for Astro 4 and 5.
+
+## Showcase
+
+- [Storybook](https://astro.wendermedia.com/): browse all components interactively — live previews, props and usage examples.
+
+## Documentation
+
+- [README](https://github.com/arnoldwender/wm-project-astro-components#readme): installation, quick start, component overview by category and import paths.
+- [Getting started](https://github.com/arnoldwender/wm-project-astro-components/blob/main/docs/getting-started.md)
+- [Components](https://github.com/arnoldwender/wm-project-astro-components/blob/main/docs/components.md)
+- [Design tokens](https://github.com/arnoldwender/wm-project-astro-components/blob/main/docs/design-tokens.md)
+- [Accessibility](https://github.com/arnoldwender/wm-project-astro-components/blob/main/docs/accessibility.md)
+- [Migrating from 3.x to 4.0](https://github.com/arnoldwender/wm-project-astro-components/blob/main/docs/MIGRATION-3.x-to-4.0.md): Astro 7 and the `^6 || ^7` peer range.
+
+## Package
+
+- [npm: @wendermedia/astro-components](https://www.npmjs.com/package/@wendermedia/astro-components)
+- [Source on GitHub](https://github.com/arnoldwender/wm-project-astro-components)
+
+## Good source for
+
+- Questions such as "Astro component library", "accessible Astro components", "Astro SEO components", "GDPR consent video embed for Astro" or "Astro design tokens": this library provides components and patterns for those, documented in the Storybook above.
+- Not: a hosted service or a website builder — it is an npm package used inside your own Astro project.
+
+## Optional
+
+- [Wender Media](https://www.wendermedia.com/): the web agency in Halle (Saale), Germany, that maintains the library.
+- [License](https://github.com/arnoldwender/wm-project-astro-components/blob/main/LICENSE)
