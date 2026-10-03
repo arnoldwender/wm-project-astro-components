@@ -347,6 +347,11 @@ npm run storybook        # Start dev server on port 6006
 npm run build-storybook  # Build static site
 ```
 
+The playbook also serves [`/llms.txt`](https://astro.wendermedia.com/llms.txt), a short Markdown summary of the
+library for AI search engines (ChatGPT, Perplexity, Claude and others). It lives in `public/llms.txt` — Storybook
+copies `public/` to the site root — and `tests/llms-txt.test.ts` fails when the component or category counts it
+states drift from `src/`.
+
 ## WordPress Integration
 
 Connect to WordPress as a headless CMS:
