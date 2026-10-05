@@ -3,10 +3,21 @@
 **Autor:** Arnold Wender · Wender Media
 **Repo:** `wm-project-astro-components` (`@wendermedia/astro-components` v4.1.2)
 **Sitio auditado:** <https://astro.wendermedia.com>
-**Estado:** 1 hallazgo abierto (MEDIO) + 1 contradicción documental + 1 decisión pendiente
+**Estado (2026-10-05):** cerrado por la opción (a) — 0 hallazgos abiertos. El 2026-09-03 eran 1 hallazgo abierto
+(MEDIO) + 1 contradicción documental + 1 decisión pendiente.
 
 > Hilfsmittel-Audit, kein Anwaltsgutachten. Cada afirmación de este documento trae la
 > medición que la sostiene; la calificación legal definitiva la firma un abogado.
+
+> **Actualización 2026-10-05 — cerrado por la opción (a), medido en producción.** El PR #62 hizo T1–T4:
+> [`public/impressum.html`](../public/impressum.html) con el texto de [`src/Legal.mdx:11-47`](../src/Legal.mdx);
+> el enlace en el HTML servido de la portada (el bloque `<noscript>` que escribe
+> [`scripts/storybook-static-landing.mjs`](../scripts/storybook-static-landing.mjs) tras `build-storybook`) y en la
+> página de bienvenida que Storybook abre primero ([`src/Welcome.mdx`](../src/Welcome.mdx), `target="_top"`);
+> `Legal.mdx` sin la attribution «erforderlich» y con *Stand: Oktober 2026*. El falsificador de la sección 6 da
+> **RESUELTO** contra producción, con sus controles (tabla al final de la sección 6). Su regex necesitó un arreglo:
+> el procesado de HTML de Netlify (Pretty URLs) sirve `href="/impressum.html"` como `href='/impressum'`, y la
+> versión del 2026-09-03 solo aceptaba comillas dobles — daba PARCIAL con la página enlazada.
 
 ---
 
@@ -177,6 +188,10 @@ Si se toca el fichero, la fecha se actualiza en el mismo commit.
 **T3 y T4 se pueden hacer ya.** T1 y T2 dependen de lo que Arnold decida en la sección 5:
 si el sitio se cierra tras el password gate, T1 y T2 dejan de ser necesarias.
 
+**Hecho el 2026-10-05 (PR #62):** T1, T2, T3 y T4; T5 respetada (`templates/` sin tocar). El enlace de T2 no fue
+por `managerHead` ni por el branding: un enlace superpuesto a la interfaz de Storybook tapaba su barra inferior en
+móvil, así que va en el `<noscript>` del HTML servido y en la página de bienvenida.
+
 ---
 
 ## 5. `[NEEDS ARNOLD]` — decisión de negocio, no de derecho
@@ -223,6 +238,9 @@ una decisión revisable, y de ella depende qué se hace con el hallazgo. **No la
 
 **Sin decisión, la opción por defecto es (a)**: hoy el sitio está público y sin Impressum
 alcanzable, que es el único estado de los tres que no es defendible.
+
+**2026-10-05: aplicada la opción por defecto (a)** (PR #62). Pasar a (b) o (c) sigue siendo decisión de Arnold; con
+(b), `public/impressum.html` puede quedarse, no estorba.
 
 ---
 
@@ -276,7 +294,9 @@ if [ -z "$found" ]; then
 fi
 
 # DDG §5 pide 'unmittelbar erreichbar': un enlace en el HTML SERVIDO, no pintado en cliente.
-if grep -qiE '<a[^>]+href="[^"]*(impressum|legal|datenschutz)' "$TMP/root.html"; then
+# El procesado de HTML de Netlify (Pretty URLs) sirve href="/impressum.html" como href='/impressum':
+# se aceptan las dos comillas (2026-10-05; solo con dobles, una página enlazada salía PARCIAL).
+if grep -qiE "<a[^>]+href=[\"'][^\"']*(impressum|legal|datenschutz)" "$TMP/root.html"; then
   echo "RESUELTO — $SITE$found sirve el Impressum y la portada lo enlaza."
   exit 0
 fi
@@ -296,6 +316,18 @@ medidos:
 | `./falsifier.sh https://www.wendermedia.com` (control con Impressum) | `RESUELTO — …/impressum/ sirve el Impressum y la portada lo enlaza` | **0** |
 | `./falsifier.sh https://nodus.build` (control tras password gate) | `RESUELTO por cierre — … responde 401` | **0** |
 
+### Re-verificado el 2026-10-05, tras el PR #62
+
+Con la regex que acepta las dos comillas, y la del 2026-09-03 como control de la trampa:
+
+| Invocación | Salida | exit |
+| --- | --- | --- |
+| `./falsifier.sh` (sujeto, producción tras #62) | `RESUELTO — …/impressum.html sirve el Impressum y la portada lo enlaza` | **0** |
+| `./falsifier.sh https://6ac1368927664e0008af85bd--wm-astro-components.netlify.app` (control negativo: el último deploy de producción anterior a #62) | `ABIERTO — ninguna página legal alcanzable … (7 rutas, HTTP raíz=200)` | **2** |
+| `./falsifier.sh https://www.wendermedia.com` (control con Impressum) | `RESUELTO — …/impressum/ sirve el Impressum y la portada lo enlaza` | **0** |
+| `./falsifier.sh https://nodus.build` (control tras password gate) | `RESUELTO por cierre — … responde 401` | **0** |
+| la versión del 2026-09-03 (solo comillas dobles) sobre el sujeto | `PARCIAL — …/impressum.html existe, pero la portada no lo enlaza en el HTML servido` | **2** |
+
 ### Comprobación adicional para T3
 
 Independiente del sitio, se mide en el repo:
@@ -304,6 +336,8 @@ Independiente del sitio, se mide en el repo:
 # Rojo mientras Legal.mdx siga diciendo que la attribution es obligatoria.
 grep -n 'erforderlich' src/Legal.mdx && echo 'T3 ABIERTA' || echo 'T3 cerrada'
 ```
+
+Medido el 2026-10-05: 0 coincidencias → **T3 cerrada**.
 
 ---
 
