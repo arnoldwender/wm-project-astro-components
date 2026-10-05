@@ -14,8 +14,11 @@
 # versioniert ist und nicht wieder still auseinanderlaeuft.
 
 [build]
-  # tokens:build zuerst — Storybook zieht die generierten Tokens.
-  command = "npm run tokens:build && npm run build-storybook"
+  # tokens:build zuerst — Storybook zieht die generierten Tokens. Danach schreibt
+  # scripts/storybook-static-landing.mjs Titel, Beschreibung, Canonical, Entität, den
+  # Impressum-Link und den <noscript>-Text in storybook-static/index.html (bricht ab,
+  # wenn die Shell nicht passt).
+  command = "npm run tokens:build && npm run build-storybook && node scripts/storybook-static-landing.mjs"
   publish = "storybook-static"
 
 [build.environment]
