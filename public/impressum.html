@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Impressum &amp; Datenschutz · @wendermedia/astro-components</title>
+  <meta name="description" content="Impressum (§ 5 DDG) und Datenschutz-Kurzfassung des Storybooks der Komponentenbibliothek @wendermedia/astro-components von Wender Media, Halle (Saale).">
+  <link rel="canonical" href="https://astro.wendermedia.com/impressum.html">
+  <!-- Static page so the legal notice is reachable as a page of its own (DDG § 5: "unmittelbar erreichbar"):
+       inside Storybook it only exists as a client-side story. The text is the one in src/Legal.mdx;
+       tests/static-site.test.ts keeps the two in step. -->
+  <style>
+    body { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; line-height: 1.6; color: #0f172a; background: #f8fafc; margin: 0; padding: 2rem 1rem; }
+    main { max-width: 46rem; margin: 0 auto; background: #ffffff; padding: 2rem; border-radius: 8px; border: 1px solid #e2e8f0; }
+    h1 { font-size: 1.75rem; margin-top: 0; }
+    h2 { font-size: 1.25rem; margin-top: 2rem; }
+    a { color: #134cca; }
+    hr { border: 0; border-top: 1px solid #e2e8f0; margin: 2rem 0; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Impressum &amp; Datenschutz</h1>
+    <p>Dieses Storybook ist die öffentliche Komponenten-Referenz der Bibliothek @wendermedia/astro-components. <a href="/">Zurück zum Storybook</a></p>
+
+    <section id="impressum">
+      <h2>Impressum (gemäß § 5 DDG)</h2>
+      <p><strong>Werbeagentur Wender Media</strong><br>
+      Inh. Arnold Wender<br>
+      Franckestraße 3a<br>
+      06110 Halle (Saale)<br>
+      Deutschland</p>
+      <p><strong>Kontakt:</strong><br>
+      Telefon: 0345 6867-6857<br>
+      E-Mail: <a href="mailto:info@wendermedia.com">info@wendermedia.com</a></p>
+      <p><strong>Umsatzsteuer-Identifikationsnummer:</strong> DE253389445 (gemäß § 27 a UStG)</p>
+      <p><strong>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV:</strong> Arnold Wender, Anschrift wie oben.</p>
+      <p><strong>Verbraucherstreitbeilegung:</strong> Wir sind nicht verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.</p>
+    </section>
+
+    <hr>
+
+    <section id="datenschutz">
+      <h2>Datenschutz (Kurzfassung)</h2>
+      <p>Diese Storybook-Seite ist eine reine <strong>Komponenten-Dokumentation</strong> ohne Tracking, Login, Formulare oder personalisierte Inhalte.</p>
+      <ul>
+        <li><strong>Hosting:</strong> Netlify (USA) — IP-Adresse, User-Agent und Zeitstempel werden technisch verarbeitet (Art. 6 Abs. 1 lit. f DSGVO). Übermittlung in die USA auf Grundlage des EU-US-Datenschutzrahmens (TADPF) und Standardvertragsklauseln.</li>
+        <li><strong>Cookies / localStorage:</strong> Storybook speichert ggf. Theme- und Layout-Präferenzen ausschließlich lokal im Browser (Art. 6 Abs. 1 lit. f DSGVO i.V.m. § 25 Abs. 2 Nr. 2 TDDDG). Es findet keine Tracking-Datenverarbeitung statt.</li>
+        <li><strong>Drittanbieter-Inhalte:</strong> GitHub-Badges, npm-Badges und Shields.io werden beim Aufruf nachgeladen — die jeweiligen Datenschutzbestimmungen gelten zusätzlich.</li>
+      </ul>
+      <p><strong>Verantwortlicher:</strong> Werbeagentur Wender Media (siehe Impressum).</p>
+      <p><strong>Beschwerderecht:</strong><br>
+      Landesbeauftragte für den Datenschutz Sachsen-Anhalt<br>
+      Leiterstraße 9, 39104 Magdeburg<br>
+      Telefon: 0391 81803-0<br>
+      <a href="mailto:poststelle@lfd.sachsen-anhalt.de">poststelle@lfd.sachsen-anhalt.de</a> · <a href="https://datenschutz.sachsen-anhalt.de" rel="noopener">datenschutz.sachsen-anhalt.de</a></p>
+      <p><strong>Betroffenenrechte (Art. 15 ff. DSGVO):</strong> Auskunft, Berichtigung, Löschung, Einschränkung, Datenübertragbarkeit, Widerspruch, Widerruf erteilter Einwilligungen.</p>
+    </section>
+  </main>
+</body>
+</html>
