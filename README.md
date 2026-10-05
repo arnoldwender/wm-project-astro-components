@@ -352,6 +352,13 @@ library for AI search engines (ChatGPT, Perplexity, Claude and others). It lives
 copies `public/` to the site root — and `tests/llms-txt.test.ts` fails when the component or category counts it
 states drift from `src/`.
 
+Next to it, `public/` holds the legal notice as a page of its own ([`/impressum.html`](https://astro.wendermedia.com/impressum.html),
+the text of `src/Legal.mdx`), `robots.txt` and `sitemap.xml`. After `npm run build-storybook`, the site build runs
+`node scripts/storybook-static-landing.mjs`, which writes a title, description, canonical URL, the publisher entity
+and a `<noscript>` summary with a link to the legal page into `storybook-static/index.html` (it stops the build if
+the Storybook shell is not the expected one). `tests/static-site.test.ts` keeps these files, `src/Legal.mdx` and the
+counts on the Welcome page in step with `src/`.
+
 ## WordPress Integration
 
 Connect to WordPress as a headless CMS:

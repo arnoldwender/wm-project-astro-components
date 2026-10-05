@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- The pages that exist as documents. The stories (?path=/docs/…) are client-side views of the same
+       index.html, so they are not listed; tests/static-site.test.ts checks that every entry is served. -->
+  <url>
+    <loc>https://astro.wendermedia.com/</loc>
+  </url>
+  <url>
+    <loc>https://astro.wendermedia.com/impressum.html</loc>
+  </url>
+  <url>
+    <loc>https://astro.wendermedia.com/colophon.html</loc>
+  </url>
+</urlset>
