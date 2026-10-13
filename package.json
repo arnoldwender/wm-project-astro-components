@@ -166,9 +166,9 @@
     "@storybook/web-components-vite": "^10.3.6",
     "@testing-library/dom": "^10.4.1",
     "@typescript-eslint/parser": "^8.67.0",
-    "@vitest/coverage-v8": "^4.1.5",
-    "@vitest/ui": "^4.1.5",
-    "astro": "^7.2.1",
+    "@vitest/coverage-v8": "^5.0.1",
+    "@vitest/ui": "^5.0.1",
+    "astro": "^7.3.3",
     "axe-core": "^4.11.4",
     "eslint": "^10.3.0",
     "eslint-plugin-astro": "^3.1.0",
@@ -180,6 +180,6 @@
     "style-dictionary": "^5.4.0",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.67.0",
-    "vitest": "^4.1.5"
+    "vitest": "^5.0.1"
   }
 }
