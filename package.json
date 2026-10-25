@@ -173,7 +173,7 @@
     "eslint": "^10.3.0",
     "eslint-plugin-astro": "^3.1.0",
     "gsap": "^3.15.0",
-    "happy-dom": "^20.9.0",
+    "happy-dom": "^21.0.4",
     "lit": "^3.3.2",
     "playwright": "^1.61.1",
     "storybook": "^10.3.6",
