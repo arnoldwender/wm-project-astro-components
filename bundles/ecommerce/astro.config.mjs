@@ -28,7 +28,7 @@ export default defineConfig({
     }),
   ],
   image: {
-    domains: ['cdn.shopify.com', 'images.unsplash.com'],
+    domains: ['cdn.shopify.com'],
     remotePatterns: [{ protocol: 'https' }],
   },
   prefetch: {

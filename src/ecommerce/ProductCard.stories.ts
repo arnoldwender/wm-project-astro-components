@@ -5,6 +5,18 @@
 import type { Meta, StoryObj } from '@storybook/web-components';
 import { html } from 'lit';
 
+// Inline SVG product image: the published playbook must not hotlink stock photos.
+const productPlaceholder = (label: string): string =>
+  'data:image/svg+xml,' +
+  encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">` +
+      `<rect width="400" height="400" fill="#e2e8f0"/>` +
+      `<rect x="120" y="110" width="160" height="130" rx="16" fill="#cbd5e1"/>` +
+      `<circle cx="165" cy="155" r="16" fill="#94a3b8"/>` +
+      `<path d="M130 230l45-45 30 30 25-25 40 40z" fill="#94a3b8"/>` +
+      `<text x="200" y="290" text-anchor="middle" font-family="system-ui" font-size="20" fill="#475569">${label}</text></svg>`
+  );
+
 const meta: Meta = {
   title: 'E-commerce/ProductCard',
   tags: ['autodocs'],
@@ -217,7 +229,7 @@ export const Default: Story = {
     id: 'prod-001',
     name: 'Premium Wireless Kopfhörer',
     price: 149.99,
-    image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&h=400&fit=crop',
+    image: productPlaceholder('Kopfhörer'),
     showWishlist: true,
     showQuickView: true,
     rating: 4.5,
@@ -232,7 +244,7 @@ export const OnSale: Story = {
     name: 'Designer Sonnenbrille',
     price: 79.99,
     originalPrice: 129.99,
-    image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=400&h=400&fit=crop',
+    image: productPlaceholder('Sonnenbrille'),
     badge: 'Sale',
     showWishlist: true,
     showQuickView: true,
@@ -247,7 +259,7 @@ export const NewProduct: Story = {
     id: 'prod-003',
     name: 'Smart Watch Pro',
     price: 299.99,
-    image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&h=400&fit=crop',
+    image: productPlaceholder('Smart Watch'),
     badge: 'Neu',
     showWishlist: true,
     showQuickView: true,
@@ -262,7 +274,7 @@ export const Minimal: Story = {
     id: 'prod-004',
     name: 'Minimalist Uhr',
     price: 199.99,
-    image: 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=400&h=400&fit=crop',
+    image: productPlaceholder('Uhr'),
     showWishlist: false,
     showQuickView: false,
   },
