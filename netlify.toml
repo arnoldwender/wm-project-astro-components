@@ -24,3 +24,21 @@
 [build.environment]
   # package.json engines verlangt >=22.12.0
   NODE_VERSION = "24"
+
+# /datenschutz lleva a la sección Datenschutz de /impressum.html (mismo dominio, no es un 301 cross-domain).
+# Por qué (06.11.2026): la Datenschutzerklärung vive como sección de impressum.html; quien la busca en su
+# ruta habitual recibía 404 (lo marcó la auditoría legal de Netlify de ese día como «sin Datenschutz»).
+[[redirects]]
+  from = "/datenschutz"
+  to = "/impressum.html#datenschutz"
+  status = 301
+
+[[redirects]]
+  from = "/datenschutz/"
+  to = "/impressum.html#datenschutz"
+  status = 301
+
+[[redirects]]
+  from = "/datenschutz.html"
+  to = "/impressum.html#datenschutz"
+  status = 301
