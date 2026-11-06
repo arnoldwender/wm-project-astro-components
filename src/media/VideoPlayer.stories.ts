@@ -5,6 +5,17 @@
 import type { Meta, StoryObj } from '@storybook/web-components';
 import { html } from 'lit';
 
+// Inline SVG poster: the published playbook must not hotlink stock photos (same pattern as LiteYouTubeEmbed).
+const posterPlaceholder = (label: string): string =>
+  'data:image/svg+xml,' +
+  encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450">` +
+      `<defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1">` +
+      `<stop offset="0" stop-color="#0369a1"/><stop offset="1" stop-color="#0f172a"/></linearGradient></defs>` +
+      `<rect width="800" height="450" fill="url(#g)"/>` +
+      `<text x="400" y="235" text-anchor="middle" font-family="system-ui" font-size="22" fill="#cbd5e1">${label}</text></svg>`
+  );
+
 const meta: Meta = {
   title: 'Media/VideoPlayer',
   tags: ['autodocs'],
@@ -266,7 +277,7 @@ export const VimeoWithConsent: Story = {
     provider: 'vimeo',
     videoId: '76979871',
     title: 'Vimeo Sample Video',
-    poster: 'https://images.unsplash.com/photo-1536240478700-b869070f9279?w=800&h=450&fit=crop',
+    poster: posterPlaceholder('Vimeo Video'),
     aspectRatio: '16/9',
     requireConsent: true,
     consentMessage: 'Dieses Video wird von Vimeo bereitgestellt. Durch Abspielen stimmen Sie der Datenverarbeitung zu.',
@@ -280,7 +291,7 @@ export const NativeVideo: Story = {
   args: {
     provider: 'native',
     src: 'https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm',
-    poster: 'https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=800&h=450&fit=crop',
+    poster: posterPlaceholder('Blumen Video'),
     title: 'Blumen Video',
     aspectRatio: '16/9',
     controls: true,

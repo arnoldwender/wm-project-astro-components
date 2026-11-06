@@ -92,7 +92,7 @@ i18n: {
 ```javascript
 // astro.config.mjs
 image: {
-  domains: ['tu-cdn.com', 'images.unsplash.com'],
+  domains: ['tu-cdn.com'],
 }
 ```
 

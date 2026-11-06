@@ -33,7 +33,7 @@ export default defineConfig({
     },
   },
   image: {
-    domains: ['images.unsplash.com', 'cdn.your-blog.com'],
+    domains: ['cdn.your-blog.com'],
     remotePatterns: [{ protocol: 'https' }],
   },
   prefetch: {
