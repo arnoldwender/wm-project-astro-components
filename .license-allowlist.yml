@@ -1,0 +1,21 @@
+# TEMPORAL — relicencia a MIT de @wendermedia/astro-components 4.2.0.
+# Decisión de Arnold Wender, 2026-11-19 (único autor del código: git log).
+# El gate de licencias lee la licencia declarada en HEAD; hasta que el commit
+# de la relicencia esté en HEAD, el repo se declara propietario y el gate
+# bloquea, con razón. Este fichero cubre SOLO los ficheros de ese commit y se
+# borra en el commit siguiente, cuando HEAD ya declara MIT y el gate exime el
+# repo por sí solo.
+LICENSE
+NOTICE
+package.json
+README.md
+CONTRIBUTING.md
+CONTRIBUTOR-REPORT.md
+public/llms.txt
+src/*
+scripts/storybook-static-landing.mjs
+tests/*
+testing/*
+index.ts
+eslint.config.mjs
+.changeset/*

@@ -1,7 +1,7 @@
 /**
  * PrivacyCheckbox Stories — WenderMedia Astro Components
  *
- * @copyright 2007-2026 Arnold Wender · Wender Media. All Rights Reserved. License: LicenseRef-Wender-Media-Source-1.0
+ * @copyright 2007-2026 Arnold Wender · Wender Media. License: MIT
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */
 

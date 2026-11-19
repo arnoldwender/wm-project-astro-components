@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-Wender%20Media%20Source%201.0-blue.svg" alt="Wender Media Source License v1.0" /></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="MIT License" /></a>
   <img src="https://img.shields.io/badge/Astro-6%20%7C%207-BC52EE?logo=astro&logoColor=white" alt="Astro 6 | 7" />
   <img src="https://img.shields.io/badge/Tailwind-4.x-06B6D4?logo=tailwindcss&logoColor=white" alt="Tailwind 4.x" />
   <img src="https://img.shields.io/badge/Node-22.12%2B-339933?logo=nodedotjs&logoColor=white" alt="Node 22.12+" />
@@ -49,11 +49,11 @@
 
 - **Astro 6 & 7** &mdash; runs on both majors (peer `astro@^6.0.0 || ^7.0.0`). Astro 7 brings the Rust compiler (default & only) and Vite 8; every component compiles clean on both.
 - **Tailwind 4** in templates via `@tailwindcss/vite` (`@astrojs/tailwind` was removed because it is EOL on Astro 6).
-- **Wender Media Source License v1.0** &mdash; source-available, free for commercial and non-commercial use, with an attribution recommendation (see [Attribution](#attribution-recommended)).
+- **MIT License since 4.2.0** &mdash; versions 3.0.0 to 4.1.2 were released under the Wender Media Source License v1.0 (see [License](#license)).
 - **Storybook 10** as the internal documentation runner.
 - **Node 22.12+** required.
 
-If you need the previous Astro 4/5 + MIT version, pin `@wendermedia/astro-components@2.1.0` &mdash; that release stays on npm.
+If you need Astro 4 or 5, pin `@wendermedia/astro-components@2.1.0` &mdash; that release stays on npm.
 
 See [docs/MIGRATION-2.x-to-3.0.md](./docs/MIGRATION-2.x-to-3.0.md) for the full upgrade guide.
 
@@ -429,7 +429,7 @@ We welcome contributions. Please read our [Contributing Guide](./CONTRIBUTING.md
 5. Add a changeset: `npm run changeset`
 6. Submit a Pull Request
 
-By submitting a Contribution you agree to license it under the [Wender Media Source License v1.0](./LICENSE) (see Section 7 of the License).
+By submitting a Contribution you agree to license it under the [MIT License](./LICENSE).
 
 Please also review our [Code of Conduct](./CODE_OF_CONDUCT.md).
 
@@ -457,24 +457,23 @@ See [CHANGELOG.md](./CHANGELOG.md) for release history.
 
 ## License
 
-This project is licensed under the [Wender Media Source License v1.0](./LICENSE) (SPDX: `LicenseRef-Wender-Media-Source-1.0`).
+This project is licensed under the [MIT License](./LICENSE) (SPDX: `MIT`).
 
-The license is source-available proprietary with weak copyleft. In short:
+Copyright (c) 2007-2026 Arnold Wender · [Wender Media](https://www.wendermedia.com).
 
-- Free commercial and non-commercial use, no tier limits.
-- You may modify, build with, and redistribute the Software.
-- Redistributions and Derivative Works must keep the LICENSE/NOTICE files and copyright headers, and must remain under this same License (no relicensing under MIT/Apache/BSD/etc.).
-- Attribution to Wender Media is recommended but not required &mdash; see below.
+Use it, modify it and ship it in commercial and non-commercial projects. The one condition: keep the copyright notice and the license text in copies of the code.
 
-For the full legal text, including the patent grant, termination conditions, and definitions, read [LICENSE](./LICENSE) and [NOTICE](./NOTICE).
+| Versions | License |
+|----------|---------|
+| 1.0.0 &ndash; 2.1.0 | MIT |
+| 3.0.0 &ndash; 4.1.2 | Wender Media Source License v1.0 |
+| 4.2.0 and later | MIT |
 
-If you need an MIT-licensed version, pin `@wendermedia/astro-components@2.1.0` &mdash; that release stays on npm under MIT.
-
-Copyright (c) 2007-2026 Arnold Wender · [Wender Media](https://www.wendermedia.com). All Rights Reserved.
+Every published version keeps the license it was released under. The record of the change is in [CONTRIBUTOR-REPORT.md](./CONTRIBUTOR-REPORT.md) and [NOTICE](./NOTICE). The names "Wender Media" and "Arnold Wender" and the `@wendermedia` scope are not covered by the license (see the trademark notice in [NOTICE](./NOTICE)).
 
 ### Attribution (Recommended)
 
-Attribution is **not required** by the license, but it is appreciated. If you build with this library, consider including the badge below in your README:
+Beyond keeping the copyright notice in copies of the code, attribution is **not required**, but it is appreciated. If you build with this library, consider including the badge below in your README:
 
 ```markdown
 [![Built with @wendermedia/astro-components](https://img.shields.io/badge/built%20with-wendermedia-blue)](https://github.com/arnoldwender/wm-project-astro-components)

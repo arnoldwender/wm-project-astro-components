@@ -3,8 +3,8 @@
  *
  * Flat config for ESLint 9+ with Astro and TypeScript support.
  *
- * @copyright 2007-2026 Arnold Wender · Wender Media. All Rights Reserved.
- * @license LicenseRef-Wender-Media-Source-1.0
+ * @copyright 2007-2026 Arnold Wender · Wender Media
+ * @license MIT
  */
 
 import js from '@eslint/js';

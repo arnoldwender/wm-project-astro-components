@@ -67,6 +67,7 @@
     "tokens",
     "testing",
     "docs",
+    "!docs/HANDOFF-*",
     "index.ts",
     "LICENSE",
     "NOTICE"
@@ -112,7 +113,7 @@
     "headless-cms"
   ],
   "author": "Arnold Wender <info@wendermedia.com> (https://www.wendermedia.com)",
-  "license": "LicenseRef-Wender-Media-Source-1.0",
+  "license": "MIT",
   "homepage": "https://github.com/arnoldwender/wm-project-astro-components#readme",
   "repository": {
     "type": "git",

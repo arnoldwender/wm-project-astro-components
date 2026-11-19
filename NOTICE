@@ -2,17 +2,13 @@
 ==============================
 
 Copyright (c) 2007-2026 Arnold Wender · Wender Media
-All Rights Reserved.
 
-This product is licensed under the Wender Media Source License,
-Version 1.0 (the "License"). You may not use this product except in
-compliance with the License. A copy of the License is included in the
-file `LICENSE` distributed with this software, and may also be obtained
-at:
+This product is licensed under the MIT License. The full text is in the
+file `LICENSE` distributed with this software, and at:
 
     https://github.com/arnoldwender/wm-project-astro-components/blob/main/LICENSE
 
-SPDX-License-Identifier: LicenseRef-Wender-Media-Source-1.0
+SPDX-License-Identifier: MIT
 
 
 -----------------------------------------------------------------------
@@ -28,24 +24,35 @@ This product was created and is maintained by:
     https://www.wendermedia.com
 
 The component library originated from work performed by Wender Media
-across more than 150 production websites and represents proprietary
-patterns developed since 2007. The version 2.x series of this package
-was distributed under the MIT License and remains available on the npm
-registry under the version tag `2.1.0`. Beginning with version 3.0.0,
-this product is distributed under the Wender Media Source License,
-Version 1.0.
+across more than 150 production websites since 2007.
+
+
+-----------------------------------------------------------------------
+License History
+-----------------------------------------------------------------------
+
+Every published version keeps the license it was released under.
+
+    1.0.0 - 2.1.0     MIT License
+    3.0.0 - 4.1.2     Wender Media Source License, Version 1.0
+                      (LicenseRef-Wender-Media-Source-1.0)
+    4.2.0 and later   MIT License
+
+The change back to the MIT License was decided on 2026-11-19 by Arnold
+Wender, the sole author and copyright holder of the code. The full
+record is in `CONTRIBUTOR-REPORT.md`.
 
 
 -----------------------------------------------------------------------
 Trademark Notice
 -----------------------------------------------------------------------
 
-"Wender Media", "WenderMedia", "Arnold Wender" and the
-`@wendermedia` npm scope are trade names and service marks of
-Arnold Wender. The License does not grant permission to use these
-marks except as required to identify the origin of unmodified copies
-of this product, or as expressly permitted in Section 6 (Recommended
-Attribution) of the License.
+"Wender Media", "WenderMedia", "Arnold Wender" and the `@wendermedia`
+npm scope are trade names and service marks of Arnold Wender. The MIT
+License covers the copyright in the Software; it does not grant any
+right to use these marks. Do not use them in the name of a derivative
+work, or in a way that suggests endorsement by or affiliation with
+Arnold Wender or Wender Media, without prior written permission.
 
 
 -----------------------------------------------------------------------
@@ -53,39 +60,27 @@ Third-Party Components
 -----------------------------------------------------------------------
 
 This product depends on third-party packages, each distributed under
-its own license. The complete list of third-party dependencies is
-available in `package.json` (sections `dependencies`,
-`peerDependencies`, `optionalDependencies`, and `devDependencies`)
-and is reproduced in compiled form in `package-lock.json`.
-
-Notable third-party dependencies include the Astro framework
-(astro@^6), the Tailwind CSS framework (tailwindcss@^4), and the
-official Astro integrations under the `@astrojs/*` namespace, all of
-which are distributed under their respective open-source licenses.
-Use of those packages is governed by their own license terms, not by
-this License.
+its own license. The complete list is in `package.json` (sections
+`dependencies`, `peerDependencies`, `optionalDependencies` and
+`devDependencies`) and, resolved, in `package-lock.json`. Notable
+dependencies include the Astro framework (astro@^6 || ^7), the
+Tailwind CSS framework (tailwindcss@^4) and the official Astro
+integrations under the `@astrojs/*` namespace. Use of those packages is
+governed by their own license terms.
 
 
 -----------------------------------------------------------------------
 Attribution (Recommended, Not Required)
 -----------------------------------------------------------------------
 
-If you build with this library and would like to acknowledge the
-authors, the following attribution is appreciated but not required:
+The MIT License requires that the copyright notice and the permission
+notice stay in copies of the code. A visible credit in your project is
+not required, but it is appreciated:
 
     [![Built with @wendermedia/astro-components](https://img.shields.io/badge/built%20with-wendermedia-blue)](https://github.com/arnoldwender/wm-project-astro-components)
 
 Or simply:
 
     Components by Wender Media (https://www.wendermedia.com)
-
-
------------------------------------------------------------------------
-Disclaimer
------------------------------------------------------------------------
-
-THIS PRODUCT IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-EXPRESS OR IMPLIED. SEE THE LICENSE FOR THE FULL DISCLAIMER OF
-WARRANTY AND LIMITATION OF LIABILITY.
 
 End of NOTICE.

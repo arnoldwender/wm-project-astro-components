@@ -19,7 +19,7 @@
  * Usage:  node scripts/storybook-static-landing.mjs [storybook-static]   (after `npm run build-storybook`)
  * Exit:   0 written · 1 a check failed
  *
- * @copyright 2007-2026 Wender Media - Arnold Wender. Wender Media Source License v1.0.
+ * @copyright 2007-2026 Arnold Wender · Wender Media. License: MIT
  */
 
 import { readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
@@ -135,7 +135,7 @@ export function injectLanding(html, { components, categories }) {
     '<noscript><main id="playbook">',
     '<h1>@wendermedia/astro-components · Storybook</h1>',
     `<p>This is the Storybook of @wendermedia/astro-components, a component library for Astro 6 and 7 by Wender Media in Halle (Saale), Germany: ${summary}, each with live previews, props and usage examples. The Storybook needs JavaScript; without it, this page lists what the library contains.</p>`,
-    '<p>Install it with <code>npm install @wendermedia/astro-components</code>. The code is source-available under the Wender Media Source License v1.0.</p>',
+    '<p>Install it with <code>npm install @wendermedia/astro-components</code>. The code is released under the MIT License.</p>',
     `<h2>Categories</h2><ul>${items}</ul>`,
     '<h2>More</h2><ul>',
     '<li><a href="/llms.txt">llms.txt</a>: a short summary of the library for AI search engines</li>',
