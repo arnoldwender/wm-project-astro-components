@@ -1,5 +1,69 @@
 # Changelog
 
+## 4.2.0
+
+### Minor Changes
+
+- [`700e63f`](https://github.com/arnoldwender/wm-project-astro-components/commit/700e63fa7325684ad6e50d1452a8e3e5400081b4) Thanks [@arnoldwender](https://github.com/arnoldwender)! - Header: new optional `menuLabel` prop for the menu button
+
+  The screen-reader label of the mobile menu button was hard-wired to
+  "Open menu". On a page with `lang="de"` a screen reader then read English
+  inside a German document (WCAG 3.1.2). `menuLabel` sets it; the default stays
+  "Open menu", so existing pages render the same.
+
+- [`700e63f`](https://github.com/arnoldwender/wm-project-astro-components/commit/700e63fa7325684ad6e50d1452a8e3e5400081b4) Thanks [@arnoldwender](https://github.com/arnoldwender)! - License: MIT from this version on
+
+  `@wendermedia/astro-components` is released under the MIT License again,
+  starting with 4.2.0. Versions 3.0.0 to 4.1.2 keep the Wender Media Source
+  License v1.0 they were published under; 2.1.0 and earlier stay MIT.
+
+  The decision was made by Arnold Wender, the sole author and copyright holder
+  of the code, to align the library with the Astro ecosystem, where the framework
+  and its official integrations are MIT-licensed. Nothing in the API changes.
+
+  `LICENSE` now carries the MIT text, `NOTICE` the license history and the
+  trademark notice for the Wender Media names and the `@wendermedia` scope, and
+  every source header says `License: MIT`. The full record is in
+  `CONTRIBUTOR-REPORT.md`.
+
+- [#50](https://github.com/arnoldwender/wm-project-astro-components/pull/50) [`4219c5f`](https://github.com/arnoldwender/wm-project-astro-components/commit/4219c5f506bea502ed442cbc9c393de10a5eec54) Thanks [@arnoldwender](https://github.com/arnoldwender)! - SEO: die vier `<meta http-equiv>` Security-Header entfernt
+
+  Sie schuetzten nichts. Gemessen, nicht vermutet: eine Seite mit
+  `<meta http-equiv="X-Frame-Options" content="DENY">` laesst sich weiterhin in
+  einen `<iframe>` laden, und das eltern-Dokument kann ihr DOM lesen. Chrome
+  protokolliert dazu bei jedem Aufruf einen Fehler.
+
+  Die anderen drei waren stiller und darum schlimmer: `X-Content-Type-Options`,
+  `X-XSS-Protection` und `Referrer-Policy` werden als `http-equiv` kommentarlos
+  ignoriert — kein Fehler, keine Warnung, keine Wirkung. `http-equiv` kennt nur
+  sieben Pragmas, und keiner dieser vier Namen gehoert dazu.
+
+  Ein `<meta name="referrer">` waere die eine gueltige Form gewesen, kommt aber
+  bewusst NICHT zurueck: gemessen ueberschreibt sie den `Referrer-Policy`-Header
+  der konsumierenden Seite.
+
+  Fuer Konsumenten aendert sich nichts an der tatsaechlichen Sicherheit — es gab
+  keine. Security-Header gehoeren an den Edge; die Vorlagen unter
+  `templates/deployment/` setzen sie korrekt.
+
+### Patch Changes
+
+- [`700e63f`](https://github.com/arnoldwender/wm-project-astro-components/commit/700e63fa7325684ad6e50d1452a8e3e5400081b4) Thanks [@arnoldwender](https://github.com/arnoldwender)! - JSON-LD: `<` is escaped when structured data is serialized
+
+  `JSON.stringify` does not escape `<`. A value that contained a closing script
+  tag (an article that quotes code is enough) ended the
+  `<script type="application/ld+json">` block early: the JSON was cut off, the
+  rich result was lost and the rest of the value was rendered as visible text.
+
+  All 16 components that print JSON-LD (`SEO`, `JsonLD`, `RichSnippets`,
+  `FAQSchema`, `HowToSchema`, `BreadcrumbSchema`, `ServiceSchema`,
+  `seo/Breadcrumbs`, `navigation/Breadcrumbs`, `Pagination`, `FAQ`,
+  `PricingTable`, `Testimonials`, `ProductCard`, `ImageGallery`,
+  `RelatedContent`) now serialize through
+  `serializeJsonLd` in `src/lib/jsonld.ts`, which writes `<`, U+2028 and U+2029
+  as unicode escapes. The decoded value is the same string, so search engines
+  read exactly what the author wrote.
+
 ## 4.1.2
 
 ### Patch Changes
