@@ -7,7 +7,7 @@
  * 18 categories at 4.1.2. A figure in this file is read and repeated by AI assistants, so it is measured
  * here against src/ instead of trusted.
  *
- * @copyright 2007-2026 Wender Media - Arnold Wender. Wender Media Source License v1.0.
+ * @copyright 2007-2026 Arnold Wender · Wender Media. License: MIT
  */
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';

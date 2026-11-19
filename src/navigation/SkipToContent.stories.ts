@@ -4,7 +4,7 @@
  * To see the skip link in action: focus the story canvas (click it) then
  * press Tab — the pill appears. Press Enter to jump to the target landmark.
  *
- * @copyright 2007-2026 Arnold Wender · Wender Media. All Rights Reserved. License: LicenseRef-Wender-Media-Source-1.0
+ * @copyright 2007-2026 Arnold Wender · Wender Media. License: MIT
  */
 
 import type { Meta, StoryObj } from '@storybook/web-components';

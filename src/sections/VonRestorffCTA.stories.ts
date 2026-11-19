@@ -1,6 +1,6 @@
 /**
  * VonRestorffCTA Stories — WenderMedia Astro Components
- * @copyright 2007-2026 Arnold Wender · Wender Media. All Rights Reserved.
+ * @copyright 2007-2026 Arnold Wender · Wender Media
  */
 
 import type { Meta, StoryObj } from '@storybook/web-components';

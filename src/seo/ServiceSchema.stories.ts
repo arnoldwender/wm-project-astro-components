@@ -5,7 +5,7 @@
  * visible DOM, each story renders a documentation preview showing the JSON-LD object
  * the component would emit for the given args.
  *
- * @copyright 2007-2026 Arnold Wender · Wender Media. All Rights Reserved. License: LicenseRef-Wender-Media-Source-1.0
+ * @copyright 2007-2026 Arnold Wender · Wender Media. License: MIT
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */
 

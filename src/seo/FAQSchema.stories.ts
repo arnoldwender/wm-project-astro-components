@@ -6,7 +6,7 @@
  * (no visible DOM), each story renders a <pre> block showing the JSON-LD
  * that the component would produce for the given args.
  *
- * @copyright 2007-2026 Arnold Wender · Wender Media. All Rights Reserved. License: LicenseRef-Wender-Media-Source-1.0
+ * @copyright 2007-2026 Arnold Wender · Wender Media. License: MIT
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */
 

@@ -4,7 +4,7 @@
  * Storybook stories for the FontSizeControls a11y toolbar component.
  * Rendered in lit-html (does NOT import the .astro file).
  *
- * @copyright 2007-2026 Arnold Wender · Wender Media. All Rights Reserved. License: LicenseRef-Wender-Media-Source-1.0
+ * @copyright 2007-2026 Arnold Wender · Wender Media. License: MIT
  * @see https://github.com/arnoldwender/wm-project-astro-components
  */
 

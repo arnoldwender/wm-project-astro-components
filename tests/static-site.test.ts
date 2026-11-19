@@ -7,7 +7,7 @@
  * an empty shell of two words. src/Legal.mdx also claimed attribution was required, which the LICENSE
  * (section 6) denies.
  *
- * @copyright 2007-2026 Wender Media - Arnold Wender. Wender Media Source License v1.0.
+ * @copyright 2007-2026 Arnold Wender · Wender Media. License: MIT
  */
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
